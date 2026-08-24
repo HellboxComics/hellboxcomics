@@ -17,11 +17,7 @@
             HELLBOX COMICS
         </a>
 
-        <button
-            class="wallet-button"
-            id="walletButton"
-            type="button"
-        >
+        <button class="wallet-button">
             CONNECT WALLET
         </button>
 
@@ -88,17 +84,6 @@
 
         <!-- =========================================
              ARCHIVE
-             
-             STRUCTURE:
-
-             TITLE
-                 EDITION 001
-                 EDITION 002
-                 EDITION 003
-
-             TITLE
-                 EDITION 001
-                 EDITION 002
         ========================================== -->
 
         <section
@@ -120,33 +105,35 @@
 
 
             <!--
-                TITLES WILL BE INSERTED HERE.
+                =====================================
+                TITLE / EDITION DATA STRUCTURE
+                =====================================
 
-                Each title will contain its own editions.
-
-                Example:
-
-                TITLE
-                    Edition 001
-                    Edition 002
-                    Edition 003
+                Future structure:
 
                 TITLE
-                    Edition 001
-                    Edition 002
+                    title information
+
+                    EDITIONS
+                        Edition 001
+                        Edition 002
+                        Edition 003
+
+                TITLE
+                    title information
+
+                    EDITIONS
+                        Edition 001
+                        Edition 002
+
+                The archive renderer below is already
+                prepared for this structure.
             -->
 
-            <div class="archive-empty">
-
-                <p class="archive-empty-label">
-                    NO TITLES YET.
-                </p>
-
-                <p class="archive-empty-description">
-                    The first title has not been pressed.
-                </p>
-
-            </div>
+            <div
+                id="archive-list"
+                class="archive-list"
+            ></div>
 
         </section>
 
@@ -199,177 +186,265 @@
     </footer>
 
 
-    <!-- =========================================
-         JAVASCRIPT
-    ========================================== -->
-
     <script>
 
-        /* -----------------------------------------
+        /* =========================================
+           HELLBOX DATA
+        ==========================================
+
+           This is intentionally empty right now.
+
+           When the first comic title exists, this
+           becomes the source that feeds the archive.
+
+           Later this data will be replaced by the
+           actual Hellbox indexer / blockchain data.
+
+        ========================================== */
+
+        const hellboxTitles = [];
+
+
+        /* =========================================
+           ARCHIVE RENDERER
+        ========================================== */
+
+        function renderArchive() {
+
+            const archive = document.getElementById("archive-list");
+
+            archive.innerHTML = "";
+
+
+            /*
+             * NO TITLES
+             */
+
+            if (hellboxTitles.length === 0) {
+
+                const empty = document.createElement("div");
+
+                empty.className = "archive-empty";
+
+
+                const label = document.createElement("p");
+
+                label.className = "archive-empty-label";
+
+                label.textContent = "NO TITLES YET.";
+
+
+                const description = document.createElement("p");
+
+                description.className = "archive-empty-description";
+
+                description.textContent =
+                    "The first title has not been pressed.";
+
+
+                empty.appendChild(label);
+
+                empty.appendChild(description);
+
+                archive.appendChild(empty);
+
+                return;
+            }
+
+
+            /*
+             * TITLES
+             */
+
+            hellboxTitles.forEach(title => {
+
+                const titleBlock =
+                    document.createElement("article");
+
+                titleBlock.className = "archive-title";
+
+
+                const titleHeader =
+                    document.createElement("div");
+
+                titleHeader.className = "archive-title-header";
+
+
+                const titleLabel =
+                    document.createElement("p");
+
+                titleLabel.className = "archive-title-label";
+
+                titleLabel.textContent = "TITLE";
+
+
+                const titleName =
+                    document.createElement("h3");
+
+                titleName.textContent = title.name;
+
+
+                titleHeader.appendChild(titleLabel);
+
+                titleHeader.appendChild(titleName);
+
+
+                /*
+                 * EDITIONS
+                 */
+
+                const editions =
+                    document.createElement("div");
+
+                editions.className = "archive-editions";
+
+
+                const editionsLabel =
+                    document.createElement("p");
+
+                editionsLabel.className =
+                    "archive-editions-label";
+
+                editionsLabel.textContent = "EDITIONS";
+
+
+                editions.appendChild(editionsLabel);
+
+
+                /*
+                 * TITLE HAS NO EDITIONS
+                 */
+
+                if (
+                    !title.editions ||
+                    title.editions.length === 0
+                ) {
+
+                    const noEditions =
+                        document.createElement("p");
+
+                    noEditions.className =
+                        "archive-no-editions";
+
+                    noEditions.textContent =
+                        "NO EDITIONS YET.";
+
+                    editions.appendChild(noEditions);
+
+                }
+
+
+                /*
+                 * RENDER EDITIONS
+                 */
+
+                if (
+                    title.editions &&
+                    title.editions.length > 0
+                ) {
+
+                    title.editions.forEach(edition => {
+
+                        const editionRow =
+                            document.createElement("a");
+
+                        editionRow.className =
+                            "archive-edition";
+
+                        editionRow.href =
+                            edition.url || "#";
+
+
+                        const editionNumber =
+                            document.createElement("span");
+
+                        editionNumber.className =
+                            "edition-number";
+
+                        editionNumber.textContent =
+                            edition.number;
+
+
+                        const editionName =
+                            document.createElement("span");
+
+                        editionName.className =
+                            "edition-name";
+
+                        editionName.textContent =
+                            edition.name;
+
+
+                        editionRow.appendChild(
+                            editionNumber
+                        );
+
+                        editionRow.appendChild(
+                            editionName
+                        );
+
+
+                        editions.appendChild(
+                            editionRow
+                        );
+
+                    });
+
+                }
+
+
+                titleBlock.appendChild(titleHeader);
+
+                titleBlock.appendChild(editions);
+
+                archive.appendChild(titleBlock);
+
+            });
+
+        }
+
+
+        /* =========================================
+           INITIALIZE
+        ========================================== */
+
+        renderArchive();
+
+
+        /* =========================================
            SMOOTH NAVIGATION
-        ----------------------------------------- */
+        ========================================== */
 
         document
             .querySelectorAll('a[href^="#"]')
             .forEach(link => {
 
-                link.addEventListener("click", function(event) {
+                link.addEventListener(
+                    "click",
+                    function(event) {
 
-                    const target = document.querySelector(
-                        this.getAttribute("href")
-                    );
+                        const target =
+                            document.querySelector(
+                                this.getAttribute("href")
+                            );
 
-                    if (!target) {
-                        return;
+
+                        if (target) {
+
+                            event.preventDefault();
+
+
+                            target.scrollIntoView({
+                                behavior: "smooth",
+                                block: "start"
+                            });
+
+                        }
+
                     }
-
-                    event.preventDefault();
-
-                    target.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
-                    });
-
-                });
+                );
 
             });
-
-
-        /* -----------------------------------------
-           WALLET CONNECTION
-        ----------------------------------------- */
-
-        const walletButton =
-            document.getElementById("walletButton");
-
-        let connectedAccount = null;
-
-
-        function shortenAddress(address) {
-
-            return (
-                address.slice(0, 6) +
-                "..." +
-                address.slice(-4)
-            );
-
-        }
-
-
-        function setWalletConnected(address) {
-
-            connectedAccount = address;
-
-            walletButton.textContent =
-                shortenAddress(address);
-
-            walletButton.classList.add("connected");
-
-        }
-
-
-        function setWalletDisconnected() {
-
-            connectedAccount = null;
-
-            walletButton.textContent =
-                "CONNECT WALLET";
-
-            walletButton.classList.remove("connected");
-
-        }
-
-
-        async function connectWallet() {
-
-            /*
-                Check whether a Web3 wallet exists.
-            */
-
-            if (!window.ethereum) {
-
-                alert(
-                    "No compatible Web3 wallet detected. Please install or enable a wallet."
-                );
-
-                return;
-
-            }
-
-
-            try {
-
-                /*
-                    Request permission to connect.
-                */
-
-                const accounts =
-                    await window.ethereum.request({
-                        method: "eth_requestAccounts"
-                    });
-
-
-                /*
-                    Wallet successfully connected.
-                */
-
-                if (accounts && accounts.length > 0) {
-
-                    setWalletConnected(accounts[0]);
-
-                }
-
-            } catch (error) {
-
-                /*
-                    User rejected the connection
-                    or the wallet returned an error.
-                */
-
-                console.error(
-                    "Wallet connection failed:",
-                    error
-                );
-
-            }
-
-        }
-
-
-        walletButton.addEventListener(
-            "click",
-            connectWallet
-        );
-
-
-        /* -----------------------------------------
-           HANDLE ACCOUNT CHANGES
-        ----------------------------------------- */
-
-        if (window.ethereum) {
-
-            window.ethereum.on(
-                "accountsChanged",
-                function(accounts) {
-
-                    if (
-                        !accounts ||
-                        accounts.length === 0
-                    ) {
-
-                        setWalletDisconnected();
-
-                        return;
-
-                    }
-
-
-                    setWalletConnected(accounts[0]);
-
-                }
-            );
-
-        }
 
     </script>
 
