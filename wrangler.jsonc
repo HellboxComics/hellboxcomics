@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "hellboxcomics",
+  "compatibility_date": "2026-08-24",
+
+  "assets": {
+    "directory": "."
+  },
+
+  "r2_buckets": [
+    {
+      "binding": "PUBLIC_BUCKET",
+      "bucket_name": "hellbox-public"
+    }
+  ]
+}
