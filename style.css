@@ -2,6 +2,10 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 html,
 body {
     margin: 0;
@@ -14,7 +18,62 @@ body {
     background: #050505;
     color: #f2f2f2;
     font-family: Arial, Helvetica, sans-serif;
+    -webkit-font-smoothing: antialiased;
 }
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+a:hover {
+    opacity: 0.55;
+}
+
+/* =========================
+   NAVIGATION
+   ========================= */
+
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    padding: 0 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    z-index: 100;
+}
+
+nav a {
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+nav button {
+    background: #f2f2f2;
+    color: #050505;
+    border: 0;
+    padding: 10px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+nav button:hover {
+    background: #bdbdbd;
+}
+
+/* =========================
+   HERO
+   ========================= */
 
 .hellbox {
     min-height: 100vh;
@@ -23,7 +82,8 @@ body {
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 40px;
+
+    padding: 100px 40px 80px;
 }
 
 .eyebrow {
@@ -47,4 +107,170 @@ h1 {
     letter-spacing: 0.25em;
     text-transform: uppercase;
     opacity: 0.35;
+}
+
+/* =========================
+   SITE LINKS
+   ========================= */
+
+.hellbox + * {
+    margin-top: 0;
+}
+
+body > main:not(.hellbox) {
+    width: 100%;
+}
+
+main section,
+section {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 140px 6vw;
+}
+
+section h2 {
+    margin: 0 0 30px;
+    font-size: clamp(36px, 6vw, 90px);
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+}
+
+section p {
+    max-width: 650px;
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.6;
+    opacity: 0.65;
+}
+
+/* =========================
+   SECTION LABELS
+   ========================= */
+
+.section-label {
+    margin: 0 0 25px;
+    font-size: 11px;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    opacity: 0.4;
+}
+
+/* =========================
+   FEATURE / NAV LINKS
+   ========================= */
+
+.site-links {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-top: 60px;
+}
+
+.site-links a {
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    padding-bottom: 8px;
+}
+
+/* =========================
+   ARCHIVE
+   ========================= */
+
+#archive {
+    border-top: 1px solid rgba(255,255,255,0.12);
+}
+
+#archive .empty {
+    margin-top: 50px;
+    font-size: 14px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.35;
+}
+
+/* =========================
+   PRESS
+   ========================= */
+
+#press {
+    border-top: 1px solid rgba(255,255,255,0.12);
+}
+
+#press .empty {
+    margin-top: 50px;
+    font-size: 14px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.35;
+}
+
+/* =========================
+   FOOTER
+   ========================= */
+
+footer {
+    width: 100%;
+    padding: 50px 6vw;
+    border-top: 1px solid rgba(255,255,255,0.12);
+
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+
+    opacity: 0.35;
+}
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 700px) {
+
+    nav {
+        height: 60px;
+        padding: 0 20px;
+    }
+
+    nav a {
+        font-size: 10px;
+    }
+
+    .hellbox {
+        padding: 80px 20px 60px;
+    }
+
+    h1 {
+        font-size: clamp(54px, 18vw, 110px);
+    }
+
+    .eyebrow {
+        font-size: 9px;
+        letter-spacing: 0.35em;
+    }
+
+    .subline {
+        font-size: 10px;
+        margin-top: 35px;
+    }
+
+    section {
+        padding: 90px 20px;
+    }
+
+    section h2 {
+        font-size: clamp(40px, 14vw, 70px);
+    }
+
+    section p {
+        font-size: 16px;
+    }
+
+    .site-links {
+        flex-direction: column;
+        gap: 20px;
+    }
 }
