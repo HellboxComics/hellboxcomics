@@ -11,30 +11,21 @@
 
 <body>
 
-    <!-- =========================
-         NAVIGATION
-         ========================= -->
+    <header class="site-header">
+        <a href="#" class="brand">HELLBOX COMICS</a>
 
-    <nav>
-        <a href="#top">HELLBOX COMICS</a>
-
-        <button type="button" id="connect-wallet">
+        <button class="wallet-button">
             CONNECT WALLET
         </button>
-    </nav>
+    </header>
 
 
-    <!-- =========================
-         HERO
-         ========================= -->
+    <main>
 
-    <main id="top">
+        <!-- HERO -->
+        <section class="hellbox" id="top">
 
-        <section class="hellbox">
-
-            <p class="eyebrow">
-                HELLBOX COMICS
-            </p>
+            <p class="eyebrow">HELLBOX COMICS</p>
 
             <h1>
                 THE BOX<br>
@@ -48,69 +39,51 @@
         </section>
 
 
-        <!-- =========================
-             SITE NAVIGATION
-             ========================= -->
+        <!-- NAVIGATION -->
+        <nav class="main-nav">
 
-        <section class="site-navigation">
+            <a href="#archive">
+                <strong>ENTER THE HELLBOX</strong>
+                <span>The archive of what gets made inside.</span>
+            </a>
 
-            <div class="site-links">
+            <a href="#press">
+                <strong>THE PRESS</strong>
+                <span>Where new editions are released.</span>
+            </a>
 
-                <a href="#archive">
-                    <strong>ENTER THE HELLBOX</strong>
-                    <span>The archive of what gets made inside.</span>
-                </a>
-
-                <a href="#press">
-                    <strong>THE PRESS</strong>
-                    <span>Where new editions are released.</span>
-                </a>
-
-            </div>
-
-        </section>
+        </nav>
 
 
-        <!-- =========================
-             ARCHIVE
-             ========================= -->
+        <!-- ARCHIVE -->
+        <section class="content-section" id="archive">
 
-        <section id="archive">
+            <p class="section-label">THE HELLBOX</p>
 
-            <p class="section-label">
-                THE HELLBOX
-            </p>
+            <h2>THE ARCHIVE</h2>
 
-            <h2>
-                THE ARCHIVE
-            </h2>
-
-            <p class="empty">
+            <p class="section-description">
                 The box is empty.
             </p>
 
         </section>
 
 
-        <!-- =========================
-             PRESS
-             ========================= -->
+        <!-- PRESS -->
+        <section class="content-section press-section" id="press">
 
-        <section id="press">
-
-            <p class="section-label">
-                THE PRESS
-            </p>
+            <p class="section-label">THE PRESS</p>
 
             <h2>
-                NOTHING ON THE PRESS YET.
+                NOTHING ON THE PRESS<br>
+                YET.
             </h2>
 
-            <p>
+            <p class="section-description">
                 When something is ready, it will be pressed here.
             </p>
 
-            <p class="empty">
+            <p class="status">
                 NO CURRENT EDITION
             </p>
 
@@ -119,25 +92,27 @@
     </main>
 
 
-    <!-- =========================
-         FOOTER
-         ========================= -->
-
-    <footer>
-        HELLBOX COMICS &nbsp; THE BOX IS OPEN.
+    <footer class="site-footer">
+        <span>HELLBOX COMICS</span>
+        <span>THE BOX IS OPEN.</span>
     </footer>
 
 
-    <!-- =========================
-         JAVASCRIPT
-         ========================= -->
-
     <script>
-        document
-            .getElementById("connect-wallet")
-            .addEventListener("click", function () {
-                alert("Wallet connection coming soon.");
+        document.querySelectorAll('a[href^="#"]').forEach(link => {
+            link.addEventListener("click", function(event) {
+                const target = document.querySelector(this.getAttribute("href"));
+
+                if (target) {
+                    event.preventDefault();
+
+                    target.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+                }
             });
+        });
     </script>
 
 </body>
