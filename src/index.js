@@ -17,11 +17,11 @@ export default {
     }
 
     // --------------------------------------------------
-    // COMIC CATALOG
+    // PUBLIC CATALOG
     // Example:
     // /api/comics
     //
-    // This is the public catalog of comics currently
+    // This is the public catalog of publications currently
     // available on Hellbox Comics.
     // --------------------------------------------------
     if (url.pathname === "/api/comics") {
@@ -34,21 +34,22 @@ export default {
             title: "SciVive",
             status: "published",
             access: "free",
-            format: "ebook",
+            content_type: "ebook",
           },
           {
             slug: "ashbox",
             issue: 1,
             title: "Ashbox",
             status: "published",
+            content_type: "comic",
           },
         ],
       });
     }
 
     // --------------------------------------------------
-    // COMIC METADATA
-    // Example:
+    // PUBLIC PUBLICATION METADATA
+    // Examples:
     // /api/comics/ashbox/001
     // /api/comics/scivive/001
     // --------------------------------------------------
