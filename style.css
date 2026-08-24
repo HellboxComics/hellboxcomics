@@ -3,8 +3,13 @@
 }
 
 
+/* =========================================
+   BASE
+========================================= */
+
 html {
     scroll-behavior: smooth;
+    background: #050505;
 }
 
 
@@ -18,15 +23,59 @@ body {
 
 
 body {
-    background: #050505;
+    background:
+        radial-gradient(
+            circle at 50% 18%,
+            rgba(255, 255, 255, 0.025),
+            transparent 34%
+        ),
+        #050505;
+
     color: #f2f2f2;
-    font-family: Arial, Helvetica, sans-serif;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    overflow-x: hidden;
+}
+
+
+body::before {
+    content: "";
+
+    position: fixed;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    z-index: 999;
+
+    opacity: 0.025;
+
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            rgba(255, 255, 255, 0.8) 0px,
+            rgba(255, 255, 255, 0.8) 1px,
+            transparent 1px,
+            transparent 4px
+        );
+
+    mix-blend-mode: screen;
 }
 
 
 a {
     color: inherit;
     text-decoration: none;
+}
+
+
+button {
+    font-family: inherit;
 }
 
 
@@ -46,27 +95,53 @@ a {
     padding: 18px 24px;
 
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
 
     z-index: 100;
+
+    pointer-events: none;
+}
+
+
+.brand,
+.wallet-button {
+    pointer-events: auto;
 }
 
 
 .brand {
+    position: relative;
+
     font-size: 11px;
 
     letter-spacing: 0.22em;
 
-    font-weight: 600;
+    font-weight: 700;
+
+    transition:
+        opacity 0.25s ease,
+        letter-spacing 0.25s ease;
+}
+
+
+.brand:hover {
+    opacity: 0.6;
+
+    letter-spacing: 0.28em;
 }
 
 
 .wallet-button {
-    border: 0;
+    position: relative;
 
-    background: #f2f2f2;
-    color: #050505;
+    border: 1px solid rgba(255, 255, 255, 0.75);
+
+    background: rgba(5, 5, 5, 0.78);
+
+    color: #f2f2f2;
 
     padding: 11px 18px;
 
@@ -77,6 +152,48 @@ a {
     letter-spacing: 0.16em;
 
     cursor: pointer;
+
+    backdrop-filter: blur(10px);
+
+    -webkit-backdrop-filter: blur(10px);
+
+    transition:
+        background 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease,
+        transform 0.2s ease;
+}
+
+
+.wallet-button:hover {
+    background: #f2f2f2;
+
+    color: #050505;
+
+    border-color: #f2f2f2;
+
+    transform: translateY(-1px);
+}
+
+
+.wallet-button:active {
+    transform: translateY(0);
+}
+
+
+.wallet-button.wallet-connected {
+    border-color: rgba(255, 255, 255, 0.25);
+
+    background: rgba(255, 255, 255, 0.06);
+
+    color: #f2f2f2;
+}
+
+
+.wallet-button.wallet-connected:hover {
+    background: rgba(255, 255, 255, 0.12);
+
+    color: #fff;
 }
 
 
@@ -85,6 +202,8 @@ a {
 ========================================= */
 
 .hellbox {
+    position: relative;
+
     min-height: 100vh;
 
     display: flex;
@@ -92,15 +211,71 @@ a {
     flex-direction: column;
 
     align-items: center;
+
     justify-content: center;
 
     text-align: center;
 
     padding: 100px 40px 60px;
+
+    overflow: hidden;
+}
+
+
+.hellbox::before {
+    content: "";
+
+    position: absolute;
+
+    width: min(700px, 80vw);
+
+    height: min(700px, 80vw);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(255, 255, 255, 0.045),
+            rgba(255, 255, 255, 0.012) 35%,
+            transparent 70%
+        );
+
+    filter: blur(2px);
+
+    pointer-events: none;
+}
+
+
+.hellbox::after {
+    content: "";
+
+    position: absolute;
+
+    left: 50%;
+
+    bottom: 0;
+
+    width: 1px;
+
+    height: 80px;
+
+    background:
+        linear-gradient(
+            to bottom,
+            transparent,
+            rgba(255, 255, 255, 0.15)
+        );
+
+    transform: translateX(-50%);
+
+    pointer-events: none;
 }
 
 
 .eyebrow {
+    position: relative;
+
     margin: 0 0 30px;
 
     font-size: 12px;
@@ -112,9 +287,16 @@ a {
 
 
 h1 {
+    position: relative;
+
     margin: 0;
 
-    font-size: clamp(60px, 11vw, 180px);
+    font-size:
+        clamp(
+            60px,
+            11vw,
+            180px
+        );
 
     line-height: 0.82;
 
@@ -125,6 +307,8 @@ h1 {
 
 
 .subline {
+    position: relative;
+
     margin-top: 45px;
 
     font-size: 14px;
@@ -138,14 +322,17 @@ h1 {
 
 
 /* =========================================
-   NAVIGATION
+   MAIN NAVIGATION
 ========================================= */
 
 .main-nav {
-    width: min(
-        1000px,
-        calc(100% - 80px)
-    );
+    position: relative;
+
+    width:
+        min(
+            1000px,
+            calc(100% - 80px)
+        );
 
     margin: 0 auto;
 
@@ -153,33 +340,74 @@ h1 {
 
     grid-template-columns: 1fr 1fr;
 
-    border-bottom: 1px solid #161616;
+    border-top:
+        1px solid rgba(255, 255, 255, 0.08);
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.08);
 }
 
 
 .main-nav a {
-    padding: 26px 0;
+    position: relative;
+
+    padding: 30px 0;
 
     display: flex;
 
     flex-direction: column;
 
-    gap: 8px;
+    gap: 9px;
+
+    overflow: hidden;
 
     transition:
-        opacity 0.25s ease;
+        opacity 0.3s ease,
+        padding-left 0.3s ease;
+}
+
+
+.main-nav a::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    bottom: 0;
+
+    width: 0;
+
+    height: 1px;
+
+    background: #f2f2f2;
+
+    transition:
+        width 0.35s ease;
 }
 
 
 .main-nav a:hover {
-    opacity: 0.55;
+    opacity: 1;
+
+    padding-left: 10px;
+}
+
+
+.main-nav a:hover::after {
+    width: 100%;
 }
 
 
 .main-nav a + a {
     padding-left: 40px;
 
-    border-left: 1px solid #161616;
+    border-left:
+        1px solid rgba(255, 255, 255, 0.08);
+}
+
+
+.main-nav a + a:hover {
+    padding-left: 50px;
 }
 
 
@@ -202,16 +430,18 @@ h1 {
 ========================================= */
 
 .content-section {
-    width: min(
-        1000px,
-        calc(100% - 80px)
-    );
+    width:
+        min(
+            1000px,
+            calc(100% - 80px)
+        );
 
     margin: 0 auto;
 
-    padding: 110px 0;
+    padding: 140px 0;
 
-    border-bottom: 1px solid #161616;
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.08);
 
     scroll-margin-top: 70px;
 }
@@ -231,11 +461,12 @@ h1 {
 h2 {
     margin: 0;
 
-    font-size: clamp(
-        48px,
-        7vw,
-        92px
-    );
+    font-size:
+        clamp(
+            48px,
+            7vw,
+            92px
+        );
 
     line-height: 0.92;
 
@@ -248,122 +479,209 @@ h2 {
 .section-description {
     margin: 32px 0 0;
 
+    max-width: 500px;
+
     font-size: 14px;
 
-    color: #999;
+    line-height: 1.6;
+
+    color: #777;
 }
 
 
 /* =========================================
-   ARCHIVE
+   THE HELLBOX
 ========================================= */
 
 .archive-section {
+    position: relative;
+
     scroll-margin-top: 80px;
 }
 
 
+.archive-section::before {
+    content: "HELLBOX";
+
+    position: absolute;
+
+    top: 80px;
+
+    right: -10px;
+
+    font-size:
+        clamp(
+            80px,
+            15vw,
+            180px
+        );
+
+    line-height: 1;
+
+    font-weight: 900;
+
+    letter-spacing: -0.08em;
+
+    color: rgba(255, 255, 255, 0.018);
+
+    pointer-events: none;
+
+    user-select: none;
+}
+
+
 .archive-list {
-    margin-top: 80px;
+    position: relative;
+
+    margin-top: 90px;
 }
 
 
 /* =========================================
-   EMPTY ARCHIVE
+   EMPTY HELLBOX
 ========================================= */
 
 .archive-empty {
-    padding: 60px 0;
+    position: relative;
 
-    border-top:
-        1px solid rgba(
-            255,
-            255,
-            255,
-            0.08
-        );
+    min-height: 300px;
 
-    border-bottom:
-        1px solid rgba(
-            255,
-            255,
-            255,
-            0.08
+    padding: 70px 50px;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.1);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.025),
+            rgba(255, 255, 255, 0.005)
         );
 
     display: flex;
 
     flex-direction: column;
 
-    gap: 14px;
+    justify-content: center;
+
+    overflow: hidden;
+}
+
+
+.archive-empty::before {
+    content: "";
+
+    position: absolute;
+
+    top: -100px;
+    right: -100px;
+
+    width: 300px;
+    height: 300px;
+
+    border-radius: 50%;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.05);
+}
+
+
+.archive-empty::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    bottom: 0;
+
+    width: 100%;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.2),
+            transparent
+        );
 }
 
 
 .archive-empty-label {
+    position: relative;
+
+    z-index: 2;
+
     margin: 0;
 
-    font-size: clamp(
-        28px,
-        4vw,
-        52px
-    );
+    font-size:
+        clamp(
+            32px,
+            5vw,
+            64px
+        );
 
     line-height: 0.95;
 
-    letter-spacing: -0.04em;
+    letter-spacing: -0.05em;
 
-    font-weight: 800;
+    font-weight: 900;
 }
 
 
 .archive-empty-description {
-    margin: 0;
+    position: relative;
 
-    font-size: 14px;
+    z-index: 2;
 
-    line-height: 1.5;
+    margin: 20px 0 0;
 
-    color: rgba(
-        255,
-        255,
-        255,
-        0.45
-    );
+    max-width: 420px;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+
+    color: rgba(255, 255, 255, 0.4);
 }
 
 
 /* =========================================
-   TITLES
+   FUTURE TITLE CONTAINER
 ========================================= */
 
 .archive-title {
+    position: relative;
+
+    margin-bottom: 60px;
+
     border-top:
-        1px solid rgba(
-            255,
-            255,
-            255,
-            0.08
-        );
+        1px solid rgba(255, 255, 255, 0.1);
 
     border-bottom:
-        1px solid rgba(
-            255,
-            255,
-            255,
-            0.08
-        );
+        1px solid rgba(255, 255, 255, 0.1);
 
-    margin-bottom: 48px;
+    transition:
+        border-color 0.3s ease;
+}
+
+
+.archive-title:hover {
+    border-color:
+        rgba(255, 255, 255, 0.22);
 }
 
 
 .archive-title-header {
-    padding: 50px 0;
+    position: relative;
+
+    padding: 55px 0;
 }
 
 
 .archive-title-label {
-    margin: 0 0 16px;
+    margin: 0 0 18px;
 
     font-size: 10px;
 
@@ -376,11 +694,12 @@ h2 {
 .archive-title h3 {
     margin: 0;
 
-    font-size: clamp(
-        36px,
-        5vw,
-        68px
-    );
+    font-size:
+        clamp(
+            36px,
+            5vw,
+            68px
+        );
 
     line-height: 0.95;
 
@@ -391,17 +710,12 @@ h2 {
 
 
 /* =========================================
-   EDITIONS
+   FUTURE EDITIONS
 ========================================= */
 
 .archive-editions {
     border-top:
-        1px solid rgba(
-            255,
-            255,
-            255,
-            0.08
-        );
+        1px solid rgba(255, 255, 255, 0.08);
 }
 
 
@@ -419,9 +733,11 @@ h2 {
 
 
 .archive-edition {
-    min-height: 72px;
+    position: relative;
 
-    padding: 18px 0;
+    min-height: 78px;
+
+    padding: 20px 0;
 
     display: flex;
 
@@ -430,20 +746,50 @@ h2 {
     gap: 30px;
 
     border-top:
-        1px solid rgba(
-            255,
-            255,
-            255,
-            0.06
-        );
+        1px solid rgba(255, 255, 255, 0.06);
 
     transition:
-        opacity 0.25s ease;
+        padding-left 0.3s ease,
+        background 0.3s ease,
+        opacity 0.3s ease;
+}
+
+
+.archive-edition::after {
+    content: "→";
+
+    position: absolute;
+
+    right: 0;
+
+    font-size: 16px;
+
+    opacity: 0;
+
+    transform: translateX(-8px);
+
+    transition:
+        opacity 0.3s ease,
+        transform 0.3s ease;
 }
 
 
 .archive-edition:hover {
-    opacity: 0.55;
+    padding-left: 12px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.025),
+            transparent
+        );
+}
+
+
+.archive-edition:hover::after {
+    opacity: 0.65;
+
+    transform: translateX(0);
 }
 
 
@@ -481,22 +827,65 @@ h2 {
 
 
 /* =========================================
-   PRESS
+   THE PRESS
 ========================================= */
 
 .press-section {
-    padding-bottom: 140px;
+    position: relative;
+
+    padding-bottom: 160px;
+
+    overflow: hidden;
+}
+
+
+.press-section::before {
+    content: "PRESS";
+
+    position: absolute;
+
+    right: -20px;
+
+    bottom: 40px;
+
+    font-size:
+        clamp(
+            100px,
+            18vw,
+            220px
+        );
+
+    line-height: 1;
+
+    letter-spacing: -0.08em;
+
+    font-weight: 900;
+
+    color: rgba(255, 255, 255, 0.018);
+
+    pointer-events: none;
+
+    user-select: none;
 }
 
 
 .status {
-    margin-top: 38px;
+    position: relative;
+
+    margin-top: 50px;
+
+    display: inline-block;
+
+    padding: 12px 15px;
+
+    border:
+        1px solid rgba(255, 255, 255, 0.1);
 
     font-size: 10px;
 
     letter-spacing: 0.3em;
 
-    opacity: 0.35;
+    opacity: 0.45;
 }
 
 
@@ -505,14 +894,15 @@ h2 {
 ========================================= */
 
 .site-footer {
-    width: min(
-        1200px,
-        calc(100% - 48px)
-    );
+    width:
+        min(
+            1200px,
+            calc(100% - 48px)
+        );
 
     margin: 0 auto;
 
-    padding: 28px 0 35px;
+    padding: 32px 0 40px;
 
     display: flex;
 
@@ -527,6 +917,17 @@ h2 {
 
 
 /* =========================================
+   SELECTION
+========================================= */
+
+::selection {
+    background: #f2f2f2;
+
+    color: #050505;
+}
+
+
+/* =========================================
    MOBILE
 ========================================= */
 
@@ -537,24 +938,44 @@ h2 {
     }
 
 
+    .brand {
+        font-size: 9px;
+
+        letter-spacing: 0.18em;
+    }
+
+
+    .wallet-button {
+        padding: 10px 13px;
+
+        font-size: 9px;
+    }
+
+
     .hellbox {
         padding-left: 20px;
+
         padding-right: 20px;
     }
 
 
     .eyebrow {
         font-size: 9px;
+
+        letter-spacing: 0.35em;
     }
 
 
     .subline {
         font-size: 10px;
+
+        letter-spacing: 0.18em;
     }
 
 
     .main-nav {
-        width: calc(100% - 40px);
+        width:
+            calc(100% - 40px);
 
         grid-template-columns: 1fr;
     }
@@ -566,19 +987,41 @@ h2 {
         border-left: 0;
 
         border-top:
-            1px solid #161616;
+            1px solid rgba(255, 255, 255, 0.08);
+    }
+
+
+    .main-nav a + a:hover {
+        padding-left: 10px;
     }
 
 
     .content-section {
-        width: calc(100% - 40px);
+        width:
+            calc(100% - 40px);
 
-        padding: 80px 0;
+        padding: 90px 0;
+    }
+
+
+    .archive-section::before {
+        top: 60px;
+
+        right: -30px;
+
+        font-size: 90px;
     }
 
 
     .archive-list {
         margin-top: 60px;
+    }
+
+
+    .archive-empty {
+        min-height: 250px;
+
+        padding: 50px 25px;
     }
 
 
@@ -589,16 +1032,43 @@ h2 {
 
     .archive-edition {
         gap: 15px;
+
+        padding-right: 30px;
     }
 
 
     .edition-number {
-        width: 70px;
+        width: 65px;
+    }
+
+
+    .edition-name {
+        font-size: 14px;
+    }
+
+
+    .archive-edition::after {
+        right: 5px;
+    }
+
+
+    .press-section {
+        padding-bottom: 120px;
+    }
+
+
+    .press-section::before {
+        right: -20px;
+
+        bottom: 40px;
+
+        font-size: 100px;
     }
 
 
     .site-footer {
-        width: calc(100% - 32px);
+        width:
+            calc(100% - 32px);
 
         flex-direction: column;
 
