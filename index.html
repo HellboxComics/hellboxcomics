@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
@@ -9,10 +12,16 @@
 
     <title>Hellbox Comics</title>
 
-    <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
 </head>
 
+
 <body>
+
 
     <!-- =========================================
          HEADER
@@ -20,9 +29,13 @@
 
     <header class="site-header">
 
-        <a href="#top" class="brand">
+        <a
+            href="#top"
+            class="brand"
+        >
             HELLBOX COMICS
         </a>
+
 
         <button
             class="wallet-button"
@@ -35,7 +48,9 @@
     </header>
 
 
+
     <main>
+
 
         <!-- =========================================
              HERO
@@ -50,10 +65,12 @@
                 HELLBOX COMICS
             </p>
 
+
             <h1>
                 THE BOX<br>
                 IS OPEN.
             </h1>
+
 
             <p class="subline">
                 Something is coming.
@@ -62,17 +79,20 @@
         </section>
 
 
+
         <!-- =========================================
              NAVIGATION
         ========================================== -->
 
         <nav class="main-nav">
 
+
             <a href="#archive">
 
                 <strong>
                     ENTER THE HELLBOX
                 </strong>
+
 
                 <span>
                     The archive of what gets made inside.
@@ -81,11 +101,13 @@
             </a>
 
 
+
             <a href="#press">
 
                 <strong>
                     THE PRESS
                 </strong>
+
 
                 <span>
                     Where new editions are released.
@@ -93,7 +115,9 @@
 
             </a>
 
+
         </nav>
+
 
 
         <!-- =========================================
@@ -109,9 +133,11 @@
                 THE HELLBOX
             </p>
 
+
             <h2>
                 THE ARCHIVE
             </h2>
+
 
             <p class="section-description">
                 Every title. Every edition.
@@ -124,6 +150,7 @@
             ></div>
 
         </section>
+
 
 
         <!-- =========================================
@@ -139,14 +166,17 @@
                 THE PRESS
             </p>
 
+
             <h2>
                 NOTHING ON THE PRESS<br>
                 YET.
             </h2>
 
+
             <p class="section-description">
                 When something is ready, it will be pressed here.
             </p>
+
 
             <p
                 class="status"
@@ -157,7 +187,9 @@
 
         </section>
 
+
     </main>
+
 
 
     <!-- =========================================
@@ -170,6 +202,7 @@
             HELLBOX COMICS
         </span>
 
+
         <span>
             THE BOX IS OPEN.
         </span>
@@ -177,33 +210,46 @@
     </footer>
 
 
+
     <script>
 
+
         /* =========================================
-           HELLBOX CONFIGURATION
+           HELLBOX NETWORK CONFIGURATION
         ========================================== */
 
         const HELLBOX = {
 
-            pulseChainId: "0x171",
+            chainId: "0x171",
 
-            pulseChainName: "PulseChain"
+            chainIdDecimal: 369,
+
+            chainName: "PulseChain",
+
+            currencyName: "Pulse",
+
+            currencySymbol: "PLS",
+
+            currencyDecimals: 18,
+
+            rpcUrls: [
+                "https://rpc.pulsechain.com"
+            ],
+
+            blockExplorerUrls: [
+                "https://scan.pulsechain.com"
+            ]
 
         };
 
 
+
         /* =========================================
            HELLBOX DATA
-        ==========================================
-
-           EMPTY FOR NOW.
-
-           Eventually this will come from the
-           Hellbox blockchain/indexer data layer.
-
         ========================================== */
 
         const hellboxTitles = [];
+
 
 
         /* =========================================
@@ -212,9 +258,12 @@
 
         let connectedWallet = null;
 
+        let walletOnPulseChain = false;
+
+
 
         /* =========================================
-           WALLET BUTTON
+           WALLET ELEMENT
         ========================================== */
 
         const walletButton =
@@ -223,15 +272,36 @@
             );
 
 
+
+        /* =========================================
+           CHECK FOR METAMASK / EIP-1193 WALLET
+        ========================================== */
+
+        function hasWallet() {
+
+            return (
+                typeof window.ethereum !==
+                "undefined"
+            );
+
+        }
+
+
+
         /* =========================================
            SHORTEN ADDRESS
         ========================================== */
 
-        function shortenAddress(address) {
+        function shortenAddress(
+            address
+        ) {
 
             if (!address) {
+
                 return "";
+
             }
+
 
             return (
                 address.slice(0, 6) +
@@ -242,16 +312,23 @@
         }
 
 
+
         /* =========================================
-           UPDATE WALLET BUTTON
+           UPDATE BUTTON
         ========================================== */
 
         function updateWalletButton() {
 
             if (!walletButton) {
+
                 return;
+
             }
 
+
+            /*
+             * No wallet.
+             */
 
             if (!connectedWallet) {
 
@@ -267,289 +344,11 @@
             }
 
 
-            walletButton.textContent =
-                shortenAddress(
-                    connectedWallet
-                );
-
-            walletButton.classList.add(
-                "wallet-connected"
-            );
-
-        }
-
-
-        /* =========================================
-           DETECT WALLET
-        ========================================== */
-
-        function walletAvailable() {
-
-            return (
-                typeof window.ethereum !==
-                "undefined"
-            );
-
-        }
-
-
-        /* =========================================
-           SWITCH TO PULSECHAIN
-        ========================================== */
-
-        async function switchToPulseChain() {
-
-            if (!walletAvailable()) {
-                return false;
-            }
-
-
-            try {
-
-                await window.ethereum.request({
-                    method: "wallet_switchEthereumChain",
-                    params: [
-                        {
-                            chainId:
-                                HELLBOX.pulseChainId
-                        }
-                    ]
-                });
-
-                return true;
-
-            } catch (error) {
-
-                /*
-                 * Error 4902 means the wallet does
-                 * not yet know about PulseChain.
-                 */
-
-                if (
-                    error.code === 4902
-                ) {
-
-                    try {
-
-                        await window.ethereum.request({
-                            method:
-                                "wallet_addEthereumChain",
-
-                            params: [
-                                {
-                                    chainId:
-                                        HELLBOX.pulseChainId,
-
-                                    chainName:
-                                        HELLBOX.pulseChainName,
-
-                                    nativeCurrency: {
-                                        name: "Pulse",
-                                        symbol: "PLS",
-                                        decimals: 18
-                                    },
-
-                                    rpcUrls: [
-                                        "https://rpc.pulsechain.com"
-                                    ],
-
-                                    blockExplorerUrls: [
-                                        "https://scan.pulsechain.com"
-                                    ]
-                                }
-                            ]
-                        });
-
-                        return true;
-
-                    } catch (addError) {
-
-                        console.error(
-                            "Unable to add PulseChain:",
-                            addError
-                        );
-
-                        return false;
-
-                    }
-
-                }
-
-
-                console.error(
-                    "Unable to switch to PulseChain:",
-                    error
-                );
-
-                return false;
-
-            }
-
-        }
-
-
-        /* =========================================
-           CONNECT WALLET
-        ========================================== */
-
-        async function connectWallet() {
-
-            if (!walletAvailable()) {
-
-                alert(
-                    "No compatible wallet was detected. Please install or open a browser wallet such as MetaMask."
-                );
-
-                return;
-
-            }
-
-
-            try {
-
-                /*
-                 * Request wallet permission.
-                 */
-
-                const accounts =
-                    await window.ethereum.request({
-                        method:
-                            "eth_requestAccounts"
-                    });
-
-
-                if (
-                    !accounts ||
-                    accounts.length === 0
-                ) {
-
-                    return;
-
-                }
-
-
-                /*
-                 * Make sure the wallet is on
-                 * PulseChain.
-                 */
-
-                const chainId =
-                    await window.ethereum.request({
-                        method:
-                            "eth_chainId"
-                    });
-
-
-                if (
-                    chainId.toLowerCase() !==
-                    HELLBOX.pulseChainId
-                ) {
-
-                    const switched =
-                        await switchToPulseChain();
-
-
-                    if (!switched) {
-
-                        alert(
-                            "Hellbox Comics runs on PulseChain. Please switch your wallet to PulseChain."
-                        );
-
-                        return;
-
-                    }
-
-                }
-
-
-                /*
-                 * Store the connected address.
-                 */
-
-                connectedWallet =
-                    accounts[0];
-
-
-                updateWalletButton();
-
-
-                console.log(
-                    "Hellbox wallet connected:",
-                    connectedWallet
-                );
-
-
-                /*
-                 * This is where future Hellbox
-                 * ownership checks will begin.
-                 *
-                 * For example:
-                 *
-                 * Does this wallet own Edition 001?
-                 * Does this wallet own Edition 002?
-                 * etc.
-                 */
-
-            } catch (error) {
-
-                console.error(
-                    "Hellbox wallet connection failed:",
-                    error
-                );
-
-            }
-
-        }
-
-
-        /* =========================================
-           DISCONNECT / ACCOUNT CHANGE
-        ========================================== */
-
-        function handleAccountsChanged(
-            accounts
-        ) {
-
-            if (
-                !accounts ||
-                accounts.length === 0
-            ) {
-
-                connectedWallet = null;
-
-                updateWalletButton();
-
-                return;
-
-            }
-
-
-            connectedWallet =
-                accounts[0];
-
-            updateWalletButton();
-
-        }
-
-
-        /* =========================================
-           NETWORK CHANGE
-        ========================================== */
-
-        function handleChainChanged(
-            chainId
-        ) {
-
             /*
-             * If the user changes away from
-             * PulseChain, don't pretend the
-             * Hellbox wallet is still valid.
+             * Wallet connected but wrong network.
              */
 
-            if (
-                chainId.toLowerCase() !==
-                HELLBOX.pulseChainId
-            ) {
+            if (!walletOnPulseChain) {
 
                 walletButton.textContent =
                     "SWITCH TO PULSECHAIN";
@@ -563,16 +362,615 @@
             }
 
 
+            /*
+             * Fully connected and verified.
+             */
+
+            walletButton.textContent =
+                shortenAddress(
+                    connectedWallet
+                );
+
+            walletButton.classList.add(
+                "wallet-connected"
+            );
+
+        }
+
+
+
+        /* =========================================
+           GET CURRENT CHAIN
+        ========================================== */
+
+        async function getCurrentChain() {
+
+            if (!hasWallet()) {
+
+                return null;
+
+            }
+
+
+            try {
+
+                return await window.ethereum.request({
+                    method: "eth_chainId"
+                });
+
+            } catch (error) {
+
+                console.error(
+                    "Hellbox could not read wallet network:",
+                    error
+                );
+
+                return null;
+
+            }
+
+        }
+
+
+
+        /* =========================================
+           ADD PULSECHAIN TO METAMASK
+        ========================================== */
+
+        async function addPulseChain() {
+
+            try {
+
+                await window.ethereum.request({
+
+                    method:
+                        "wallet_addEthereumChain",
+
+                    params: [
+
+                        {
+
+                            chainId:
+                                HELLBOX.chainId,
+
+                            chainName:
+                                HELLBOX.chainName,
+
+                            nativeCurrency: {
+
+                                name:
+                                    HELLBOX.currencyName,
+
+                                symbol:
+                                    HELLBOX.currencySymbol,
+
+                                decimals:
+                                    HELLBOX.currencyDecimals
+
+                            },
+
+                            rpcUrls:
+                                HELLBOX.rpcUrls,
+
+                            blockExplorerUrls:
+                                HELLBOX.blockExplorerUrls
+
+                        }
+
+                    ]
+
+                });
+
+
+                return true;
+
+            } catch (error) {
+
+                console.error(
+                    "Hellbox could not add PulseChain:",
+                    error
+                );
+
+                return false;
+
+            }
+
+        }
+
+
+
+        /* =========================================
+           SWITCH TO PULSECHAIN
+        ========================================== */
+
+        async function switchToPulseChain() {
+
+            if (!hasWallet()) {
+
+                return false;
+
+            }
+
+
+            try {
+
+                /*
+                 * Ask MetaMask to switch.
+                 */
+
+                await window.ethereum.request({
+
+                    method:
+                        "wallet_switchEthereumChain",
+
+                    params: [
+
+                        {
+                            chainId:
+                                HELLBOX.chainId
+                        }
+
+                    ]
+
+                });
+
+
+                /*
+                 * Verify the switch actually
+                 * happened.
+                 */
+
+                const verifiedChain =
+                    await getCurrentChain();
+
+
+                return (
+                    verifiedChain &&
+                    verifiedChain.toLowerCase() ===
+                    HELLBOX.chainId
+                );
+
+
+            } catch (error) {
+
+
+                /*
+                 * 4902 = chain isn't currently
+                 * configured in MetaMask.
+                 */
+
+                if (
+                    error &&
+                    error.code === 4902
+                ) {
+
+                    const added =
+                        await addPulseChain();
+
+
+                    if (!added) {
+
+                        return false;
+
+                    }
+
+
+                    /*
+                     * MetaMask may add the chain
+                     * without automatically switching.
+                     *
+                     * Therefore explicitly request
+                     * the switch again.
+                     */
+
+                    try {
+
+                        await window.ethereum.request({
+
+                            method:
+                                "wallet_switchEthereumChain",
+
+                            params: [
+
+                                {
+                                    chainId:
+                                        HELLBOX.chainId
+                                }
+
+                            ]
+
+                        });
+
+                    } catch (switchError) {
+
+                        console.error(
+                            "Hellbox could not switch to PulseChain after adding it:",
+                            switchError
+                        );
+
+                        return false;
+
+                    }
+
+
+                    /*
+                     * Final verification.
+                     */
+
+                    const verifiedChain =
+                        await getCurrentChain();
+
+
+                    return (
+                        verifiedChain &&
+                        verifiedChain.toLowerCase() ===
+                        HELLBOX.chainId
+                    );
+
+                }
+
+
+                /*
+                 * User rejected the switch,
+                 * MetaMask is locked, or another
+                 * provider error occurred.
+                 */
+
+                console.error(
+                    "Hellbox PulseChain switch failed:",
+                    error
+                );
+
+                return false;
+
+            }
+
+        }
+
+
+
+        /* =========================================
+           CONNECT WALLET
+        ========================================== */
+
+        async function connectWallet() {
+
+            if (!hasWallet()) {
+
+                alert(
+                    "No compatible browser wallet was detected. Please open Hellbox with MetaMask."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+
+                /*
+                 * STEP 1
+                 *
+                 * Ask MetaMask for the account.
+                 */
+
+                const accounts =
+                    await window.ethereum.request({
+
+                        method:
+                            "eth_requestAccounts"
+
+                    });
+
+
+                if (
+                    !accounts ||
+                    accounts.length === 0
+                ) {
+
+                    return;
+
+                }
+
+
+                connectedWallet =
+                    accounts[0];
+
+
+                /*
+                 * STEP 2
+                 *
+                 * Check network BEFORE treating
+                 * the wallet as fully connected.
+                 */
+
+                let chainId =
+                    await getCurrentChain();
+
+
+                /*
+                 * STEP 3
+                 *
+                 * Already on PulseChain.
+                 */
+
+                if (
+                    chainId &&
+                    chainId.toLowerCase() ===
+                    HELLBOX.chainId
+                ) {
+
+                    walletOnPulseChain = true;
+
+                    updateWalletButton();
+
+                    return;
+
+                }
+
+
+                /*
+                 * STEP 4
+                 *
+                 * Wrong network.
+                 *
+                 * Request MetaMask to switch.
+                 */
+
+                walletOnPulseChain = false;
+
+                updateWalletButton();
+
+
+                const switched =
+                    await switchToPulseChain();
+
+
+                /*
+                 * STEP 5
+                 *
+                 * Final verification.
+                 */
+
+                chainId =
+                    await getCurrentChain();
+
+
+                const verified =
+                    chainId &&
+                    chainId.toLowerCase() ===
+                    HELLBOX.chainId;
+
+
+                if (
+                    switched &&
+                    verified
+                ) {
+
+                    walletOnPulseChain = true;
+
+                    updateWalletButton();
+
+                    console.log(
+                        "HELLBOX WALLET CONNECTED ON PULSECHAIN:",
+                        connectedWallet
+                    );
+
+                    return;
+
+                }
+
+
+                /*
+                 * The wallet connected,
+                 * but PulseChain did not.
+                 */
+
+                walletOnPulseChain = false;
+
+                updateWalletButton();
+
+
+                alert(
+                    "Hellbox Comics requires PulseChain. Please approve the PulseChain network switch in MetaMask."
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Hellbox wallet connection failed:",
+                    error
+                );
+
+                connectedWallet = null;
+
+                walletOnPulseChain = false;
+
+                updateWalletButton();
+
+            }
+
+        }
+
+
+
+        /* =========================================
+           ACCOUNT CHANGE
+        ========================================== */
+
+        function handleAccountsChanged(
+            accounts
+        ) {
+
+            if (
+                !accounts ||
+                accounts.length === 0
+            ) {
+
+                connectedWallet = null;
+
+                walletOnPulseChain = false;
+
+                updateWalletButton();
+
+                return;
+
+            }
+
+
+            connectedWallet =
+                accounts[0];
+
+
+            /*
+             * Account changes don't guarantee
+             * the network state, so re-check it.
+             */
+
+            verifyWalletNetwork();
+
+        }
+
+
+
+        /* =========================================
+           NETWORK CHANGE
+        ========================================== */
+
+        function handleChainChanged(
+            chainId
+        ) {
+
+            if (!chainId) {
+
+                return;
+
+            }
+
+
+            walletOnPulseChain =
+                chainId.toLowerCase() ===
+                HELLBOX.chainId;
+
+
+            updateWalletButton();
+
+
+            /*
+             * We intentionally do NOT force a
+             * network switch on every network
+             * change.
+             *
+             * If the user deliberately leaves
+             * PulseChain, Hellbox reports that
+             * state honestly.
+             */
+
+        }
+
+
+
+        /* =========================================
+           VERIFY WALLET NETWORK
+        ========================================== */
+
+        async function verifyWalletNetwork() {
+
+            if (!connectedWallet) {
+
+                return;
+
+            }
+
+
+            const chainId =
+                await getCurrentChain();
+
+
+            walletOnPulseChain =
+                chainId &&
+                chainId.toLowerCase() ===
+                HELLBOX.chainId;
+
+
             updateWalletButton();
 
         }
+
+
+
+        /* =========================================
+           RESTORE EXISTING WALLET
+        ========================================== */
+
+        async function restoreWallet() {
+
+            if (!hasWallet()) {
+
+                return;
+
+            }
+
+
+            try {
+
+                const accounts =
+                    await window.ethereum.request({
+
+                        method:
+                            "eth_accounts"
+
+                    });
+
+
+                if (
+                    !accounts ||
+                    accounts.length === 0
+                ) {
+
+                    return;
+
+                }
+
+
+                connectedWallet =
+                    accounts[0];
+
+
+                await verifyWalletNetwork();
+
+
+                /*
+                 * IMPORTANT:
+                 *
+                 * We do not automatically force
+                 * a network switch simply because
+                 * the page loaded.
+                 *
+                 * The user has to initiate that
+                 * wallet action.
+                 */
+
+            } catch (error) {
+
+                console.error(
+                    "Hellbox could not restore wallet:",
+                    error
+                );
+
+            }
+
+        }
+
 
 
         /* =========================================
            WALLET EVENTS
         ========================================== */
 
-        if (walletAvailable()) {
+        if (hasWallet()) {
 
             window.ethereum.on(
                 "accountsChanged",
@@ -588,21 +986,18 @@
         }
 
 
+
         /* =========================================
-           WALLET BUTTON CLICK
+           WALLET BUTTON
         ========================================== */
 
         walletButton.addEventListener(
             "click",
             async function() {
 
+
                 /*
-                 * If we're already connected,
-                 * clicking the button simply
-                 * refreshes the wallet state.
-                 *
-                 * Later we can turn this into
-                 * the Hellbox wallet panel.
+                 * No connected wallet.
                  */
 
                 if (!connectedWallet) {
@@ -615,93 +1010,49 @@
 
 
                 /*
-                 * Check the current network.
+                 * Connected wallet is on the
+                 * wrong network.
                  */
 
-                if (walletAvailable()) {
+                if (!walletOnPulseChain) {
 
-                    const chainId =
-                        await window.ethereum.request({
-                            method:
-                                "eth_chainId"
-                        });
-
-
-                    if (
-                        chainId.toLowerCase() !==
-                        HELLBOX.pulseChainId
-                    ) {
-
+                    const switched =
                         await switchToPulseChain();
 
-                    }
+
+                    const chainId =
+                        await getCurrentChain();
+
+
+                    walletOnPulseChain =
+                        switched &&
+                        chainId &&
+                        chainId.toLowerCase() ===
+                        HELLBOX.chainId;
+
+
+                    updateWalletButton();
+
+                    return;
 
                 }
+
+
+                /*
+                 * Already connected correctly.
+                 *
+                 * Refresh state.
+                 */
+
+                await verifyWalletNetwork();
 
             }
         );
 
 
-        /* =========================================
-           RESTORE EXISTING CONNECTION
-        ========================================== */
-
-        async function restoreWallet() {
-
-            if (!walletAvailable()) {
-                return;
-            }
-
-
-            try {
-
-                const accounts =
-                    await window.ethereum.request({
-                        method:
-                            "eth_accounts"
-                    });
-
-
-                if (
-                    accounts &&
-                    accounts.length > 0
-                ) {
-
-                    const chainId =
-                        await window.ethereum.request({
-                            method:
-                                "eth_chainId"
-                        });
-
-
-                    if (
-                        chainId.toLowerCase() ===
-                        HELLBOX.pulseChainId
-                    ) {
-
-                        connectedWallet =
-                            accounts[0];
-
-                        updateWalletButton();
-
-                    }
-
-                }
-
-            } catch (error) {
-
-                console.error(
-                    "Unable to restore wallet:",
-                    error
-                );
-
-            }
-
-        }
-
 
         /* =========================================
-           ARCHIVE
+           ARCHIVE DATA
         ========================================== */
 
         function renderArchive() {
@@ -716,7 +1067,7 @@
 
 
             /*
-             * No titles exist yet.
+             * No titles yet.
              */
 
             if (
@@ -756,13 +1107,20 @@
                     "The first title has not been pressed.";
 
 
-                empty.appendChild(label);
+                empty.appendChild(
+                    label
+                );
+
 
                 empty.appendChild(
                     description
                 );
 
-                archive.appendChild(empty);
+
+                archive.appendChild(
+                    empty
+                );
+
 
                 return;
 
@@ -776,10 +1134,12 @@
             hellboxTitles.forEach(
                 title => {
 
+
                     const titleBlock =
                         document.createElement(
                             "article"
                         );
+
 
                     titleBlock.className =
                         "archive-title";
@@ -790,6 +1150,7 @@
                             "div"
                         );
 
+
                     titleHeader.className =
                         "archive-title-header";
 
@@ -799,8 +1160,10 @@
                             "p"
                         );
 
+
                     titleLabel.className =
                         "archive-title-label";
+
 
                     titleLabel.textContent =
                         "TITLE";
@@ -811,6 +1174,7 @@
                             "h3"
                         );
 
+
                     titleName.textContent =
                         title.name;
 
@@ -819,19 +1183,17 @@
                         titleLabel
                     );
 
+
                     titleHeader.appendChild(
                         titleName
                     );
 
 
-                    /*
-                     * Editions
-                     */
-
                     const editions =
                         document.createElement(
                             "div"
                         );
+
 
                     editions.className =
                         "archive-editions";
@@ -842,8 +1204,10 @@
                             "p"
                         );
 
+
                     editionsLabel.className =
                         "archive-editions-label";
+
 
                     editionsLabel.textContent =
                         "EDITIONS";
@@ -853,10 +1217,6 @@
                         editionsLabel
                     );
 
-
-                    /*
-                     * No editions
-                     */
 
                     if (
                         !title.editions ||
@@ -868,8 +1228,10 @@
                                 "p"
                             );
 
+
                         noEditions.className =
                             "archive-no-editions";
+
 
                         noEditions.textContent =
                             "NO EDITIONS YET.";
@@ -882,10 +1244,6 @@
                     }
 
 
-                    /*
-                     * Existing editions
-                     */
-
                     if (
                         title.editions &&
                         title.editions.length > 0
@@ -894,16 +1252,20 @@
                         title.editions.forEach(
                             edition => {
 
+
                                 const editionRow =
                                     document.createElement(
                                         "a"
                                     );
 
+
                                 editionRow.className =
                                     "archive-edition";
 
+
                                 editionRow.href =
-                                    edition.url || "#";
+                                    edition.url ||
+                                    "#";
 
 
                                 const editionNumber =
@@ -911,8 +1273,10 @@
                                         "span"
                                     );
 
+
                                 editionNumber.className =
                                     "edition-number";
+
 
                                 editionNumber.textContent =
                                     edition.number;
@@ -923,8 +1287,10 @@
                                         "span"
                                     );
 
+
                                 editionName.className =
                                     "edition-name";
+
 
                                 editionName.textContent =
                                     edition.name;
@@ -933,6 +1299,7 @@
                                 editionRow.appendChild(
                                     editionNumber
                                 );
+
 
                                 editionRow.appendChild(
                                     editionName
@@ -953,6 +1320,7 @@
                         titleHeader
                     );
 
+
                     titleBlock.appendChild(
                         editions
                     );
@@ -968,6 +1336,7 @@
         }
 
 
+
         /* =========================================
            INITIALIZE
         ========================================== */
@@ -975,6 +1344,7 @@
         renderArchive();
 
         restoreWallet();
+
 
 
         /* =========================================
@@ -1006,11 +1376,13 @@
 
 
                                 target.scrollIntoView({
+
                                     behavior:
                                         "smooth",
 
                                     block:
                                         "start"
+
                                 });
 
                             }
@@ -1021,7 +1393,10 @@
                 }
             );
 
+
     </script>
 
+
 </body>
+
 </html>
