@@ -1,3 +1,7 @@
+/* =========================================
+   GLOBAL
+========================================= */
+
 * {
     box-sizing: border-box;
 }
@@ -26,12 +30,16 @@ a {
 }
 
 
-/* HEADER */
+/* =========================================
+   HEADER
+========================================= */
 
 .site-header {
     position: fixed;
+
     top: 0;
     left: 0;
+
     width: 100%;
     height: 70px;
 
@@ -48,10 +56,22 @@ a {
     font-size: 11px;
     letter-spacing: 0.22em;
     font-weight: 600;
+
+    transition: opacity 0.2s ease;
 }
+
+.brand:hover {
+    opacity: 0.55;
+}
+
+
+/* =========================================
+   WALLET BUTTON
+========================================= */
 
 .wallet-button {
     border: 0;
+
     background: #f2f2f2;
     color: #050505;
 
@@ -59,19 +79,39 @@ a {
 
     font-size: 10px;
     font-weight: 700;
+
     letter-spacing: 0.16em;
 
     cursor: pointer;
+
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+}
+
+.wallet-button:hover {
+    opacity: 0.75;
+}
+
+.wallet-button:active {
+    transform: scale(0.97);
+}
+
+.wallet-button.connected {
+    background: #f2f2f2;
 }
 
 
-/* HERO */
+/* =========================================
+   HERO
+========================================= */
 
 .hellbox {
     min-height: 100vh;
 
     display: flex;
     flex-direction: column;
+
     align-items: center;
     justify-content: center;
 
@@ -93,6 +133,7 @@ h1 {
     margin: 0;
 
     font-size: clamp(60px, 11vw, 180px);
+
     line-height: 0.82;
 
     letter-spacing: -0.06em;
@@ -104,6 +145,7 @@ h1 {
     margin-top: 45px;
 
     font-size: 14px;
+
     letter-spacing: 0.25em;
 
     text-transform: uppercase;
@@ -112,7 +154,9 @@ h1 {
 }
 
 
-/* NAVIGATION */
+/* =========================================
+   NAVIGATION
+========================================= */
 
 .main-nav {
     width: min(1000px, calc(100% - 80px));
@@ -130,6 +174,7 @@ h1 {
 
     display: flex;
     flex-direction: column;
+
     gap: 8px;
 
     transition: opacity 0.25s ease;
@@ -141,6 +186,7 @@ h1 {
 
 .main-nav a + a {
     padding-left: 40px;
+
     border-left: 1px solid #161616;
 }
 
@@ -151,11 +197,14 @@ h1 {
 
 .main-nav span {
     font-size: 11px;
+
     opacity: 0.4;
 }
 
 
-/* CONTENT */
+/* =========================================
+   CONTENT
+========================================= */
 
 .content-section {
     width: min(1000px, calc(100% - 80px));
@@ -173,6 +222,7 @@ h1 {
     margin: 0 0 28px;
 
     font-size: 10px;
+
     letter-spacing: 0.42em;
 
     opacity: 0.35;
@@ -198,6 +248,56 @@ h2 {
     color: #999;
 }
 
+
+/* =========================================
+   ARCHIVE
+========================================= */
+
+.archive-section {
+    scroll-margin-top: 80px;
+}
+
+.archive-empty {
+    margin-top: 80px;
+
+    padding: 60px 0;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+.archive-empty-label {
+    margin: 0;
+
+    font-size: clamp(28px, 4vw, 52px);
+
+    line-height: 0.95;
+
+    letter-spacing: -0.04em;
+
+    font-weight: 800;
+}
+
+.archive-empty-description {
+    margin: 0;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+    color: rgba(255, 255, 255, 0.45);
+}
+
+
+/* =========================================
+   PRESS
+========================================= */
+
 .press-section {
     padding-bottom: 140px;
 }
@@ -206,13 +306,16 @@ h2 {
     margin-top: 38px;
 
     font-size: 10px;
+
     letter-spacing: 0.3em;
 
     opacity: 0.35;
 }
 
 
-/* FOOTER */
+/* =========================================
+   FOOTER
+========================================= */
 
 .site-footer {
     width: min(1200px, calc(100% - 48px));
@@ -222,16 +325,20 @@ h2 {
     padding: 28px 0 35px;
 
     display: flex;
+
     justify-content: space-between;
 
     font-size: 9px;
+
     letter-spacing: 0.3em;
 
     opacity: 0.3;
 }
 
 
-/* MOBILE */
+/* =========================================
+   MOBILE
+========================================= */
 
 @media (max-width: 700px) {
 
@@ -239,18 +346,22 @@ h2 {
         padding: 16px;
     }
 
+
     .hellbox {
         padding-left: 20px;
         padding-right: 20px;
     }
 
+
     .eyebrow {
         font-size: 9px;
     }
 
+
     .subline {
         font-size: 10px;
     }
+
 
     .main-nav {
         width: calc(100% - 40px);
@@ -258,12 +369,15 @@ h2 {
         grid-template-columns: 1fr;
     }
 
+
     .main-nav a + a {
         padding-left: 0;
 
         border-left: 0;
+
         border-top: 1px solid #161616;
     }
+
 
     .content-section {
         width: calc(100% - 40px);
@@ -271,45 +385,20 @@ h2 {
         padding: 80px 0;
     }
 
+
     .site-footer {
         width: calc(100% - 32px);
 
         flex-direction: column;
+
         gap: 10px;
     }
-}
-/* =========================================
-   ARCHIVE
-   ========================================= */
 
-.archive-section {
-    scroll-margin-top: 80px;
-}
 
-.archive-empty {
-    margin-top: 80px;
-    padding: 60px 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    .wallet-button {
+        padding: 10px 14px;
 
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
+        font-size: 9px;
+    }
 
-.archive-empty-label {
-    margin: 0;
-
-    font-size: clamp(28px, 4vw, 52px);
-    line-height: 0.95;
-    letter-spacing: -0.04em;
-    font-weight: 800;
-}
-
-.archive-empty-description {
-    margin: 0;
-
-    font-size: 14px;
-    line-height: 1.5;
-    color: rgba(255, 255, 255, 0.45);
 }
