@@ -17,6 +17,58 @@ export default {
     }
 
     // --------------------------------------------------
+    // PUBLIC R2 FILES
+    // Example:
+    // /api/public/comics/ashbox/001/metadata/...
+    // --------------------------------------------------
+    if (url.pathname.startsWith("/api/public/")) {
+      const key = url.pathname.replace("/api/public/", "");
+
+      if (!key) {
+        return json({ error: "Missing object path" }, 400);
+      }
+
+      const object = await env.PUBLIC_BUCKET.get(key);
+
+      if (!object) {
+        return json({ error: "File not found" }, 404);
+      }
+
+      const headers = new Headers();
+      object.writeHttpMetadata(headers);
+      headers.set("ETag", object.httpEtag);
+
+      return new Response(object.body, {
+        headers,
+      });
+    }
+
+    // --------------------------------------------------
+    // PRIVATE R2 FILES
+    // --------------------------------------------------
+    if (url.pathname.startsWith("/api/private/")) {
+      const key = url.pathname.replace("/api/private/", "");
+
+      if (!key) {
+        return json({ error: "Missing object path" }, 400);
+      }
+
+      const object = await env.PRIVATE_BUCKET.get(key);
+
+      if (!object) {
+        return json({ error: "File not found" }, 404);
+      }
+
+      const headers = new Headers();
+      object.writeHttpMetadata(headers);
+      headers.set("ETag", object.httpEtag);
+
+      return new Response(object.body, {
+        headers,
+      });
+    }
+
+    // --------------------------------------------------
     // FALL BACK TO STATIC WEBSITE
     // --------------------------------------------------
     return env.ASSETS.fetch(request);
