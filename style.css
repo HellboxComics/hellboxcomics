@@ -1,1078 +1,796 @@
+/* =========================================================
+   HELLBOX COMICS
+   GLOBAL
+========================================================= */
+
+:root {
+    --black: #050505;
+    --black-soft: #0b0b0b;
+    --black-panel: #101010;
+    --white: #f2f2f2;
+    --gray: #8a8a8a;
+    --gray-dark: #292929;
+    --red: #b30000;
+    --red-bright: #d40000;
+
+    --max-width: 1180px;
+    --content-width: 920px;
+
+    --border: 1px solid #292929;
+}
+
 * {
     box-sizing: border-box;
 }
 
-
-/* =========================================
-   BASE
-========================================= */
-
 html {
     scroll-behavior: smooth;
-    background: #050505;
 }
 
-
-html,
 body {
     margin: 0;
     padding: 0;
-    width: 100%;
-    min-height: 100%;
-}
 
-
-body {
-    background:
-        radial-gradient(
-            circle at 50% 18%,
-            rgba(255, 255, 255, 0.025),
-            transparent 34%
-        ),
-        #050505;
-
-    color: #f2f2f2;
+    background: var(--black);
+    color: var(--white);
 
     font-family:
         Arial,
         Helvetica,
         sans-serif;
 
-    overflow-x: hidden;
+    line-height: 1.5;
 }
-
-
-body::before {
-    content: "";
-
-    position: fixed;
-
-    inset: 0;
-
-    pointer-events: none;
-
-    z-index: 999;
-
-    opacity: 0.025;
-
-    background-image:
-        repeating-linear-gradient(
-            0deg,
-            rgba(255, 255, 255, 0.8) 0px,
-            rgba(255, 255, 255, 0.8) 1px,
-            transparent 1px,
-            transparent 4px
-        );
-
-    mix-blend-mode: screen;
-}
-
 
 a {
     color: inherit;
     text-decoration: none;
 }
 
-
 button {
-    font-family: inherit;
+    font: inherit;
+}
+
+img {
+    display: block;
+    max-width: 100%;
 }
 
 
-/* =========================================
+/* =========================================================
    HEADER
-========================================= */
+========================================================= */
 
 .site-header {
-    position: fixed;
-
+    position: sticky;
     top: 0;
-    left: 0;
+    z-index: 1000;
 
     width: 100%;
-    height: 70px;
-
-    padding: 18px 24px;
 
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
 
-    z-index: 100;
+    padding: 18px 32px;
 
-    pointer-events: none;
+    background: rgba(5, 5, 5, 0.94);
+
+    border-bottom: var(--border);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
-
-
-.brand,
-.wallet-button {
-    pointer-events: auto;
-}
-
 
 .brand {
-    position: relative;
-
-    font-size: 11px;
-
-    letter-spacing: 0.22em;
-
-    font-weight: 700;
+    font-size: 15px;
+    font-weight: 900;
+    letter-spacing: 0.16em;
 
     transition:
-        opacity 0.25s ease,
-        letter-spacing 0.25s ease;
+        color 0.2s ease,
+        opacity 0.2s ease;
 }
-
 
 .brand:hover {
-    opacity: 0.6;
-
-    letter-spacing: 0.28em;
+    color: var(--red-bright);
 }
 
-
 .wallet-button {
-    position: relative;
+    appearance: none;
 
-    border: 1px solid rgba(255, 255, 255, 0.75);
+    border: 1px solid #555;
+    background: transparent;
 
-    background: rgba(5, 5, 5, 0.78);
+    color: var(--white);
 
-    color: #f2f2f2;
+    padding: 10px 17px;
 
-    padding: 11px 18px;
-
-    font-size: 10px;
-
-    font-weight: 700;
-
-    letter-spacing: 0.16em;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
 
     cursor: pointer;
 
-    backdrop-filter: blur(10px);
-
-    -webkit-backdrop-filter: blur(10px);
-
     transition:
-        background 0.25s ease,
-        color 0.25s ease,
-        border-color 0.25s ease,
-        transform 0.2s ease;
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
 }
-
 
 .wallet-button:hover {
-    background: #f2f2f2;
-
-    color: #050505;
-
-    border-color: #f2f2f2;
-
-    transform: translateY(-1px);
+    border-color: var(--red);
+    color: var(--red-bright);
 }
-
-
-.wallet-button:active {
-    transform: translateY(0);
-}
-
 
 .wallet-button.wallet-connected {
-    border-color: rgba(255, 255, 255, 0.25);
-
-    background: rgba(255, 255, 255, 0.06);
-
-    color: #f2f2f2;
+    border-color: var(--red);
+    color: var(--white);
 }
 
 
-.wallet-button.wallet-connected:hover {
-    background: rgba(255, 255, 255, 0.12);
+/* =========================================================
+   MAIN
+========================================================= */
 
-    color: #fff;
+main {
+    width: 100%;
 }
 
 
-/* =========================================
+/* =========================================================
    HERO
-========================================= */
+========================================================= */
 
 .hellbox {
-    position: relative;
+    width: min(var(--max-width), calc(100% - 48px));
 
-    min-height: 100vh;
+    min-height: 620px;
+
+    margin: 0 auto;
 
     display: flex;
-
     flex-direction: column;
-
-    align-items: center;
-
     justify-content: center;
 
-    text-align: center;
+    padding: 90px 20px;
 
-    padding: 100px 40px 60px;
-
-    overflow: hidden;
+    border-bottom: var(--border);
 }
-
-
-.hellbox::before {
-    content: "";
-
-    position: absolute;
-
-    width: min(700px, 80vw);
-
-    height: min(700px, 80vw);
-
-    border-radius: 50%;
-
-    background:
-        radial-gradient(
-            circle,
-            rgba(255, 255, 255, 0.045),
-            rgba(255, 255, 255, 0.012) 35%,
-            transparent 70%
-        );
-
-    filter: blur(2px);
-
-    pointer-events: none;
-}
-
-
-.hellbox::after {
-    content: "";
-
-    position: absolute;
-
-    left: 50%;
-
-    bottom: 0;
-
-    width: 1px;
-
-    height: 80px;
-
-    background:
-        linear-gradient(
-            to bottom,
-            transparent,
-            rgba(255, 255, 255, 0.15)
-        );
-
-    transform: translateX(-50%);
-
-    pointer-events: none;
-}
-
 
 .eyebrow {
-    position: relative;
+    margin: 0 0 18px;
 
-    margin: 0 0 30px;
+    color: var(--red-bright);
 
     font-size: 12px;
-
-    letter-spacing: 0.45em;
-
-    opacity: 0.45;
+    font-weight: 900;
+    letter-spacing: 0.22em;
 }
 
-
-h1 {
-    position: relative;
-
+.hellbox h1 {
     margin: 0;
 
-    font-size:
-        clamp(
-            60px,
-            11vw,
-            180px
-        );
+    font-size: clamp(64px, 11vw, 150px);
 
-    line-height: 0.82;
-
-    letter-spacing: -0.06em;
+    line-height: 0.84;
 
     font-weight: 900;
-}
 
-
-.subline {
-    position: relative;
-
-    margin-top: 45px;
-
-    font-size: 14px;
-
-    letter-spacing: 0.25em;
+    letter-spacing: -0.065em;
 
     text-transform: uppercase;
+}
 
-    opacity: 0.35;
+.subline {
+    margin: 30px 0 0;
+
+    color: var(--gray);
+
+    font-size: 15px;
+    letter-spacing: 0.08em;
 }
 
 
-/* =========================================
+/* =========================================================
    MAIN NAVIGATION
-========================================= */
+========================================================= */
 
 .main-nav {
-    position: relative;
-
-    width:
-        min(
-            1000px,
-            calc(100% - 80px)
-        );
+    width: min(var(--max-width), calc(100% - 48px));
 
     margin: 0 auto;
 
     display: grid;
-
     grid-template-columns: 1fr 1fr;
 
-    border-top:
-        1px solid rgba(255, 255, 255, 0.08);
-
-    border-bottom:
-        1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: var(--border);
 }
-
 
 .main-nav a {
-    position: relative;
+    min-height: 155px;
 
-    padding: 30px 0;
+    padding: 30px;
 
     display: flex;
-
     flex-direction: column;
+    justify-content: center;
 
-    gap: 9px;
-
-    overflow: hidden;
-
-    transition:
-        opacity 0.3s ease,
-        padding-left 0.3s ease;
-}
-
-
-.main-nav a::after {
-    content: "";
-
-    position: absolute;
-
-    left: 0;
-    bottom: 0;
-
-    width: 0;
-
-    height: 1px;
-
-    background: #f2f2f2;
+    background: var(--black);
 
     transition:
-        width 0.35s ease;
+        background 0.2s ease,
+        padding-left 0.2s ease;
 }
-
-
-.main-nav a:hover {
-    opacity: 1;
-
-    padding-left: 10px;
-}
-
-
-.main-nav a:hover::after {
-    width: 100%;
-}
-
 
 .main-nav a + a {
-    padding-left: 40px;
-
-    border-left:
-        1px solid rgba(255, 255, 255, 0.08);
+    border-left: var(--border);
 }
 
-
-.main-nav a + a:hover {
-    padding-left: 50px;
+.main-nav a:hover {
+    background: var(--black-panel);
+    padding-left: 36px;
 }
-
 
 .main-nav strong {
-    font-size: 11px;
+    margin-bottom: 8px;
 
-    letter-spacing: 0.18em;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
 }
-
 
 .main-nav span {
-    font-size: 11px;
+    color: var(--gray);
 
-    opacity: 0.4;
+    font-size: 13px;
 }
 
 
-/* =========================================
-   CONTENT
-========================================= */
+/* =========================================================
+   GENERAL CONTENT SECTIONS
+========================================================= */
 
 .content-section {
-    width:
-        min(
-            1000px,
-            calc(100% - 80px)
-        );
+    width: min(var(--content-width), calc(100% - 48px));
 
     margin: 0 auto;
 
-    padding: 140px 0;
-
-    border-bottom:
-        1px solid rgba(255, 255, 255, 0.08);
-
-    scroll-margin-top: 70px;
+    padding: 110px 0;
 }
-
 
 .section-label {
-    margin: 0 0 28px;
+    margin: 0 0 12px;
 
-    font-size: 10px;
+    color: var(--red-bright);
 
-    letter-spacing: 0.42em;
+    font-size: 11px;
+    font-weight: 900;
 
-    opacity: 0.35;
+    letter-spacing: 0.2em;
 }
 
-
-h2 {
+.content-section h2 {
     margin: 0;
 
-    font-size:
-        clamp(
-            48px,
-            7vw,
-            92px
-        );
+    font-size: clamp(42px, 7vw, 82px);
 
     line-height: 0.92;
 
-    letter-spacing: -0.055em;
+    letter-spacing: -0.045em;
 
     font-weight: 900;
 }
-
 
 .section-description {
-    margin: 32px 0 0;
+    margin: 22px 0 0;
 
-    max-width: 500px;
+    color: var(--gray);
 
     font-size: 14px;
-
-    line-height: 1.6;
-
-    color: #777;
 }
 
 
-/* =========================================
-   THE HELLBOX
-========================================= */
+/* =========================================================
+   ARCHIVE
+========================================================= */
 
 .archive-section {
-    position: relative;
-
-    scroll-margin-top: 80px;
+    border-bottom: var(--border);
 }
 
+.archive-status {
+    margin-top: 38px;
 
-.archive-section::before {
-    content: "HELLBOX";
-
-    position: absolute;
-
-    top: 80px;
-
-    right: -10px;
-
-    font-size:
-        clamp(
-            80px,
-            15vw,
-            180px
-        );
-
-    line-height: 1;
-
-    font-weight: 900;
-
-    letter-spacing: -0.08em;
-
-    color: rgba(255, 255, 255, 0.018);
-
-    pointer-events: none;
-
-    user-select: none;
-}
-
-
-.archive-list {
-    position: relative;
-
-    margin-top: 90px;
-}
-
-
-/* =========================================
-   EMPTY HELLBOX
-========================================= */
-
-.archive-empty {
-    position: relative;
-
-    min-height: 300px;
-
-    padding: 70px 50px;
-
-    border:
-        1px solid rgba(255, 255, 255, 0.1);
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(255, 255, 255, 0.025),
-            rgba(255, 255, 255, 0.005)
-        );
-
-    display: flex;
-
-    flex-direction: column;
-
-    justify-content: center;
-
-    overflow: hidden;
-}
-
-
-.archive-empty::before {
-    content: "";
-
-    position: absolute;
-
-    top: -100px;
-    right: -100px;
-
-    width: 300px;
-    height: 300px;
-
-    border-radius: 50%;
-
-    border:
-        1px solid rgba(255, 255, 255, 0.05);
-}
-
-
-.archive-empty::after {
-    content: "";
-
-    position: absolute;
-
-    left: 0;
-    bottom: 0;
-
-    width: 100%;
-
-    height: 1px;
-
-    background:
-        linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.2),
-            transparent
-        );
-}
-
-
-.archive-empty-label {
-    position: relative;
-
-    z-index: 2;
-
-    margin: 0;
-
-    font-size:
-        clamp(
-            32px,
-            5vw,
-            64px
-        );
-
-    line-height: 0.95;
-
-    letter-spacing: -0.05em;
-
-    font-weight: 900;
-}
-
-
-.archive-empty-description {
-    position: relative;
-
-    z-index: 2;
-
-    margin: 20px 0 0;
-
-    max-width: 420px;
-
-    font-size: 13px;
-
-    line-height: 1.6;
-
-    color: rgba(255, 255, 255, 0.4);
-}
-
-
-/* =========================================
-   FUTURE TITLE CONTAINER
-========================================= */
-
-.archive-title {
-    position: relative;
-
-    margin-bottom: 60px;
-
-    border-top:
-        1px solid rgba(255, 255, 255, 0.1);
-
-    border-bottom:
-        1px solid rgba(255, 255, 255, 0.1);
-
-    transition:
-        border-color 0.3s ease;
-}
-
-
-.archive-title:hover {
-    border-color:
-        rgba(255, 255, 255, 0.22);
-}
-
-
-.archive-title-header {
-    position: relative;
-
-    padding: 55px 0;
-}
-
-
-.archive-title-label {
-    margin: 0 0 18px;
+    color: #666;
 
     font-size: 10px;
+    font-weight: 800;
 
-    letter-spacing: 0.4em;
-
-    opacity: 0.35;
+    letter-spacing: 0.15em;
 }
 
+.archive-list {
+    margin-top: 18px;
+
+    display: flex;
+    flex-direction: column;
+
+    border-top: var(--border);
+}
+
+
+/* =========================================================
+   ARCHIVE TITLE CARD
+========================================================= */
+
+.archive-title {
+    padding: 26px 0;
+
+    display: grid;
+
+    grid-template-columns: 1fr auto;
+
+    gap: 30px;
+
+    border-bottom: var(--border);
+}
+
+.archive-title-header {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.archive-title-label {
+    margin: 0 0 5px;
+
+    color: var(--red-bright);
+
+    font-size: 9px;
+    font-weight: 900;
+
+    letter-spacing: 0.18em;
+}
 
 .archive-title h3 {
     margin: 0;
 
-    font-size:
-        clamp(
-            36px,
-            5vw,
-            68px
-        );
-
-    line-height: 0.95;
-
-    letter-spacing: -0.05em;
-
-    font-weight: 900;
-}
-
-
-/* =========================================
-   FUTURE EDITIONS
-========================================= */
-
-.archive-editions {
-    border-top:
-        1px solid rgba(255, 255, 255, 0.08);
-}
-
-
-.archive-editions-label {
-    margin: 0;
-
-    padding: 22px 0;
-
-    font-size: 10px;
-
-    letter-spacing: 0.35em;
-
-    opacity: 0.35;
-}
-
-
-.archive-edition {
-    position: relative;
-
-    min-height: 78px;
-
-    padding: 20px 0;
-
-    display: flex;
-
-    align-items: center;
-
-    gap: 30px;
-
-    border-top:
-        1px solid rgba(255, 255, 255, 0.06);
-
-    transition:
-        padding-left 0.3s ease,
-        background 0.3s ease,
-        opacity 0.3s ease;
-}
-
-
-.archive-edition::after {
-    content: "→";
-
-    position: absolute;
-
-    right: 0;
-
-    font-size: 16px;
-
-    opacity: 0;
-
-    transform: translateX(-8px);
-
-    transition:
-        opacity 0.3s ease,
-        transform 0.3s ease;
-}
-
-
-.archive-edition:hover {
-    padding-left: 12px;
-
-    background:
-        linear-gradient(
-            90deg,
-            rgba(255, 255, 255, 0.025),
-            transparent
-        );
-}
-
-
-.archive-edition:hover::after {
-    opacity: 0.65;
-
-    transform: translateX(0);
-}
-
-
-.edition-number {
-    width: 90px;
-
-    flex-shrink: 0;
-
-    font-size: 10px;
-
-    letter-spacing: 0.25em;
-
-    opacity: 0.35;
-}
-
-
-.edition-name {
-    font-size: 15px;
-
-    font-weight: 600;
-}
-
-
-.archive-no-editions {
-    margin: 0;
-
-    padding: 20px 0 28px;
-
-    font-size: 12px;
-
-    letter-spacing: 0.18em;
-
-    opacity: 0.35;
-}
-
-
-/* =========================================
-   THE PRESS
-========================================= */
-
-.press-section {
-    position: relative;
-
-    padding-bottom: 160px;
-
-    overflow: hidden;
-}
-
-
-.press-section::before {
-    content: "PRESS";
-
-    position: absolute;
-
-    right: -20px;
-
-    bottom: 40px;
-
-    font-size:
-        clamp(
-            100px,
-            18vw,
-            220px
-        );
-
+    font-size: 28px;
     line-height: 1;
 
-    letter-spacing: -0.08em;
-
     font-weight: 900;
 
-    color: rgba(255, 255, 255, 0.018);
+    letter-spacing: -0.025em;
+}
 
-    pointer-events: none;
+.archive-issue {
+    margin-top: 8px;
 
-    user-select: none;
+    color: #666;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    letter-spacing: 0.12em;
+}
+
+.archive-edition {
+    align-self: center;
+
+    appearance: none;
+
+    min-width: 145px;
+
+    padding: 13px 18px;
+
+    border: 1px solid #444;
+
+    background: transparent;
+
+    color: var(--white);
+
+    text-align: center;
+
+    font-size: 10px;
+    font-weight: 900;
+
+    letter-spacing: 0.13em;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.archive-edition:hover {
+    border-color: var(--red);
+    background: var(--red);
+    color: white;
 }
 
 
-.status {
-    position: relative;
+/* =========================================================
+   EMPTY ARCHIVE
+========================================================= */
 
-    margin-top: 50px;
+.archive-empty {
+    padding: 45px 0;
+}
+
+.archive-empty-label {
+    margin: 0;
+
+    color: var(--white);
+
+    font-size: 13px;
+    font-weight: 900;
+
+    letter-spacing: 0.12em;
+}
+
+.archive-empty-description {
+    margin: 7px 0 0;
+
+    color: var(--gray);
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   PUBLICATION VIEWER
+========================================================= */
+
+.publication-section {
+    width: min(var(--content-width), calc(100% - 48px));
+
+    padding-top: 90px;
+    padding-bottom: 110px;
+
+    border-bottom: var(--border);
+}
+
+.publication-content {
+    width: 100%;
+}
+
+
+/* =========================================================
+   PUBLICATION HEADER
+========================================================= */
+
+.publication-header {
+    margin-bottom: 45px;
+}
+
+.publication-header h2 {
+    max-width: 850px;
+}
+
+
+/* =========================================================
+   EBOOK LAYOUT
+========================================================= */
+
+.publication-book {
+    display: grid;
+
+    grid-template-columns: minmax(220px, 330px) 1fr;
+
+    gap: 55px;
+
+    align-items: start;
+}
+
+
+/* =========================================================
+   BOOK COVER
+========================================================= */
+
+.publication-cover {
+    width: 100%;
+
+    background: #080808;
+
+    border: var(--border);
+
+    padding: 8px;
+}
+
+.publication-cover img {
+    width: 100%;
+    height: auto;
+
+    max-height: 500px;
+
+    object-fit: contain;
+
+    background: #000;
+}
+
+
+/* =========================================================
+   BOOK ACTIONS
+========================================================= */
+
+.publication-actions {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    padding-top: 5px;
+}
+
+.publication-action {
+    width: 100%;
+
+    min-height: 50px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 14px 18px;
+
+    border: 1px solid #444;
+
+    background: transparent;
+
+    color: var(--white);
+
+    font-size: 10px;
+    font-weight: 900;
+
+    letter-spacing: 0.14em;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.publication-action:hover {
+    border-color: var(--red);
+    background: var(--red);
+    color: white;
+}
+
+.publication-close {
+    margin-top: 18px;
+
+    border-color: #252525;
+
+    color: #777;
+}
+
+.publication-close:hover {
+    border-color: #555;
+
+    background: #181818;
+
+    color: white;
+}
+
+
+/* =========================================================
+   COMIC PLACEHOLDER
+========================================================= */
+
+.publication-content > .section-description {
+    max-width: 650px;
+}
+
+
+/* =========================================================
+   PRESS
+========================================================= */
+
+.press-section {
+    min-height: 500px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.press-section h2 {
+    margin-top: 4px;
+}
+
+.status {
+    margin-top: 35px;
 
     display: inline-block;
 
-    padding: 12px 15px;
-
-    border:
-        1px solid rgba(255, 255, 255, 0.1);
+    color: #555;
 
     font-size: 10px;
+    font-weight: 900;
 
-    letter-spacing: 0.3em;
-
-    opacity: 0.45;
+    letter-spacing: 0.15em;
 }
 
 
-/* =========================================
+/* =========================================================
    FOOTER
-========================================= */
+========================================================= */
 
 .site-footer {
-    width:
-        min(
-            1200px,
-            calc(100% - 48px)
-        );
+    width: min(var(--max-width), calc(100% - 48px));
 
     margin: 0 auto;
 
-    padding: 32px 0 40px;
+    padding: 28px 0;
 
     display: flex;
-
     justify-content: space-between;
+    align-items: center;
+
+    color: #555;
 
     font-size: 9px;
+    font-weight: 800;
 
-    letter-spacing: 0.3em;
-
-    opacity: 0.3;
+    letter-spacing: 0.16em;
 }
 
 
-/* =========================================
-   SELECTION
-========================================= */
+/* =========================================================
+   HIDDEN
+========================================================= */
 
-::selection {
-    background: #f2f2f2;
-
-    color: #050505;
+[hidden] {
+    display: none !important;
 }
 
 
-/* =========================================
-   MOBILE
-========================================= */
+/* =========================================================
+   TABLET
+========================================================= */
 
-@media (max-width: 700px) {
+@media (max-width: 800px) {
 
     .site-header {
-        padding: 16px;
+        padding: 15px 20px;
     }
 
-
-    .brand {
-        font-size: 9px;
-
-        letter-spacing: 0.18em;
+    .hellbox,
+    .main-nav,
+    .content-section,
+    .publication-section,
+    .site-footer {
+        width: min(100% - 36px, var(--max-width));
     }
-
-
-    .wallet-button {
-        padding: 10px 13px;
-
-        font-size: 9px;
-    }
-
 
     .hellbox {
-        padding-left: 20px;
+        min-height: 500px;
 
-        padding-right: 20px;
+        padding: 70px 10px;
     }
-
-
-    .eyebrow {
-        font-size: 9px;
-
-        letter-spacing: 0.35em;
-    }
-
-
-    .subline {
-        font-size: 10px;
-
-        letter-spacing: 0.18em;
-    }
-
 
     .main-nav {
-        width:
-            calc(100% - 40px);
-
         grid-template-columns: 1fr;
     }
 
+    .main-nav a {
+        min-height: 125px;
+
+        padding: 25px 20px;
+    }
 
     .main-nav a + a {
-        padding-left: 0;
-
         border-left: 0;
-
-        border-top:
-            1px solid rgba(255, 255, 255, 0.08);
+        border-top: var(--border);
     }
 
+    .archive-title {
+        grid-template-columns: 1fr;
 
-    .main-nav a + a:hover {
-        padding-left: 10px;
+        gap: 20px;
     }
-
-
-    .content-section {
-        width:
-            calc(100% - 40px);
-
-        padding: 90px 0;
-    }
-
-
-    .archive-section::before {
-        top: 60px;
-
-        right: -30px;
-
-        font-size: 90px;
-    }
-
-
-    .archive-list {
-        margin-top: 60px;
-    }
-
-
-    .archive-empty {
-        min-height: 250px;
-
-        padding: 50px 25px;
-    }
-
-
-    .archive-title-header {
-        padding: 40px 0;
-    }
-
 
     .archive-edition {
-        gap: 15px;
-
-        padding-right: 30px;
+        width: 100%;
     }
 
+    .publication-book {
+        grid-template-columns: 1fr;
 
-    .edition-number {
-        width: 65px;
+        gap: 35px;
     }
 
+    .publication-cover {
+        width: min(100%, 360px);
 
-    .edition-name {
-        font-size: 14px;
+        margin: 0 auto;
     }
 
+    .publication-actions {
+        width: 100%;
+    }
+}
 
-    .archive-edition::after {
-        right: 5px;
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 520px) {
+
+    .site-header {
+        padding: 13px 16px;
     }
 
-
-    .press-section {
-        padding-bottom: 120px;
+    .brand {
+        font-size: 12px;
     }
 
+    .wallet-button {
+        padding: 9px 11px;
 
-    .press-section::before {
-        right: -20px;
-
-        bottom: 40px;
-
-        font-size: 100px;
+        font-size: 9px;
     }
 
+    .hellbox,
+    .main-nav,
+    .content-section,
+    .publication-section,
+    .site-footer {
+        width: calc(100% - 28px);
+    }
+
+    .hellbox {
+        min-height: 440px;
+
+        padding: 60px 5px;
+    }
+
+    .hellbox h1 {
+        font-size: clamp(52px, 18vw, 90px);
+    }
+
+    .subline {
+        font-size: 12px;
+    }
+
+    .content-section {
+        padding: 75px 0;
+    }
+
+    .content-section h2 {
+        font-size: 48px;
+    }
+
+    .archive-title h3 {
+        font-size: 24px;
+    }
+
+    .publication-section {
+        padding-top: 70px;
+    }
+
+    .publication-book {
+        gap: 28px;
+    }
+
+    .publication-cover {
+        width: min(100%, 300px);
+    }
 
     .site-footer {
-        width:
-            calc(100% - 32px);
-
         flex-direction: column;
+        align-items: flex-start;
 
-        gap: 10px;
+        gap: 8px;
+
+        padding: 22px 0;
     }
-
 }
