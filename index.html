@@ -58,39 +58,45 @@
         <!-- ARCHIVE -->
         <section class="content-section archive-section" id="archive">
 
-            <div class="section-intro">
-                <p class="section-label">THE HELLBOX</p>
+            <p class="section-label">
+                THE HELLBOX
+            </p>
 
-                <h2>THE ARCHIVE</h2>
+            <h2>
+                THE ARCHIVE
+            </h2>
 
-                <p class="section-description">
-                    Everything made inside the Hellbox.
-                </p>
-            </div>
+            <p class="section-description">
+                Every title. Every edition.
+            </p>
 
 
             <!--
-                EDITIONS WILL LIVE HERE.
+                TITLES WILL LIVE HERE.
 
-                When Edition 001 is ready, we will add
-                the comic card inside this container.
+                Each title will contain its own editions.
+
+                Example:
+
+                TITLE
+                    Edition 001
+                    Edition 002
+                    Edition 003
+
+                TITLE
+                    Edition 001
+                    Edition 002
             -->
 
             <div class="archive-empty">
 
-                <div class="archive-empty-number">
-                    00
-                </div>
+                <p class="archive-empty-label">
+                    NO TITLES YET.
+                </p>
 
-                <div class="archive-empty-copy">
-                    <p class="archive-empty-label">
-                        NO EDITIONS YET
-                    </p>
-
-                    <p class="archive-empty-description">
-                        The first edition has not been pressed.
-                    </p>
-                </div>
+                <p class="archive-empty-description">
+                    The first title has not been pressed.
+                </p>
 
             </div>
 
@@ -100,7 +106,9 @@
         <!-- PRESS -->
         <section class="content-section press-section" id="press">
 
-            <p class="section-label">THE PRESS</p>
+            <p class="section-label">
+                THE PRESS
+            </p>
 
             <h2>
                 NOTHING ON THE PRESS<br>
@@ -121,13 +129,22 @@
 
 
     <footer class="site-footer">
-        <span>HELLBOX COMICS</span>
-        <span>THE BOX IS OPEN.</span>
+
+        <span>
+            HELLBOX COMICS
+        </span>
+
+        <span>
+            THE BOX IS OPEN.
+        </span>
+
     </footer>
 
 
     <script>
+
         document.querySelectorAll('a[href^="#"]').forEach(link => {
+
             link.addEventListener("click", function(event) {
 
                 const target = document.querySelector(
@@ -135,16 +152,20 @@
                 );
 
                 if (target) {
+
                     event.preventDefault();
 
                     target.scrollIntoView({
                         behavior: "smooth",
                         block: "start"
                     });
+
                 }
 
             });
+
         });
+
     </script>
 
 </body>
