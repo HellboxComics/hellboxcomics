@@ -6,223 +6,139 @@
 
     <title>Hellbox Comics</title>
 
-    <meta
-        name="description"
-        content="Hellbox Comics — an underground home for independent comics."
-    >
-
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <!--
-        HELLBOX COMICS
-        Main website shell.
+    <!-- =========================
+         NAVIGATION
+         ========================= -->
 
-        Wallet functionality, editions, minting,
-        and protected content will be connected later.
-    -->
+    <nav>
+        <a href="#top">HELLBOX COMICS</a>
 
-    <header class="site-header">
-
-        <a href="/" class="site-mark" aria-label="Hellbox Comics home">
-            HELLBOX COMICS
-        </a>
-
-        <button
-            class="wallet-button"
-            type="button"
-            id="connect-wallet"
-        >
+        <button type="button" id="connect-wallet">
             CONNECT WALLET
         </button>
+    </nav>
 
-    </header>
+
+    <!-- =========================
+         HERO
+         ========================= -->
+
+    <main id="top">
+
+        <section class="hellbox">
+
+            <p class="eyebrow">
+                HELLBOX COMICS
+            </p>
+
+            <h1>
+                THE BOX<br>
+                IS OPEN.
+            </h1>
+
+            <p class="subline">
+                Something is coming.
+            </p>
+
+        </section>
 
 
-    <main>
+        <!-- =========================
+             SITE NAVIGATION
+             ========================= -->
 
-        <!--
-            HERO
-            This is intentionally structural for now.
-            The final Hellbox opening experience will
-            use purpose-built artwork and animation.
-        -->
+        <section class="site-navigation">
 
-        <section class="hero" aria-labelledby="hero-title">
+            <div class="site-links">
 
-            <div class="hero-inner">
+                <a href="#archive">
+                    <strong>ENTER THE HELLBOX</strong>
+                    <span>The archive of what gets made inside.</span>
+                </a>
 
-                <p class="eyebrow">
-                    HELLBOX COMICS
-                </p>
-
-                <h1 id="hero-title">
-                    THE BOX<br>
-                    IS OPEN.
-                </h1>
-
-                <p class="hero-subtitle">
-                    Something is coming.
-                </p>
+                <a href="#press">
+                    <strong>THE PRESS</strong>
+                    <span>Where new editions are released.</span>
+                </a>
 
             </div>
 
         </section>
 
 
-        <!--
-            PRIMARY DESTINATIONS
+        <!-- =========================
+             ARCHIVE
+             ========================= -->
 
-            These are deliberately empty systems.
-            Editions and releases will be added later.
-        -->
+        <section id="archive">
 
-        <section class="site-destinations" aria-label="Hellbox">
+            <p class="section-label">
+                THE HELLBOX
+            </p>
 
-            <a href="#hellbox" class="destination destination-hellbox">
+            <h2>
+                THE ARCHIVE
+            </h2>
 
-                <span class="destination-label">
-                    ENTER
-                </span>
-
-                <span class="destination-title">
-                    THE HELLBOX
-                </span>
-
-                <span class="destination-description">
-                    The archive of what gets made inside.
-                </span>
-
-            </a>
-
-
-            <a href="#press" class="destination destination-press">
-
-                <span class="destination-label">
-                    THE PRESS
-                </span>
-
-                <span class="destination-title">
-                    THE PRESS
-                </span>
-
-                <span class="destination-description">
-                    Where new editions are released.
-                </span>
-
-            </a>
+            <p class="empty">
+                The box is empty.
+            </p>
 
         </section>
 
 
-        <!--
-            THE HELLBOX
+        <!-- =========================
+             PRESS
+             ========================= -->
 
-            Future editions will populate this area.
-            Do not add fake editions yet.
-        -->
+        <section id="press">
 
-        <section
-            id="hellbox"
-            class="hellbox-section"
-            aria-labelledby="hellbox-title"
-        >
+            <p class="section-label">
+                THE PRESS
+            </p>
 
-            <div class="section-heading">
+            <h2>
+                NOTHING ON THE PRESS YET.
+            </h2>
 
-                <p class="eyebrow">
-                    THE HELLBOX
-                </p>
+            <p>
+                When something is ready, it will be pressed here.
+            </p>
 
-                <h2 id="hellbox-title">
-                    THE ARCHIVE
-                </h2>
-
-                <p>
-                    The box is empty.
-                </p>
-
-            </div>
-
-            <div
-                class="edition-grid"
-                id="edition-grid"
-                aria-live="polite"
-            >
-
-                <!--
-                    Editions will be inserted here later.
-                -->
-
-            </div>
-
-        </section>
-
-
-        <!--
-            THE PRESS
-
-            Future releases will populate this area.
-        -->
-
-        <section
-            id="press"
-            class="press-section"
-            aria-labelledby="press-title"
-        >
-
-            <div class="section-heading">
-
-                <p class="eyebrow">
-                    THE PRESS
-                </p>
-
-                <h2 id="press-title">
-                    NOTHING ON THE PRESS YET.
-                </h2>
-
-                <p>
-                    When something is ready, it will be pressed here.
-                </p>
-
-            </div>
-
-            <div class="press-placeholder">
-
-                <span>
-                    NO CURRENT EDITION
-                </span>
-
-            </div>
+            <p class="empty">
+                NO CURRENT EDITION
+            </p>
 
         </section>
 
     </main>
 
 
-    <footer class="site-footer">
+    <!-- =========================
+         FOOTER
+         ========================= -->
 
-        <span>
-            HELLBOX COMICS
-        </span>
-
-        <span>
-            THE BOX IS OPEN.
-        </span>
-
+    <footer>
+        HELLBOX COMICS &nbsp; THE BOX IS OPEN.
     </footer>
 
 
-    <!--
-        JavaScript will be connected here later.
+    <!-- =========================
+         JAVASCRIPT
+         ========================= -->
 
-        We are intentionally leaving wallet,
-        Hellbox access, Press functionality,
-        and edition interactions disconnected
-        until the site's visual foundation is complete.
-    -->
+    <script>
+        document
+            .getElementById("connect-wallet")
+            .addEventListener("click", function () {
+                alert("Wallet connection coming soon.");
+            });
+    </script>
 
 </body>
 </html>
