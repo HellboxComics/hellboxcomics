@@ -1,14 +1,12 @@
-/* =========================================
-   GLOBAL
-========================================= */
-
 * {
     box-sizing: border-box;
 }
 
+
 html {
     scroll-behavior: smooth;
 }
+
 
 html,
 body {
@@ -18,11 +16,13 @@ body {
     min-height: 100%;
 }
 
+
 body {
     background: #050505;
     color: #f2f2f2;
     font-family: Arial, Helvetica, sans-serif;
 }
+
 
 a {
     color: inherit;
@@ -52,22 +52,15 @@ a {
     z-index: 100;
 }
 
+
 .brand {
     font-size: 11px;
+
     letter-spacing: 0.22em;
+
     font-weight: 600;
-
-    transition: opacity 0.2s ease;
 }
 
-.brand:hover {
-    opacity: 0.55;
-}
-
-
-/* =========================================
-   WALLET BUTTON
-========================================= */
 
 .wallet-button {
     border: 0;
@@ -78,27 +71,12 @@ a {
     padding: 11px 18px;
 
     font-size: 10px;
+
     font-weight: 700;
 
     letter-spacing: 0.16em;
 
     cursor: pointer;
-
-    transition:
-        opacity 0.2s ease,
-        transform 0.2s ease;
-}
-
-.wallet-button:hover {
-    opacity: 0.75;
-}
-
-.wallet-button:active {
-    transform: scale(0.97);
-}
-
-.wallet-button.connected {
-    background: #f2f2f2;
 }
 
 
@@ -110,6 +88,7 @@ a {
     min-height: 100vh;
 
     display: flex;
+
     flex-direction: column;
 
     align-items: center;
@@ -120,14 +99,17 @@ a {
     padding: 100px 40px 60px;
 }
 
+
 .eyebrow {
     margin: 0 0 30px;
 
     font-size: 12px;
+
     letter-spacing: 0.45em;
 
     opacity: 0.45;
 }
+
 
 h1 {
     margin: 0;
@@ -140,6 +122,7 @@ h1 {
 
     font-weight: 900;
 }
+
 
 .subline {
     margin-top: 45px;
@@ -159,30 +142,39 @@ h1 {
 ========================================= */
 
 .main-nav {
-    width: min(1000px, calc(100% - 80px));
+    width: min(
+        1000px,
+        calc(100% - 80px)
+    );
 
     margin: 0 auto;
 
     display: grid;
+
     grid-template-columns: 1fr 1fr;
 
     border-bottom: 1px solid #161616;
 }
 
+
 .main-nav a {
     padding: 26px 0;
 
     display: flex;
+
     flex-direction: column;
 
     gap: 8px;
 
-    transition: opacity 0.25s ease;
+    transition:
+        opacity 0.25s ease;
 }
+
 
 .main-nav a:hover {
     opacity: 0.55;
 }
+
 
 .main-nav a + a {
     padding-left: 40px;
@@ -190,10 +182,13 @@ h1 {
     border-left: 1px solid #161616;
 }
 
+
 .main-nav strong {
     font-size: 11px;
+
     letter-spacing: 0.18em;
 }
+
 
 .main-nav span {
     font-size: 11px;
@@ -207,7 +202,10 @@ h1 {
 ========================================= */
 
 .content-section {
-    width: min(1000px, calc(100% - 80px));
+    width: min(
+        1000px,
+        calc(100% - 80px)
+    );
 
     margin: 0 auto;
 
@@ -217,6 +215,7 @@ h1 {
 
     scroll-margin-top: 70px;
 }
+
 
 .section-label {
     margin: 0 0 28px;
@@ -228,10 +227,15 @@ h1 {
     opacity: 0.35;
 }
 
+
 h2 {
     margin: 0;
 
-    font-size: clamp(48px, 7vw, 92px);
+    font-size: clamp(
+        48px,
+        7vw,
+        92px
+    );
 
     line-height: 0.92;
 
@@ -239,6 +243,7 @@ h2 {
 
     font-weight: 900;
 }
+
 
 .section-description {
     margin: 32px 0 0;
@@ -257,24 +262,51 @@ h2 {
     scroll-margin-top: 80px;
 }
 
-.archive-empty {
-    margin-top: 80px;
 
+.archive-list {
+    margin-top: 80px;
+}
+
+
+/* =========================================
+   EMPTY ARCHIVE
+========================================= */
+
+.archive-empty {
     padding: 60px 0;
 
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-top:
+        1px solid rgba(
+            255,
+            255,
+            255,
+            0.08
+        );
+
+    border-bottom:
+        1px solid rgba(
+            255,
+            255,
+            255,
+            0.08
+        );
 
     display: flex;
+
     flex-direction: column;
 
     gap: 14px;
 }
 
+
 .archive-empty-label {
     margin: 0;
 
-    font-size: clamp(28px, 4vw, 52px);
+    font-size: clamp(
+        28px,
+        4vw,
+        52px
+    );
 
     line-height: 0.95;
 
@@ -283,6 +315,7 @@ h2 {
     font-weight: 800;
 }
 
+
 .archive-empty-description {
     margin: 0;
 
@@ -290,7 +323,160 @@ h2 {
 
     line-height: 1.5;
 
-    color: rgba(255, 255, 255, 0.45);
+    color: rgba(
+        255,
+        255,
+        255,
+        0.45
+    );
+}
+
+
+/* =========================================
+   TITLES
+========================================= */
+
+.archive-title {
+    border-top:
+        1px solid rgba(
+            255,
+            255,
+            255,
+            0.08
+        );
+
+    border-bottom:
+        1px solid rgba(
+            255,
+            255,
+            255,
+            0.08
+        );
+
+    margin-bottom: 48px;
+}
+
+
+.archive-title-header {
+    padding: 50px 0;
+}
+
+
+.archive-title-label {
+    margin: 0 0 16px;
+
+    font-size: 10px;
+
+    letter-spacing: 0.4em;
+
+    opacity: 0.35;
+}
+
+
+.archive-title h3 {
+    margin: 0;
+
+    font-size: clamp(
+        36px,
+        5vw,
+        68px
+    );
+
+    line-height: 0.95;
+
+    letter-spacing: -0.05em;
+
+    font-weight: 900;
+}
+
+
+/* =========================================
+   EDITIONS
+========================================= */
+
+.archive-editions {
+    border-top:
+        1px solid rgba(
+            255,
+            255,
+            255,
+            0.08
+        );
+}
+
+
+.archive-editions-label {
+    margin: 0;
+
+    padding: 22px 0;
+
+    font-size: 10px;
+
+    letter-spacing: 0.35em;
+
+    opacity: 0.35;
+}
+
+
+.archive-edition {
+    min-height: 72px;
+
+    padding: 18px 0;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 30px;
+
+    border-top:
+        1px solid rgba(
+            255,
+            255,
+            255,
+            0.06
+        );
+
+    transition:
+        opacity 0.25s ease;
+}
+
+
+.archive-edition:hover {
+    opacity: 0.55;
+}
+
+
+.edition-number {
+    width: 90px;
+
+    flex-shrink: 0;
+
+    font-size: 10px;
+
+    letter-spacing: 0.25em;
+
+    opacity: 0.35;
+}
+
+
+.edition-name {
+    font-size: 15px;
+
+    font-weight: 600;
+}
+
+
+.archive-no-editions {
+    margin: 0;
+
+    padding: 20px 0 28px;
+
+    font-size: 12px;
+
+    letter-spacing: 0.18em;
+
+    opacity: 0.35;
 }
 
 
@@ -301,6 +487,7 @@ h2 {
 .press-section {
     padding-bottom: 140px;
 }
+
 
 .status {
     margin-top: 38px;
@@ -318,7 +505,10 @@ h2 {
 ========================================= */
 
 .site-footer {
-    width: min(1200px, calc(100% - 48px));
+    width: min(
+        1200px,
+        calc(100% - 48px)
+    );
 
     margin: 0 auto;
 
@@ -375,7 +565,8 @@ h2 {
 
         border-left: 0;
 
-        border-top: 1px solid #161616;
+        border-top:
+            1px solid #161616;
     }
 
 
@@ -386,19 +577,32 @@ h2 {
     }
 
 
+    .archive-list {
+        margin-top: 60px;
+    }
+
+
+    .archive-title-header {
+        padding: 40px 0;
+    }
+
+
+    .archive-edition {
+        gap: 15px;
+    }
+
+
+    .edition-number {
+        width: 70px;
+    }
+
+
     .site-footer {
         width: calc(100% - 32px);
 
         flex-direction: column;
 
         gap: 10px;
-    }
-
-
-    .wallet-button {
-        padding: 10px 14px;
-
-        font-size: 9px;
     }
 
 }
