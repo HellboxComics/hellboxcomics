@@ -17,9 +17,40 @@ export default {
     }
 
     // --------------------------------------------------
+    // COMIC CATALOG
+    // Example:
+    // /api/comics
+    //
+    // This is the public catalog of comics currently
+    // available on Hellbox Comics.
+    // --------------------------------------------------
+    if (url.pathname === "/api/comics") {
+      return json({
+        ok: true,
+        comics: [
+          {
+            slug: "scivive",
+            issue: 1,
+            title: "SciVive",
+            status: "published",
+            access: "free",
+            format: "ebook",
+          },
+          {
+            slug: "ashbox",
+            issue: 1,
+            title: "Ashbox",
+            status: "published",
+          },
+        ],
+      });
+    }
+
+    // --------------------------------------------------
     // COMIC METADATA
     // Example:
     // /api/comics/ashbox/001
+    // /api/comics/scivive/001
     // --------------------------------------------------
     const comicMatch = url.pathname.match(
       /^\/api\/comics\/([a-z0-9-]+)\/(\d+)$/
@@ -56,7 +87,6 @@ export default {
     return env.ASSETS.fetch(request);
   },
 };
-
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data, null, 2), {
