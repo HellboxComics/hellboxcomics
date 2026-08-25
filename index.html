@@ -37,8 +37,15 @@
         <a
             href="#top"
             class="brand"
+            aria-label="Hellbox Comics home"
         >
-            HELLBOX COMICS
+
+            <img
+                src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-banner.PNG"
+                alt="Hellbox Comics"
+                class="brand-logo"
+            >
+
         </a>
 
 
@@ -53,6 +60,7 @@
     </header>
 
 
+
     <main>
 
 
@@ -64,6 +72,17 @@
             class="hellbox"
             id="top"
         >
+
+            <div class="hero-brand">
+
+                <img
+                    src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem.PNG"
+                    alt="Hellbox Comics emblem"
+                    class="hero-emblem"
+                >
+
+            </div>
+
 
             <p class="eyebrow">
                 HELLBOX COMICS
@@ -81,6 +100,7 @@
             </p>
 
         </section>
+
 
 
         <!-- =========================================
@@ -115,6 +135,7 @@
             </a>
 
         </nav>
+
 
 
         <!-- =========================================
@@ -157,6 +178,7 @@
         </section>
 
 
+
         <!-- =========================================
              PUBLICATION VIEWER
         ========================================== -->
@@ -175,6 +197,7 @@
         </section>
 
 
+
         <!-- =========================================
              PRESS
         ========================================== -->
@@ -184,32 +207,53 @@
             id="press"
         >
 
-            <p class="section-label">
-                THE PRESS
-            </p>
+            <!--
+                Deliberate SIN foreshadowing.
 
+                The wordmark is present, but extremely
+                restrained. The SIN emblem remains
+                completely unused.
+            -->
 
-            <h2>
-                NOTHING ON THE PRESS<br>
-                YET.
-            </h2>
-
-
-            <p class="section-description">
-                When something is ready, it will be pressed here.
-            </p>
-
-
-            <p
-                class="status"
-                id="pressStatus"
+            <img
+                src="https://cdn.hellboxcomics.com/assets/brand/sin/foreshadow/sin-wordmark.PNG"
+                alt=""
+                class="sin-foreshadow"
+                aria-hidden="true"
             >
-                NO CURRENT EDITION
-            </p>
+
+
+            <div class="press-content">
+
+                <p class="section-label">
+                    THE PRESS
+                </p>
+
+
+                <h2>
+                    NOTHING ON THE PRESS<br>
+                    YET.
+                </h2>
+
+
+                <p class="section-description">
+                    When something is ready, it will be pressed here.
+                </p>
+
+
+                <p
+                    class="status"
+                    id="pressStatus"
+                >
+                    NO CURRENT EDITION
+                </p>
+
+            </div>
 
         </section>
 
     </main>
+
 
 
     <!-- =========================================
@@ -218,20 +262,30 @@
 
     <footer class="site-footer">
 
-        <span>
-            HELLBOX COMICS
-        </span>
+        <div class="footer-brand">
+
+            <span>
+                HELLBOX COMICS
+            </span>
+
+            <span>
+                THE BOX IS OPEN.
+            </span>
+
+        </div>
 
 
-        <span>
-            THE BOX IS OPEN.
-        </span>
+        <img
+            src="https://cdn.hellboxcomics.com/assets/brand/footer/backed-by-bytes-footer.PNG"
+            alt="Backed by Bytes"
+            class="backed-by-bytes"
+        >
 
     </footer>
 
 
-    <script>
 
+    <script>
 
         /* =========================================
            HELLBOX NETWORK CONFIGURATION
@@ -262,18 +316,13 @@
         };
 
 
+
         /* =========================================
            HELLBOX API CONFIGURATION
-
-           The API is intentionally relative.
-
-           This means TEST uses the TEST Worker
-           automatically, while MAIN can use the
-           production Worker without changing the
-           frontend architecture.
         ========================================== */
 
         const HELLBOX_API = "";
+
 
 
         /* =========================================
@@ -285,6 +334,7 @@
         let walletOnPulseChain = false;
 
 
+
         /* =========================================
            WALLET ELEMENT
         ========================================== */
@@ -293,6 +343,7 @@
             document.getElementById(
                 "walletButton"
             );
+
 
 
         /* =========================================
@@ -307,6 +358,7 @@
             );
 
         }
+
 
 
         /* =========================================
@@ -330,6 +382,7 @@
         }
 
 
+
         /* =========================================
            UPDATE WALLET BUTTON
         ========================================== */
@@ -341,7 +394,6 @@
                 return;
 
             }
-
 
             if (!connectedWallet) {
 
@@ -356,7 +408,6 @@
 
             }
 
-
             if (!walletOnPulseChain) {
 
                 walletButton.textContent =
@@ -370,7 +421,6 @@
 
             }
 
-
             walletButton.textContent =
                 shortenAddress(
                     connectedWallet
@@ -381,6 +431,7 @@
             );
 
         }
+
 
 
         /* =========================================
@@ -399,7 +450,8 @@
 
                 return await window.ethereum.request({
 
-                    method: "eth_chainId"
+                    method:
+                        "eth_chainId"
 
                 });
 
@@ -415,6 +467,7 @@
             }
 
         }
+
 
 
         /* =========================================
@@ -479,6 +532,7 @@
             }
 
         }
+
 
 
         /* =========================================
@@ -588,6 +642,7 @@
         }
 
 
+
         /* =========================================
            CONNECT WALLET
         ========================================== */
@@ -667,11 +722,6 @@
 
                     updateWalletButton();
 
-                    console.log(
-                        "HELLBOX WALLET CONNECTED ON PULSECHAIN:",
-                        connectedWallet
-                    );
-
                     return;
 
                 }
@@ -700,6 +750,7 @@
             }
 
         }
+
 
 
         /* =========================================
@@ -731,6 +782,7 @@
         }
 
 
+
         /* =========================================
            NETWORK CHANGE
         ========================================== */
@@ -750,6 +802,7 @@
             updateWalletButton();
 
         }
+
 
 
         /* =========================================
@@ -775,6 +828,7 @@
             updateWalletButton();
 
         }
+
 
 
         /* =========================================
@@ -825,6 +879,7 @@
         }
 
 
+
         /* =========================================
            WALLET EVENTS
         ========================================== */
@@ -842,6 +897,7 @@
             );
 
         }
+
 
 
         /* =========================================
@@ -886,6 +942,7 @@
         );
 
 
+
         /* =========================================
            ARCHIVE ELEMENTS
         ========================================== */
@@ -911,11 +968,13 @@
             );
 
 
+
         /* =========================================
            HELLBOX CATALOG
         ========================================== */
 
         let hellboxCatalog = [];
+
 
 
         /* =========================================
@@ -986,6 +1045,7 @@
         }
 
 
+
         /* =========================================
            RENDER ARCHIVE
         ========================================== */
@@ -1035,6 +1095,7 @@
                         "comic";
 
 
+
                     const header =
                         document.createElement(
                             "div"
@@ -1042,6 +1103,7 @@
 
                     header.className =
                         "archive-title-header";
+
 
 
                     const label =
@@ -1059,6 +1121,7 @@
                             : "COMIC";
 
 
+
                     const name =
                         document.createElement(
                             "h3"
@@ -1067,6 +1130,7 @@
                     name.textContent =
                         publication.title ||
                         publication.slug;
+
 
 
                     const issue =
@@ -1081,11 +1145,13 @@
                         `ISSUE ${publication.issue}`;
 
 
+
                     header.appendChild(label);
 
                     header.appendChild(name);
 
                     header.appendChild(issue);
+
 
 
                     const action =
@@ -1106,6 +1172,7 @@
                             : "OPEN COMIC";
 
 
+
                     action.addEventListener(
                         "click",
                         function() {
@@ -1116,6 +1183,7 @@
 
                         }
                     );
+
 
 
                     publicationCard.appendChild(
@@ -1134,6 +1202,7 @@
             );
 
         }
+
 
 
         /* =========================================
@@ -1233,6 +1302,7 @@
         }
 
 
+
         /* =========================================
            RENDER PUBLICATION
         ========================================== */
@@ -1259,6 +1329,7 @@
             );
 
         }
+
 
 
         /* =========================================
@@ -1294,6 +1365,7 @@
                     : "";
 
 
+
             publicationContent.innerHTML = `
                 <div class="publication-header">
 
@@ -1325,6 +1397,7 @@
                         cover
                             ? `
                                 <div class="publication-cover">
+
                                     <img
                                         src="${escapeAttribute(cover)}"
                                         alt="${escapeAttribute(
@@ -1332,6 +1405,7 @@
                                             "Book cover"
                                         )}"
                                     >
+
                                 </div>
                             `
                             : ""
@@ -1386,6 +1460,7 @@
             `;
 
 
+
             const closeButton =
                 document.getElementById(
                     "closePublication"
@@ -1403,6 +1478,7 @@
         }
 
 
+
         /* =========================================
            COMIC VIEW
         ========================================== */
@@ -1410,6 +1486,7 @@
         function renderComic(metadata) {
 
             publicationContent.innerHTML = `
+
                 <p class="section-label">
                     COMIC
                 </p>
@@ -1433,7 +1510,9 @@
                 >
                     CLOSE
                 </button>
+
             `;
+
 
 
             const closeButton =
@@ -1451,6 +1530,7 @@
             }
 
         }
+
 
 
         /* =========================================
@@ -1475,6 +1555,7 @@
                 });
 
         }
+
 
 
         /* =========================================
@@ -1508,6 +1589,7 @@
         }
 
 
+
         function escapeAttribute(value) {
 
             return escapeHtml(
@@ -1515,6 +1597,7 @@
             );
 
         }
+
 
 
         /* =========================================
@@ -1526,6 +1609,7 @@
         restoreWallet();
 
         loadCatalog();
+
 
 
         /* =========================================
@@ -1572,9 +1656,7 @@
                 }
             );
 
-
     </script>
-
 
 </body>
 
