@@ -1,6 +1,6 @@
 /* =========================================================
    HELLBOX COMICS
-   GLOBAL
+   BASE
 ========================================================= */
 
 * {
@@ -25,13 +25,13 @@ a {
     text-decoration: none;
 }
 
+button {
+    font: inherit;
+}
+
 button,
 a {
     -webkit-tap-highlight-color: transparent;
-}
-
-button {
-    font: inherit;
 }
 
 
@@ -44,14 +44,12 @@ button {
     top: 0;
     z-index: 1000;
 
-    width: 100%;
+    min-height: 68px;
+    padding: 0 28px;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-    min-height: 68px;
-    padding: 0 28px;
 
     background: rgba(5, 5, 5, 0.96);
     border-bottom: 1px solid #242424;
@@ -61,7 +59,6 @@ button {
     font-size: 15px;
     font-weight: 800;
     letter-spacing: 2px;
-    white-space: nowrap;
 }
 
 .wallet-button {
@@ -100,16 +97,13 @@ button {
 
 
 /* =========================================================
-   MAIN
+   GLOBAL CONTENT WIDTH
 ========================================================= */
 
-main {
-    width: 100%;
-}
-
 .hellbox,
+.main-nav,
 .content-section,
-.main-nav {
+.site-footer {
     width: min(1080px, calc(100% - 48px));
     margin-left: auto;
     margin-right: auto;
@@ -122,7 +116,6 @@ main {
 
 .hellbox {
     min-height: 565px;
-
     padding-top: 125px;
     padding-bottom: 110px;
 }
@@ -144,26 +137,22 @@ main {
 
     margin: 0;
 
-    color: #f4f4f4;
-
     font-size: clamp(64px, 8vw, 118px);
     font-weight: 900;
     line-height: 0.88;
     letter-spacing: -5px;
-    text-transform: uppercase;
 }
 
 .subline {
     margin: 32px 0 0;
 
     color: #858585;
-
     font-size: 15px;
 }
 
 
 /* =========================================================
-   MAIN NAVIGATION
+   MAIN NAV
 ========================================================= */
 
 .main-nav {
@@ -176,7 +165,6 @@ main {
 
 .main-nav a {
     min-height: 142px;
-
     padding: 42px 26px;
 
     display: flex;
@@ -198,18 +186,14 @@ main {
 }
 
 .main-nav strong {
-    display: block;
-
     margin-bottom: 6px;
 
     font-size: 15px;
     font-weight: 800;
-    letter-spacing: 0.3px;
 }
 
 .main-nav span {
     color: #777777;
-
     font-size: 13px;
 }
 
@@ -219,8 +203,8 @@ main {
 ========================================================= */
 
 .content-section {
-    padding-top: 125px;
-    padding-bottom: 125px;
+    padding-top: 100px;
+    padding-bottom: 100px;
 }
 
 .content-section + .content-section {
@@ -236,14 +220,12 @@ main {
     font-weight: 900;
     line-height: 0.92;
     letter-spacing: -3px;
-    text-transform: uppercase;
 }
 
 .section-description {
     margin: 20px 0 0;
 
     color: #858585;
-
     font-size: 14px;
 }
 
@@ -253,14 +235,37 @@ main {
 ========================================================= */
 
 .archive-section {
-    padding-top: 120px;
+    padding-top: 105px;
+    padding-bottom: 105px;
+}
+
+.archive-status {
+    margin-top: 28px;
+
+    color: #555555;
+
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
 }
 
 .archive-list {
-    margin-top: 54px;
+    margin-top: 38px;
 }
 
+
+/* =========================================================
+   ARCHIVE PUBLICATION ROW
+========================================================= */
+
 .archive-title {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+
+    min-height: 100px;
+
     border-top: 1px solid #292929;
 }
 
@@ -268,15 +273,23 @@ main {
     border-bottom: 1px solid #292929;
 }
 
-.archive-title-header {
-    position: relative;
 
-    padding: 28px 0 18px;
+/* Information side */
+
+.archive-title-header {
+    min-width: 0;
+
+    padding: 22px 28px 22px 0;
+
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
 }
 
-.archive-title-label,
-.archive-editions-label {
-    margin: 0 0 5px;
+.archive-title-label {
+    flex: 0 0 auto;
+
+    margin: 0;
 
     color: #e00000;
 
@@ -289,142 +302,52 @@ main {
 .archive-title-header h3 {
     margin: 0;
 
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 800;
     line-height: 1.1;
 }
 
-.archive-editions {
-    position: relative;
-
-    padding-bottom: 26px;
-}
-
-.archive-edition {
-    width: 100%;
-
-    min-height: 72px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 0 18px;
-
-    border: 1px solid #282828;
-
-    transition:
-        background 160ms ease,
-        border-color 160ms ease;
-}
-
-.archive-edition:hover {
-    background: #0d0d0d;
-    border-color: #555555;
-}
-
-.edition-number {
-    color: #777777;
-
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-
-.edition-name {
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.archive-no-editions {
-    margin: 0;
+.archive-issue {
+    flex: 0 0 auto;
 
     color: #555555;
 
-    font-size: 11px;
-    letter-spacing: 1px;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
 }
 
-.archive-empty {
-    padding: 50px 0;
 
-    border-top: 1px solid #292929;
-    border-bottom: 1px solid #292929;
-}
+/* Archive action */
 
-.archive-empty-label {
-    margin: 0;
-
-    color: #f2f2f2;
-
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 2px;
-}
-
-.archive-empty-description {
-    margin: 8px 0 0;
-
-    color: #666666;
-
-    font-size: 13px;
-}
-
-
-/* =========================================================
-   ARCHIVE ACTION BUTTONS
-========================================================= */
-
-/*
-   These rules deliberately remove browser-default
-   button styling and prevent the text duplication /
-   broken-looking boxes seen in the screenshot.
-*/
-
-.archive-title button,
-.archive-title a.button,
-.archive-title .open-button,
-.archive-title .archive-button,
-.archive-title .open-ebook,
-.archive-title .open-comic {
+.archive-edition {
     appearance: none;
 
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    width: auto;
-    min-width: 132px;
+    min-width: 140px;
     height: 42px;
 
+    margin-right: 0;
     padding: 0 18px;
 
-    border: 1px solid #3a3a3a;
+    border: 1px solid #333333;
     background: transparent;
 
     color: #f2f2f2;
 
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 800;
-    letter-spacing: 1.4px;
-    text-transform: uppercase;
+    letter-spacing: 1.5px;
 
     cursor: pointer;
 
     transition:
         background 160ms ease,
-        border-color 160ms ease,
-        color 160ms ease;
+        color 160ms ease,
+        border-color 160ms ease;
 }
 
-.archive-title button:hover,
-.archive-title a.button:hover,
-.archive-title .open-button:hover,
-.archive-title .archive-button:hover,
-.archive-title .open-ebook:hover,
-.archive-title .open-comic:hover {
+.archive-edition:hover {
     background: #f2f2f2;
     border-color: #f2f2f2;
     color: #050505;
@@ -432,226 +355,155 @@ main {
 
 
 /* =========================================================
-   EBOOK / COMIC DETAIL AREA
+   PUBLICATION VIEWER
 ========================================================= */
 
-/*
-   The important fix:
-   publication covers are treated as thumbnails,
-   NOT full-width page images.
-*/
+.publication-section {
+    padding-top: 85px;
+    padding-bottom: 90px;
+}
 
-.ebook-detail,
-.comic-detail,
-.book-detail,
-.publication-detail,
-.ebook-viewer,
-.comic-viewer {
+.publication-content {
     width: 100%;
-    max-width: 1080px;
-
-    margin-left: auto;
-    margin-right: auto;
-
-    padding-top: 110px;
-    padding-bottom: 110px;
-
-    border-top: 1px solid #282828;
 }
 
 
-/* Detail heading */
+/* Header */
 
-.ebook-detail h1,
-.comic-detail h1,
-.book-detail h1,
-.publication-detail h1,
-.ebook-viewer h1,
-.comic-viewer h1 {
+.publication-header {
+    padding-bottom: 36px;
+
+    border-bottom: 1px solid #292929;
+}
+
+.publication-header .section-label {
+    margin-bottom: 14px;
+}
+
+.publication-header h2 {
     margin: 0;
 
-    font-size: clamp(46px, 5vw, 76px);
+    font-size: clamp(48px, 6vw, 78px);
     font-weight: 900;
-    line-height: 0.95;
+    line-height: 0.9;
     letter-spacing: -3px;
+
+    text-transform: none;
 }
 
-.ebook-detail .author,
-.comic-detail .author,
-.book-detail .author,
-.publication-detail .author {
-    margin-top: 18px;
-
-    color: #858585;
-
-    font-size: 14px;
+.publication-header .section-description {
+    margin-top: 16px;
 }
 
 
 /* =========================================================
-   COVER / THUMBNAIL
+   BOOK LAYOUT
 ========================================================= */
 
 /*
-   This is the key correction.
+   Actual HTML:
 
-   Never allow the cover to become a giant page-width
-   image. Desktop target: roughly 300–360px wide.
+   .publication-book
+       .publication-cover
+           img
+       .publication-actions
+
+   We deliberately turn this into a two-column
+   publication presentation.
 */
 
-.ebook-detail img,
-.comic-detail img,
-.book-detail img,
-.publication-detail img,
-.ebook-viewer img,
-.comic-viewer img {
+.publication-book {
+    display: grid;
+    grid-template-columns: 280px minmax(220px, 360px);
+    column-gap: 55px;
+    align-items: start;
+
+    padding-top: 45px;
+}
+
+
+/* =========================================================
+   BOOK COVER
+========================================================= */
+
+.publication-cover {
+    width: 280px;
+}
+
+.publication-cover img {
     display: block;
 
-    width: auto;
+    width: 280px;
+    height: auto;
+
     max-width: 100%;
-    height: auto;
-
-    max-height: 540px;
+    max-height: 430px;
 
     object-fit: contain;
-}
-
-
-/*
-   More specific cover selectors.
-*/
-
-.ebook-cover,
-.comic-cover,
-.book-cover,
-.publication-cover {
-    width: 100%;
-    max-width: 360px;
-
-    margin-top: 38px;
-}
-
-.ebook-cover img,
-.comic-cover img,
-.book-cover img,
-.publication-cover img {
-    width: 100%;
-    max-width: 360px;
-
-    height: auto;
-    max-height: 540px;
-
-    object-fit: contain;
-
-    border: 1px solid #292929;
-}
-
-
-/*
-   If the existing HTML doesn't have a cover wrapper,
-   constrain images directly inside the detail area.
-*/
-
-.ebook-detail > img,
-.comic-detail > img,
-.book-detail > img,
-.publication-detail > img,
-.ebook-viewer > img,
-.comic-viewer > img {
-    width: auto;
-    max-width: 360px;
-    max-height: 540px;
-
-    margin-top: 38px;
 
     border: 1px solid #292929;
 }
 
 
 /* =========================================================
-   READER / ACTION BUTTONS
+   BOOK ACTIONS
 ========================================================= */
 
-.ebook-actions,
-.comic-actions,
-.book-actions,
 .publication-actions {
+    width: 100%;
+
     display: flex;
     flex-direction: column;
     gap: 10px;
 
-    width: 100%;
-    max-width: 360px;
-
-    margin-top: 22px;
+    padding-top: 2px;
 }
 
-.ebook-actions a,
-.ebook-actions button,
-.comic-actions a,
-.comic-actions button,
-.book-actions a,
-.book-actions button,
-.publication-actions a,
-.publication-actions button {
+.publication-action {
     appearance: none;
 
     width: 100%;
-    height: 48px;
+    min-height: 48px;
 
     display: flex;
     align-items: center;
     justify-content: center;
+
+    padding: 0 18px;
 
     border: 1px solid #333333;
     background: transparent;
 
     color: #f2f2f2;
 
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 800;
     letter-spacing: 1.5px;
     text-transform: uppercase;
 
     cursor: pointer;
+
+    transition:
+        background 160ms ease,
+        color 160ms ease,
+        border-color 160ms ease;
 }
 
-.ebook-actions a:hover,
-.ebook-actions button:hover,
-.comic-actions a:hover,
-.comic-actions button:hover,
-.book-actions a:hover,
-.book-actions button:hover,
-.publication-actions a:hover,
-.publication-actions button:hover {
+.publication-action:hover {
     background: #f2f2f2;
+    border-color: #f2f2f2;
     color: #050505;
 }
 
+.publication-close {
+    margin-top: 10px;
 
-/* =========================================================
-   GENERIC DETAIL IMAGES
-========================================================= */
+    color: #777777;
+    border-color: #292929;
+}
 
-/*
-   This catches the current SciVive image even if the
-   surrounding HTML doesn't use one of the expected
-   cover classes.
-*/
-
-#archive ~ img,
-#archive + img {
-    display: block;
-
-    width: auto;
-    max-width: 360px;
-    max-height: 540px;
-
-    margin: 38px auto 0;
-
-    object-fit: contain;
-
-    border: 1px solid #292929;
+.publication-close:hover {
+    color: #050505;
 }
 
 
@@ -660,21 +512,16 @@ main {
 ========================================================= */
 
 .press-section {
-    min-height: 560px;
-
-    padding-top: 120px;
-}
-
-.press-section h2 {
-    max-width: 760px;
+    min-height: 500px;
+    padding-top: 105px;
 }
 
 .status {
-    margin-top: 40px;
+    margin-top: 38px;
 
     color: #555555;
 
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 800;
     letter-spacing: 2px;
 }
@@ -685,11 +532,8 @@ main {
 ========================================================= */
 
 .site-footer {
-    width: min(1080px, calc(100% - 48px));
-
-    margin: 0 auto;
-
-    padding: 34px 0 55px;
+    padding-top: 34px;
+    padding-bottom: 55px;
 
     display: flex;
     justify-content: space-between;
@@ -731,8 +575,8 @@ main {
 
 
     .hellbox,
-    .content-section,
     .main-nav,
+    .content-section,
     .site-footer {
         width: calc(100% - 32px);
     }
@@ -761,14 +605,14 @@ main {
     }
 
     .main-nav a + a {
-        border-left: 0;
         border-top: 1px solid #282828;
+        border-left: 0;
     }
 
 
     .content-section {
-        padding-top: 85px;
-        padding-bottom: 85px;
+        padding-top: 75px;
+        padding-bottom: 75px;
     }
 
     .content-section h2 {
@@ -777,64 +621,77 @@ main {
     }
 
 
+    /* Archive */
+
+    .archive-title {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+
+        padding: 22px 0;
+    }
+
+    .archive-title-header {
+        padding: 0 0 18px;
+
+        flex-wrap: wrap;
+        gap: 8px 14px;
+    }
+
     .archive-title-header h3 {
-        font-size: 24px;
+        font-size: 23px;
+    }
+
+    .archive-edition {
+        width: 100%;
+        margin: 0;
     }
 
 
-    /*
-       Mobile cover.
-       Still a thumbnail, never full-screen.
-    */
+    /* Publication */
 
-    .ebook-detail img,
-    .comic-detail img,
-    .book-detail img,
-    .publication-detail img,
-    .ebook-viewer img,
-    .comic-viewer img,
-
-    .ebook-cover img,
-    .comic-cover img,
-    .book-cover img,
-    .publication-cover img,
-
-    .ebook-detail > img,
-    .comic-detail > img,
-    .book-detail > img,
-    .publication-detail > img,
-    .ebook-viewer > img,
-    .comic-viewer > img {
-        width: auto;
-        max-width: min(280px, 100%);
-        max-height: 420px;
-
-        margin-left: auto;
-        margin-right: auto;
+    .publication-section {
+        padding-top: 65px;
+        padding-bottom: 75px;
     }
 
+    .publication-header {
+        padding-bottom: 28px;
+    }
 
-    .ebook-cover,
-    .comic-cover,
-    .book-cover,
+    .publication-header h2 {
+        font-size: clamp(44px, 13vw, 65px);
+        letter-spacing: -2px;
+    }
+
+    .publication-book {
+        grid-template-columns: 1fr;
+
+        gap: 30px;
+
+        padding-top: 35px;
+    }
+
     .publication-cover {
-        max-width: 280px;
-        margin-left: auto;
-        margin-right: auto;
+        width: 240px;
+        margin: 0 auto;
     }
 
+    .publication-cover img {
+        width: 240px;
+        max-height: 370px;
+    }
 
-    .ebook-actions,
-    .comic-actions,
-    .book-actions,
     .publication-actions {
-        max-width: 100%;
+        width: 100%;
+        max-width: 360px;
+
+        margin: 0 auto;
     }
 
+
+    /* Footer */
 
     .site-footer {
-        padding-bottom: 35px;
-
         flex-direction: column;
         gap: 12px;
     }
