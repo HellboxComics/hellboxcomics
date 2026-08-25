@@ -1,33 +1,67 @@
 /* =========================================================
    HELLBOX COMICS
-   CORE
-========================================================= */
+   Editorial / Brutalist / Dark
+   ========================================================= */
 
-* {
+:root {
+    --bg: #050505;
+    --text: #f2f2f2;
+    --muted: #777;
+    --dim: #4a4a4a;
+    --line: #202020;
+    --line-hover: #383838;
+    --red: #ff1717;
+
+    --page-width: 1120px;
+    --page-padding: 40px;
+
+    --header-height: 72px;
+}
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
 html {
     scroll-behavior: smooth;
-    background: #050505;
+    background: var(--bg);
 }
 
 body {
     margin: 0;
     padding: 0;
 
-    background: #050505;
-    color: #f2f2f2;
+    background: var(--bg);
+    color: var(--text);
 
     font-family:
-        Arial,
+        Inter,
+        Helvetica Neue,
         Helvetica,
+        Arial,
         sans-serif;
 
-    font-size: 16px;
+    font-size: 14px;
     line-height: 1.5;
 
-    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+button,
+a {
+    font: inherit;
+}
+
+button {
+    appearance: none;
 }
 
 a {
@@ -35,89 +69,17 @@ a {
     text-decoration: none;
 }
 
-button,
-a {
-    -webkit-tap-highlight-color: transparent;
-}
-
-button {
-    font: inherit;
-}
-
 
 /* =========================================================
-   HEADER
-========================================================= */
+   GLOBAL PAGE WIDTH
+   ========================================================= */
 
-.site-header {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-
-    width: 100%;
-    min-height: 68px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 0 28px;
-
-    background: rgba(5, 5, 5, 0.97);
-    border-bottom: 1px solid #242424;
-}
-
-.brand {
-    font-size: 15px;
-    font-weight: 800;
-    letter-spacing: 2px;
-    white-space: nowrap;
-}
-
-.wallet-button {
-    appearance: none;
-
-    min-width: 114px;
-    height: 38px;
-
-    padding: 0 18px;
-
-    border: 1px solid #b40000;
-    background: transparent;
-
-    color: #f2f2f2;
-
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 1px;
-
-    cursor: pointer;
-
-    transition:
-        background 160ms ease,
-        color 160ms ease,
-        border-color 160ms ease;
-}
-
-.wallet-button:hover {
-    background: #b40000;
-    border-color: #b40000;
-    color: #ffffff;
-}
-
-.wallet-button.wallet-connected {
-    border-color: #b40000;
-}
-
-
-/* =========================================================
-   GLOBAL WIDTH
-========================================================= */
-
-.hellbox,
-.main-nav,
-.content-section {
-    width: min(1080px, calc(100% - 48px));
+main,
+.site-footer {
+    width: min(
+        calc(100% - (var(--page-padding) * 2)),
+        var(--page-width)
+    );
 
     margin-left: auto;
     margin-right: auto;
@@ -125,323 +87,317 @@ button {
 
 
 /* =========================================================
-   HERO
-========================================================= */
+   HEADER
+   ========================================================= */
 
-.hellbox {
-    min-height: 0;
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
 
-    padding-top: 125px;
-    padding-bottom: 110px;
+    height: var(--header-height);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 28px;
+
+    background: rgba(5, 5, 5, 0.96);
+    border-bottom: 1px solid var(--line);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
-.eyebrow,
-.section-label {
-    margin: 0 0 18px;
+.brand {
+    display: inline-block;
 
-    color: #e00000;
+    color: var(--text);
 
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 3px;
-
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
 }
 
-.hellbox h1 {
-    max-width: 700px;
+.wallet-button {
+    min-width: 116px;
+    height: 34px;
 
-    margin: 0;
+    padding: 0 14px;
 
-    color: #f4f4f4;
+    background: transparent;
+    border: 1px solid #383838;
 
-    font-size: clamp(64px, 8vw, 118px);
-    font-weight: 900;
+    color: var(--text);
 
-    line-height: 0.88;
-    letter-spacing: -5px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
 
-    text-transform: uppercase;
+    cursor: pointer;
+
+    transition:
+        border-color 160ms ease,
+        background 160ms ease,
+        color 160ms ease;
 }
 
-.subline {
-    margin: 32px 0 0;
+.wallet-button:hover {
+    border-color: #666;
+    background: #0c0c0c;
+}
 
-    color: #858585;
-
-    font-size: 15px;
+.wallet-button.wallet-connected {
+    border-color: #501010;
+    color: #d8d8d8;
 }
 
 
 /* =========================================================
-   MAIN NAVIGATION
-========================================================= */
+   HERO
+   ========================================================= */
 
-.main-nav {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-
-    border-top: 1px solid #282828;
-    border-bottom: 1px solid #282828;
-}
-
-.main-nav a {
-    min-height: 142px;
-
-    padding: 42px 26px;
+.hellbox {
+    min-height: 500px;
 
     display: flex;
     flex-direction: column;
     justify-content: center;
 
-    transition:
-        background 180ms ease,
-        padding-left 180ms ease;
+    padding: 90px 0 80px;
 }
 
-.main-nav a + a {
-    border-left: 1px solid #282828;
+.eyebrow,
+.section-label,
+.archive-title-label {
+    margin: 0;
+
+    color: var(--red);
+
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.hellbox h1 {
+    margin: 14px 0 24px;
+
+    max-width: 720px;
+
+    color: var(--text);
+
+    font-size: clamp(64px, 8vw, 112px);
+    font-weight: 800;
+    letter-spacing: -0.055em;
+    line-height: 0.87;
+}
+
+.subline {
+    margin: 0;
+
+    color: var(--muted);
+
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   MAIN NAVIGATION
+   ========================================================= */
+
+.main-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+}
+
+.main-nav a {
+    min-height: 92px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    padding: 20px 28px;
+
+    transition: background 160ms ease;
+}
+
+.main-nav a:first-child {
+    border-right: 1px solid var(--line);
 }
 
 .main-nav a:hover {
-    background: #0b0b0b;
-    padding-left: 32px;
+    background: #090909;
 }
 
 .main-nav strong {
-    display: block;
+    margin-bottom: 5px;
 
-    margin-bottom: 6px;
+    color: var(--text);
 
-    font-size: 15px;
-    font-weight: 800;
-    letter-spacing: 0.3px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
 }
 
 .main-nav span {
-    color: #777777;
-    font-size: 13px;
+    color: #666;
+
+    font-size: 10px;
 }
 
 
 /* =========================================================
    CONTENT SECTIONS
-========================================================= */
+   ========================================================= */
 
 .content-section {
-    padding-top: 125px;
-    padding-bottom: 125px;
+    padding: 110px 0;
 
-    border-bottom: 1px solid #282828;
-
-    scroll-margin-top: 90px;
+    border-bottom: 1px solid var(--line);
 }
 
 .content-section h2 {
-    max-width: 850px;
+    margin: 14px 0 10px;
 
-    margin: 0;
+    color: var(--text);
 
-    font-size: clamp(48px, 6vw, 82px);
-    font-weight: 900;
-
+    font-size: clamp(48px, 6vw, 72px);
+    font-weight: 800;
+    letter-spacing: -0.055em;
     line-height: 0.92;
-    letter-spacing: -3px;
-
-    text-transform: uppercase;
 }
 
 .section-description {
-    margin: 20px 0 0;
+    margin: 0;
 
-    color: #858585;
+    color: #666;
 
-    font-size: 14px;
+    font-size: 11px;
 }
 
 
 /* =========================================================
    ARCHIVE
-========================================================= */
+   ========================================================= */
 
 .archive-section {
-    padding-top: 120px;
+    padding-top: 105px;
+    padding-bottom: 90px;
 }
 
 .archive-status {
-    margin-top: 8px;
+    margin-top: 6px;
 
-    color: #777777;
+    color: #b0b0b0;
 
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1px;
-
-    text-transform: uppercase;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
 }
 
 .archive-list {
-    margin-top: 48px;
+    margin-top: 54px;
+
+    border-top: 1px solid var(--line);
 }
-
-
-/* =========================================================
-   ARCHIVE TITLE
-========================================================= */
 
 .archive-title {
-    width: 100%;
+    min-height: 112px;
 
-    padding: 26px 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
 
-    display: grid;
-    grid-template-columns: 1fr auto;
+    padding: 22px 0;
 
-    align-items: end;
-
-    border-top: 1px solid #292929;
-
-    transition:
-        border-color 160ms ease,
-        background 160ms ease;
+    border-bottom: 1px solid var(--line);
 }
-
-.archive-title:last-child {
-    border-bottom: 1px solid #292929;
-}
-
-.archive-title:hover {
-    border-color: #444444;
-}
-
-
-/* =========================================================
-   ARCHIVE TITLE HEADER
-========================================================= */
 
 .archive-title-header {
     min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .archive-title-label {
-    margin: 0 0 6px;
+    margin-bottom: 6px;
 
-    color: #e00000;
-
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: 2px;
-
-    text-transform: uppercase;
+    font-size: 8px;
 }
 
-.archive-title-header h3 {
+.archive-title h3 {
     margin: 0;
 
-    font-size: 28px;
-    font-weight: 800;
+    color: var(--text);
 
-    line-height: 1.1;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
 }
 
 .archive-issue {
-    display: block;
-
     margin-top: 5px;
 
-    color: #666666;
+    color: #555;
 
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
-
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
 }
 
+.archive-edition {
+    flex: 0 0 auto;
 
-/* =========================================================
-   ARCHIVE OPEN BUTTON
-========================================================= */
-
-.archive-title .archive-edition {
-    appearance: none;
-
-    width: auto;
-    min-width: 132px;
-    height: 42px;
-
-    margin-left: 30px;
+    min-width: 138px;
+    height: 40px;
 
     padding: 0 18px;
 
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    border: 1px solid #3a3a3a;
-
     background: transparent;
+    border: 1px solid #292929;
 
-    color: #f2f2f2;
+    color: #d7d7d7;
 
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 1.4px;
-
-    text-transform: uppercase;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
 
     cursor: pointer;
 
     transition:
-        background 160ms ease,
         border-color 160ms ease,
+        background 160ms ease,
         color 160ms ease;
 }
 
-.archive-title .archive-edition:hover {
-    background: #f2f2f2;
-    border-color: #f2f2f2;
-    color: #050505;
-}
-
-
-/* =========================================================
-   EMPTY ARCHIVE
-========================================================= */
-
-.archive-empty {
-    padding: 50px 0;
-
-    border-top: 1px solid #292929;
-    border-bottom: 1px solid #292929;
-}
-
-.archive-empty-label {
-    margin: 0;
-
-    color: #f2f2f2;
-
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 2px;
-}
-
-.archive-empty-description {
-    margin: 8px 0 0;
-
-    color: #666666;
-
-    font-size: 13px;
+.archive-edition:hover {
+    border-color: #555;
+    background: #0b0b0b;
+    color: #fff;
 }
 
 
 /* =========================================================
    PUBLICATION VIEWER
-========================================================= */
+   ========================================================= */
 
 .publication-section {
-    padding-top: 120px;
-    padding-bottom: 120px;
+    padding-top: 105px;
+    padding-bottom: 105px;
 }
 
 .publication-content {
@@ -449,11 +405,11 @@ button {
 }
 
 .publication-header {
-    margin-bottom: 34px;
+    margin-bottom: 38px;
 }
 
 .publication-header h2 {
-    margin: 0;
+    margin-top: 14px;
 }
 
 .publication-book {
@@ -464,23 +420,20 @@ button {
 
 
 /* =========================================================
-   PUBLICATION COVER
-========================================================= */
-
-/*
    IMPORTANT:
-
-   The cover is only displayed after the user opens
-   the publication.
-
-   It is NEVER allowed to become a full-width image.
-*/
+   PUBLICATION COVER IS A DETAIL IMAGE,
+   NOT A FULL-WIDTH PAGE IMAGE.
+   ========================================================= */
 
 .publication-cover {
-    width: 360px;
-    max-width: 100%;
+    width: 100%;
+    max-width: 280px;
 
-    margin-top: 10px;
+    border: 1px solid #252525;
+
+    background: #080808;
+
+    overflow: hidden;
 }
 
 .publication-cover img {
@@ -489,232 +442,277 @@ button {
     width: 100%;
     height: auto;
 
-    max-height: 540px;
+    max-width: 100%;
 
     object-fit: contain;
-
-    border: 1px solid #292929;
 }
 
 
 /* =========================================================
    PUBLICATION ACTIONS
-========================================================= */
+   ========================================================= */
 
 .publication-actions {
-    width: 360px;
+    width: 280px;
     max-width: 100%;
-
-    margin-top: 20px;
 
     display: flex;
     flex-direction: column;
 
-    gap: 10px;
+    margin-top: 14px;
 }
 
 .publication-action {
-    appearance: none;
-
     width: 100%;
-    height: 48px;
+    min-height: 42px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    border: 1px solid #333333;
+    padding: 10px 16px;
 
     background: transparent;
+    border: 1px solid #252525;
 
-    color: #f2f2f2;
+    color: #d8d8d8;
 
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 1.5px;
-
-    text-transform: uppercase;
-
-    text-decoration: none;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-align: center;
 
     cursor: pointer;
 
     transition:
-        background 160ms ease,
         border-color 160ms ease,
+        background 160ms ease,
         color 160ms ease;
 }
 
+.publication-action + .publication-action {
+    margin-top: -1px;
+}
+
 .publication-action:hover {
-    background: #f2f2f2;
-    border-color: #f2f2f2;
-    color: #050505;
+    position: relative;
+    z-index: 1;
+
+    border-color: #555;
+    background: #0a0a0a;
+    color: #fff;
+}
+
+.publication-close {
+    color: #888;
+}
+
+
+/* =========================================================
+   COMIC VIEW
+   ========================================================= */
+
+.publication-content > .section-label {
+    margin-bottom: 0;
+}
+
+.publication-content > h2 {
+    margin-top: 14px;
+}
+
+.publication-content > .section-description {
+    max-width: 520px;
+
+    margin-top: 18px;
 }
 
 
 /* =========================================================
    PRESS
-========================================================= */
+   ========================================================= */
 
 .press-section {
-    min-height: 560px;
+    min-height: 500px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 
     padding-top: 120px;
+    padding-bottom: 120px;
 }
 
 .press-section h2 {
     max-width: 760px;
+
+    margin-top: 16px;
+}
+
+.press-section .section-description {
+    margin-top: 22px;
 }
 
 .status {
-    margin-top: 40px;
+    margin: 32px 0 0;
 
-    color: #555555;
+    color: #555;
 
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 2px;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
 }
 
 
 /* =========================================================
    FOOTER
-========================================================= */
+   ========================================================= */
 
 .site-footer {
-    width: min(1080px, calc(100% - 48px));
-
-    margin: 0 auto;
-
-    padding: 34px 0 55px;
+    min-height: 72px;
 
     display: flex;
+    align-items: center;
     justify-content: space-between;
 
-    border-top: 1px solid #282828;
+    color: #555;
 
-    color: #555555;
-
-    font-size: 9px;
-    font-weight: 800;
-    letter-spacing: 2px;
-
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
 }
 
 
 /* =========================================================
-   SELECTION
-========================================================= */
+   HIDDEN
+   ========================================================= */
 
-::selection {
-    background: #f2f2f2;
-    color: #050505;
+[hidden] {
+    display: none !important;
 }
 
 
 /* =========================================================
-   MOBILE
-========================================================= */
+   FOCUS
+   ========================================================= */
+
+button:focus-visible,
+a:focus-visible {
+    outline: 1px solid #777;
+    outline-offset: 3px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
 
 @media (max-width: 700px) {
 
+    :root {
+        --page-padding: 22px;
+    }
+
     .site-header {
-        min-height: 60px;
+        height: 62px;
         padding: 0 18px;
     }
 
     .brand {
-        font-size: 12px;
-        letter-spacing: 1.5px;
+        font-size: 10px;
     }
 
     .wallet-button {
-        min-width: 100px;
-        height: 34px;
-
-        padding: 0 12px;
-
-        font-size: 9px;
+        min-width: 104px;
+        height: 32px;
+        padding: 0 10px;
+        font-size: 8px;
     }
-
-
-    .hellbox,
-    .content-section,
-    .main-nav,
-    .site-footer {
-        width: calc(100% - 32px);
-    }
-
 
     .hellbox {
-        padding-top: 90px;
-        padding-bottom: 80px;
+        min-height: 440px;
+        padding: 70px 0;
     }
 
     .hellbox h1 {
-        font-size: clamp(52px, 15vw, 82px);
-        letter-spacing: -3px;
+        font-size: clamp(52px, 15vw, 78px);
     }
 
-
     .main-nav {
-        display: block;
+        grid-template-columns: 1fr;
     }
 
     .main-nav a {
-        min-height: 110px;
-        padding: 30px 20px;
+        min-height: 82px;
+        padding: 18px 20px;
     }
 
-    .main-nav a + a {
-        border-left: 0;
-        border-top: 1px solid #282828;
+    .main-nav a:first-child {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
     }
-
 
     .content-section {
-        padding-top: 85px;
-        padding-bottom: 85px;
+        padding: 80px 0;
     }
 
     .content-section h2 {
-        font-size: clamp(44px, 13vw, 65px);
-        letter-spacing: -2px;
+        font-size: 48px;
     }
-
 
     .archive-title {
-        grid-template-columns: 1fr;
+        min-height: 100px;
+
+        align-items: flex-start;
+
         gap: 20px;
-
-        align-items: start;
     }
 
-    .archive-title .archive-edition {
-        width: 132px;
-
-        margin-left: 0;
+    .archive-edition {
+        min-width: 112px;
+        height: 38px;
+        padding: 0 12px;
     }
 
+    .publication-section {
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
 
     .publication-cover {
-        width: min(280px, 100%);
-    }
-
-    .publication-cover img {
-        max-height: 420px;
+        max-width: 280px;
     }
 
     .publication-actions {
-        width: min(280px, 100%);
+        width: 280px;
     }
 
+    .press-section {
+        min-height: 420px;
+        padding: 90px 0;
+    }
 
     .site-footer {
-        padding-bottom: 35px;
+        min-height: 64px;
+        font-size: 7px;
+    }
+}
 
+
+@media (max-width: 480px) {
+
+    .archive-title {
         flex-direction: column;
-        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .archive-edition {
+        margin-top: 6px;
+    }
+
+    .publication-cover,
+    .publication-actions {
+        width: 100%;
+        max-width: 280px;
     }
 }
