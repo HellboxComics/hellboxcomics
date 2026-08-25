@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -21,146 +19,136 @@
         rel="stylesheet"
         href="style.css"
     >
-
 </head>
 
+<body id="top">
 
-<body>
+<header class="site-header">
+
+    <a
+        href="#top"
+        class="header-brand"
+        aria-label="Hellbox Comics home"
+    >
+        <img
+            src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem.png"
+            alt="Hellbox Comics"
+        >
+    </a>
+
+    <button
+        class="wallet-button"
+        id="walletButton"
+        type="button"
+    >
+        CONNECT WALLET
+    </button>
+
+</header>
+
+
+<main>
 
 
     <!-- =========================================
-         HEADER
+         HERO
     ========================================== -->
 
-    <header class="site-header">
+    <section
+        class="hellbox"
+        id="hero"
+    >
 
-        <a
-            href="#top"
-            class="brand"
-            aria-label="Hellbox Comics home"
-        >
+        <div class="hero-art">
 
             <img
-                src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-banner.PNG"
+                src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-banner.png"
                 alt="Hellbox Comics"
-                class="brand-logo"
+                class="hellbox-banner"
             >
 
-        </a>
+        </div>
 
 
-        <button
-            class="wallet-button"
-            id="walletButton"
-            type="button"
-        >
-            CONNECT WALLET
-        </button>
-
-    </header>
-
-
-
-    <main>
-
-
-        <!-- =========================================
-             HERO
-        ========================================== -->
-
-        <section
-            class="hellbox"
-            id="top"
-        >
-
-            <div class="hero-brand">
-
-                <img
-                    src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem.PNG"
-                    alt="Hellbox Comics emblem"
-                    class="hero-emblem"
-                >
-
-            </div>
-
+        <div class="hero-copy">
 
             <p class="eyebrow">
                 HELLBOX COMICS
             </p>
-
 
             <h1>
                 THE BOX<br>
                 IS OPEN.
             </h1>
 
-
             <p class="subline">
                 Something is coming.
             </p>
 
-        </section>
+        </div>
+
+    </section>
 
 
+    <!-- =========================================
+         NAVIGATION
+    ========================================== -->
 
-        <!-- =========================================
-             NAVIGATION
-        ========================================== -->
+    <nav
+        class="main-nav"
+        aria-label="Main navigation"
+    >
 
-        <nav class="main-nav">
+        <a href="#archive">
 
-            <a href="#archive">
+            <strong>
+                ENTER THE HELLBOX
+            </strong>
 
-                <strong>
-                    ENTER THE HELLBOX
-                </strong>
+            <span>
+                The archive of what gets made inside.
+            </span>
 
-                <span>
-                    The archive of what gets made inside.
-                </span>
-
-            </a>
-
-
-            <a href="#press">
-
-                <strong>
-                    THE PRESS
-                </strong>
-
-                <span>
-                    Where new editions are released.
-                </span>
-
-            </a>
-
-        </nav>
+        </a>
 
 
+        <a href="#press">
 
-        <!-- =========================================
-             ARCHIVE
-        ========================================== -->
+            <strong>
+                THE PRESS
+            </strong>
 
-        <section
-            class="content-section archive-section"
-            id="archive"
-        >
+            <span>
+                Where new editions are released.
+            </span>
+
+        </a>
+
+    </nav>
+
+
+    <!-- =========================================
+         ARCHIVE
+    ========================================== -->
+
+    <section
+        class="content-section archive-section"
+        id="archive"
+    >
+
+        <div class="section-heading">
 
             <p class="section-label">
                 THE HELLBOX
             </p>
 
-
             <h2>
                 THE ARCHIVE
             </h2>
 
-
             <p class="section-description">
                 Every title. Every edition.
             </p>
-
 
             <div
                 id="archive-status"
@@ -169,379 +157,461 @@
                 LOADING ARCHIVE...
             </div>
 
-
-            <div
-                id="archive-list"
-                class="archive-list"
-            ></div>
-
-        </section>
+        </div>
 
 
+        <div
+            id="archive-list"
+            class="archive-list"
+        ></div>
 
-        <!-- =========================================
-             PUBLICATION VIEWER
-        ========================================== -->
-
-        <section
-            class="content-section publication-section"
-            id="publication"
-            hidden
-        >
-
-            <div
-                id="publication-content"
-                class="publication-content"
-            ></div>
-
-        </section>
-
-
-
-        <!-- =========================================
-             PRESS
-        ========================================== -->
-
-        <section
-            class="content-section press-section"
-            id="press"
-        >
-
-            <!--
-                Deliberate SIN foreshadowing.
-
-                The wordmark is present, but extremely
-                restrained. The SIN emblem remains
-                completely unused.
-            -->
-
-            <img
-                src="https://cdn.hellboxcomics.com/assets/brand/sin/foreshadow/sin-wordmark.PNG"
-                alt=""
-                class="sin-foreshadow"
-                aria-hidden="true"
-            >
-
-
-            <div class="press-content">
-
-                <p class="section-label">
-                    THE PRESS
-                </p>
-
-
-                <h2>
-                    NOTHING ON THE PRESS<br>
-                    YET.
-                </h2>
-
-
-                <p class="section-description">
-                    When something is ready, it will be pressed here.
-                </p>
-
-
-                <p
-                    class="status"
-                    id="pressStatus"
-                >
-                    NO CURRENT EDITION
-                </p>
-
-            </div>
-
-        </section>
-
-    </main>
-
+    </section>
 
 
     <!-- =========================================
-         FOOTER
+         PUBLICATION VIEWER
     ========================================== -->
 
-    <footer class="site-footer">
+    <section
+        class="content-section publication-section"
+        id="publication"
+        hidden
+    >
 
-        <div class="footer-brand">
+        <div
+            id="publication-content"
+            class="publication-content"
+        ></div>
 
-            <span>
-                HELLBOX COMICS
-            </span>
+    </section>
 
-            <span>
-                THE BOX IS OPEN.
-            </span>
+
+    <!-- =========================================
+         PRESS
+    ========================================== -->
+
+    <section
+        class="content-section press-section"
+        id="press"
+    >
+
+        <div
+            class="press-art"
+            aria-hidden="true"
+        >
+
+            <img
+                src="https://cdn.hellboxcomics.com/assets/brand/sin/foreshadow/sin-wordmark.png"
+                alt=""
+            >
 
         </div>
 
 
+        <div class="press-copy">
+
+            <p class="section-label">
+                THE PRESS
+            </p>
+
+            <h2>
+                NOTHING ON THE<br>
+                PRESS YET.
+            </h2>
+
+            <p class="section-description">
+                When something is ready, it will be pressed here.
+            </p>
+
+            <p
+                class="status"
+                id="pressStatus"
+            >
+                NO CURRENT EDITION
+            </p>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- =========================================
+     FOOTER
+========================================== -->
+
+<footer class="site-footer">
+
+    <div class="footer-top">
+
+        <span>
+            HELLBOX COMICS
+        </span>
+
+        <span>
+            THE BOX IS OPEN.
+        </span>
+
+    </div>
+
+
+    <div class="footer-brand">
+
         <img
             src="https://cdn.hellboxcomics.com/assets/brand/footer/backed-by-bytes-footer.PNG"
             alt="Backed by Bytes"
-            class="backed-by-bytes"
         >
 
-    </footer>
+    </div>
+
+</footer>
 
 
+<script>
 
-    <script>
 
-        /* =========================================
-           HELLBOX NETWORK CONFIGURATION
-        ========================================== */
+/* =========================================
+   HELLBOX ASSET CONFIGURATION
+========================================== */
 
-        const HELLBOX = {
+const HELLBOX_ASSETS =
+    "https://cdn.hellboxcomics.com/assets";
 
-            chainId: "0x171",
 
-            chainIdDecimal: 369,
+const HELLBOX_BRAND = {
 
-            chainName: "PulseChain",
+    hellboxBanner:
+        `${HELLBOX_ASSETS}/brand/hellbox/banners/hellbox-banner.png`,
 
-            currencyName: "Pulse",
+    hellboxBannerDark:
+        `${HELLBOX_ASSETS}/brand/hellbox/banners/hellbox-banner-dark.png`,
 
-            currencySymbol: "PLS",
+    hellboxEmblem:
+        `${HELLBOX_ASSETS}/brand/hellbox/emblems/hellbox-emblem.png`,
 
-            currencyDecimals: 18,
+    harrowBlack:
+        `${HELLBOX_ASSETS}/brand/harrow/wordmarks/harrow-wordmark-black.png`,
 
-            rpcUrls: [
-                "https://rpc.pulsechain.com"
-            ],
+    harrowWhite:
+        `${HELLBOX_ASSETS}/brand/harrow/wordmarks/harrow-wordmark-white.png`,
 
-            blockExplorerUrls: [
-                "https://scan.pulsechain.com"
+    harrowEmblem:
+        `${HELLBOX_ASSETS}/brand/harrow/emblems/harrow-emblem.png`,
+
+    harrowConcept01:
+        `${HELLBOX_ASSETS}/brand/harrow/art/harrow-concept-01.png`,
+
+    harrowConcept02:
+        `${HELLBOX_ASSETS}/brand/harrow/art/harrow-concept-02.png`,
+
+    sinWordmark:
+        `${HELLBOX_ASSETS}/brand/sin/foreshadow/sin-wordmark.png`,
+
+    backedByBytes:
+        `${HELLBOX_ASSETS}/brand/footer/backed-by-bytes-footer.PNG`
+
+};
+
+
+/* =========================================
+   HELLBOX NETWORK CONFIGURATION
+========================================== */
+
+const HELLBOX = {
+
+    chainId: "0x171",
+
+    chainIdDecimal: 369,
+
+    chainName: "PulseChain",
+
+    currencyName: "Pulse",
+
+    currencySymbol: "PLS",
+
+    currencyDecimals: 18,
+
+    rpcUrls: [
+        "https://rpc.pulsechain.com"
+    ],
+
+    blockExplorerUrls: [
+        "https://scan.pulsechain.com"
+    ]
+
+};
+
+
+/* =========================================
+   HELLBOX API CONFIGURATION
+
+   Intentionally relative.
+
+   TEST uses the TEST Worker automatically.
+   MAIN can use the production Worker without
+   changing the frontend architecture.
+========================================== */
+
+const HELLBOX_API = "";
+
+
+/* =========================================
+   WALLET STATE
+========================================== */
+
+let connectedWallet = null;
+
+let walletOnPulseChain = false;
+
+
+/* =========================================
+   WALLET ELEMENT
+========================================== */
+
+const walletButton =
+    document.getElementById(
+        "walletButton"
+    );
+
+
+/* =========================================
+   CHECK FOR EIP-1193 WALLET
+========================================== */
+
+function hasWallet() {
+
+    return (
+        typeof window.ethereum !==
+        "undefined"
+    );
+
+}
+
+
+/* =========================================
+   SHORTEN ADDRESS
+========================================== */
+
+function shortenAddress(address) {
+
+    if (!address) {
+
+        return "";
+
+    }
+
+    return (
+        address.slice(0, 6) +
+        "..." +
+        address.slice(-4)
+    );
+
+}
+
+
+/* =========================================
+   UPDATE WALLET BUTTON
+========================================== */
+
+function updateWalletButton() {
+
+    if (!walletButton) {
+
+        return;
+
+    }
+
+
+    if (!connectedWallet) {
+
+        walletButton.textContent =
+            "CONNECT WALLET";
+
+        walletButton.classList.remove(
+            "wallet-connected"
+        );
+
+        return;
+
+    }
+
+
+    if (!walletOnPulseChain) {
+
+        walletButton.textContent =
+            "SWITCH TO PULSECHAIN";
+
+        walletButton.classList.remove(
+            "wallet-connected"
+        );
+
+        return;
+
+    }
+
+
+    walletButton.textContent =
+        shortenAddress(
+            connectedWallet
+        );
+
+    walletButton.classList.add(
+        "wallet-connected"
+    );
+
+}
+
+
+/* =========================================
+   GET CURRENT CHAIN
+========================================== */
+
+async function getCurrentChain() {
+
+    if (!hasWallet()) {
+
+        return null;
+
+    }
+
+    try {
+
+        return await window.ethereum.request({
+
+            method:
+                "eth_chainId"
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Hellbox could not read wallet network:",
+            error
+        );
+
+        return null;
+
+    }
+
+}
+
+
+/* =========================================
+   ADD PULSECHAIN
+========================================== */
+
+async function addPulseChain() {
+
+    try {
+
+        await window.ethereum.request({
+
+            method:
+                "wallet_addEthereumChain",
+
+            params: [
+
+                {
+
+                    chainId:
+                        HELLBOX.chainId,
+
+                    chainName:
+                        HELLBOX.chainName,
+
+                    nativeCurrency: {
+
+                        name:
+                            HELLBOX.currencyName,
+
+                        symbol:
+                            HELLBOX.currencySymbol,
+
+                        decimals:
+                            HELLBOX.currencyDecimals
+
+                    },
+
+                    rpcUrls:
+                        HELLBOX.rpcUrls,
+
+                    blockExplorerUrls:
+                        HELLBOX.blockExplorerUrls
+
+                }
+
             ]
 
-        };
+        });
 
+        return true;
 
+    } catch (error) {
 
-        /* =========================================
-           HELLBOX API CONFIGURATION
-        ========================================== */
+        console.error(
+            "Hellbox could not add PulseChain:",
+            error
+        );
 
-        const HELLBOX_API = "";
+        return false;
 
+    }
 
+}
 
-        /* =========================================
-           WALLET STATE
-        ========================================== */
 
-        let connectedWallet = null;
+/* =========================================
+   SWITCH TO PULSECHAIN
+========================================== */
 
-        let walletOnPulseChain = false;
+async function switchToPulseChain() {
 
+    if (!hasWallet()) {
 
+        return false;
 
-        /* =========================================
-           WALLET ELEMENT
-        ========================================== */
+    }
 
-        const walletButton =
-            document.getElementById(
-                "walletButton"
-            );
+    try {
 
+        await window.ethereum.request({
 
+            method:
+                "wallet_switchEthereumChain",
 
-        /* =========================================
-           CHECK FOR EIP-1193 WALLET
-        ========================================== */
+            params: [
 
-        function hasWallet() {
+                {
+                    chainId:
+                        HELLBOX.chainId
+                }
 
-            return (
-                typeof window.ethereum !==
-                "undefined"
-            );
+            ]
 
-        }
+        });
 
+        const verifiedChain =
+            await getCurrentChain();
 
+        return (
+            verifiedChain &&
+            verifiedChain.toLowerCase() ===
+            HELLBOX.chainId
+        );
 
-        /* =========================================
-           SHORTEN ADDRESS
-        ========================================== */
+    } catch (error) {
 
-        function shortenAddress(address) {
+        if (
+            error &&
+            error.code === 4902
+        ) {
 
-            if (!address) {
+            const added =
+                await addPulseChain();
 
-                return "";
-
-            }
-
-            return (
-                address.slice(0, 6) +
-                "..." +
-                address.slice(-4)
-            );
-
-        }
-
-
-
-        /* =========================================
-           UPDATE WALLET BUTTON
-        ========================================== */
-
-        function updateWalletButton() {
-
-            if (!walletButton) {
-
-                return;
-
-            }
-
-            if (!connectedWallet) {
-
-                walletButton.textContent =
-                    "CONNECT WALLET";
-
-                walletButton.classList.remove(
-                    "wallet-connected"
-                );
-
-                return;
-
-            }
-
-            if (!walletOnPulseChain) {
-
-                walletButton.textContent =
-                    "SWITCH TO PULSECHAIN";
-
-                walletButton.classList.remove(
-                    "wallet-connected"
-                );
-
-                return;
-
-            }
-
-            walletButton.textContent =
-                shortenAddress(
-                    connectedWallet
-                );
-
-            walletButton.classList.add(
-                "wallet-connected"
-            );
-
-        }
-
-
-
-        /* =========================================
-           GET CURRENT CHAIN
-        ========================================== */
-
-        async function getCurrentChain() {
-
-            if (!hasWallet()) {
-
-                return null;
-
-            }
-
-            try {
-
-                return await window.ethereum.request({
-
-                    method:
-                        "eth_chainId"
-
-                });
-
-            } catch (error) {
-
-                console.error(
-                    "Hellbox could not read wallet network:",
-                    error
-                );
-
-                return null;
-
-            }
-
-        }
-
-
-
-        /* =========================================
-           ADD PULSECHAIN
-        ========================================== */
-
-        async function addPulseChain() {
-
-            try {
-
-                await window.ethereum.request({
-
-                    method:
-                        "wallet_addEthereumChain",
-
-                    params: [
-
-                        {
-
-                            chainId:
-                                HELLBOX.chainId,
-
-                            chainName:
-                                HELLBOX.chainName,
-
-                            nativeCurrency: {
-
-                                name:
-                                    HELLBOX.currencyName,
-
-                                symbol:
-                                    HELLBOX.currencySymbol,
-
-                                decimals:
-                                    HELLBOX.currencyDecimals
-
-                            },
-
-                            rpcUrls:
-                                HELLBOX.rpcUrls,
-
-                            blockExplorerUrls:
-                                HELLBOX.blockExplorerUrls
-
-                        }
-
-                    ]
-
-                });
-
-                return true;
-
-            } catch (error) {
-
-                console.error(
-                    "Hellbox could not add PulseChain:",
-                    error
-                );
-
-                return false;
-
-            }
-
-        }
-
-
-
-        /* =========================================
-           SWITCH TO PULSECHAIN
-        ========================================== */
-
-        async function switchToPulseChain() {
-
-            if (!hasWallet()) {
+            if (!added) {
 
                 return false;
 
@@ -565,943 +635,897 @@
 
                 });
 
-                const verifiedChain =
-                    await getCurrentChain();
-
-                return (
-                    verifiedChain &&
-                    verifiedChain.toLowerCase() ===
-                    HELLBOX.chainId
-                );
-
-            } catch (error) {
-
-                if (
-                    error &&
-                    error.code === 4902
-                ) {
-
-                    const added =
-                        await addPulseChain();
-
-                    if (!added) {
-
-                        return false;
-
-                    }
-
-                    try {
-
-                        await window.ethereum.request({
-
-                            method:
-                                "wallet_switchEthereumChain",
-
-                            params: [
-
-                                {
-                                    chainId:
-                                        HELLBOX.chainId
-                                }
-
-                            ]
-
-                        });
-
-                    } catch (switchError) {
-
-                        console.error(
-                            "Hellbox could not switch to PulseChain after adding it:",
-                            switchError
-                        );
-
-                        return false;
-
-                    }
-
-                    const verifiedChain =
-                        await getCurrentChain();
-
-                    return (
-                        verifiedChain &&
-                        verifiedChain.toLowerCase() ===
-                        HELLBOX.chainId
-                    );
-
-                }
+            } catch (switchError) {
 
                 console.error(
-                    "Hellbox PulseChain switch failed:",
-                    error
+                    "Hellbox could not switch to PulseChain after adding it:",
+                    switchError
                 );
 
                 return false;
 
             }
 
+            const verifiedChain =
+                await getCurrentChain();
+
+            return (
+                verifiedChain &&
+                verifiedChain.toLowerCase() ===
+                HELLBOX.chainId
+            );
+
         }
 
+        console.error(
+            "Hellbox PulseChain switch failed:",
+            error
+        );
+
+        return false;
+
+    }
+
+}
 
 
-        /* =========================================
-           CONNECT WALLET
-        ========================================== */
+/* =========================================
+   CONNECT WALLET
+========================================== */
 
-        async function connectWallet() {
+async function connectWallet() {
 
-            if (!hasWallet()) {
+    if (!hasWallet()) {
 
-                alert(
-                    "No compatible browser wallet was detected. Please open Hellbox with MetaMask."
-                );
+        alert(
+            "No compatible browser wallet was detected. Please open Hellbox with MetaMask."
+        );
 
-                return;
+        return;
 
-            }
+    }
 
-            try {
+    try {
 
-                const accounts =
-                    await window.ethereum.request({
+        const accounts =
+            await window.ethereum.request({
 
-                        method:
-                            "eth_requestAccounts"
+                method:
+                    "eth_requestAccounts"
 
-                    });
+            });
 
-                if (
-                    !accounts ||
-                    accounts.length === 0
-                ) {
 
-                    return;
+        if (
+            !accounts ||
+            accounts.length === 0
+        ) {
 
-                }
-
-                connectedWallet =
-                    accounts[0];
-
-                let chainId =
-                    await getCurrentChain();
-
-                if (
-                    chainId &&
-                    chainId.toLowerCase() ===
-                    HELLBOX.chainId
-                ) {
-
-                    walletOnPulseChain = true;
-
-                    updateWalletButton();
-
-                    return;
-
-                }
-
-                walletOnPulseChain = false;
-
-                updateWalletButton();
-
-                const switched =
-                    await switchToPulseChain();
-
-                chainId =
-                    await getCurrentChain();
-
-                const verified =
-                    chainId &&
-                    chainId.toLowerCase() ===
-                    HELLBOX.chainId;
-
-                if (
-                    switched &&
-                    verified
-                ) {
-
-                    walletOnPulseChain = true;
-
-                    updateWalletButton();
-
-                    return;
-
-                }
-
-                walletOnPulseChain = false;
-
-                updateWalletButton();
-
-                alert(
-                    "Hellbox Comics requires PulseChain. Please approve the PulseChain network switch in MetaMask."
-                );
-
-            } catch (error) {
-
-                console.error(
-                    "Hellbox wallet connection failed:",
-                    error
-                );
-
-                connectedWallet = null;
-
-                walletOnPulseChain = false;
-
-                updateWalletButton();
-
-            }
+            return;
 
         }
 
 
-
-        /* =========================================
-           ACCOUNT CHANGE
-        ========================================== */
-
-        function handleAccountsChanged(accounts) {
-
-            if (
-                !accounts ||
-                accounts.length === 0
-            ) {
-
-                connectedWallet = null;
-
-                walletOnPulseChain = false;
-
-                updateWalletButton();
-
-                return;
-
-            }
-
-            connectedWallet =
-                accounts[0];
-
-            verifyWalletNetwork();
-
-        }
+        connectedWallet =
+            accounts[0];
 
 
+        let chainId =
+            await getCurrentChain();
 
-        /* =========================================
-           NETWORK CHANGE
-        ========================================== */
 
-        function handleChainChanged(chainId) {
+        if (
+            chainId &&
+            chainId.toLowerCase() ===
+            HELLBOX.chainId
+        ) {
 
-            if (!chainId) {
-
-                return;
-
-            }
-
-            walletOnPulseChain =
-                chainId.toLowerCase() ===
-                HELLBOX.chainId;
+            walletOnPulseChain = true;
 
             updateWalletButton();
 
+            return;
+
         }
 
 
+        walletOnPulseChain = false;
 
-        /* =========================================
-           VERIFY WALLET NETWORK
-        ========================================== */
+        updateWalletButton();
 
-        async function verifyWalletNetwork() {
 
-            if (!connectedWallet) {
+        const switched =
+            await switchToPulseChain();
 
-                return;
 
-            }
+        chainId =
+            await getCurrentChain();
+
+
+        const verified =
+            chainId &&
+            chainId.toLowerCase() ===
+            HELLBOX.chainId;
+
+
+        if (
+            switched &&
+            verified
+        ) {
+
+            walletOnPulseChain = true;
+
+            updateWalletButton();
+
+            console.log(
+                "HELLBOX WALLET CONNECTED ON PULSECHAIN:",
+                connectedWallet
+            );
+
+            return;
+
+        }
+
+
+        walletOnPulseChain = false;
+
+        updateWalletButton();
+
+
+        alert(
+            "Hellbox Comics requires PulseChain. Please approve the PulseChain network switch in MetaMask."
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Hellbox wallet connection failed:",
+            error
+        );
+
+        connectedWallet = null;
+
+        walletOnPulseChain = false;
+
+        updateWalletButton();
+
+    }
+
+}
+
+
+/* =========================================
+   ACCOUNT CHANGE
+========================================== */
+
+function handleAccountsChanged(accounts) {
+
+    if (
+        !accounts ||
+        accounts.length === 0
+    ) {
+
+        connectedWallet = null;
+
+        walletOnPulseChain = false;
+
+        updateWalletButton();
+
+        return;
+
+    }
+
+
+    connectedWallet =
+        accounts[0];
+
+    verifyWalletNetwork();
+
+}
+
+
+/* =========================================
+   NETWORK CHANGE
+========================================== */
+
+function handleChainChanged(chainId) {
+
+    if (!chainId) {
+
+        return;
+
+    }
+
+
+    walletOnPulseChain =
+        chainId.toLowerCase() ===
+        HELLBOX.chainId;
+
+
+    updateWalletButton();
+
+}
+
+
+/* =========================================
+   VERIFY WALLET NETWORK
+========================================== */
+
+async function verifyWalletNetwork() {
+
+    if (!connectedWallet) {
+
+        return;
+
+    }
+
+
+    const chainId =
+        await getCurrentChain();
+
+
+    walletOnPulseChain =
+        chainId &&
+        chainId.toLowerCase() ===
+        HELLBOX.chainId;
+
+
+    updateWalletButton();
+
+}
+
+
+/* =========================================
+   RESTORE EXISTING WALLET
+========================================== */
+
+async function restoreWallet() {
+
+    if (!hasWallet()) {
+
+        return;
+
+    }
+
+    try {
+
+        const accounts =
+            await window.ethereum.request({
+
+                method:
+                    "eth_accounts"
+
+            });
+
+
+        if (
+            !accounts ||
+            accounts.length === 0
+        ) {
+
+            return;
+
+        }
+
+
+        connectedWallet =
+            accounts[0];
+
+
+        await verifyWalletNetwork();
+
+    } catch (error) {
+
+        console.error(
+            "Hellbox could not restore wallet:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   WALLET EVENTS
+========================================== */
+
+if (hasWallet()) {
+
+    window.ethereum.on(
+        "accountsChanged",
+        handleAccountsChanged
+    );
+
+    window.ethereum.on(
+        "chainChanged",
+        handleChainChanged
+    );
+
+}
+
+
+/* =========================================
+   WALLET BUTTON
+========================================== */
+
+walletButton.addEventListener(
+    "click",
+    async function() {
+
+        if (!connectedWallet) {
+
+            await connectWallet();
+
+            return;
+
+        }
+
+
+        if (!walletOnPulseChain) {
+
+            const switched =
+                await switchToPulseChain();
+
 
             const chainId =
                 await getCurrentChain();
 
+
             walletOnPulseChain =
+                switched &&
                 chainId &&
                 chainId.toLowerCase() ===
                 HELLBOX.chainId;
 
+
             updateWalletButton();
 
+            return;
+
         }
 
 
+        await verifyWalletNetwork();
 
-        /* =========================================
-           RESTORE EXISTING WALLET
-        ========================================== */
+    }
+);
 
-        async function restoreWallet() {
 
-            if (!hasWallet()) {
+/* =========================================
+   ARCHIVE ELEMENTS
+========================================== */
 
-                return;
+const archiveList =
+    document.getElementById(
+        "archive-list"
+    );
 
-            }
 
-            try {
+const archiveStatus =
+    document.getElementById(
+        "archive-status"
+    );
 
-                const accounts =
-                    await window.ethereum.request({
 
-                        method:
-                            "eth_accounts"
+const publicationSection =
+    document.getElementById(
+        "publication"
+    );
 
-                    });
 
-                if (
-                    !accounts ||
-                    accounts.length === 0
-                ) {
+const publicationContent =
+    document.getElementById(
+        "publication-content"
+    );
 
-                    return;
 
+/* =========================================
+   HELLBOX CATALOG
+========================================== */
+
+let hellboxCatalog = [];
+
+
+/* =========================================
+   LOAD CATALOG
+========================================== */
+
+async function loadCatalog() {
+
+    try {
+
+        archiveStatus.textContent =
+            "LOADING ARCHIVE...";
+
+
+        const response =
+            await fetch(
+                `${HELLBOX_API}/api/comics`,
+                {
+                    headers: {
+                        "Accept":
+                            "application/json"
+                    }
                 }
-
-                connectedWallet =
-                    accounts[0];
-
-                await verifyWalletNetwork();
-
-            } catch (error) {
-
-                console.error(
-                    "Hellbox could not restore wallet:",
-                    error
-                );
-
-            }
-
-        }
-
-
-
-        /* =========================================
-           WALLET EVENTS
-        ========================================== */
-
-        if (hasWallet()) {
-
-            window.ethereum.on(
-                "accountsChanged",
-                handleAccountsChanged
             );
 
-            window.ethereum.on(
-                "chainChanged",
-                handleChainChanged
+
+        if (!response.ok) {
+
+            throw new Error(
+                `Catalog request failed: ${response.status}`
             );
 
         }
 
 
+        const data =
+            await response.json();
 
-        /* =========================================
-           WALLET BUTTON
-        ========================================== */
 
-        walletButton.addEventListener(
-            "click",
-            async function() {
+        if (
+            !data ||
+            !Array.isArray(
+                data.comics
+            )
+        ) {
 
-                if (!connectedWallet) {
+            throw new Error(
+                "Invalid Hellbox catalog response."
+            );
 
-                    await connectWallet();
+        }
 
-                    return;
 
-                }
+        hellboxCatalog =
+            data.comics;
 
-                if (!walletOnPulseChain) {
 
-                    const switched =
-                        await switchToPulseChain();
+        renderArchive();
 
-                    const chainId =
-                        await getCurrentChain();
+    } catch (error) {
 
-                    walletOnPulseChain =
-                        switched &&
-                        chainId &&
-                        chainId.toLowerCase() ===
-                        HELLBOX.chainId;
-
-                    updateWalletButton();
-
-                    return;
-
-                }
-
-                await verifyWalletNetwork();
-
-            }
+        console.error(
+            "Hellbox catalog failed:",
+            error
         );
 
 
-
-        /* =========================================
-           ARCHIVE ELEMENTS
-        ========================================== */
-
-        const archiveList =
-            document.getElementById(
-                "archive-list"
-            );
-
-        const archiveStatus =
-            document.getElementById(
-                "archive-status"
-            );
-
-        const publicationSection =
-            document.getElementById(
-                "publication"
-            );
-
-        const publicationContent =
-            document.getElementById(
-                "publication-content"
-            );
+        archiveStatus.textContent =
+            "ARCHIVE TEMPORARILY UNAVAILABLE.";
 
 
+        archiveList.innerHTML = "";
 
-        /* =========================================
-           HELLBOX CATALOG
-        ========================================== */
+    }
 
-        let hellboxCatalog = [];
-
+}
 
 
-        /* =========================================
-           LOAD CATALOG
-        ========================================== */
+/* =========================================
+   RENDER ARCHIVE
+========================================== */
 
-        async function loadCatalog() {
+function renderArchive() {
 
-            try {
+    archiveList.innerHTML = "";
 
-                archiveStatus.textContent =
-                    "LOADING ARCHIVE...";
 
-                const response =
-                    await fetch(
-                        `${HELLBOX_API}/api/comics`,
-                        {
-                            headers: {
-                                "Accept":
-                                    "application/json"
-                            }
-                        }
-                    );
+    if (
+        !hellboxCatalog ||
+        hellboxCatalog.length === 0
+    ) {
 
-                if (!response.ok) {
+        archiveStatus.textContent =
+            "NO TITLES YET.";
 
-                    throw new Error(
-                        `Catalog request failed: ${response.status}`
-                    );
+        return;
 
-                }
+    }
 
-                const data =
-                    await response.json();
 
-                if (
-                    !data ||
-                    !Array.isArray(
-                        data.comics
-                    )
-                ) {
+    archiveStatus.textContent =
+        `${hellboxCatalog.length} PUBLICATION${
+            hellboxCatalog.length === 1
+                ? ""
+                : "S"
+        }`;
 
-                    throw new Error(
-                        "Invalid Hellbox catalog response."
-                    );
 
-                }
+    hellboxCatalog.forEach(
+        publication => {
 
-                hellboxCatalog =
-                    data.comics;
-
-                renderArchive();
-
-            } catch (error) {
-
-                console.error(
-                    "Hellbox catalog failed:",
-                    error
+            const publicationCard =
+                document.createElement(
+                    "article"
                 );
 
-                archiveStatus.textContent =
-                    "ARCHIVE TEMPORARILY UNAVAILABLE.";
 
-                archiveList.innerHTML = "";
+            publicationCard.className =
+                "archive-title";
 
-            }
 
-        }
+            publicationCard.dataset.slug =
+                publication.slug;
 
 
+            publicationCard.dataset.issue =
+                publication.issue;
 
-        /* =========================================
-           RENDER ARCHIVE
-        ========================================== */
 
-        function renderArchive() {
+            publicationCard.dataset.contentType =
+                publication.content_type ||
+                "comic";
 
-            archiveList.innerHTML = "";
 
-            if (
-                !hellboxCatalog ||
-                hellboxCatalog.length === 0
-            ) {
-
-                archiveStatus.textContent =
-                    "NO TITLES YET.";
-
-                return;
-
-            }
-
-            archiveStatus.textContent =
-                `${hellboxCatalog.length} PUBLICATION${
-                    hellboxCatalog.length === 1
-                        ? ""
-                        : "S"
-                }`;
-
-            hellboxCatalog.forEach(
-                publication => {
-
-                    const publicationCard =
-                        document.createElement(
-                            "article"
-                        );
-
-                    publicationCard.className =
-                        "archive-title";
-
-                    publicationCard.dataset.slug =
-                        publication.slug;
-
-                    publicationCard.dataset.issue =
-                        publication.issue;
-
-                    publicationCard.dataset.contentType =
-                        publication.content_type ||
-                        "comic";
-
-
-
-                    const header =
-                        document.createElement(
-                            "div"
-                        );
-
-                    header.className =
-                        "archive-title-header";
-
-
-
-                    const label =
-                        document.createElement(
-                            "p"
-                        );
-
-                    label.className =
-                        "archive-title-label";
-
-                    label.textContent =
-                        publication.content_type ===
-                        "ebook"
-                            ? "EBOOK"
-                            : "COMIC";
-
-
-
-                    const name =
-                        document.createElement(
-                            "h3"
-                        );
-
-                    name.textContent =
-                        publication.title ||
-                        publication.slug;
-
-
-
-                    const issue =
-                        document.createElement(
-                            "span"
-                        );
-
-                    issue.className =
-                        "archive-issue";
-
-                    issue.textContent =
-                        `ISSUE ${publication.issue}`;
-
-
-
-                    header.appendChild(label);
-
-                    header.appendChild(name);
-
-                    header.appendChild(issue);
-
-
-
-                    const action =
-                        document.createElement(
-                            "button"
-                        );
-
-                    action.type =
-                        "button";
-
-                    action.className =
-                        "archive-edition";
-
-                    action.textContent =
-                        publication.content_type ===
-                        "ebook"
-                            ? "OPEN EBOOK"
-                            : "OPEN COMIC";
-
-
-
-                    action.addEventListener(
-                        "click",
-                        function() {
-
-                            openPublication(
-                                publication
-                            );
-
-                        }
-                    );
-
-
-
-                    publicationCard.appendChild(
-                        header
-                    );
-
-                    publicationCard.appendChild(
-                        action
-                    );
-
-                    archiveList.appendChild(
-                        publicationCard
-                    );
-
-                }
-            );
-
-        }
-
-
-
-        /* =========================================
-           OPEN PUBLICATION
-        ========================================== */
-
-        async function openPublication(
-            publication
-        ) {
-
-            publicationSection.hidden =
-                false;
-
-            publicationContent.innerHTML = `
-                <p class="section-label">
-                    LOADING
-                </p>
-
-                <h2>
-                    ${escapeHtml(
-                        publication.title ||
-                        publication.slug
-                    )}
-                </h2>
-
-                <p class="section-description">
-                    Loading publication metadata...
-                </p>
-            `;
-
-            publicationSection.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
-
-            try {
-
-                const issue =
-                    String(
-                        publication.issue
-                    ).padStart(
-                        3,
-                        "0"
-                    );
-
-                const response =
-                    await fetch(
-                        `${HELLBOX_API}/api/comics/${encodeURIComponent(
-                            publication.slug
-                        )}/${issue}`,
-                        {
-                            headers: {
-                                "Accept":
-                                    "application/json"
-                            }
-                        }
-                    );
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        `Publication request failed: ${response.status}`
-                    );
-
-                }
-
-                const metadata =
-                    await response.json();
-
-                renderPublication(
-                    metadata
+            const header =
+                document.createElement(
+                    "div"
                 );
 
-            } catch (error) {
 
-                console.error(
-                    "Hellbox publication failed:",
-                    error
+            header.className =
+                "archive-title-header";
+
+
+            const label =
+                document.createElement(
+                    "p"
                 );
 
-                publicationContent.innerHTML = `
-                    <p class="section-label">
-                        ERROR
-                    </p>
 
-                    <h2>
-                        PUBLICATION UNAVAILABLE.
-                    </h2>
-
-                    <p class="section-description">
-                        Hellbox could not load this publication.
-                    </p>
-                `;
-
-            }
-
-        }
+            label.className =
+                "archive-title-label";
 
 
-
-        /* =========================================
-           RENDER PUBLICATION
-        ========================================== */
-
-        function renderPublication(
-            metadata
-        ) {
-
-            if (
-                metadata.content_type ===
+            label.textContent =
+                publication.content_type ===
                 "ebook"
-            ) {
+                    ? "EBOOK"
+                    : "COMIC";
 
-                renderEbook(
-                    metadata
+
+            const name =
+                document.createElement(
+                    "h3"
                 );
 
-                return;
 
-            }
+            name.textContent =
+                publication.title ||
+                publication.slug;
 
-            renderComic(
-                metadata
+
+            const issue =
+                document.createElement(
+                    "span"
+                );
+
+
+            issue.className =
+                "archive-issue";
+
+
+            issue.textContent =
+                `ISSUE ${publication.issue}`;
+
+
+            header.appendChild(label);
+
+            header.appendChild(name);
+
+            header.appendChild(issue);
+
+
+            const action =
+                document.createElement(
+                    "button"
+                );
+
+
+            action.type =
+                "button";
+
+
+            action.className =
+                "archive-edition";
+
+
+            action.textContent =
+                publication.content_type ===
+                "ebook"
+                    ? "OPEN EBOOK"
+                    : "OPEN COMIC";
+
+
+            action.addEventListener(
+                "click",
+                function() {
+
+                    openPublication(
+                        publication
+                    );
+
+                }
+            );
+
+
+            publicationCard.appendChild(
+                header
+            );
+
+
+            publicationCard.appendChild(
+                action
+            );
+
+
+            archiveList.appendChild(
+                publicationCard
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================
+   OPEN PUBLICATION
+========================================== */
+
+async function openPublication(
+    publication
+) {
+
+    publicationSection.hidden =
+        false;
+
+
+    publicationContent.innerHTML = `
+        <p class="section-label">
+            LOADING
+        </p>
+
+        <h2>
+            ${escapeHtml(
+                publication.title ||
+                publication.slug
+            )}
+        </h2>
+
+        <p class="section-description">
+            Loading publication metadata...
+        </p>
+    `;
+
+
+    publicationSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+
+    try {
+
+        const issue =
+            String(
+                publication.issue
+            ).padStart(
+                3,
+                "0"
+            );
+
+
+        const response =
+            await fetch(
+                `${HELLBOX_API}/api/comics/${encodeURIComponent(
+                    publication.slug
+                )}/${issue}`,
+                {
+                    headers: {
+                        "Accept":
+                            "application/json"
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `Publication request failed: ${response.status}`
             );
 
         }
 
 
-
-        /* =========================================
-           EBOOK VIEW
-        ========================================== */
-
-        function renderEbook(metadata) {
-
-            const cover =
-                metadata.images &&
-                metadata.images.cover
-                    ? metadata.images.cover
-                    : "";
-
-            const epub =
-                metadata.book &&
-                metadata.book.formats &&
-                metadata.book.formats.epub
-                    ? metadata.book.formats.epub.url
-                    : "";
-
-            const pdf =
-                metadata.book &&
-                metadata.book.formats &&
-                metadata.book.formats.pdf
-                    ? metadata.book.formats.pdf.url
-                    : "";
-
-            const author =
-                metadata.author &&
-                metadata.author.name
-                    ? metadata.author.name
-                    : "";
+        const metadata =
+            await response.json();
 
 
-
-            publicationContent.innerHTML = `
-                <div class="publication-header">
-
-                    <p class="section-label">
-                        EBOOK
-                    </p>
-
-                    <h2>
-                        ${escapeHtml(
-                            metadata.title ||
-                            "UNTITLED"
-                        )}
-                    </h2>
-
-                    <p class="section-description">
-                        ${
-                            author
-                                ? `By ${escapeHtml(author)}`
-                                : "Hellbox Comics"
-                        }
-                    </p>
-
-                </div>
+        renderPublication(
+            metadata
+        );
 
 
-                <div class="publication-book">
+    } catch (error) {
 
-                    ${
-                        cover
-                            ? `
-                                <div class="publication-cover">
-
-                                    <img
-                                        src="${escapeAttribute(cover)}"
-                                        alt="${escapeAttribute(
-                                            metadata.title ||
-                                            "Book cover"
-                                        )}"
-                                    >
-
-                                </div>
-                            `
-                            : ""
-                    }
+        console.error(
+            "Hellbox publication failed:",
+            error
+        );
 
 
-                    <div class="publication-actions">
+        publicationContent.innerHTML = `
+            <p class="section-label">
+                ERROR
+            </p>
 
-                        ${
-                            epub
-                                ? `
-                                    <a
-                                        class="publication-action"
-                                        href="${escapeAttribute(epub)}"
-                                        target="_blank"
-                                        rel="noopener"
-                                    >
-                                        READ EPUB
-                                    </a>
-                                `
-                                : ""
-                        }
+            <h2>
+                PUBLICATION UNAVAILABLE.
+            </h2>
 
+            <p class="section-description">
+                Hellbox could not load this publication.
+            </p>
+        `;
 
-                        ${
-                            pdf
-                                ? `
-                                    <a
-                                        class="publication-action"
-                                        href="${escapeAttribute(pdf)}"
-                                        target="_blank"
-                                        rel="noopener"
-                                    >
-                                        OPEN PDF
-                                    </a>
-                                `
-                                : ""
-                        }
+    }
+
+}
 
 
-                        <button
-                            type="button"
-                            class="publication-action publication-close"
-                            id="closePublication"
-                        >
-                            CLOSE
-                        </button>
+/* =========================================
+   RENDER PUBLICATION
+========================================== */
 
-                    </div>
+function renderPublication(
+    metadata
+) {
 
-                </div>
-            `;
+    if (
+        metadata.content_type ===
+        "ebook"
+    ) {
+
+        renderEbook(
+            metadata
+        );
+
+        return;
+
+    }
 
 
+    renderComic(
+        metadata
+    );
 
-            const closeButton =
-                document.getElementById(
-                    "closePublication"
-                );
+}
 
-            if (closeButton) {
 
-                closeButton.addEventListener(
-                    "click",
-                    closePublication
-                );
+/* =========================================
+   EBOOK VIEW
+========================================== */
 
+function renderEbook(
+    metadata
+) {
+
+    const cover =
+        metadata.images &&
+        metadata.images.cover
+            ? metadata.images.cover
+            : "";
+
+
+    const epub =
+        metadata.book &&
+        metadata.book.formats &&
+        metadata.book.formats.epub
+            ? metadata.book.formats.epub.url
+            : "";
+
+
+    const pdf =
+        metadata.book &&
+        metadata.book.formats &&
+        metadata.book.formats.pdf
+            ? metadata.book.formats.pdf.url
+            : "";
+
+
+    const author =
+        metadata.author &&
+        metadata.author.name
+            ? metadata.author.name
+            : "";
+
+
+    publicationContent.innerHTML = `
+
+        <div class="publication-header">
+
+            <p class="section-label">
+                EBOOK
+            </p>
+
+
+            <h2>
+                ${escapeHtml(
+                    metadata.title ||
+                    "UNTITLED"
+                )}
+            </h2>
+
+
+            <p class="section-description">
+                ${
+                    author
+                        ? `By ${escapeHtml(author)}`
+                        : "Hellbox Comics"
+                }
+            </p>
+
+        </div>
+
+
+        <div class="publication-book">
+
+            ${
+                cover
+                    ? `
+                        <div class="publication-cover">
+
+                            <img
+                                src="${escapeAttribute(cover)}"
+                                alt="${escapeAttribute(
+                                    metadata.title ||
+                                    "Book cover"
+                                )}"
+                            >
+
+                        </div>
+                    `
+                    : ""
             }
 
-        }
+
+            <div class="publication-actions">
+
+                ${
+                    epub
+                        ? `
+                            <a
+                                class="publication-action"
+                                href="${escapeAttribute(epub)}"
+                                target="_blank"
+                                rel="noopener"
+                            >
+                                READ EPUB
+                            </a>
+                        `
+                        : ""
+                }
 
 
+                ${
+                    pdf
+                        ? `
+                            <a
+                                class="publication-action"
+                                href="${escapeAttribute(pdf)}"
+                                target="_blank"
+                                rel="noopener"
+                            >
+                                OPEN PDF
+                            </a>
+                        `
+                        : ""
+                }
 
-        /* =========================================
-           COMIC VIEW
-        ========================================== */
-
-        function renderComic(metadata) {
-
-            publicationContent.innerHTML = `
-
-                <p class="section-label">
-                    COMIC
-                </p>
-
-                <h2>
-                    ${escapeHtml(
-                        metadata.title ||
-                        "UNTITLED"
-                    )}
-                </h2>
-
-                <p class="section-description">
-                    This publication uses the Hellbox comic architecture.
-                    The comic reader will be connected here.
-                </p>
 
                 <button
                     type="button"
@@ -1511,153 +1535,216 @@
                     CLOSE
                 </button>
 
-            `;
+            </div>
+
+        </div>
+    `;
 
 
-
-            const closeButton =
-                document.getElementById(
-                    "closePublication"
-                );
-
-            if (closeButton) {
-
-                closeButton.addEventListener(
-                    "click",
-                    closePublication
-                );
-
-            }
-
-        }
+    const closeButton =
+        document.getElementById(
+            "closePublication"
+        );
 
 
+    if (closeButton) {
 
-        /* =========================================
-           CLOSE PUBLICATION
-        ========================================== */
+        closeButton.addEventListener(
+            "click",
+            closePublication
+        );
 
-        function closePublication() {
+    }
 
-            publicationSection.hidden =
-                true;
-
-            publicationContent.innerHTML =
-                "";
-
-            document
-                .getElementById(
-                    "archive"
-                )
-                .scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
-
-        }
+}
 
 
+/* =========================================
+   COMIC VIEW
+========================================== */
 
-        /* =========================================
-           HTML ESCAPING
-        ========================================== */
+function renderComic(
+    metadata
+) {
 
-        function escapeHtml(value) {
+    publicationContent.innerHTML = `
 
-            return String(value)
-                .replace(
-                    /&/g,
-                    "&amp;"
-                )
-                .replace(
-                    /</g,
-                    "&lt;"
-                )
-                .replace(
-                    />/g,
-                    "&gt;"
-                )
-                .replace(
-                    /"/g,
-                    "&quot;"
-                )
-                .replace(
-                    /'/g,
-                    "&#039;"
-                );
-
-        }
+        <p class="section-label">
+            COMIC
+        </p>
 
 
-
-        function escapeAttribute(value) {
-
-            return escapeHtml(
-                value
-            );
-
-        }
+        <h2>
+            ${escapeHtml(
+                metadata.title ||
+                "UNTITLED"
+            )}
+        </h2>
 
 
-
-        /* =========================================
-           INITIALIZE
-        ========================================== */
-
-        updateWalletButton();
-
-        restoreWallet();
-
-        loadCatalog();
+        <p class="section-description">
+            This publication uses the Hellbox comic architecture.
+            The comic reader will be connected here.
+        </p>
 
 
+        <button
+            type="button"
+            class="publication-action publication-close"
+            id="closePublication"
+        >
+            CLOSE
+        </button>
 
-        /* =========================================
-           SMOOTH NAVIGATION
-        ========================================== */
+    `;
 
-        document
-            .querySelectorAll(
-                'a[href^="#"]'
-            )
-            .forEach(
-                link => {
 
-                    link.addEventListener(
-                        "click",
-                        function(event) {
+    const closeButton =
+        document.getElementById(
+            "closePublication"
+        );
 
-                            const target =
-                                document.querySelector(
-                                    this.getAttribute(
-                                        "href"
-                                    )
-                                );
 
-                            if (target) {
+    if (closeButton) {
 
-                                event.preventDefault();
+        closeButton.addEventListener(
+            "click",
+            closePublication
+        );
 
-                                target.scrollIntoView({
+    }
 
-                                    behavior:
-                                        "smooth",
+}
 
-                                    block:
-                                        "start"
 
-                                });
+/* =========================================
+   CLOSE PUBLICATION
+========================================== */
 
-                            }
+function closePublication() {
 
-                        }
-                    );
+    publicationSection.hidden =
+        true;
+
+
+    publicationContent.innerHTML =
+        "";
+
+
+    document
+        .getElementById(
+            "archive"
+        )
+        .scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+}
+
+
+/* =========================================
+   HTML ESCAPING
+========================================== */
+
+function escapeHtml(
+    value
+) {
+
+    return String(value)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+function escapeAttribute(
+    value
+) {
+
+    return escapeHtml(
+        value
+    );
+
+}
+
+
+/* =========================================
+   INITIALIZE
+========================================== */
+
+updateWalletButton();
+
+restoreWallet();
+
+loadCatalog();
+
+
+/* =========================================
+   SMOOTH NAVIGATION
+========================================== */
+
+document
+    .querySelectorAll(
+        'a[href^="#"]'
+    )
+    .forEach(
+        link => {
+
+            link.addEventListener(
+                "click",
+                function(event) {
+
+                    const target =
+                        document.querySelector(
+                            this.getAttribute(
+                                "href"
+                            )
+                        );
+
+
+                    if (target) {
+
+                        event.preventDefault();
+
+
+                        target.scrollIntoView({
+
+                            behavior:
+                                "smooth",
+
+                            block:
+                                "start"
+
+                        });
+
+                    }
 
                 }
             );
 
-    </script>
+        }
+    );
+
+</script>
 
 </body>
-
 </html>
