@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -19,22 +21,37 @@
         rel="stylesheet"
         href="style.css"
     >
+
 </head>
 
+
 <body id="top">
+
+
+<!-- =========================================================
+     HEADER
+========================================================== -->
 
 <header class="site-header">
 
     <a
         href="#top"
-        class="header-brand"
+        class="brand"
         aria-label="Hellbox Comics home"
     >
+
         <img
-            src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem.png"
+            src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem.PNG"
             alt="Hellbox Comics"
+            class="brand-emblem"
         >
+
+        <span class="brand-text">
+            HELLBOX COMICS
+        </span>
+
     </a>
+
 
     <button
         class="wallet-button"
@@ -47,203 +64,216 @@
 </header>
 
 
+
 <main>
 
 
-    <!-- =========================================
-         HERO
-    ========================================== -->
+<!-- =========================================================
+     HERO
+========================================================== -->
 
-    <section
-        class="hellbox"
-        id="hero"
+<section
+    class="hellbox"
+    id="hero"
+>
+
+    <div class="hero-art">
+
+        <img
+            src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-banner.PNG"
+            alt="Hellbox Comics"
+            class="hero-banner"
+        >
+
+    </div>
+
+
+    <div class="hero-copy">
+
+        <p class="eyebrow">
+            HELLBOX COMICS
+        </p>
+
+
+        <h1>
+            THE BOX<br>
+            IS OPEN.
+        </h1>
+
+
+        <p class="subline">
+            Something is coming.
+        </p>
+
+    </div>
+
+</section>
+
+
+
+<!-- =========================================================
+     NAVIGATION
+========================================================== -->
+
+<nav class="main-nav">
+
+    <a href="#archive">
+
+        <strong>
+            ENTER THE HELLBOX
+        </strong>
+
+        <span>
+            The archive of what gets made inside.
+        </span>
+
+    </a>
+
+
+    <a href="#press">
+
+        <strong>
+            THE PRESS
+        </strong>
+
+        <span>
+            Where new editions are released.
+        </span>
+
+    </a>
+
+</nav>
+
+
+
+<!-- =========================================================
+     ARCHIVE
+========================================================== -->
+
+<section
+    class="content-section archive-section"
+    id="archive"
+>
+
+    <p class="section-label">
+        THE HELLBOX
+    </p>
+
+
+    <h2>
+        THE ARCHIVE
+    </h2>
+
+
+    <p class="section-description">
+        Every title. Every edition.
+    </p>
+
+
+    <div
+        id="archive-status"
+        class="archive-status"
     >
-
-        <div class="hero-art">
-
-            <img
-                src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-banner.png"
-                alt="Hellbox Comics"
-                class="hellbox-banner"
-            >
-
-        </div>
+        LOADING ARCHIVE...
+    </div>
 
 
-        <div class="hero-copy">
+    <div
+        id="archive-list"
+        class="archive-list"
+    ></div>
 
-            <p class="eyebrow">
-                HELLBOX COMICS
-            </p>
-
-            <h1>
-                THE BOX<br>
-                IS OPEN.
-            </h1>
-
-            <p class="subline">
-                Something is coming.
-            </p>
-
-        </div>
-
-    </section>
+</section>
 
 
-    <!-- =========================================
-         NAVIGATION
-    ========================================== -->
 
-    <nav
-        class="main-nav"
-        aria-label="Main navigation"
-    >
+<!-- =========================================================
+     PUBLICATION VIEWER
+========================================================== -->
 
-        <a href="#archive">
+<section
+    class="content-section publication-section"
+    id="publication"
+    hidden
+>
 
-            <strong>
-                ENTER THE HELLBOX
-            </strong>
+    <div
+        id="publication-content"
+        class="publication-content"
+    ></div>
 
-            <span>
-                The archive of what gets made inside.
-            </span>
-
-        </a>
+</section>
 
 
-        <a href="#press">
 
-            <strong>
-                THE PRESS
-            </strong>
+<!-- =========================================================
+     PRESS
+========================================================== -->
 
-            <span>
-                Where new editions are released.
-            </span>
+<section
+    class="content-section press-section"
+    id="press"
+>
 
-        </a>
+    <!--
+        SIN FORESHADOW ASSET
 
-    </nav>
+        This is intentionally the WORDMARK only.
 
+        The SIN EMBLEM is NOT referenced anywhere in this
+        HTML and remains completely outside the public site
+        until officially announced.
+    -->
 
-    <!-- =========================================
-         ARCHIVE
-    ========================================== -->
+    <div class="press-foreshadow">
 
-    <section
-        class="content-section archive-section"
-        id="archive"
-    >
-
-        <div class="section-heading">
-
-            <p class="section-label">
-                THE HELLBOX
-            </p>
-
-            <h2>
-                THE ARCHIVE
-            </h2>
-
-            <p class="section-description">
-                Every title. Every edition.
-            </p>
-
-            <div
-                id="archive-status"
-                class="archive-status"
-            >
-                LOADING ARCHIVE...
-            </div>
-
-        </div>
-
-
-        <div
-            id="archive-list"
-            class="archive-list"
-        ></div>
-
-    </section>
-
-
-    <!-- =========================================
-         PUBLICATION VIEWER
-    ========================================== -->
-
-    <section
-        class="content-section publication-section"
-        id="publication"
-        hidden
-    >
-
-        <div
-            id="publication-content"
-            class="publication-content"
-        ></div>
-
-    </section>
-
-
-    <!-- =========================================
-         PRESS
-    ========================================== -->
-
-    <section
-        class="content-section press-section"
-        id="press"
-    >
-
-        <div
-            class="press-art"
+        <img
+            src="https://cdn.hellboxcomics.com/assets/brand/sin/foreshadow/sin-wordmark.PNG"
+            alt=""
+            class="sin-wordmark"
             aria-hidden="true"
         >
 
-            <img
-                src="https://cdn.hellboxcomics.com/assets/brand/sin/foreshadow/sin-wordmark.png"
-                alt=""
-            >
-
-        </div>
+    </div>
 
 
-        <div class="press-copy">
+    <p class="section-label">
+        THE PRESS
+    </p>
 
-            <p class="section-label">
-                THE PRESS
-            </p>
 
-            <h2>
-                NOTHING ON THE<br>
-                PRESS YET.
-            </h2>
+    <h2>
+        NOTHING ON THE PRESS<br>
+        YET.
+    </h2>
 
-            <p class="section-description">
-                When something is ready, it will be pressed here.
-            </p>
 
-            <p
-                class="status"
-                id="pressStatus"
-            >
-                NO CURRENT EDITION
-            </p>
+    <p class="section-description">
+        When something is ready, it will be pressed here.
+    </p>
 
-        </div>
 
-    </section>
+    <p
+        class="status"
+        id="pressStatus"
+    >
+        NO CURRENT EDITION
+    </p>
+
+</section>
+
 
 </main>
 
 
-<!-- =========================================
+
+<!-- =========================================================
      FOOTER
-========================================== -->
+========================================================== -->
 
 <footer class="site-footer">
 
-    <div class="footer-top">
+    <div class="footer-copy">
 
         <span>
             HELLBOX COMICS
@@ -256,11 +286,12 @@
     </div>
 
 
-    <div class="footer-brand">
+    <div class="footer-backed-by">
 
         <img
             src="https://cdn.hellboxcomics.com/assets/brand/footer/backed-by-bytes-footer.PNG"
             alt="Backed by Bytes"
+            class="backed-by-bytes"
         >
 
     </div>
@@ -268,45 +299,61 @@
 </footer>
 
 
+
 <script>
 
 
-/* =========================================
+/* =========================================================
    HELLBOX ASSET CONFIGURATION
-========================================== */
+
+   IMPORTANT:
+   ---------------------------------------------------------
+   This site uses ONLY:
+
+       cdn.hellboxcomics.com
+
+   It does NOT use:
+
+       assets.hellboxcomic.com
+       assets.hellboxcomics.com
+       hellbox-assets
+
+   Filename capitalization is intentional.
+   All image files are .PNG.
+========================================================== */
 
 const HELLBOX_ASSETS =
     "https://cdn.hellboxcomics.com/assets";
 
 
-const HELLBOX_BRAND = {
+const HELLBOX_IMAGES = {
 
     hellboxBanner:
-        `${HELLBOX_ASSETS}/brand/hellbox/banners/hellbox-banner.png`,
+        `${HELLBOX_ASSETS}/brand/hellbox/banners/hellbox-banner.PNG`,
 
     hellboxBannerDark:
-        `${HELLBOX_ASSETS}/brand/hellbox/banners/hellbox-banner-dark.png`,
+        `${HELLBOX_ASSETS}/brand/hellbox/banners/hellbox-banner-dark.PNG`,
 
     hellboxEmblem:
-        `${HELLBOX_ASSETS}/brand/hellbox/emblems/hellbox-emblem.png`,
+        `${HELLBOX_ASSETS}/brand/hellbox/emblems/hellbox-emblem.PNG`,
 
-    harrowBlack:
-        `${HELLBOX_ASSETS}/brand/harrow/wordmarks/harrow-wordmark-black.png`,
+    harrowWordmarkBlack:
+        `${HELLBOX_ASSETS}/brand/harrow/wordmarks/harrow-wordmark-black.PNG`,
 
-    harrowWhite:
-        `${HELLBOX_ASSETS}/brand/harrow/wordmarks/harrow-wordmark-white.png`,
+    harrowWordmarkWhite:
+        `${HELLBOX_ASSETS}/brand/harrow/wordmarks/harrow-wordmark-white.PNG`,
 
     harrowEmblem:
-        `${HELLBOX_ASSETS}/brand/harrow/emblems/harrow-emblem.png`,
+        `${HELLBOX_ASSETS}/brand/harrow/emblems/harrow-emblem.PNG`,
 
     harrowConcept01:
-        `${HELLBOX_ASSETS}/brand/harrow/art/harrow-concept-01.png`,
+        `${HELLBOX_ASSETS}/brand/harrow/art/harrow-concept-01.PNG`,
 
     harrowConcept02:
-        `${HELLBOX_ASSETS}/brand/harrow/art/harrow-concept-02.png`,
+        `${HELLBOX_ASSETS}/brand/harrow/art/harrow-concept-02.PNG`,
 
     sinWordmark:
-        `${HELLBOX_ASSETS}/brand/sin/foreshadow/sin-wordmark.png`,
+        `${HELLBOX_ASSETS}/brand/sin/foreshadow/sin-wordmark.PNG`,
 
     backedByBytes:
         `${HELLBOX_ASSETS}/brand/footer/backed-by-bytes-footer.PNG`
@@ -314,9 +361,9 @@ const HELLBOX_BRAND = {
 };
 
 
-/* =========================================
+/* =========================================================
    HELLBOX NETWORK CONFIGURATION
-========================================== */
+========================================================== */
 
 const HELLBOX = {
 
@@ -343,31 +390,30 @@ const HELLBOX = {
 };
 
 
-/* =========================================
+
+/* =========================================================
    HELLBOX API CONFIGURATION
 
-   Intentionally relative.
-
-   TEST uses the TEST Worker automatically.
-   MAIN can use the production Worker without
-   changing the frontend architecture.
-========================================== */
+   Relative API path is intentional.
+========================================================== */
 
 const HELLBOX_API = "";
 
 
-/* =========================================
+
+/* =========================================================
    WALLET STATE
-========================================== */
+========================================================== */
 
 let connectedWallet = null;
 
 let walletOnPulseChain = false;
 
 
-/* =========================================
+
+/* =========================================================
    WALLET ELEMENT
-========================================== */
+========================================================== */
 
 const walletButton =
     document.getElementById(
@@ -375,9 +421,10 @@ const walletButton =
     );
 
 
-/* =========================================
+
+/* =========================================================
    CHECK FOR EIP-1193 WALLET
-========================================== */
+========================================================== */
 
 function hasWallet() {
 
@@ -389,9 +436,10 @@ function hasWallet() {
 }
 
 
-/* =========================================
+
+/* =========================================================
    SHORTEN ADDRESS
-========================================== */
+========================================================== */
 
 function shortenAddress(address) {
 
@@ -410,9 +458,10 @@ function shortenAddress(address) {
 }
 
 
-/* =========================================
+
+/* =========================================================
    UPDATE WALLET BUTTON
-========================================== */
+========================================================== */
 
 function updateWalletButton() {
 
@@ -463,9 +512,10 @@ function updateWalletButton() {
 }
 
 
-/* =========================================
+
+/* =========================================================
    GET CURRENT CHAIN
-========================================== */
+========================================================== */
 
 async function getCurrentChain() {
 
@@ -498,9 +548,10 @@ async function getCurrentChain() {
 }
 
 
-/* =========================================
+
+/* =========================================================
    ADD PULSECHAIN
-========================================== */
+========================================================== */
 
 async function addPulseChain() {
 
@@ -562,9 +613,10 @@ async function addPulseChain() {
 }
 
 
-/* =========================================
+
+/* =========================================================
    SWITCH TO PULSECHAIN
-========================================== */
+========================================================== */
 
 async function switchToPulseChain() {
 
@@ -657,6 +709,7 @@ async function switchToPulseChain() {
 
         }
 
+
         console.error(
             "Hellbox PulseChain switch failed:",
             error
@@ -669,9 +722,10 @@ async function switchToPulseChain() {
 }
 
 
-/* =========================================
+
+/* =========================================================
    CONNECT WALLET
-========================================== */
+========================================================== */
 
 async function connectWallet() {
 
@@ -695,7 +749,6 @@ async function connectWallet() {
 
             });
 
-
         if (
             !accounts ||
             accounts.length === 0
@@ -704,7 +757,6 @@ async function connectWallet() {
             return;
 
         }
-
 
         connectedWallet =
             accounts[0];
@@ -794,9 +846,10 @@ async function connectWallet() {
 }
 
 
-/* =========================================
+
+/* =========================================================
    ACCOUNT CHANGE
-========================================== */
+========================================================== */
 
 function handleAccountsChanged(accounts) {
 
@@ -824,9 +877,10 @@ function handleAccountsChanged(accounts) {
 }
 
 
-/* =========================================
+
+/* =========================================================
    NETWORK CHANGE
-========================================== */
+========================================================== */
 
 function handleChainChanged(chainId) {
 
@@ -847,9 +901,10 @@ function handleChainChanged(chainId) {
 }
 
 
-/* =========================================
+
+/* =========================================================
    VERIFY WALLET NETWORK
-========================================== */
+========================================================== */
 
 async function verifyWalletNetwork() {
 
@@ -875,9 +930,10 @@ async function verifyWalletNetwork() {
 }
 
 
-/* =========================================
+
+/* =========================================================
    RESTORE EXISTING WALLET
-========================================== */
+========================================================== */
 
 async function restoreWallet() {
 
@@ -926,9 +982,10 @@ async function restoreWallet() {
 }
 
 
-/* =========================================
+
+/* =========================================================
    WALLET EVENTS
-========================================== */
+========================================================== */
 
 if (hasWallet()) {
 
@@ -936,6 +993,7 @@ if (hasWallet()) {
         "accountsChanged",
         handleAccountsChanged
     );
+
 
     window.ethereum.on(
         "chainChanged",
@@ -945,9 +1003,10 @@ if (hasWallet()) {
 }
 
 
-/* =========================================
+
+/* =========================================================
    WALLET BUTTON
-========================================== */
+========================================================== */
 
 walletButton.addEventListener(
     "click",
@@ -992,9 +1051,10 @@ walletButton.addEventListener(
 );
 
 
-/* =========================================
+
+/* =========================================================
    ARCHIVE ELEMENTS
-========================================== */
+========================================================== */
 
 const archiveList =
     document.getElementById(
@@ -1020,16 +1080,18 @@ const publicationContent =
     );
 
 
-/* =========================================
+
+/* =========================================================
    HELLBOX CATALOG
-========================================== */
+========================================================== */
 
 let hellboxCatalog = [];
 
 
-/* =========================================
+
+/* =========================================================
    LOAD CATALOG
-========================================== */
+========================================================== */
 
 async function loadCatalog() {
 
@@ -1103,9 +1165,10 @@ async function loadCatalog() {
 }
 
 
-/* =========================================
+
+/* =========================================================
    RENDER ARCHIVE
-========================================== */
+========================================================== */
 
 function renderArchive() {
 
@@ -1271,9 +1334,10 @@ function renderArchive() {
 }
 
 
-/* =========================================
+
+/* =========================================================
    OPEN PUBLICATION
-========================================== */
+========================================================== */
 
 async function openPublication(
     publication
@@ -1349,7 +1413,6 @@ async function openPublication(
             metadata
         );
 
-
     } catch (error) {
 
         console.error(
@@ -1377,9 +1440,10 @@ async function openPublication(
 }
 
 
-/* =========================================
+
+/* =========================================================
    RENDER PUBLICATION
-========================================== */
+========================================================== */
 
 function renderPublication(
     metadata
@@ -1406,13 +1470,12 @@ function renderPublication(
 }
 
 
-/* =========================================
-   EBOOK VIEW
-========================================== */
 
-function renderEbook(
-    metadata
-) {
+/* =========================================================
+   EBOOK VIEW
+========================================================== */
+
+function renderEbook(metadata) {
 
     const cover =
         metadata.images &&
@@ -1452,14 +1515,12 @@ function renderEbook(
                 EBOOK
             </p>
 
-
             <h2>
                 ${escapeHtml(
                     metadata.title ||
                     "UNTITLED"
                 )}
             </h2>
-
 
             <p class="section-description">
                 ${
@@ -1559,20 +1620,18 @@ function renderEbook(
 }
 
 
-/* =========================================
-   COMIC VIEW
-========================================== */
 
-function renderComic(
-    metadata
-) {
+/* =========================================================
+   COMIC VIEW
+========================================================== */
+
+function renderComic(metadata) {
 
     publicationContent.innerHTML = `
 
         <p class="section-label">
             COMIC
         </p>
-
 
         <h2>
             ${escapeHtml(
@@ -1581,12 +1640,10 @@ function renderComic(
             )}
         </h2>
 
-
         <p class="section-description">
             This publication uses the Hellbox comic architecture.
             The comic reader will be connected here.
         </p>
-
 
         <button
             type="button"
@@ -1595,7 +1652,6 @@ function renderComic(
         >
             CLOSE
         </button>
-
     `;
 
 
@@ -1617,9 +1673,10 @@ function renderComic(
 }
 
 
-/* =========================================
+
+/* =========================================================
    CLOSE PUBLICATION
-========================================== */
+========================================================== */
 
 function closePublication() {
 
@@ -1643,13 +1700,12 @@ function closePublication() {
 }
 
 
-/* =========================================
-   HTML ESCAPING
-========================================== */
 
-function escapeHtml(
-    value
-) {
+/* =========================================================
+   HTML ESCAPING
+========================================================== */
+
+function escapeHtml(value) {
 
     return String(value)
         .replace(
@@ -1676,9 +1732,7 @@ function escapeHtml(
 }
 
 
-function escapeAttribute(
-    value
-) {
+function escapeAttribute(value) {
 
     return escapeHtml(
         value
@@ -1687,9 +1741,10 @@ function escapeAttribute(
 }
 
 
-/* =========================================
+
+/* =========================================================
    INITIALIZE
-========================================== */
+========================================================== */
 
 updateWalletButton();
 
@@ -1698,9 +1753,10 @@ restoreWallet();
 loadCatalog();
 
 
-/* =========================================
+
+/* =========================================================
    SMOOTH NAVIGATION
-========================================== */
+========================================================== */
 
 document
     .querySelectorAll(
@@ -1744,7 +1800,9 @@ document
         }
     );
 
+
 </script>
+
 
 </body>
 </html>
