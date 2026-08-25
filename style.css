@@ -1,17 +1,9 @@
 /* =========================================================
    HELLBOX COMICS
-   MASTER STYLESHEET
-   ========================================================= */
-
-
-/* =========================================================
-   RESET
    ========================================================= */
 
 * {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
 }
 
 html {
@@ -20,16 +12,12 @@ html {
 }
 
 body {
-    min-height: 100vh;
+    margin: 0;
     background: #050505;
     color: #f2f2f2;
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     line-height: 1.4;
     -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
 }
 
 img {
@@ -48,13 +36,13 @@ button {
 
 
 /* =========================================================
-   SITE HEADER
+   HEADER
    ========================================================= */
 
 .site-header {
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 100;
 
     height: 68px;
 
@@ -64,76 +52,53 @@ button {
 
     padding: 0 28px;
 
-    background: rgba(5, 5, 5, 0.96);
+    background: rgba(5, 5, 5, 0.97);
 
-    border-bottom: 1px solid #242424;
+    border-bottom: 1px solid #262626;
 
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 }
 
 .brand {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 800;
     letter-spacing: 0.14em;
-    white-space: nowrap;
 }
 
 .wallet-button {
-    min-width: 114px;
     height: 38px;
 
-    padding: 0 16px;
-
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    padding: 0 18px;
 
     background: transparent;
 
     color: #f2f2f2;
 
-    border: 1px solid #9b0000;
+    border: 1px solid #a00000;
 
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 800;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
 
     cursor: pointer;
-
-    transition:
-        background 160ms ease,
-        color 160ms ease,
-        border-color 160ms ease;
 }
 
 .wallet-button:hover {
     background: #a00000;
-    border-color: #a00000;
-    color: #ffffff;
-}
-
-.wallet-button.wallet-connected {
-    border-color: #9b0000;
 }
 
 
 /* =========================================================
-   GLOBAL LAYOUT
+   GLOBAL WIDTH
    ========================================================= */
-
-main {
-    width: 100%;
-}
 
 .hellbox,
 .main-nav,
 .content-section,
 .site-footer {
-    width: min(
-        calc(100% - 48px),
-        1120px
-    );
+    width: calc(100% - 48px);
+    max-width: 1120px;
 
     margin-left: auto;
     margin-right: auto;
@@ -145,57 +110,47 @@ main {
    ========================================================= */
 
 .hellbox {
-    min-height: 560px;
+    min-height: 520px;
 
-    padding-top: 128px;
-    padding-bottom: 105px;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    padding-top: 120px;
+    padding-bottom: 95px;
 }
 
 .eyebrow,
 .section-label {
-    margin-bottom: 18px;
+    margin: 0 0 18px;
 
-    color: #ff1515;
+    color: #ff1717;
 
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 900;
     letter-spacing: 0.28em;
-    line-height: 1;
-}
-
-.hellbox h1 {
-    max-width: 760px;
-
-    font-size: clamp(
-        72px,
-        9vw,
-        128px
-    );
-
-    font-weight: 900;
-
-    letter-spacing: -0.065em;
-    line-height: 0.86;
-
     text-transform: uppercase;
 }
 
+.hellbox h1 {
+    margin: 0;
+
+    max-width: 700px;
+
+    font-size: clamp(76px, 9vw, 126px);
+    font-weight: 900;
+
+    letter-spacing: -0.07em;
+    line-height: 0.86;
+}
+
 .subline {
-    margin-top: 34px;
+    margin: 32px 0 0;
 
-    color: #858585;
+    color: #777;
 
-    font-size: 15px;
-    font-weight: 500;
+    font-size: 14px;
 }
 
 
 /* =========================================================
-   MAIN NAVIGATION
+   MAIN NAV
    ========================================================= */
 
 .main-nav {
@@ -207,16 +162,13 @@ main {
 }
 
 .main-nav > a {
-    min-height: 138px;
+    min-height: 136px;
 
-    padding: 36px 28px;
+    padding: 34px 26px;
 
     display: flex;
     flex-direction: column;
     justify-content: center;
-
-    transition:
-        background 180ms ease;
 }
 
 .main-nav > a:first-child {
@@ -224,39 +176,38 @@ main {
 }
 
 .main-nav > a:hover {
-    background: #0b0b0b;
+    background: #090909;
 }
 
 .main-nav strong {
-    margin-bottom: 9px;
+    margin-bottom: 8px;
 
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 800;
-    letter-spacing: 0.01em;
 }
 
 .main-nav span {
-    color: #777777;
+    color: #777;
 
-    font-size: 13px;
+    font-size: 12px;
 }
 
 
 /* =========================================================
-   CONTENT SECTIONS
+   SECTIONS
    ========================================================= */
 
 .content-section {
-    padding-top: 110px;
-    padding-bottom: 110px;
+    padding-top: 100px;
+    padding-bottom: 90px;
 }
 
 .section-description {
-    margin-top: 20px;
+    margin: 18px 0 0;
 
-    color: #858585;
+    color: #777;
 
-    font-size: 14px;
+    font-size: 13px;
 }
 
 
@@ -264,26 +215,26 @@ main {
    ARCHIVE
    ========================================================= */
 
-.archive-section {
-    padding-left: 0;
-    padding-right: 0;
-}
-
 .archive-section h2 {
-    font-size: clamp(
-        54px,
-        6vw,
-        82px
-    );
+    margin: 0;
 
+    font-size: clamp(56px, 6vw, 82px);
     font-weight: 900;
-    letter-spacing: -0.055em;
-    line-height: 0.92;
+
+    letter-spacing: -0.06em;
+    line-height: 0.9;
 }
 
 .archive-list {
-    margin-top: 62px;
+    margin-top: 52px;
 }
+
+
+/*
+   IMPORTANT:
+   Do not manufacture buttons with ::after.
+   The HTML/JS already creates the real archive links.
+*/
 
 .archive-title {
     border-top: 1px solid #292929;
@@ -293,58 +244,68 @@ main {
     border-bottom: 1px solid #292929;
 }
 
+
+/* Title heading */
+
 .archive-title-header {
-    display: none;
+    padding: 24px 0 0;
 }
 
 .archive-title-label {
-    color: #ff1515;
+    margin: 0 0 6px;
+
+    color: #ff1717;
+
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.18em;
 }
 
+.archive-title-header h3 {
+    margin: 0;
+
+    font-size: 27px;
+    font-weight: 800;
+
+    letter-spacing: -0.025em;
+}
+
+
+/* Editions */
+
 .archive-editions {
-    width: 100%;
+    padding-bottom: 4px;
 }
 
 .archive-editions-label {
+    margin: 0;
+
     display: none;
 }
 
 .archive-edition {
-    min-height: 122px;
+    min-height: 112px;
 
-    padding: 25px 0;
+    padding: 22px 0;
 
     display: grid;
     grid-template-columns: 1fr auto;
     grid-template-rows: auto auto;
 
-    column-gap: 40px;
-
     align-items: center;
 
-    transition:
-        background 160ms ease,
-        padding 160ms ease;
-}
-
-.archive-edition:hover {
-    padding-left: 12px;
-    padding-right: 12px;
-
-    background: #090909;
+    border-top: 1px solid #202020;
 }
 
 .edition-number {
     grid-column: 1;
     grid-row: 1;
 
-    margin-bottom: 5px;
+    color: #ff1717;
 
-    color: #ff1515;
-
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 900;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
 }
 
@@ -352,282 +313,118 @@ main {
     grid-column: 1;
     grid-row: 2;
 
-    font-size: 27px;
+    margin-top: 4px;
+
+    font-size: 25px;
     font-weight: 800;
-    letter-spacing: -0.025em;
 }
 
-.archive-edition::after {
+
+/*
+   Style the actual anchor itself as the button.
+*/
+
+.archive-edition {
+    position: relative;
+}
+
+.archive-edition:hover {
+    background: #080808;
+}
+
+.archive-edition::before {
     content: "OPEN";
 
     grid-column: 2;
     grid-row: 1 / span 2;
 
-    min-width: 132px;
-    height: 42px;
+    width: 132px;
+    height: 40px;
 
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
 
-    border: 1px solid #393939;
+    border: 1px solid #363636;
 
-    color: #eeeeee;
+    color: #eee;
 
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 900;
-    letter-spacing: 0.12em;
-
-    transition:
-        border-color 160ms ease,
-        background 160ms ease;
+    letter-spacing: 0.14em;
 }
 
-.archive-edition:hover::after {
-    border-color: #777777;
-    background: #111111;
+.archive-edition:hover::before {
+    border-color: #777;
+    background: #0d0d0d;
 }
 
-.archive-no-editions {
-    padding: 28px 0;
 
-    color: #555555;
-
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.16em;
-}
+/* =========================================================
+   EMPTY ARCHIVE
+   ========================================================= */
 
 .archive-empty {
-    padding: 45px 0;
+    padding: 35px 0;
 
     border-top: 1px solid #292929;
     border-bottom: 1px solid #292929;
 }
 
 .archive-empty-label {
-    color: #777777;
+    margin: 0;
 
-    font-size: 12px;
+    color: #666;
+
+    font-size: 11px;
     font-weight: 900;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.16em;
 }
 
 .archive-empty-description {
-    margin-top: 10px;
+    margin: 10px 0 0;
 
-    color: #555555;
+    color: #555;
 
     font-size: 13px;
 }
 
 
 /* =========================================================
-   READER / EBOOK AREA
+   READER
    ========================================================= */
 
 /*
-   These styles intentionally keep the reader contained.
-   The cover should NEVER become a full-width giant image.
+   The current reader is generated by the existing HTML/JS.
+   These broad selectors intentionally target images directly
+   instead of assuming a class that may not exist.
 */
 
-.book-reader,
-.ebook-reader,
-.reader,
-.comic-reader {
-    width: 100%;
-}
-
-.book-reader img,
-.ebook-reader img,
-.reader img,
-.comic-reader img {
+#archive img {
     max-width: 100%;
-}
-
-
-/* Reader heading area */
-
-.book-reader h1,
-.ebook-reader h1,
-.reader h1,
-.comic-reader h1 {
-    letter-spacing: -0.055em;
-}
-
-
-/* Cover */
-
-.book-reader .cover,
-.ebook-reader .cover,
-.reader .cover,
-.comic-reader .cover {
-    width: min(
-        100%,
-        420px
-    );
-
-    height: auto;
-
-    margin: 0 auto;
-}
-
-
-/* Any direct cover image */
-
-.book-reader > img,
-.ebook-reader > img,
-.reader > img,
-.comic-reader > img {
-    width: min(
-        100%,
-        420px
-    );
-
     height: auto;
 }
 
 
-/* =========================================================
-   BOOK ACTION BUTTONS
-   ========================================================= */
+/*
+   Once the SciVive reader is open, prevent the cover from
+   becoming an enormous full-width image.
+*/
 
-.book-actions,
-.ebook-actions,
-.reader-actions,
-.book-controls,
-.reader-controls {
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 10px;
-
-    width: min(
-        100%,
-        520px
-    );
-}
-
-.book-actions a,
-.ebook-actions a,
-.reader-actions a,
-.book-controls a,
-.reader-controls a,
-.book-actions button,
-.ebook-actions button,
-.reader-actions button,
-.book-controls button,
-.reader-controls button {
-    min-height: 48px;
-
-    padding: 0 20px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: transparent;
-
-    border: 1px solid #333333;
-
-    color: #eeeeee;
-
-    font-size: 10px;
-    font-weight: 900;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-
-    cursor: pointer;
-
-    transition:
-        background 160ms ease,
-        border-color 160ms ease,
-        color 160ms ease;
-}
-
-.book-actions a:hover,
-.ebook-actions a:hover,
-.reader-actions a:hover,
-.book-controls a:hover,
-.reader-controls a:hover,
-.book-actions button:hover,
-.ebook-actions button:hover,
-.reader-actions button:hover,
-.book-controls button:hover,
-.reader-controls button:hover {
-    background: #111111;
-    border-color: #777777;
-}
-
-
-/* =========================================================
-   READER LAYOUT
-   ========================================================= */
-
-.book-detail,
-.ebook-detail,
-.reader-detail {
-    width: 100%;
-}
-
-.book-detail-content,
-.ebook-detail-content,
-.reader-detail-content {
-    display: grid;
-
-    grid-template-columns:
-        minmax(280px, 420px)
-        minmax(280px, 520px);
-
-    gap: 70px;
-
-    align-items: start;
-}
-
-.book-cover,
-.ebook-cover,
-.reader-cover {
-    width: 100%;
-}
-
-.book-cover img,
-.ebook-cover img,
-.reader-cover img {
-    width: 100%;
+#archive img[src*="cover"] {
+    width: 420px;
+    max-width: 100%;
     height: auto;
 }
 
 
-/* =========================================================
-   READER ACTION ROW
-   ========================================================= */
+/*
+   Keep the reader controls separated.
+*/
 
-.book-detail-content .book-actions,
-.ebook-detail-content .ebook-actions,
-.reader-detail-content .reader-actions {
-    width: 100%;
-}
-
-
-/* =========================================================
-   CLOSE BUTTON
-   ========================================================= */
-
-.close-button,
-.close-reader,
-.reader-close,
-button.close {
-    margin-top: 20px;
-
-    opacity: 0.7;
-}
-
-.close-button:hover,
-.close-reader:hover,
-.reader-close:hover,
-button.close:hover {
-    opacity: 1;
+#archive a,
+#archive button {
+    line-height: 1;
 }
 
 
@@ -640,26 +437,23 @@ button.close:hover {
 }
 
 .press-section h2 {
+    margin: 0;
+
     max-width: 760px;
 
-    font-size: clamp(
-        54px,
-        7vw,
-        96px
-    );
-
+    font-size: clamp(58px, 7vw, 96px);
     font-weight: 900;
 
-    letter-spacing: -0.065em;
-    line-height: 0.9;
+    letter-spacing: -0.07em;
+    line-height: 0.88;
 }
 
 .status {
-    margin-top: 40px;
+    margin: 38px 0 0;
 
-    color: #555555;
+    color: #555;
 
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 900;
     letter-spacing: 0.22em;
 }
@@ -670,9 +464,9 @@ button.close:hover {
    ========================================================= */
 
 .site-footer {
-    min-height: 110px;
+    min-height: 100px;
 
-    padding-top: 30px;
+    padding-top: 28px;
 
     display: flex;
     align-items: flex-start;
@@ -680,9 +474,9 @@ button.close:hover {
 
     border-top: 1px solid #292929;
 
-    color: #505050;
+    color: #4e4e4e;
 
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 900;
     letter-spacing: 0.18em;
 }
@@ -700,16 +494,13 @@ button.close:hover {
     }
 
     .brand {
-        font-size: 12px;
+        font-size: 11px;
     }
 
     .wallet-button {
-        min-width: 100px;
         height: 34px;
-
-        padding: 0 10px;
-
-        font-size: 9px;
+        padding: 0 12px;
+        font-size: 8px;
     }
 
 
@@ -722,25 +513,14 @@ button.close:hover {
 
 
     .hellbox {
-        min-height: 470px;
+        min-height: 430px;
 
         padding-top: 80px;
-        padding-bottom: 75px;
+        padding-bottom: 70px;
     }
 
     .hellbox h1 {
-        font-size: clamp(
-            54px,
-            16vw,
-            88px
-        );
-
-        letter-spacing: -0.07em;
-    }
-
-    .subline {
-        margin-top: 25px;
-        font-size: 13px;
+        font-size: clamp(54px, 15vw, 84px);
     }
 
 
@@ -750,8 +530,6 @@ button.close:hover {
 
     .main-nav > a {
         min-height: 105px;
-
-        padding: 28px 20px;
     }
 
     .main-nav > a:first-child {
@@ -762,7 +540,7 @@ button.close:hover {
 
     .content-section {
         padding-top: 75px;
-        padding-bottom: 75px;
+        padding-bottom: 70px;
     }
 
 
@@ -771,81 +549,28 @@ button.close:hover {
     }
 
 
-    .archive-list {
-        margin-top: 42px;
-    }
-
-
     .archive-edition {
-        min-height: 110px;
-
-        grid-template-columns: 1fr;
-
-        row-gap: 14px;
+        min-height: 100px;
     }
 
-    .edition-number,
-    .edition-name {
-        grid-column: 1;
-    }
-
-    .edition-number {
-        grid-row: 1;
-    }
-
-    .edition-name {
-        grid-row: 2;
-    }
-
-    .archive-edition::after {
+    .archive-edition::before {
         display: none;
-    }
-
-    .archive-edition {
-        padding-right: 0;
-    }
-
-    .archive-edition:hover {
-        padding-left: 0;
-        padding-right: 0;
     }
 
 
     .press-section h2 {
-        font-size: 53px;
+        font-size: 52px;
+    }
+
+
+    #archive img[src*="cover"] {
+        width: min(420px, 100%);
     }
 
 
     .site-footer {
-        min-height: 90px;
-
-        font-size: 8px;
+        min-height: 85px;
     }
-
-
-    .book-detail-content,
-    .ebook-detail-content,
-    .reader-detail-content {
-        grid-template-columns: 1fr;
-
-        gap: 35px;
-    }
-
-
-    .book-reader .cover,
-    .ebook-reader .cover,
-    .reader .cover,
-    .comic-reader .cover,
-    .book-reader > img,
-    .ebook-reader > img,
-    .reader > img,
-    .comic-reader > img {
-        width: min(
-            100%,
-            380px
-        );
-    }
-
 }
 
 
@@ -862,38 +587,23 @@ button.close:hover {
         width: calc(100% - 24px);
     }
 
-    .hellbox {
-        padding-top: 65px;
-        padding-bottom: 60px;
-    }
-
     .hellbox h1 {
         font-size: 50px;
-    }
-
-    .eyebrow,
-    .section-label {
-        font-size: 9px;
-    }
-
-    .main-nav strong {
-        font-size: 13px;
-    }
-
-    .main-nav span {
-        font-size: 12px;
     }
 
     .archive-section h2 {
         font-size: 45px;
     }
 
+    .archive-title-header h3 {
+        font-size: 24px;
+    }
+
     .edition-name {
-        font-size: 23px;
+        font-size: 22px;
     }
 
     .press-section h2 {
         font-size: 44px;
     }
-
 }
