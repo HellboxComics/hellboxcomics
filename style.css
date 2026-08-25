@@ -1,68 +1,159 @@
-/* =========================================================
+/* ==========================================================
    HELLBOX COMICS
-   Editorial / Brutalist / Dark
-   ========================================================= */
+   MASTER SITE SYSTEM
+========================================================== */
 
 :root {
-    --bg: #050505;
-    --text: #f2f2f2;
-    --muted: #777;
-    --dim: #4a4a4a;
-    --line: #202020;
-    --line-hover: #383838;
-    --red: #ff1717;
 
-    --page-width: 1120px;
-    --page-padding: 40px;
+    --black: #020202;
 
-    --header-height: 72px;
+    --black-soft: #070504;
+
+    --panel:
+        rgba(15, 6, 4, 0.72);
+
+    --panel-strong:
+        rgba(22, 8, 4, 0.86);
+
+    --white:
+        #f1f0ed;
+
+    --white-muted:
+        #aaa6a1;
+
+    --gray:
+        #68645f;
+
+    --gray-dark:
+        #292622;
+
+    --line:
+        rgba(255, 255, 255, 0.11);
+
+    --line-red:
+        rgba(255, 55, 22, 0.24);
+
+    --red:
+        #ff3216;
+
+    --red-dark:
+        #761609;
+
+    --pulse:
+        #c7ff00;
+
+    --purple:
+        #9c21ff;
+
+    --content:
+        1460px;
+
+    --side:
+        clamp(
+            22px,
+            4vw,
+            78px
+        );
+
 }
 
 
-/* =========================================================
+/* ==========================================================
    RESET
-   ========================================================= */
+========================================================== */
 
-*,
-*::before,
-*::after {
+* {
     box-sizing: border-box;
 }
 
+
 html {
     scroll-behavior: smooth;
-    background: var(--bg);
+    background: var(--black);
 }
+
 
 body {
-    margin: 0;
-    padding: 0;
 
-    background: var(--bg);
-    color: var(--text);
+    margin: 0;
+
+    background:
+
+        radial-gradient(
+            circle at 55% 30%,
+            rgba(120, 18, 5, 0.10),
+            transparent 34%
+        ),
+
+        linear-gradient(
+            180deg,
+            #020202 0%,
+            #050302 50%,
+            #020202 100%
+        );
+
+    color:
+        var(--white);
 
     font-family:
-        Inter,
-        Helvetica Neue,
-        Helvetica,
         Arial,
+        Helvetica,
         sans-serif;
 
-    font-size: 14px;
-    line-height: 1.5;
+    overflow-x:
+        hidden;
 
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing:
+        antialiased;
+
 }
+
+
+body::before {
+
+    content: "";
+
+    position: fixed;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    z-index: 999;
+
+    opacity: 0.07;
+
+    background-image:
+
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(255, 255, 255, 0.025) 3px
+        );
+
+    mix-blend-mode:
+        screen;
+
+}
+
+
+img {
+    display: block;
+    max-width: 100%;
+}
+
 
 button,
 a {
     font: inherit;
 }
 
+
 button {
-    appearance: none;
+    color: inherit;
 }
+
 
 a {
     color: inherit;
@@ -70,649 +161,3455 @@ a {
 }
 
 
-/* =========================================================
-   GLOBAL PAGE WIDTH
-   ========================================================= */
-
-main,
-.site-footer {
-    width: min(
-        calc(100% - (var(--page-padding) * 2)),
-        var(--page-width)
-    );
-
-    margin-left: auto;
-    margin-right: auto;
-}
-
-
-/* =========================================================
-   HEADER
-   ========================================================= */
-
-.site-header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-
-    height: var(--header-height);
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 0 28px;
-
-    background: rgba(5, 5, 5, 0.96);
-    border-bottom: 1px solid var(--line);
-
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-}
-
-.brand {
-    display: inline-block;
-
-    color: var(--text);
-
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-}
-
-.wallet-button {
-    min-width: 116px;
-    height: 34px;
-
-    padding: 0 14px;
-
-    background: transparent;
-    border: 1px solid #383838;
-
-    color: var(--text);
-
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-
-    cursor: pointer;
-
-    transition:
-        border-color 160ms ease,
-        background 160ms ease,
-        color 160ms ease;
-}
-
-.wallet-button:hover {
-    border-color: #666;
-    background: #0c0c0c;
-}
-
-.wallet-button.wallet-connected {
-    border-color: #501010;
-    color: #d8d8d8;
-}
-
-
-/* =========================================================
-   HERO
-   ========================================================= */
-
-.hellbox {
-    min-height: 500px;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
-    padding: 90px 0 80px;
-}
-
-.eyebrow,
-.section-label,
-.archive-title-label {
-    margin: 0;
-
-    color: var(--red);
-
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.24em;
-    line-height: 1.2;
-    text-transform: uppercase;
-}
-
-.hellbox h1 {
-    margin: 14px 0 24px;
-
-    max-width: 720px;
-
-    color: var(--text);
-
-    font-size: clamp(64px, 8vw, 112px);
-    font-weight: 800;
-    letter-spacing: -0.055em;
-    line-height: 0.87;
-}
-
-.subline {
-    margin: 0;
-
-    color: var(--muted);
-
-    font-size: 12px;
-    line-height: 1.4;
-}
-
-
-/* =========================================================
-   MAIN NAVIGATION
-   ========================================================= */
-
-.main-nav {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-}
-
-.main-nav a {
-    min-height: 92px;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
-    padding: 20px 28px;
-
-    transition: background 160ms ease;
-}
-
-.main-nav a:first-child {
-    border-right: 1px solid var(--line);
-}
-
-.main-nav a:hover {
-    background: #090909;
-}
-
-.main-nav strong {
-    margin-bottom: 5px;
-
-    color: var(--text);
-
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-}
-
-.main-nav span {
-    color: #666;
-
-    font-size: 10px;
-}
-
-
-/* =========================================================
-   CONTENT SECTIONS
-   ========================================================= */
-
-.content-section {
-    padding: 110px 0;
-
-    border-bottom: 1px solid var(--line);
-}
-
-.content-section h2 {
-    margin: 14px 0 10px;
-
-    color: var(--text);
-
-    font-size: clamp(48px, 6vw, 72px);
-    font-weight: 800;
-    letter-spacing: -0.055em;
-    line-height: 0.92;
-}
-
-.section-description {
-    margin: 0;
-
-    color: #666;
-
-    font-size: 11px;
-}
-
-
-/* =========================================================
-   ARCHIVE
-   ========================================================= */
-
-.archive-section {
-    padding-top: 105px;
-    padding-bottom: 90px;
-}
-
-.archive-status {
-    margin-top: 6px;
-
-    color: #b0b0b0;
-
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-}
-
-.archive-list {
-    margin-top: 54px;
-
-    border-top: 1px solid var(--line);
-}
-
-.archive-title {
-    min-height: 112px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 40px;
-
-    padding: 22px 0;
-
-    border-bottom: 1px solid var(--line);
-}
-
-.archive-title-header {
-    min-width: 0;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.archive-title-label {
-    margin-bottom: 6px;
-
-    font-size: 8px;
-}
-
-.archive-title h3 {
-    margin: 0;
-
-    color: var(--text);
-
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: -0.025em;
-    line-height: 1.05;
-}
-
-.archive-issue {
-    margin-top: 5px;
-
-    color: #555;
-
-    font-size: 8px;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-}
-
-.archive-edition {
-    flex: 0 0 auto;
-
-    min-width: 138px;
-    height: 40px;
-
-    padding: 0 18px;
-
-    background: transparent;
-    border: 1px solid #292929;
-
-    color: #d7d7d7;
-
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-
-    cursor: pointer;
-
-    transition:
-        border-color 160ms ease,
-        background 160ms ease,
-        color 160ms ease;
-}
-
-.archive-edition:hover {
-    border-color: #555;
-    background: #0b0b0b;
-    color: #fff;
-}
-
-
-/* =========================================================
-   PUBLICATION VIEWER
-   ========================================================= */
-
-.publication-section {
-    padding-top: 105px;
-    padding-bottom: 105px;
-}
-
-.publication-content {
-    width: 100%;
-}
-
-.publication-header {
-    margin-bottom: 38px;
-}
-
-.publication-header h2 {
-    margin-top: 14px;
-}
-
-.publication-book {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-
-/* =========================================================
-   IMPORTANT:
-   PUBLICATION COVER IS A DETAIL IMAGE,
-   NOT A FULL-WIDTH PAGE IMAGE.
-   ========================================================= */
-
-.publication-cover {
-    width: 100%;
-    max-width: 280px;
-
-    border: 1px solid #252525;
-
-    background: #080808;
-
-    overflow: hidden;
-}
-
-.publication-cover img {
-    display: block;
-
-    width: 100%;
-    height: auto;
-
-    max-width: 100%;
-
-    object-fit: contain;
-}
-
-
-/* =========================================================
-   PUBLICATION ACTIONS
-   ========================================================= */
-
-.publication-actions {
-    width: 280px;
-    max-width: 100%;
-
-    display: flex;
-    flex-direction: column;
-
-    margin-top: 14px;
-}
-
-.publication-action {
-    width: 100%;
-    min-height: 42px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 10px 16px;
-
-    background: transparent;
-    border: 1px solid #252525;
-
-    color: #d8d8d8;
-
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-align: center;
-
-    cursor: pointer;
-
-    transition:
-        border-color 160ms ease,
-        background 160ms ease,
-        color 160ms ease;
-}
-
-.publication-action + .publication-action {
-    margin-top: -1px;
-}
-
-.publication-action:hover {
-    position: relative;
-    z-index: 1;
-
-    border-color: #555;
-    background: #0a0a0a;
-    color: #fff;
-}
-
-.publication-close {
-    color: #888;
-}
-
-
-/* =========================================================
-   COMIC VIEW
-   ========================================================= */
-
-.publication-content > .section-label {
-    margin-bottom: 0;
-}
-
-.publication-content > h2 {
-    margin-top: 14px;
-}
-
-.publication-content > .section-description {
-    max-width: 520px;
-
-    margin-top: 18px;
-}
-
-
-/* =========================================================
-   PRESS
-   ========================================================= */
-
-.press-section {
-    min-height: 500px;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
-    padding-top: 120px;
-    padding-bottom: 120px;
-}
-
-.press-section h2 {
-    max-width: 760px;
-
-    margin-top: 16px;
-}
-
-.press-section .section-description {
-    margin-top: 22px;
-}
-
-.status {
-    margin: 32px 0 0;
-
-    color: #555;
-
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-}
-
-
-/* =========================================================
-   FOOTER
-   ========================================================= */
-
-.site-footer {
-    min-height: 72px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    color: #555;
-
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-}
-
-
-/* =========================================================
-   HIDDEN
-   ========================================================= */
-
 [hidden] {
     display: none !important;
 }
 
 
-/* =========================================================
-   FOCUS
-   ========================================================= */
 
-button:focus-visible,
-a:focus-visible {
-    outline: 1px solid #777;
-    outline-offset: 3px;
+/* ==========================================================
+   SHARED TYPOGRAPHY
+========================================================== */
+
+.section-kicker,
+.micro-label,
+.nav-code,
+.archive-title-label,
+.archive-issue,
+.archive-status,
+.network-status,
+.access-code,
+.terminal-number,
+.signal-type,
+.signal-state,
+.creator-file,
+.transmission-break,
+.credit-heading,
+.site-footer,
+.portrait-note {
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-weight:
+        700;
+
+    text-transform:
+        uppercase;
+
+    letter-spacing:
+        0.18em;
+
 }
 
 
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
+.section-kicker {
 
-@media (max-width: 700px) {
+    margin:
+        0 0 24px;
 
-    :root {
-        --page-padding: 22px;
-    }
+    color:
+        var(--red);
+
+    font-size:
+        11px;
+
+    letter-spacing:
+        0.25em;
+
+}
+
+
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.site-header {
+
+    position:
+        sticky;
+
+    top: 0;
+
+    z-index:
+        100;
+
+    width: 100%;
+
+    height:
+        70px;
+
+    padding:
+        0 var(--side);
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr auto 1fr;
+
+    align-items:
+        center;
+
+    border-bottom:
+        1px solid var(--line);
+
+    background:
+        rgba(2, 2, 2, 0.92);
+
+    backdrop-filter:
+        blur(16px);
+
+}
+
+
+.brand {
+
+    justify-self:
+        start;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        12px;
+
+    font-size:
+        11px;
+
+    font-weight:
+        800;
+
+    letter-spacing:
+        0.18em;
+
+}
+
+
+.brand-emblem {
+
+    width:
+        30px;
+
+    height:
+        30px;
+
+    object-fit:
+        contain;
+
+    filter:
+        drop-shadow(
+            0 0 10px
+            rgba(255, 50, 15, 0.35)
+        );
+
+}
+
+
+.network-status {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        9px;
+
+    font-size:
+        8px;
+
+    color:
+        #817e78;
+
+}
+
+
+.network-light {
+
+    width:
+        6px;
+
+    height:
+        6px;
+
+    border-radius:
+        50%;
+
+    background:
+        var(--pulse);
+
+    box-shadow:
+        0 0 11px
+        var(--pulse);
+
+}
+
+
+.network-divider {
+    opacity: 0.35;
+}
+
+
+.wallet-button {
+
+    justify-self:
+        end;
+
+    min-width:
+        138px;
+
+    height:
+        38px;
+
+    padding:
+        0 18px;
+
+    border:
+        1px solid
+        rgba(199, 255, 0, 0.65);
+
+    background:
+        rgba(199, 255, 0, 0.02);
+
+    color:
+        #e9efc9;
+
+    cursor:
+        pointer;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size:
+        8px;
+
+    font-weight:
+        700;
+
+    letter-spacing:
+        0.16em;
+
+    transition:
+        160ms ease;
+
+}
+
+
+.wallet-button:hover {
+
+    background:
+        rgba(199, 255, 0, 0.08);
+
+    box-shadow:
+        0 0 20px
+        rgba(199, 255, 0, 0.07);
+
+}
+
+
+.wallet-connected {
+    color: var(--pulse);
+}
+
+
+
+/* ==========================================================
+   HERO
+========================================================== */
+
+.hero {
+
+    position:
+        relative;
+
+    min-height:
+        min(
+            910px,
+            calc(100vh - 70px)
+        );
+
+    border-bottom:
+        1px solid
+        rgba(255, 50, 20, 0.45);
+
+    overflow:
+        hidden;
+
+}
+
+
+.hero-atmosphere {
+
+    position:
+        absolute;
+
+    inset: 0;
+
+    background-image:
+
+        linear-gradient(
+            90deg,
+            #020202 0%,
+            rgba(2, 2, 2, 0.98) 18%,
+            rgba(2, 2, 2, 0.64) 48%,
+            rgba(2, 2, 2, 0.22) 74%,
+            rgba(2, 2, 2, 0.62) 100%
+        ),
+
+        linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0.05) 0%,
+            rgba(0, 0, 0, 0.0) 45%,
+            #020202 100%
+        ),
+
+        url(
+            "https://cdn.hellboxcomics.com/assets/brand/harrow/art/harrow-concept-02.PNG"
+        );
+
+    background-repeat:
+        no-repeat;
+
+    background-size:
+        cover;
+
+    background-position:
+        center right;
+
+    opacity:
+        0.76;
+
+}
+
+
+.hero::after {
+
+    content: "";
+
+    position:
+        absolute;
+
+    inset: 0;
+
+    background:
+
+        radial-gradient(
+            ellipse at 65% 32%,
+            rgba(132, 0, 255, 0.06),
+            transparent 33%
+        ),
+
+        radial-gradient(
+            ellipse at 73% 30%,
+            rgba(255, 50, 10, 0.08),
+            transparent 34%
+        );
+
+    pointer-events:
+        none;
+
+}
+
+
+.hero-inner {
+
+    position:
+        relative;
+
+    z-index:
+        2;
+
+    max-width:
+        var(--content);
+
+    margin:
+        0 auto;
+
+    padding:
+        45px var(--side)
+        90px;
+
+}
+
+
+.hero-brand {
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    width:
+        100%;
+
+    margin-bottom:
+        18px;
+
+}
+
+
+.hero-logo {
+
+    width:
+        min(
+            930px,
+            78vw
+        );
+
+    max-height:
+        285px;
+
+    object-fit:
+        contain;
+
+    filter:
+        drop-shadow(
+            0 0 24px
+            rgba(255, 48, 10, 0.12)
+        );
+
+}
+
+
+.hero-classification {
+
+    position:
+        absolute;
+
+    z-index:
+        4;
+
+    top:
+        34px;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size:
+        7px;
+
+    letter-spacing:
+        0.20em;
+
+    color:
+        #5f3b31;
+
+}
+
+
+.hero-classification strong {
+    color: var(--red);
+}
+
+
+.hero-classification-left {
+    left: var(--side);
+}
+
+
+.hero-classification-right {
+    right: var(--side);
+    text-align: right;
+}
+
+
+.hero-message {
+
+    max-width:
+        1240px;
+
+    margin:
+        0 auto;
+
+    border-top:
+        1px solid var(--line);
+
+    padding-top:
+        44px;
+
+}
+
+
+.hero-message h1 {
+
+    margin: 0;
+
+    width:
+        fit-content;
+
+    font-size:
+        clamp(
+            74px,
+            8.6vw,
+            154px
+        );
+
+    line-height:
+        0.80;
+
+    letter-spacing:
+        -0.07em;
+
+    font-weight:
+        900;
+
+}
+
+
+.hero-message h1 span {
+
+    display:
+        block;
+
+    color:
+        var(--red);
+
+}
+
+
+.hero-lower {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        minmax(180px, 0.70fr)
+        minmax(360px, 1.30fr);
+
+    gap:
+        clamp(
+            60px,
+            10vw,
+            180px
+        );
+
+    margin-top:
+        65px;
+
+}
+
+
+.hero-manifesto {
+
+    margin: 0;
+
+    color:
+        #5b5650;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size:
+        10px;
+
+    line-height:
+        1.75;
+
+}
+
+
+.hero-entry {
+
+    align-self:
+        start;
+
+    min-height:
+        82px;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        auto 1fr auto;
+
+    align-items:
+        center;
+
+    gap:
+        18px;
+
+    border-top:
+        1px solid var(--line);
+
+    border-bottom:
+        1px solid var(--line);
+
+    transition:
+        160ms ease;
+
+}
+
+
+.hero-entry:hover {
+
+    border-color:
+        rgba(255, 50, 20, 0.5);
+
+    background:
+        rgba(255, 50, 20, 0.025);
+
+}
+
+
+.terminal-number {
+
+    color:
+        var(--red);
+
+    font-size:
+        9px;
+
+}
+
+
+.hero-entry-copy {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        5px;
+
+}
+
+
+.hero-entry-copy strong {
+
+    font-size:
+        15px;
+
+    letter-spacing:
+        0.01em;
+
+}
+
+
+.hero-entry-copy small {
+
+    color:
+        #554f4b;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size:
+        7px;
+
+    letter-spacing:
+        0.17em;
+
+}
+
+
+.hero-arrow {
+
+    color:
+        var(--red);
+
+    font-size:
+        25px;
+
+}
+
+
+
+/* ==========================================================
+   ACCESS PANEL
+========================================================== */
+
+.access-panel {
+
+    max-width:
+        var(--content);
+
+    margin:
+        0 auto;
+
+    padding:
+        78px var(--side)
+        120px;
+
+}
+
+
+.access-intro {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        auto 1fr auto;
+
+    align-items:
+        start;
+
+    gap:
+        38px;
+
+    padding:
+        18px 0;
+
+    border-top:
+        1px solid
+        rgba(255, 50, 20, 0.44);
+
+    border-bottom:
+        1px solid var(--line);
+
+}
+
+
+.restricted-stamp {
+
+    border:
+        1px solid
+        rgba(255, 50, 20, 0.7);
+
+    padding:
+        8px 10px;
+
+    color:
+        var(--red);
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size:
+        7px;
+
+    font-weight:
+        700;
+
+    letter-spacing:
+        0.19em;
+
+}
+
+
+.access-intro p {
+
+    max-width:
+        860px;
+
+    margin:
+        0;
+
+    color:
+        #77716c;
+
+    font-size:
+        13px;
+
+    line-height:
+        1.5;
+
+}
+
+
+.access-intro strong {
+    color: var(--white);
+}
+
+
+.access-code {
+
+    text-align:
+        right;
+
+    color:
+        var(--red-dark);
+
+    font-size:
+        7px;
+
+    line-height:
+        1.65;
+
+}
+
+
+.main-nav {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+}
+
+
+.main-nav > a {
+
+    position:
+        relative;
+
+    min-height:
+        300px;
+
+    padding:
+        55px 50px 38px;
+
+    border-bottom:
+        1px solid var(--line);
+
+    background:
+
+        linear-gradient(
+            135deg,
+            rgba(255, 50, 20, 0.03),
+            transparent 42%
+        );
+
+    overflow:
+        hidden;
+
+}
+
+
+.main-nav > a + a {
+
+    border-left:
+        1px solid var(--line);
+
+}
+
+
+.main-nav > a::after {
+
+    content: "";
+
+    position:
+        absolute;
+
+    inset: 0;
+
+    opacity: 0;
+
+    background:
+
+        radial-gradient(
+            circle at 50% 100%,
+            rgba(255, 50, 15, 0.08),
+            transparent 55%
+        );
+
+    transition:
+        200ms ease;
+
+}
+
+
+.main-nav > a:hover::after {
+    opacity: 1;
+}
+
+
+.nav-code {
+
+    position:
+        relative;
+
+    z-index:
+        2;
+
+    color:
+        var(--red);
+
+    font-size:
+        8px;
+
+}
+
+
+.main-nav strong {
+
+    position:
+        relative;
+
+    z-index:
+        2;
+
+    display:
+        block;
+
+    margin-top:
+        26px;
+
+    font-size:
+        clamp(
+            42px,
+            4vw,
+            68px
+        );
+
+    line-height:
+        0.90;
+
+    letter-spacing:
+        -0.045em;
+
+}
+
+
+.main-nav p {
+
+    position:
+        relative;
+
+    z-index:
+        2;
+
+    max-width:
+        520px;
+
+    margin:
+        22px 0 0;
+
+    color:
+        #64605c;
+
+    font-size:
+        11px;
+
+    line-height:
+        1.5;
+
+}
+
+
+.nav-bottom {
+
+    position:
+        absolute;
+
+    z-index:
+        2;
+
+    bottom:
+        35px;
+
+    left:
+        50px;
+
+    right:
+        50px;
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    padding-top:
+        20px;
+
+    border-top:
+        1px solid var(--line);
+
+    color:
+        #6d6863;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size:
+        7px;
+
+    letter-spacing:
+        0.17em;
+
+}
+
+
+.nav-bottom b {
+
+    color:
+        var(--red);
+
+    font-size:
+        20px;
+
+}
+
+
+
+/* ==========================================================
+   COMMON SECTIONS
+========================================================== */
+
+.content-section {
+
+    position:
+        relative;
+
+    max-width:
+        var(--content);
+
+    margin:
+        0 auto;
+
+    padding-left:
+        var(--side);
+
+    padding-right:
+        var(--side);
+
+}
+
+
+.section-heading-grid {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        minmax(0, 1.25fr)
+        minmax(280px, 0.75fr);
+
+    gap:
+        80px;
+
+    align-items:
+        end;
+
+}
+
+
+.section-heading h2 {
+
+    margin: 0;
+
+    font-size:
+        clamp(
+            86px,
+            9vw,
+            160px
+        );
+
+    line-height:
+        0.76;
+
+    letter-spacing:
+        -0.075em;
+
+    font-weight:
+        900;
+
+}
+
+
+.section-heading h2 span {
+
+    display:
+        block;
+
+    color:
+        var(--red);
+
+}
+
+
+.section-intro {
+
+    padding-bottom:
+        13px;
+
+}
+
+
+.section-intro p {
+
+    max-width:
+        500px;
+
+    margin:
+        0 0 24px;
+
+    color:
+        #6d6863;
+
+    font-size:
+        12px;
+
+    line-height:
+        1.55;
+
+}
+
+
+
+/* ==========================================================
+   ARCHIVE
+========================================================== */
+
+.archive-section {
+
+    padding-top:
+        95px;
+
+    padding-bottom:
+        125px;
+
+    overflow:
+        hidden;
+
+}
+
+
+.archive-watermark {
+
+    position:
+        absolute;
+
+    right:
+        0;
+
+    top:
+        120px;
+
+    width:
+        min(
+            520px,
+            46vw
+        );
+
+    aspect-ratio:
+        1 / 1;
+
+    background-image:
+        url(
+            "https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem.PNG"
+        );
+
+    background-size:
+        contain;
+
+    background-repeat:
+        no-repeat;
+
+    background-position:
+        center;
+
+    opacity:
+        0.045;
+
+    filter:
+        grayscale(1);
+
+    pointer-events:
+        none;
+
+}
+
+
+.archive-status {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    gap:
+        9px;
+
+    color:
+        #77716c;
+
+    font-size:
+        8px;
+
+}
+
+
+.archive-status::before {
+
+    content: "";
+
+    width:
+        5px;
+
+    height:
+        5px;
+
+    background:
+        var(--red);
+
+}
+
+
+.archive-table-head {
+
+    position:
+        relative;
+
+    z-index:
+        2;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        70px 1fr 130px 150px;
+
+    margin-top:
+        80px;
+
+    padding:
+        12px 0;
+
+    border-top:
+        1px solid var(--line);
+
+    border-bottom:
+        1px solid var(--line);
+
+    color:
+        #484440;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size:
+        7px;
+
+    font-weight:
+        700;
+
+    letter-spacing:
+        0.18em;
+
+}
+
+
+.archive-table-head span:nth-child(3),
+.archive-table-head span:nth-child(4) {
+    text-align: right;
+}
+
+
+.archive-list {
+
+    position:
+        relative;
+
+    z-index:
+        2;
+
+}
+
+
+.archive-title {
+
+    min-height:
+        120px;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        70px 1fr 150px;
+
+    align-items:
+        center;
+
+    border-bottom:
+        1px solid var(--line);
+
+}
+
+
+.archive-catalogue {
+
+    color:
+        #484440;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size:
+        8px;
+
+}
+
+
+.archive-title-header {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        flex-start;
+
+}
+
+
+.archive-title-label {
+
+    margin:
+        0 0 6px;
+
+    color:
+        var(--red);
+
+    font-size:
+        7px;
+
+}
+
+
+.archive-title h3 {
+
+    margin: 0;
+
+    font-size:
+        clamp(
+            25px,
+            2vw,
+            34px
+        );
+
+    letter-spacing:
+        -0.03em;
+
+}
+
+
+.archive-issue {
+
+    margin-top:
+        7px;
+
+    color:
+        #484440;
+
+    font-size:
+        7px;
+
+}
+
+
+.archive-edition {
+
+    width:
+        150px;
+
+    height:
+        50px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.22);
+
+    background:
+        rgba(255, 255, 255, 0.015);
+
+    color:
+        #b5b1ac;
+
+    cursor:
+        pointer;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size:
+        7px;
+
+    font-weight:
+        700;
+
+    letter-spacing:
+        0.16em;
+
+    transition:
+        160ms ease;
+
+}
+
+
+.archive-edition:hover {
+
+    color:
+        var(--red);
+
+    border-color:
+        rgba(255, 50, 20, 0.55);
+
+}
+
+
+
+/* ==========================================================
+   PUBLICATION
+========================================================== */
+
+.publication-section {
+
+    padding-top:
+        115px;
+
+    padding-bottom:
+        130px;
+
+    border-top:
+        1px solid var(--line);
+
+    border-bottom:
+        1px solid var(--line);
+
+}
+
+
+.publication-header h2 {
+
+    margin:
+        0;
+
+    font-size:
+        clamp(
+            70px,
+            7vw,
+            126px
+        );
+
+    line-height:
+        0.9;
+
+    letter-spacing:
+        -0.06em;
+
+}
+
+
+.publication-header p {
+
+    color:
+        #6e6964;
+
+}
+
+
+.publication-book {
+
+    display:
+        flex;
+
+    align-items:
+        flex-start;
+
+    gap:
+        50px;
+
+    margin-top:
+        45px;
+
+}
+
+
+.publication-cover {
+
+    width:
+        min(
+            360px,
+            42vw
+        );
+
+    padding:
+        10px;
+
+    border:
+        1px solid var(--line);
+
+    background:
+        #050403;
+
+}
+
+
+.publication-cover img {
+
+    width:
+        100%;
+
+    height:
+        auto;
+
+}
+
+
+.publication-actions {
+
+    width:
+        150px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        9px;
+
+}
+
+
+.publication-action {
+
+    min-height:
+        46px;
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    align-items:
+        center;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.18);
+
+    background:
+        transparent;
+
+    color:
+        #aaa6a1;
+
+    cursor:
+        pointer;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size:
+        7px;
+
+    font-weight:
+        700;
+
+    letter-spacing:
+        0.16em;
+
+}
+
+
+.publication-action:hover {
+
+    color:
+        var(--red);
+
+    border-color:
+        rgba(255, 50, 20, 0.5);
+
+}
+
+
+
+/* ==========================================================
+   PRESS
+========================================================== */
+
+.press-section {
+
+    min-height:
+        780px;
+
+    padding-top:
+        110px;
+
+    padding-bottom:
+        115px;
+
+    border-top:
+        1px solid var(--line);
+
+    overflow:
+        hidden;
+
+}
+
+
+.press-art {
+
+    position:
+        absolute;
+
+    width:
+        min(
+            660px,
+            58vw
+        );
+
+    aspect-ratio:
+        1 / 1;
+
+    right:
+        -30px;
+
+    top:
+        50%;
+
+    transform:
+        translateY(-48%);
+
+    background-image:
+        url(
+            "https://cdn.hellboxcomics.com/assets/brand/harrow/emblems/harrow-pfp.PNG"
+        );
+
+    background-size:
+        cover;
+
+    background-position:
+        center;
+
+    opacity:
+        0.035;
+
+    border-radius:
+        50%;
+
+    filter:
+        grayscale(1);
+
+    pointer-events:
+        none;
+
+}
+
+
+.press-copy {
+
+    position:
+        relative;
+
+    z-index:
+        3;
+
+    max-width:
+        1150px;
+
+}
+
+
+.press-copy h2 {
+
+    max-width:
+        1080px;
+
+    margin: 0;
+
+    font-size:
+        clamp(
+            86px,
+            9.2vw,
+            164px
+        );
+
+    line-height:
+        0.76;
+
+    letter-spacing:
+        -0.075em;
+
+    font-weight:
+        900;
+
+}
+
+
+.press-copy h2 span {
+    display: block;
+}
+
+
+.press-copy h2 .muted {
+    color: #8d8984;
+}
+
+
+.press-copy h2 .red {
+    color: var(--red);
+}
+
+
+.press-description {
+
+    margin:
+        38px 0 0;
+
+    color:
+        #67625e;
+
+    font-size:
+        11px;
+
+}
+
+
+.press-status {
+
+    width:
+        min(
+            490px,
+            100%
+        );
+
+    min-height:
+        62px;
+
+    margin-top:
+        38px;
+
+    padding:
+        15px 20px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        14px;
+
+    border:
+        1px solid var(--line);
+
+}
+
+
+.status-square {
+
+    flex:
+        0 0 auto;
+
+    width:
+        7px;
+
+    height:
+        7px;
+
+    background:
+        #77716c;
+
+}
+
+
+.press-status span:last-child {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    gap:
+        4px;
+
+}
+
+
+.press-status strong {
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size:
+        8px;
+
+    letter-spacing:
+        0.17em;
+
+}
+
+
+.press-status small {
+
+    color:
+        #4c4844;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size:
+        6px;
+
+    letter-spacing:
+        0.15em;
+
+}
+
+
+.press-stamp,
+.press-bay-stamp {
+
+    position:
+        absolute;
+
+    z-index:
+        4;
+
+    padding:
+        8px 10px;
+
+    border:
+        1px solid
+        rgba(255, 50, 20, 0.36);
+
+    color:
+        rgba(255, 50, 20, 0.58);
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size:
+        7px;
+
+    letter-spacing:
+        0.16em;
+
+    transform:
+        rotate(6deg);
+
+}
+
+
+.press-stamp {
+
+    top:
+        85px;
+
+    right:
+        80px;
+
+}
+
+
+.press-bay-stamp {
+
+    right:
+        140px;
+
+    bottom:
+        110px;
+
+    transform:
+        rotate(-5deg);
+
+}
+
+
+.press-index {
+
+    position:
+        absolute;
+
+    top:
+        100px;
+
+    left:
+        58%;
+
+    color:
+        #28231f;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size:
+        10px;
+
+}
+
+
+
+/* ==========================================================
+   TRANSMISSION
+========================================================== */
+
+.transmission-break {
+
+    max-width:
+        var(--content);
+
+    margin:
+        0 auto;
+
+    padding:
+        17px var(--side);
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    gap:
+        30px;
+
+    border-top:
+        1px solid var(--line);
+
+    border-bottom:
+        1px solid var(--line);
+
+    color:
+        #514c47;
+
+    font-size:
+        7px;
+
+}
+
+
+.transmission-break span:first-child {
+    color: var(--red);
+}
+
+
+
+/* ==========================================================
+   CREATOR
+========================================================== */
+
+.creator-section {
+
+    max-width:
+        var(--content);
+
+    margin:
+        0 auto;
+
+    padding:
+        95px var(--side)
+        120px;
+
+}
+
+
+.creator-heading {
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    margin-bottom:
+        26px;
+
+    color:
+        #4e4944;
+
+}
+
+
+.micro-label,
+.creator-file {
+
+    font-size:
+        7px;
+
+}
+
+
+.creator-grid {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        minmax(0, 1.05fr)
+        minmax(320px, 0.95fr);
+
+    gap:
+        clamp(
+            60px,
+            9vw,
+            150px
+        );
+
+    align-items:
+        center;
+
+}
+
+
+.harrow-signature {
+
+    width:
+        min(
+            560px,
+            90%
+        );
+
+    max-height:
+        250px;
+
+    object-fit:
+        contain;
+
+    object-position:
+        left center;
+
+    margin-bottom:
+        34px;
+
+}
+
+
+.creator-copy p {
+
+    max-width:
+        620px;
+
+    margin:
+        0 0 36px;
+
+    color:
+        #77716c;
+
+    font-size:
+        13px;
+
+    line-height:
+        1.65;
+
+}
+
+
+.creator-social {
+
+    max-width:
+        630px;
+
+    min-height:
+        62px;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        40px 1fr auto;
+
+    align-items:
+        center;
+
+    gap:
+        18px;
+
+    border-top:
+        1px solid var(--line);
+
+    border-bottom:
+        1px solid var(--line);
+
+}
+
+
+.creator-social span {
+
+    color:
+        var(--red);
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size:
+        8px;
+
+}
+
+
+.creator-social strong {
+
+    font-size:
+        15px;
+
+}
+
+
+.creator-social b {
+
+    color:
+        var(--red);
+
+    font-size:
+        18px;
+
+}
+
+
+.creator-portrait-shell {
+
+    position:
+        relative;
+
+    width:
+        min(
+            470px,
+            100%
+        );
+
+    justify-self:
+        end;
+
+}
+
+
+.creator-portrait-ring {
+
+    position:
+        relative;
+
+    aspect-ratio:
+        1 / 1;
+
+    border-radius:
+        50%;
+
+    padding:
+        2px;
+
+    background:
+
+        linear-gradient(
+            135deg,
+            #6b13a9,
+            #d425ff,
+            #31124d
+        );
+
+    box-shadow:
+
+        0 0 70px
+        rgba(135, 20, 220, 0.055);
+
+}
+
+
+.creator-portrait {
+
+    width:
+        100%;
+
+    height:
+        100%;
+
+    object-fit:
+        cover;
+
+    border-radius:
+        50%;
+
+    background:
+        #020202;
+
+}
+
+
+.portrait-note {
+
+    position:
+        absolute;
+
+    bottom:
+        -28px;
+
+    color:
+        #39342f;
+
+    font-size:
+        6px;
+
+}
+
+
+.portrait-note-left {
+    left: 0;
+}
+
+
+.portrait-note-right {
+    right: 0;
+}
+
+
+
+/* ==========================================================
+   SIGNAL
+========================================================== */
+
+.signal-section {
+
+    max-width:
+        var(--content);
+
+    margin:
+        0 auto;
+
+    padding:
+        95px var(--side)
+        125px;
+
+    border-top:
+        1px solid var(--line);
+
+}
+
+
+.signal-header {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr auto;
+
+    align-items:
+        end;
+
+    gap:
+        50px;
+
+}
+
+
+.signal-header h2 {
+
+    margin: 0;
+
+    font-size:
+        clamp(
+            62px,
+            6.5vw,
+            115px
+        );
+
+    line-height:
+        0.84;
+
+    letter-spacing:
+        -0.065em;
+
+}
+
+
+.signal-header > p {
+
+    max-width:
+        380px;
+
+    margin: 0;
+
+    color:
+        #66615c;
+
+    font-size:
+        11px;
+
+    line-height:
+        1.5;
+
+}
+
+
+.signal-grid {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    margin-top:
+        60px;
+
+    border-top:
+        1px solid var(--line);
+
+    border-left:
+        1px solid var(--line);
+
+}
+
+
+.signal-card {
+
+    min-height:
+        180px;
+
+    padding:
+        34px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    justify-content:
+        space-between;
+
+    border-right:
+        1px solid var(--line);
+
+    border-bottom:
+        1px solid var(--line);
+
+    transition:
+        160ms ease;
+
+}
+
+
+.signal-card.active:hover {
+
+    background:
+        rgba(255, 50, 20, 0.025);
+
+}
+
+
+.signal-type {
+
+    color:
+        var(--red);
+
+    font-size:
+        7px;
+
+}
+
+
+.signal-card strong {
+
+    font-size:
+        clamp(
+            27px,
+            3vw,
+            42px
+        );
+
+    letter-spacing:
+        -0.035em;
+
+}
+
+
+.signal-state {
+
+    color:
+        #514d48;
+
+    font-size:
+        7px;
+
+}
+
+
+.signal-card.active .signal-state {
+    color: #68635e;
+}
+
+
+.signal-card.locked strong {
+    color: #4b4743;
+}
+
+
+
+/* ==========================================================
+   CREDIT SECTION
+========================================================== */
+
+.credit-section {
+
+    max-width:
+        var(--content);
+
+    margin:
+        0 auto;
+
+    padding:
+        30px var(--side)
+        0;
+
+}
+
+
+.credit-heading {
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    padding:
+        16px 0;
+
+    border-top:
+        1px solid var(--line);
+
+    border-bottom:
+        1px solid var(--line);
+
+    color:
+        #48433f;
+
+    font-size:
+        6px;
+
+}
+
+
+.credit-grid {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr 1fr 0.38fr;
+
+    border-left:
+        1px solid var(--line);
+
+}
+
+
+.credit-cell {
+
+    position:
+        relative;
+
+    min-height:
+        250px;
+
+    padding:
+        30px;
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    align-items:
+        center;
+
+    border-right:
+        1px solid var(--line);
+
+    border-bottom:
+        1px solid var(--line);
+
+}
+
+
+.credit-cell .micro-label {
+
+    position:
+        absolute;
+
+    left:
+        25px;
+
+    top:
+        20px;
+
+    color:
+        #49443f;
+
+}
+
+
+.creator-credit img {
+
+    width:
+        min(
+            350px,
+            80%
+        );
+
+    max-height:
+        160px;
+
+    object-fit:
+        contain;
+
+}
+
+
+.bytes-credit img {
+
+    width:
+        min(
+            390px,
+            90%
+        );
+
+    max-height:
+        170px;
+
+    object-fit:
+        contain;
+
+}
+
+
+.sin-credit {
+
+    overflow:
+        hidden;
+
+    background:
+
+        radial-gradient(
+            circle at 50% 100%,
+            rgba(255, 0, 0, 0.018),
+            transparent 55%
+        );
+
+}
+
+
+.sin-credit img {
+
+    width:
+        min(
+            95px,
+            62%
+        );
+
+    opacity:
+        0.16;
+
+    filter:
+        saturate(0.7);
+
+    transition:
+        opacity 250ms ease;
+
+}
+
+
+.sin-credit:hover img {
+    opacity: 0.30;
+}
+
+
+
+/* ==========================================================
+   FOOTER
+========================================================== */
+
+.site-footer {
+
+    max-width:
+        var(--content);
+
+    margin:
+        0 auto;
+
+    padding:
+        24px var(--side)
+        32px;
+
+    display:
+        grid;
+
+    grid-template-columns:
+        1fr auto 1fr;
+
+    color:
+        #403b37;
+
+    font-size:
+        6px;
+
+}
+
+
+.site-footer a {
+    text-align: center;
+}
+
+
+.site-footer span:last-child {
+    text-align: right;
+}
+
+
+
+/* ==========================================================
+   TABLET
+========================================================== */
+
+@media (
+    max-width: 1100px
+) {
 
     .site-header {
-        height: 62px;
-        padding: 0 18px;
+
+        grid-template-columns:
+            1fr auto;
+
     }
 
-    .brand {
-        font-size: 10px;
+
+    .network-status {
+        display: none;
     }
 
-    .wallet-button {
-        min-width: 104px;
-        height: 32px;
-        padding: 0 10px;
-        font-size: 8px;
+
+    .hero {
+
+        min-height:
+            auto;
+
     }
 
-    .hellbox {
-        min-height: 440px;
-        padding: 70px 0;
+
+    .hero-inner {
+
+        padding-top:
+            55px;
+
+        padding-bottom:
+            80px;
+
     }
 
-    .hellbox h1 {
-        font-size: clamp(52px, 15vw, 78px);
+
+    .hero-logo {
+
+        width:
+            min(
+                820px,
+                92vw
+            );
+
     }
 
-    .main-nav {
-        grid-template-columns: 1fr;
+
+    .hero-message h1 {
+
+        font-size:
+            clamp(
+                70px,
+                11vw,
+                118px
+            );
+
     }
 
-    .main-nav a {
-        min-height: 82px;
-        padding: 18px 20px;
+
+    .hero-lower {
+
+        grid-template-columns:
+            1fr 1.4fr;
+
+        gap:
+            45px;
+
     }
 
-    .main-nav a:first-child {
-        border-right: 0;
-        border-bottom: 1px solid var(--line);
+
+    .section-heading-grid {
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            35px;
+
     }
 
-    .content-section {
-        padding: 80px 0;
+
+    .section-intro {
+
+        max-width:
+            620px;
+
     }
 
-    .content-section h2 {
-        font-size: 48px;
+
+    .archive-table-head {
+
+        grid-template-columns:
+            55px 1fr 100px 130px;
+
     }
+
 
     .archive-title {
-        min-height: 100px;
 
-        align-items: flex-start;
+        grid-template-columns:
+            55px 1fr 130px;
 
-        gap: 20px;
     }
+
 
     .archive-edition {
-        min-width: 112px;
-        height: 38px;
-        padding: 0 12px;
+
+        width:
+            130px;
+
     }
 
-    .publication-section {
-        padding-top: 80px;
-        padding-bottom: 80px;
+
+    .creator-grid {
+
+        grid-template-columns:
+            1fr 0.75fr;
+
+        gap:
+            60px;
+
     }
 
-    .publication-cover {
-        max-width: 280px;
+
+    .credit-grid {
+
+        grid-template-columns:
+            1fr 1fr;
+
     }
 
-    .publication-actions {
-        width: 280px;
+
+    .sin-credit {
+
+        grid-column:
+            1 / -1;
+
+        min-height:
+            100px;
+
     }
 
-    .press-section {
-        min-height: 420px;
-        padding: 90px 0;
-    }
-
-    .site-footer {
-        min-height: 64px;
-        font-size: 7px;
-    }
 }
 
 
-@media (max-width: 480px) {
+
+/* ==========================================================
+   MOBILE
+========================================================== */
+
+@media (
+    max-width: 720px
+) {
+
+    :root {
+
+        --side:
+            20px;
+
+    }
+
+
+    .site-header {
+
+        height:
+            60px;
+
+    }
+
+
+    .brand {
+
+        font-size:
+            9px;
+
+    }
+
+
+    .brand-emblem {
+
+        width:
+            24px;
+
+        height:
+            24px;
+
+    }
+
+
+    .wallet-button {
+
+        min-width:
+            112px;
+
+        height:
+            34px;
+
+        padding:
+            0 10px;
+
+        font-size:
+            6px;
+
+    }
+
+
+    .hero-classification {
+        display: none;
+    }
+
+
+    .hero-inner {
+
+        padding-top:
+            38px;
+
+        padding-bottom:
+            65px;
+
+    }
+
+
+    .hero-logo {
+
+        width:
+            100%;
+
+        max-height:
+            175px;
+
+    }
+
+
+    .hero-message {
+
+        padding-top:
+            30px;
+
+    }
+
+
+    .hero-message h1 {
+
+        font-size:
+            clamp(
+                62px,
+                19vw,
+                92px
+            );
+
+        line-height:
+            0.83;
+
+    }
+
+
+    .hero-lower {
+
+        display:
+            block;
+
+        margin-top:
+            44px;
+
+    }
+
+
+    .hero-manifesto {
+
+        margin-bottom:
+            28px;
+
+    }
+
+
+    .hero-entry {
+
+        min-height:
+            72px;
+
+    }
+
+
+    .access-panel {
+
+        padding-top:
+            50px;
+
+        padding-bottom:
+            80px;
+
+    }
+
+
+    .access-intro {
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            18px;
+
+    }
+
+
+    .access-code {
+        display: none;
+    }
+
+
+    .main-nav {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+
+    .main-nav > a {
+
+        min-height:
+            245px;
+
+        padding:
+            36px 25px 32px;
+
+    }
+
+
+    .main-nav > a + a {
+
+        border-left:
+            none;
+
+    }
+
+
+    .main-nav strong {
+
+        font-size:
+            43px;
+
+    }
+
+
+    .nav-bottom {
+
+        left:
+            25px;
+
+        right:
+            25px;
+
+        bottom:
+            25px;
+
+    }
+
+
+    .archive-section {
+
+        padding-top:
+            75px;
+
+        padding-bottom:
+            85px;
+
+    }
+
+
+    .section-heading h2 {
+
+        font-size:
+            clamp(
+                68px,
+                22vw,
+                104px
+            );
+
+    }
+
+
+    .archive-watermark {
+
+        width:
+            80vw;
+
+        right:
+            -35vw;
+
+        top:
+            170px;
+
+    }
+
+
+    .archive-table-head {
+        display: none;
+    }
+
+
+    .archive-list {
+
+        margin-top:
+            50px;
+
+        border-top:
+            1px solid var(--line);
+
+    }
+
 
     .archive-title {
-        flex-direction: column;
-        align-items: flex-start;
+
+        min-height:
+            125px;
+
+        grid-template-columns:
+            34px 1fr auto;
+
     }
+
 
     .archive-edition {
-        margin-top: 6px;
+
+        width:
+            96px;
+
+        height:
+            44px;
+
+        padding:
+            0 9px;
+
+        font-size:
+            6px;
+
     }
 
-    .publication-cover,
-    .publication-actions {
-        width: 100%;
-        max-width: 280px;
+
+    .publication-section {
+
+        padding-top:
+            75px;
+
+        padding-bottom:
+            90px;
+
     }
+
+
+    .publication-header h2 {
+
+        font-size:
+            64px;
+
+    }
+
+
+    .publication-book {
+
+        display:
+            block;
+
+    }
+
+
+    .publication-cover {
+
+        width:
+            min(
+                330px,
+                100%
+            );
+
+    }
+
+
+    .publication-actions {
+
+        width:
+            min(
+                330px,
+                100%
+            );
+
+        margin-top:
+            18px;
+
+    }
+
+
+    .press-section {
+
+        min-height:
+            650px;
+
+        padding-top:
+            85px;
+
+        padding-bottom:
+            90px;
+
+    }
+
+
+    .press-copy h2 {
+
+        font-size:
+            clamp(
+                67px,
+                20vw,
+                96px
+            );
+
+    }
+
+
+    .press-art {
+
+        width:
+            100vw;
+
+        right:
+            -45vw;
+
+        opacity:
+            0.025;
+
+    }
+
+
+    .press-stamp {
+
+        top:
+            60px;
+
+        right:
+            20px;
+
+    }
+
+
+    .press-bay-stamp {
+
+        right:
+            30px;
+
+        bottom:
+            70px;
+
+    }
+
+
+    .press-index {
+        display: none;
+    }
+
+
+    .transmission-break {
+
+        display:
+            block;
+
+        line-height:
+            2;
+
+    }
+
+
+    .transmission-break span:last-child {
+        display: none;
+    }
+
+
+    .creator-section {
+
+        padding-top:
+            70px;
+
+        padding-bottom:
+            90px;
+
+    }
+
+
+    .creator-grid {
+
+        display:
+            flex;
+
+        flex-direction:
+            column-reverse;
+
+        gap:
+            60px;
+
+    }
+
+
+    .creator-portrait-shell {
+
+        width:
+            min(
+                360px,
+                92vw
+            );
+
+        align-self:
+            center;
+
+    }
+
+
+    .harrow-signature {
+
+        width:
+            min(
+                430px,
+                100%
+            );
+
+    }
+
+
+    .creator-copy p {
+
+        font-size:
+            12px;
+
+    }
+
+
+    .signal-section {
+
+        padding-top:
+            75px;
+
+        padding-bottom:
+            90px;
+
+    }
+
+
+    .signal-header {
+
+        grid-template-columns:
+            1fr;
+
+        gap:
+            25px;
+
+    }
+
+
+    .signal-header h2 {
+
+        font-size:
+            clamp(
+                58px,
+                17vw,
+                88px
+            );
+
+    }
+
+
+    .signal-grid {
+
+        grid-template-columns:
+            1fr;
+
+        margin-top:
+            42px;
+
+    }
+
+
+    .signal-card {
+
+        min-height:
+            140px;
+
+        padding:
+            26px;
+
+    }
+
+
+    .credit-grid {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+
+    .sin-credit {
+
+        grid-column:
+            auto;
+
+        min-height:
+            80px;
+
+    }
+
+
+    .credit-cell {
+
+        min-height:
+            190px;
+
+    }
+
+
+    .creator-credit img,
+    .bytes-credit img {
+
+        max-height:
+            125px;
+
+    }
+
+
+    .sin-credit img {
+
+        width:
+            72px;
+
+    }
+
+
+    .site-footer {
+
+        grid-template-columns:
+            1fr 1fr;
+
+        row-gap:
+            12px;
+
+    }
+
+
+    .site-footer a {
+
+        text-align:
+            right;
+
+    }
+
+
+    .site-footer span:last-child {
+        display: none;
+    }
+
+}
+
+
+
+/* ==========================================================
+   VERY SMALL MOBILE
+========================================================== */
+
+@media (
+    max-width: 420px
+) {
+
+    .brand span {
+        display: none;
+    }
+
+
+    .wallet-button {
+
+        min-width:
+            105px;
+
+    }
+
+
+    .hero-message h1 {
+
+        font-size:
+            18vw;
+
+    }
+
+
+    .main-nav strong {
+
+        font-size:
+            37px;
+
+    }
+
+
+    .section-heading h2 {
+
+        font-size:
+            19vw;
+
+    }
+
+
+    .archive-title h3 {
+
+        font-size:
+            21px;
+
+    }
+
+
+    .press-copy h2 {
+
+        font-size:
+            18vw;
+
+    }
+
+
+    .signal-card strong {
+
+        font-size:
+            25px;
+
+    }
+
 }
