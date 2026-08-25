@@ -794,3 +794,301 @@ main,
         max-height: 180px;
     }
 }
+
+
+/* =========================================================
+   HELLBOX RESPONSIVE / FOOTER OVERRIDES
+   Paste this block at the END of the stylesheet.
+   These overrides fix the artwork cropping/scaling problem
+   without changing the site's visual language.
+========================================================= */
+
+/* ---------------------------------------------------------
+   1. HERO ART — NEVER CROP THE HELLBOX WORDMARK
+   The previous mobile rule used object-fit: cover, which
+   chopped the artwork on narrow/vertical screens.
+--------------------------------------------------------- */
+
+.hero-art {
+    width: 100%;
+    overflow: hidden;
+    background: #000;
+}
+
+.hellbox-banner {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: none;
+    max-height: none;
+    object-fit: contain;
+    object-position: center top;
+}
+
+/* Keep the hero from becoming absurdly tall on very large
+   desktop displays while preserving the entire artwork. */
+@media (min-width: 1400px) {
+    .hellbox-banner {
+        width: 100%;
+    }
+}
+
+/* ---------------------------------------------------------
+   2. FOOTER — HARROW IS THE SIGNATURE
+   The Harrow wordmark should read as the creator signature,
+   not as a giant piece of clipped artwork.
+--------------------------------------------------------- */
+
+.footer-brand {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    overflow: visible;
+    padding:
+        clamp(48px, 7vw, 82px)
+        0
+        clamp(18px, 3vw, 34px);
+}
+
+.footer-brand img {
+    display: block;
+    width: min(760px, 82vw);
+    max-width: 100%;
+    height: auto;
+    max-height: none;
+    object-fit: contain;
+    object-position: center;
+    opacity: 0.92;
+}
+
+/* If the footer contains multiple wordmarks, keep the
+   Harrow signature visually dominant but controlled. */
+.site-footer img[src*="harrow" i] {
+    width: min(760px, 82vw);
+    max-width: 100%;
+    height: auto;
+    max-height: none;
+}
+
+/* ---------------------------------------------------------
+   3. SIN — DISCREET FOOTER DETAIL
+   "Fueled by" should be almost a whisper. It is an easter
+   egg / wordplay element, not a hero announcement.
+
+   These selectors cover common class names without forcing
+   a markup change. If the existing HTML uses one of these,
+   it will automatically adopt the treatment below.
+--------------------------------------------------------- */
+
+.footer-fueled,
+.footer-fueled-by,
+.footer-powered,
+.footer-powered-by,
+.fueled-by,
+.powered-by {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    margin-top: clamp(14px, 2vw, 24px);
+    color: #3f3f3f;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    line-height: 1;
+    text-transform: uppercase;
+    opacity: 0.58;
+}
+
+.footer-fueled img,
+.footer-fueled-by img,
+.footer-powered img,
+.footer-powered-by img,
+.fueled-by img,
+.powered-by img {
+    display: block;
+    width: auto;
+    max-width: 110px;
+    height: auto;
+    max-height: 28px;
+    opacity: 0.48;
+    filter: saturate(0.78);
+}
+
+/* If SIN is already an image inside the footer, make it
+   intentionally quiet regardless of its source filename. */
+.site-footer img[src*="sin" i] {
+    width: auto;
+    max-width: 96px;
+    height: auto;
+    max-height: 30px;
+    opacity: 0.42;
+    filter: saturate(0.72);
+}
+
+/* ---------------------------------------------------------
+   4. BACKED BY BYTES — SUPPORTING FOOTER MARK
+   It can be visually stronger than SIN, but should still
+   remain subordinate to Harrow.
+--------------------------------------------------------- */
+
+.site-footer img[src*="bytes" i] {
+    width: min(620px, 78vw);
+    max-width: 100%;
+    height: auto;
+    max-height: none;
+    object-fit: contain;
+}
+
+/* ---------------------------------------------------------
+   5. FOOTER STACK
+   Gives the footer a predictable vertical rhythm:
+
+       CREATED BY
+       [HARROW]
+
+       BACKED BY
+       [BYTES]
+
+       fueled by [SIN]
+
+   The HTML remains responsible for the actual order.
+--------------------------------------------------------- */
+
+.site-footer {
+    width: min(
+        100%,
+        calc(var(--content) + (var(--gutter) * 2))
+    );
+    margin-inline: auto;
+    padding:
+        0
+        var(--gutter)
+        clamp(55px, 8vw, 100px);
+}
+
+.site-footer .footer-top {
+    width: 100%;
+}
+
+/* ---------------------------------------------------------
+   6. TABLETS / VERTICAL DISPLAYS
+--------------------------------------------------------- */
+
+@media (max-width: 900px) {
+    .hellbox-banner {
+        width: 100%;
+        height: auto;
+        max-height: none;
+        object-fit: contain;
+        object-position: center top;
+    }
+
+    .footer-brand {
+        padding-top: clamp(42px, 8vw, 65px);
+    }
+
+    .footer-brand img,
+    .site-footer img[src*="harrow" i] {
+        width: min(680px, 84vw);
+    }
+
+    .site-footer img[src*="bytes" i] {
+        width: min(560px, 82vw);
+    }
+
+    .site-footer img[src*="sin" i] {
+        max-width: 82px;
+        max-height: 25px;
+        opacity: 0.38;
+    }
+}
+
+/* ---------------------------------------------------------
+   7. PHONES
+   Never let decorative artwork dictate the viewport width.
+   Everything is allowed to shrink inside the content gutter.
+--------------------------------------------------------- */
+
+@media (max-width: 640px) {
+    :root {
+        --gutter: 20px;
+    }
+
+    .hellbox {
+        width: 100%;
+    }
+
+    .hero-art {
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .hellbox-banner {
+        width: 100%;
+        height: auto;
+        max-height: none;
+        object-fit: contain;
+        object-position: center top;
+    }
+
+    .footer-brand {
+        padding:
+            38px
+            0
+            20px;
+    }
+
+    .footer-brand img,
+    .site-footer img[src*="harrow" i] {
+        width: min(560px, 88vw);
+        max-width: 100%;
+        max-height: none;
+    }
+
+    .site-footer img[src*="bytes" i] {
+        width: min(500px, 88vw);
+        max-width: 100%;
+    }
+
+    .footer-fueled,
+    .footer-fueled-by,
+    .footer-powered,
+    .footer-powered-by,
+    .fueled-by,
+    .powered-by {
+        gap: 7px;
+        margin-top: 12px;
+        font-size: 7px;
+        letter-spacing: 0.13em;
+    }
+
+    .site-footer img[src*="sin" i] {
+        max-width: 68px;
+        max-height: 22px;
+        opacity: 0.34;
+    }
+}
+
+/* ---------------------------------------------------------
+   8. VERY SMALL PHONES
+--------------------------------------------------------- */
+
+@media (max-width: 380px) {
+    .footer-brand img,
+    .site-footer img[src*="harrow" i] {
+        width: 88vw;
+    }
+
+    .site-footer img[src*="bytes" i] {
+        width: 88vw;
+    }
+
+    .site-footer img[src*="sin" i] {
+        max-width: 58px;
+        max-height: 19px;
+        opacity: 0.30;
+    }
+}
