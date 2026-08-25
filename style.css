@@ -1,72 +1,68 @@
-* {
+/* =========================================================
+   HELLBOX COMICS
+   Editorial / Brutalist / Dark
+   ========================================================= */
+
+:root {
+    --bg: #050505;
+    --text: #f2f2f2;
+    --muted: #777;
+    --dim: #4a4a4a;
+    --line: #202020;
+    --line-hover: #383838;
+    --red: #ff1717;
+
+    --page-width: 1120px;
+    --page-padding: 40px;
+
+    --header-height: 72px;
+}
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
-
-/* =========================================
-   BASE
-========================================= */
-
 html {
     scroll-behavior: smooth;
-    background: #050505;
+    background: var(--bg);
 }
 
-
-html,
 body {
     margin: 0;
     padding: 0;
-    width: 100%;
-    min-height: 100%;
-}
 
-
-body {
-    background:
-        radial-gradient(
-            circle at 50% 18%,
-            rgba(255, 255, 255, 0.025),
-            transparent 34%
-        ),
-        #050505;
-
-    color: #f2f2f2;
+    background: var(--bg);
+    color: var(--text);
 
     font-family:
-        Arial,
+        Inter,
+        Helvetica Neue,
         Helvetica,
+        Arial,
         sans-serif;
 
-    overflow-x: hidden;
+    font-size: 14px;
+    line-height: 1.5;
+
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
-
-body::before {
-    content: "";
-
-    position: fixed;
-
-    inset: 0;
-
-    pointer-events: none;
-
-    z-index: 999;
-
-    opacity: 0.025;
-
-    background-image:
-        repeating-linear-gradient(
-            0deg,
-            rgba(255, 255, 255, 0.8) 0px,
-            rgba(255, 255, 255, 0.8) 1px,
-            transparent 1px,
-            transparent 4px
-        );
-
-    mix-blend-mode: screen;
+button,
+a {
+    font: inherit;
 }
 
+button {
+    appearance: none;
+}
 
 a {
     color: inherit;
@@ -74,1005 +70,649 @@ a {
 }
 
 
-button {
-    font-family: inherit;
+/* =========================================================
+   GLOBAL PAGE WIDTH
+   ========================================================= */
+
+main,
+.site-footer {
+    width: min(
+        calc(100% - (var(--page-padding) * 2)),
+        var(--page-width)
+    );
+
+    margin-left: auto;
+    margin-right: auto;
 }
 
 
-/* =========================================
+/* =========================================================
    HEADER
-========================================= */
+   ========================================================= */
 
 .site-header {
-    position: fixed;
-
+    position: sticky;
     top: 0;
-    left: 0;
-
-    width: 100%;
-    height: 70px;
-
-    padding: 18px 24px;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: space-between;
-
     z-index: 100;
 
-    pointer-events: none;
+    height: var(--header-height);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 28px;
+
+    background: rgba(5, 5, 5, 0.96);
+    border-bottom: 1px solid var(--line);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
-
-
-.brand,
-.wallet-button {
-    pointer-events: auto;
-}
-
 
 .brand {
-    position: relative;
+    display: inline-block;
 
-    font-size: 11px;
+    color: var(--text);
 
-    letter-spacing: 0.22em;
-
+    font-size: 12px;
     font-weight: 700;
-
-    transition:
-        opacity 0.25s ease,
-        letter-spacing 0.25s ease;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
 }
-
-
-.brand:hover {
-    opacity: 0.6;
-
-    letter-spacing: 0.28em;
-}
-
 
 .wallet-button {
-    position: relative;
+    min-width: 116px;
+    height: 34px;
 
-    border: 1px solid rgba(255, 255, 255, 0.75);
+    padding: 0 14px;
 
-    background: rgba(5, 5, 5, 0.78);
+    background: transparent;
+    border: 1px solid #383838;
 
-    color: #f2f2f2;
+    color: var(--text);
 
-    padding: 11px 18px;
-
-    font-size: 10px;
-
+    font-size: 9px;
     font-weight: 700;
-
-    letter-spacing: 0.16em;
+    letter-spacing: 0.12em;
 
     cursor: pointer;
 
-    backdrop-filter: blur(10px);
-
-    -webkit-backdrop-filter: blur(10px);
-
     transition:
-        background 0.25s ease,
-        color 0.25s ease,
-        border-color 0.25s ease,
-        transform 0.2s ease;
+        border-color 160ms ease,
+        background 160ms ease,
+        color 160ms ease;
 }
-
 
 .wallet-button:hover {
-    background: #f2f2f2;
-
-    color: #050505;
-
-    border-color: #f2f2f2;
-
-    transform: translateY(-1px);
+    border-color: #666;
+    background: #0c0c0c;
 }
-
-
-.wallet-button:active {
-    transform: translateY(0);
-}
-
 
 .wallet-button.wallet-connected {
-    border-color: rgba(255, 255, 255, 0.25);
-
-    background: rgba(255, 255, 255, 0.06);
-
-    color: #f2f2f2;
+    border-color: #501010;
+    color: #d8d8d8;
 }
 
 
-.wallet-button.wallet-connected:hover {
-    background: rgba(255, 255, 255, 0.12);
-
-    color: #fff;
-}
-
-
-/* =========================================
+/* =========================================================
    HERO
-========================================= */
+   ========================================================= */
 
 .hellbox {
-    position: relative;
-
-    min-height: 100vh;
+    min-height: 500px;
 
     display: flex;
-
     flex-direction: column;
-
-    align-items: center;
-
     justify-content: center;
 
-    text-align: center;
-
-    padding: 100px 40px 60px;
-
-    overflow: hidden;
+    padding: 90px 0 80px;
 }
 
-
-.hellbox::before {
-    content: "";
-
-    position: absolute;
-
-    width: min(700px, 80vw);
-
-    height: min(700px, 80vw);
-
-    border-radius: 50%;
-
-    background:
-        radial-gradient(
-            circle,
-            rgba(255, 255, 255, 0.045),
-            rgba(255, 255, 255, 0.012) 35%,
-            transparent 70%
-        );
-
-    filter: blur(2px);
-
-    pointer-events: none;
-}
-
-
-.hellbox::after {
-    content: "";
-
-    position: absolute;
-
-    left: 50%;
-
-    bottom: 0;
-
-    width: 1px;
-
-    height: 80px;
-
-    background:
-        linear-gradient(
-            to bottom,
-            transparent,
-            rgba(255, 255, 255, 0.15)
-        );
-
-    transform: translateX(-50%);
-
-    pointer-events: none;
-}
-
-
-.eyebrow {
-    position: relative;
-
-    margin: 0 0 30px;
-
-    font-size: 12px;
-
-    letter-spacing: 0.45em;
-
-    opacity: 0.45;
-}
-
-
-h1 {
-    position: relative;
-
+.eyebrow,
+.section-label,
+.archive-title-label {
     margin: 0;
 
-    font-size:
-        clamp(
-            60px,
-            11vw,
-            180px
-        );
+    color: var(--red);
 
-    line-height: 0.82;
-
-    letter-spacing: -0.06em;
-
-    font-weight: 900;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    line-height: 1.2;
+    text-transform: uppercase;
 }
 
+.hellbox h1 {
+    margin: 14px 0 24px;
+
+    max-width: 720px;
+
+    color: var(--text);
+
+    font-size: clamp(64px, 8vw, 112px);
+    font-weight: 800;
+    letter-spacing: -0.055em;
+    line-height: 0.87;
+}
 
 .subline {
-    position: relative;
+    margin: 0;
 
-    margin-top: 45px;
+    color: var(--muted);
 
-    font-size: 14px;
-
-    letter-spacing: 0.25em;
-
-    text-transform: uppercase;
-
-    opacity: 0.35;
+    font-size: 12px;
+    line-height: 1.4;
 }
 
 
-/* =========================================
+/* =========================================================
    MAIN NAVIGATION
-========================================= */
+   ========================================================= */
 
 .main-nav {
-    position: relative;
-
-    width:
-        min(
-            1000px,
-            calc(100% - 80px)
-        );
-
-    margin: 0 auto;
-
     display: grid;
-
     grid-template-columns: 1fr 1fr;
 
-    border-top:
-        1px solid rgba(255, 255, 255, 0.08);
-
-    border-bottom:
-        1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
 }
-
 
 .main-nav a {
-    position: relative;
-
-    padding: 30px 0;
+    min-height: 92px;
 
     display: flex;
-
     flex-direction: column;
-
-    gap: 9px;
-
-    overflow: hidden;
-
-    transition:
-        opacity 0.3s ease,
-        padding-left 0.3s ease;
-}
-
-
-.main-nav a::after {
-    content: "";
-
-    position: absolute;
-
-    left: 0;
-    bottom: 0;
-
-    width: 0;
-
-    height: 1px;
-
-    background: #f2f2f2;
-
-    transition:
-        width 0.35s ease;
-}
-
-
-.main-nav a:hover {
-    opacity: 1;
-
-    padding-left: 10px;
-}
-
-
-.main-nav a:hover::after {
-    width: 100%;
-}
-
-
-.main-nav a + a {
-    padding-left: 40px;
-
-    border-left:
-        1px solid rgba(255, 255, 255, 0.08);
-}
-
-
-.main-nav a + a:hover {
-    padding-left: 50px;
-}
-
-
-.main-nav strong {
-    font-size: 11px;
-
-    letter-spacing: 0.18em;
-}
-
-
-.main-nav span {
-    font-size: 11px;
-
-    opacity: 0.4;
-}
-
-
-/* =========================================
-   CONTENT
-========================================= */
-
-.content-section {
-    width:
-        min(
-            1000px,
-            calc(100% - 80px)
-        );
-
-    margin: 0 auto;
-
-    padding: 140px 0;
-
-    border-bottom:
-        1px solid rgba(255, 255, 255, 0.08);
-
-    scroll-margin-top: 70px;
-}
-
-
-.section-label {
-    margin: 0 0 28px;
-
-    font-size: 10px;
-
-    letter-spacing: 0.42em;
-
-    opacity: 0.35;
-}
-
-
-h2 {
-    margin: 0;
-
-    font-size:
-        clamp(
-            48px,
-            7vw,
-            92px
-        );
-
-    line-height: 0.92;
-
-    letter-spacing: -0.055em;
-
-    font-weight: 900;
-}
-
-
-.section-description {
-    margin: 32px 0 0;
-
-    max-width: 500px;
-
-    font-size: 14px;
-
-    line-height: 1.6;
-
-    color: #777;
-}
-
-
-/* =========================================
-   THE HELLBOX
-========================================= */
-
-.archive-section {
-    position: relative;
-
-    scroll-margin-top: 80px;
-}
-
-
-.archive-section::before {
-    content: "HELLBOX";
-
-    position: absolute;
-
-    top: 80px;
-
-    right: -10px;
-
-    font-size:
-        clamp(
-            80px,
-            15vw,
-            180px
-        );
-
-    line-height: 1;
-
-    font-weight: 900;
-
-    letter-spacing: -0.08em;
-
-    color: rgba(255, 255, 255, 0.018);
-
-    pointer-events: none;
-
-    user-select: none;
-}
-
-
-.archive-list {
-    position: relative;
-
-    margin-top: 90px;
-}
-
-
-/* =========================================
-   EMPTY HELLBOX
-========================================= */
-
-.archive-empty {
-    position: relative;
-
-    min-height: 300px;
-
-    padding: 70px 50px;
-
-    border:
-        1px solid rgba(255, 255, 255, 0.1);
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(255, 255, 255, 0.025),
-            rgba(255, 255, 255, 0.005)
-        );
-
-    display: flex;
-
-    flex-direction: column;
-
     justify-content: center;
 
-    overflow: hidden;
+    padding: 20px 28px;
+
+    transition: background 160ms ease;
 }
 
-
-.archive-empty::before {
-    content: "";
-
-    position: absolute;
-
-    top: -100px;
-    right: -100px;
-
-    width: 300px;
-    height: 300px;
-
-    border-radius: 50%;
-
-    border:
-        1px solid rgba(255, 255, 255, 0.05);
+.main-nav a:first-child {
+    border-right: 1px solid var(--line);
 }
 
-
-.archive-empty::after {
-    content: "";
-
-    position: absolute;
-
-    left: 0;
-    bottom: 0;
-
-    width: 100%;
-
-    height: 1px;
-
-    background:
-        linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.2),
-            transparent
-        );
+.main-nav a:hover {
+    background: #090909;
 }
 
+.main-nav strong {
+    margin-bottom: 5px;
 
-.archive-empty-label {
-    position: relative;
+    color: var(--text);
 
-    z-index: 2;
-
-    margin: 0;
-
-    font-size:
-        clamp(
-            32px,
-            5vw,
-            64px
-        );
-
-    line-height: 0.95;
-
-    letter-spacing: -0.05em;
-
-    font-weight: 900;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
 }
 
-
-.archive-empty-description {
-    position: relative;
-
-    z-index: 2;
-
-    margin: 20px 0 0;
-
-    max-width: 420px;
-
-    font-size: 13px;
-
-    line-height: 1.6;
-
-    color: rgba(255, 255, 255, 0.4);
-}
-
-
-/* =========================================
-   FUTURE TITLE CONTAINER
-========================================= */
-
-.archive-title {
-    position: relative;
-
-    margin-bottom: 60px;
-
-    border-top:
-        1px solid rgba(255, 255, 255, 0.1);
-
-    border-bottom:
-        1px solid rgba(255, 255, 255, 0.1);
-
-    transition:
-        border-color 0.3s ease;
-}
-
-
-.archive-title:hover {
-    border-color:
-        rgba(255, 255, 255, 0.22);
-}
-
-
-.archive-title-header {
-    position: relative;
-
-    padding: 55px 0;
-}
-
-
-.archive-title-label {
-    margin: 0 0 18px;
+.main-nav span {
+    color: #666;
 
     font-size: 10px;
-
-    letter-spacing: 0.4em;
-
-    opacity: 0.35;
 }
 
+
+/* =========================================================
+   CONTENT SECTIONS
+   ========================================================= */
+
+.content-section {
+    padding: 110px 0;
+
+    border-bottom: 1px solid var(--line);
+}
+
+.content-section h2 {
+    margin: 14px 0 10px;
+
+    color: var(--text);
+
+    font-size: clamp(48px, 6vw, 72px);
+    font-weight: 800;
+    letter-spacing: -0.055em;
+    line-height: 0.92;
+}
+
+.section-description {
+    margin: 0;
+
+    color: #666;
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   ARCHIVE
+   ========================================================= */
+
+.archive-section {
+    padding-top: 105px;
+    padding-bottom: 90px;
+}
+
+.archive-status {
+    margin-top: 6px;
+
+    color: #b0b0b0;
+
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+.archive-list {
+    margin-top: 54px;
+
+    border-top: 1px solid var(--line);
+}
+
+.archive-title {
+    min-height: 112px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+
+    padding: 22px 0;
+
+    border-bottom: 1px solid var(--line);
+}
+
+.archive-title-header {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.archive-title-label {
+    margin-bottom: 6px;
+
+    font-size: 8px;
+}
 
 .archive-title h3 {
     margin: 0;
 
-    font-size:
-        clamp(
-            36px,
-            5vw,
-            68px
-        );
+    color: var(--text);
 
-    line-height: 0.95;
-
-    letter-spacing: -0.05em;
-
-    font-weight: 900;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
 }
 
+.archive-issue {
+    margin-top: 5px;
 
-/* =========================================
-   FUTURE EDITIONS
-========================================= */
+    color: #555;
 
-.archive-editions {
-    border-top:
-        1px solid rgba(255, 255, 255, 0.08);
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
 }
-
-
-.archive-editions-label {
-    margin: 0;
-
-    padding: 22px 0;
-
-    font-size: 10px;
-
-    letter-spacing: 0.35em;
-
-    opacity: 0.35;
-}
-
 
 .archive-edition {
-    position: relative;
+    flex: 0 0 auto;
 
-    min-height: 78px;
+    min-width: 138px;
+    height: 40px;
 
-    padding: 20px 0;
+    padding: 0 18px;
 
-    display: flex;
+    background: transparent;
+    border: 1px solid #292929;
 
-    align-items: center;
+    color: #d7d7d7;
 
-    gap: 30px;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
 
-    border-top:
-        1px solid rgba(255, 255, 255, 0.06);
-
-    transition:
-        padding-left 0.3s ease,
-        background 0.3s ease,
-        opacity 0.3s ease;
-}
-
-
-.archive-edition::after {
-    content: "→";
-
-    position: absolute;
-
-    right: 0;
-
-    font-size: 16px;
-
-    opacity: 0;
-
-    transform: translateX(-8px);
+    cursor: pointer;
 
     transition:
-        opacity 0.3s ease,
-        transform 0.3s ease;
+        border-color 160ms ease,
+        background 160ms ease,
+        color 160ms ease;
 }
-
 
 .archive-edition:hover {
-    padding-left: 12px;
-
-    background:
-        linear-gradient(
-            90deg,
-            rgba(255, 255, 255, 0.025),
-            transparent
-        );
+    border-color: #555;
+    background: #0b0b0b;
+    color: #fff;
 }
 
 
-.archive-edition:hover::after {
-    opacity: 0.65;
+/* =========================================================
+   PUBLICATION VIEWER
+   ========================================================= */
 
-    transform: translateX(0);
+.publication-section {
+    padding-top: 105px;
+    padding-bottom: 105px;
+}
+
+.publication-content {
+    width: 100%;
+}
+
+.publication-header {
+    margin-bottom: 38px;
+}
+
+.publication-header h2 {
+    margin-top: 14px;
+}
+
+.publication-book {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 
-.edition-number {
-    width: 90px;
+/* =========================================================
+   IMPORTANT:
+   PUBLICATION COVER IS A DETAIL IMAGE,
+   NOT A FULL-WIDTH PAGE IMAGE.
+   ========================================================= */
 
-    flex-shrink: 0;
+.publication-cover {
+    width: 100%;
+    max-width: 280px;
 
-    font-size: 10px;
+    border: 1px solid #252525;
 
-    letter-spacing: 0.25em;
-
-    opacity: 0.35;
-}
-
-
-.edition-name {
-    font-size: 15px;
-
-    font-weight: 600;
-}
-
-
-.archive-no-editions {
-    margin: 0;
-
-    padding: 20px 0 28px;
-
-    font-size: 12px;
-
-    letter-spacing: 0.18em;
-
-    opacity: 0.35;
-}
-
-
-/* =========================================
-   THE PRESS
-========================================= */
-
-.press-section {
-    position: relative;
-
-    padding-bottom: 160px;
+    background: #080808;
 
     overflow: hidden;
 }
 
+.publication-cover img {
+    display: block;
 
-.press-section::before {
-    content: "PRESS";
+    width: 100%;
+    height: auto;
 
-    position: absolute;
+    max-width: 100%;
 
-    right: -20px;
-
-    bottom: 40px;
-
-    font-size:
-        clamp(
-            100px,
-            18vw,
-            220px
-        );
-
-    line-height: 1;
-
-    letter-spacing: -0.08em;
-
-    font-weight: 900;
-
-    color: rgba(255, 255, 255, 0.018);
-
-    pointer-events: none;
-
-    user-select: none;
+    object-fit: contain;
 }
 
 
-.status {
-    position: relative;
+/* =========================================================
+   PUBLICATION ACTIONS
+   ========================================================= */
 
-    margin-top: 50px;
-
-    display: inline-block;
-
-    padding: 12px 15px;
-
-    border:
-        1px solid rgba(255, 255, 255, 0.1);
-
-    font-size: 10px;
-
-    letter-spacing: 0.3em;
-
-    opacity: 0.45;
-}
-
-
-/* =========================================
-   FOOTER
-========================================= */
-
-.site-footer {
-    width:
-        min(
-            1200px,
-            calc(100% - 48px)
-        );
-
-    margin: 0 auto;
-
-    padding: 32px 0 40px;
+.publication-actions {
+    width: 280px;
+    max-width: 100%;
 
     display: flex;
+    flex-direction: column;
 
+    margin-top: 14px;
+}
+
+.publication-action {
+    width: 100%;
+    min-height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 10px 16px;
+
+    background: transparent;
+    border: 1px solid #252525;
+
+    color: #d8d8d8;
+
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-align: center;
+
+    cursor: pointer;
+
+    transition:
+        border-color 160ms ease,
+        background 160ms ease,
+        color 160ms ease;
+}
+
+.publication-action + .publication-action {
+    margin-top: -1px;
+}
+
+.publication-action:hover {
+    position: relative;
+    z-index: 1;
+
+    border-color: #555;
+    background: #0a0a0a;
+    color: #fff;
+}
+
+.publication-close {
+    color: #888;
+}
+
+
+/* =========================================================
+   COMIC VIEW
+   ========================================================= */
+
+.publication-content > .section-label {
+    margin-bottom: 0;
+}
+
+.publication-content > h2 {
+    margin-top: 14px;
+}
+
+.publication-content > .section-description {
+    max-width: 520px;
+
+    margin-top: 18px;
+}
+
+
+/* =========================================================
+   PRESS
+   ========================================================= */
+
+.press-section {
+    min-height: 500px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    padding-top: 120px;
+    padding-bottom: 120px;
+}
+
+.press-section h2 {
+    max-width: 760px;
+
+    margin-top: 16px;
+}
+
+.press-section .section-description {
+    margin-top: 22px;
+}
+
+.status {
+    margin: 32px 0 0;
+
+    color: #555;
+
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.site-footer {
+    min-height: 72px;
+
+    display: flex;
+    align-items: center;
     justify-content: space-between;
 
-    font-size: 9px;
+    color: #555;
 
-    letter-spacing: 0.3em;
-
-    opacity: 0.3;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
 }
 
 
-/* =========================================
-   SELECTION
-========================================= */
+/* =========================================================
+   HIDDEN
+   ========================================================= */
 
-::selection {
-    background: #f2f2f2;
-
-    color: #050505;
+[hidden] {
+    display: none !important;
 }
 
 
-/* =========================================
-   MOBILE
-========================================= */
+/* =========================================================
+   FOCUS
+   ========================================================= */
+
+button:focus-visible,
+a:focus-visible {
+    outline: 1px solid #777;
+    outline-offset: 3px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
 
 @media (max-width: 700px) {
 
-    .site-header {
-        padding: 16px;
+    :root {
+        --page-padding: 22px;
     }
 
+    .site-header {
+        height: 62px;
+        padding: 0 18px;
+    }
 
     .brand {
-        font-size: 9px;
-
-        letter-spacing: 0.18em;
+        font-size: 10px;
     }
-
 
     .wallet-button {
-        padding: 10px 13px;
-
-        font-size: 9px;
+        min-width: 104px;
+        height: 32px;
+        padding: 0 10px;
+        font-size: 8px;
     }
-
 
     .hellbox {
-        padding-left: 20px;
-
-        padding-right: 20px;
+        min-height: 440px;
+        padding: 70px 0;
     }
 
-
-    .eyebrow {
-        font-size: 9px;
-
-        letter-spacing: 0.35em;
+    .hellbox h1 {
+        font-size: clamp(52px, 15vw, 78px);
     }
-
-
-    .subline {
-        font-size: 10px;
-
-        letter-spacing: 0.18em;
-    }
-
 
     .main-nav {
-        width:
-            calc(100% - 40px);
-
         grid-template-columns: 1fr;
     }
 
-
-    .main-nav a + a {
-        padding-left: 0;
-
-        border-left: 0;
-
-        border-top:
-            1px solid rgba(255, 255, 255, 0.08);
+    .main-nav a {
+        min-height: 82px;
+        padding: 18px 20px;
     }
 
-
-    .main-nav a + a:hover {
-        padding-left: 10px;
+    .main-nav a:first-child {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
     }
-
 
     .content-section {
-        width:
-            calc(100% - 40px);
+        padding: 80px 0;
+    }
 
+    .content-section h2 {
+        font-size: 48px;
+    }
+
+    .archive-title {
+        min-height: 100px;
+
+        align-items: flex-start;
+
+        gap: 20px;
+    }
+
+    .archive-edition {
+        min-width: 112px;
+        height: 38px;
+        padding: 0 12px;
+    }
+
+    .publication-section {
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+
+    .publication-cover {
+        max-width: 280px;
+    }
+
+    .publication-actions {
+        width: 280px;
+    }
+
+    .press-section {
+        min-height: 420px;
         padding: 90px 0;
     }
 
-
-    .archive-section::before {
-        top: 60px;
-
-        right: -30px;
-
-        font-size: 90px;
+    .site-footer {
+        min-height: 64px;
+        font-size: 7px;
     }
+}
 
 
-    .archive-list {
-        margin-top: 60px;
+@media (max-width: 480px) {
+
+    .archive-title {
+        flex-direction: column;
+        align-items: flex-start;
     }
-
-
-    .archive-empty {
-        min-height: 250px;
-
-        padding: 50px 25px;
-    }
-
-
-    .archive-title-header {
-        padding: 40px 0;
-    }
-
 
     .archive-edition {
-        gap: 15px;
-
-        padding-right: 30px;
+        margin-top: 6px;
     }
 
-
-    .edition-number {
-        width: 65px;
+    .publication-cover,
+    .publication-actions {
+        width: 100%;
+        max-width: 280px;
     }
-
-
-    .edition-name {
-        font-size: 14px;
-    }
-
-
-    .archive-edition::after {
-        right: 5px;
-    }
-
-
-    .press-section {
-        padding-bottom: 120px;
-    }
-
-
-    .press-section::before {
-        right: -20px;
-
-        bottom: 40px;
-
-        font-size: 100px;
-    }
-
-
-    .site-footer {
-        width:
-            calc(100% - 32px);
-
-        flex-direction: column;
-
-        gap: 10px;
-    }
-
 }

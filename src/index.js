@@ -17,28 +17,69 @@ export default {
     }
 
     // --------------------------------------------------
-    // ASHBOX #001
+    // PUBLIC CATALOG
+    // Example:
+    // /api/comics
+    //
+    // This is the public catalog of publications currently
+    // available on Hellbox Comics.
     // --------------------------------------------------
-    if (url.pathname === "/api/comics/ashbox/001") {
-      const object = await env.PUBLIC_BUCKET.get(
-        "comics/ashbox/001/metadata/web/issue.json"
-      );
+    if (url.pathname === "/api/comics") {
+      return json({
+        ok: true,
+        comics: [
+          {
+            slug: "scivive",
+            issue: 1,
+            title: "SciVive",
+            status: "published",
+            access: "free",
+            content_type: "ebook",
+          },
+          {
+            slug: "ashbox",
+            issue: 1,
+            title: "Ashbox",
+            status: "published",
+            content_type: "comic",
+          },
+        ],
+      });
+    }
+
+    // --------------------------------------------------
+    // PUBLIC PUBLICATION METADATA
+    // Examples:
+    // /api/comics/ashbox/001
+    // /api/comics/scivive/001
+    // --------------------------------------------------
+    const comicMatch = url.pathname.match(
+      /^\/api\/comics\/([a-z0-9-]+)\/(\d+)$/
+    );
+
+    if (comicMatch) {
+      const slug = comicMatch[1];
+      const issue = comicMatch[2];
+
+      const key = `comics/${slug}/${issue}/metadata/web/issue.json`;
+
+      const object = await env.PUBLIC_BUCKET.get(key);
 
       if (!object) {
         return json(
           {
             ok: false,
-            error: "Issue metadata not found",
+            error: "Comic metadata not found",
+            slug,
+            issue: Number(issue),
           },
           404
         );
       }
 
-      const data = await object.json();
+      const metadata = await object.json();
 
-      return json(data, 200, {
-        "Cache-Control": "public, max-age=300",
-      });
+      return json(metadata);
     }
 
     // --------------------------------------------------
@@ -48,13 +89,12 @@ export default {
   },
 };
 
-
-function json(data, status = 200, extraHeaders = {}) {
+function json(data, status = 200) {
   return new Response(JSON.stringify(data, null, 2), {
     status,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      ...extraHeaders,
+      "Cache-Control": "public, max-age=300",
     },
   });
 }
