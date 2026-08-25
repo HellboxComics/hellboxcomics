@@ -1,6 +1,7 @@
 /* =========================================================
    HELLBOX COMICS
-   ========================================================= */
+   GLOBAL
+========================================================= */
 
 * {
     box-sizing: border-box;
@@ -8,7 +9,6 @@
 
 html {
     scroll-behavior: smooth;
-    background: #050505;
 }
 
 body {
@@ -16,18 +16,18 @@ body {
     background: #050505;
     color: #f2f2f2;
     font-family: Arial, Helvetica, sans-serif;
-    line-height: 1.4;
-    -webkit-font-smoothing: antialiased;
-}
-
-img {
-    display: block;
-    max-width: 100%;
+    font-size: 16px;
+    line-height: 1.5;
 }
 
 a {
     color: inherit;
     text-decoration: none;
+}
+
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
 }
 
 button {
@@ -37,69 +37,80 @@ button {
 
 /* =========================================================
    HEADER
-   ========================================================= */
+========================================================= */
 
 .site-header {
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000;
 
-    height: 68px;
+    width: 100%;
 
     display: flex;
     align-items: center;
     justify-content: space-between;
 
+    min-height: 68px;
     padding: 0 28px;
 
-    background: rgba(5, 5, 5, 0.97);
-
-    border-bottom: 1px solid #262626;
-
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(5, 5, 5, 0.96);
+    border-bottom: 1px solid #242424;
 }
 
 .brand {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 800;
-    letter-spacing: 0.14em;
+    letter-spacing: 2px;
+    white-space: nowrap;
 }
 
 .wallet-button {
-    height: 38px;
+    appearance: none;
 
+    min-width: 114px;
+    height: 38px;
     padding: 0 18px;
 
+    border: 1px solid #b40000;
     background: transparent;
 
     color: #f2f2f2;
 
-    border: 1px solid #a00000;
-
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 800;
-    letter-spacing: 0.1em;
+    letter-spacing: 1px;
 
     cursor: pointer;
+
+    transition:
+        background 160ms ease,
+        color 160ms ease,
+        border-color 160ms ease;
 }
 
 .wallet-button:hover {
-    background: #a00000;
+    background: #b40000;
+    border-color: #b40000;
+    color: #ffffff;
+}
+
+.wallet-button.wallet-connected {
+    border-color: #b40000;
 }
 
 
 /* =========================================================
-   GLOBAL WIDTH
-   ========================================================= */
+   MAIN
+========================================================= */
+
+main {
+    width: 100%;
+}
 
 .hellbox,
-.main-nav,
 .content-section,
-.site-footer {
-    width: calc(100% - 48px);
-    max-width: 1120px;
-
+.main-nav {
+    width: min(1080px, calc(100% - 48px));
     margin-left: auto;
     margin-right: auto;
 }
@@ -107,134 +118,147 @@ button {
 
 /* =========================================================
    HERO
-   ========================================================= */
+========================================================= */
 
 .hellbox {
-    min-height: 520px;
+    min-height: 565px;
 
-    padding-top: 120px;
-    padding-bottom: 95px;
+    padding-top: 125px;
+    padding-bottom: 110px;
 }
 
 .eyebrow,
 .section-label {
     margin: 0 0 18px;
 
-    color: #ff1717;
+    color: #e00000;
 
-    font-size: 10px;
-    font-weight: 900;
-    letter-spacing: 0.28em;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 3px;
     text-transform: uppercase;
 }
 
 .hellbox h1 {
-    margin: 0;
-
     max-width: 700px;
 
-    font-size: clamp(76px, 9vw, 126px);
-    font-weight: 900;
+    margin: 0;
 
-    letter-spacing: -0.07em;
-    line-height: 0.86;
+    color: #f4f4f4;
+
+    font-size: clamp(64px, 8vw, 118px);
+    font-weight: 900;
+    line-height: 0.88;
+    letter-spacing: -5px;
+    text-transform: uppercase;
 }
 
 .subline {
     margin: 32px 0 0;
 
-    color: #777;
+    color: #858585;
 
-    font-size: 14px;
+    font-size: 15px;
 }
 
 
 /* =========================================================
-   MAIN NAV
-   ========================================================= */
+   MAIN NAVIGATION
+========================================================= */
 
 .main-nav {
     display: grid;
     grid-template-columns: 1fr 1fr;
 
-    border-top: 1px solid #292929;
-    border-bottom: 1px solid #292929;
+    border-top: 1px solid #282828;
+    border-bottom: 1px solid #282828;
 }
 
-.main-nav > a {
-    min-height: 136px;
+.main-nav a {
+    min-height: 142px;
 
-    padding: 34px 26px;
+    padding: 42px 26px;
 
     display: flex;
     flex-direction: column;
     justify-content: center;
+
+    transition:
+        background 180ms ease,
+        padding-left 180ms ease;
 }
 
-.main-nav > a:first-child {
-    border-right: 1px solid #292929;
+.main-nav a + a {
+    border-left: 1px solid #282828;
 }
 
-.main-nav > a:hover {
-    background: #090909;
+.main-nav a:hover {
+    background: #0b0b0b;
+    padding-left: 32px;
 }
 
 .main-nav strong {
-    margin-bottom: 8px;
+    display: block;
 
-    font-size: 14px;
+    margin-bottom: 6px;
+
+    font-size: 15px;
     font-weight: 800;
+    letter-spacing: 0.3px;
 }
 
 .main-nav span {
-    color: #777;
-
-    font-size: 12px;
-}
-
-
-/* =========================================================
-   SECTIONS
-   ========================================================= */
-
-.content-section {
-    padding-top: 100px;
-    padding-bottom: 90px;
-}
-
-.section-description {
-    margin: 18px 0 0;
-
-    color: #777;
+    color: #777777;
 
     font-size: 13px;
 }
 
 
 /* =========================================================
-   ARCHIVE
-   ========================================================= */
+   CONTENT SECTIONS
+========================================================= */
 
-.archive-section h2 {
+.content-section {
+    padding-top: 125px;
+    padding-bottom: 125px;
+}
+
+.content-section + .content-section {
+    border-top: 1px solid #282828;
+}
+
+.content-section h2 {
+    max-width: 850px;
+
     margin: 0;
 
-    font-size: clamp(56px, 6vw, 82px);
+    font-size: clamp(48px, 6vw, 82px);
     font-weight: 900;
+    line-height: 0.92;
+    letter-spacing: -3px;
+    text-transform: uppercase;
+}
 
-    letter-spacing: -0.06em;
-    line-height: 0.9;
+.section-description {
+    margin: 20px 0 0;
+
+    color: #858585;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   ARCHIVE
+========================================================= */
+
+.archive-section {
+    padding-top: 120px;
 }
 
 .archive-list {
-    margin-top: 52px;
+    margin-top: 54px;
 }
-
-
-/*
-   IMPORTANT:
-   Do not manufacture buttons with ::after.
-   The HTML/JS already creates the real archive links.
-*/
 
 .archive-title {
     border-top: 1px solid #292929;
@@ -244,128 +268,87 @@ button {
     border-bottom: 1px solid #292929;
 }
 
-
-/* Title heading */
-
 .archive-title-header {
-    padding: 24px 0 0;
+    position: relative;
+
+    padding: 28px 0 18px;
 }
 
-.archive-title-label {
-    margin: 0 0 6px;
+.archive-title-label,
+.archive-editions-label {
+    margin: 0 0 5px;
 
-    color: #ff1717;
+    color: #e00000;
 
     font-size: 9px;
-    font-weight: 900;
-    letter-spacing: 0.18em;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
 }
 
 .archive-title-header h3 {
     margin: 0;
 
-    font-size: 27px;
+    font-size: 28px;
     font-weight: 800;
-
-    letter-spacing: -0.025em;
+    line-height: 1.1;
 }
-
-
-/* Editions */
 
 .archive-editions {
-    padding-bottom: 4px;
-}
+    position: relative;
 
-.archive-editions-label {
-    margin: 0;
-
-    display: none;
+    padding-bottom: 26px;
 }
 
 .archive-edition {
-    min-height: 112px;
+    width: 100%;
 
-    padding: 22px 0;
+    min-height: 72px;
 
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-rows: auto auto;
-
+    display: flex;
     align-items: center;
+    justify-content: space-between;
 
-    border-top: 1px solid #202020;
+    padding: 0 18px;
+
+    border: 1px solid #282828;
+
+    transition:
+        background 160ms ease,
+        border-color 160ms ease;
+}
+
+.archive-edition:hover {
+    background: #0d0d0d;
+    border-color: #555555;
 }
 
 .edition-number {
-    grid-column: 1;
-    grid-row: 1;
+    color: #777777;
 
-    color: #ff1717;
-
-    font-size: 9px;
-    font-weight: 900;
-    letter-spacing: 0.16em;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
     text-transform: uppercase;
 }
 
 .edition-name {
-    grid-column: 1;
-    grid-row: 2;
-
-    margin-top: 4px;
-
-    font-size: 25px;
-    font-weight: 800;
+    font-size: 14px;
+    font-weight: 700;
 }
 
+.archive-no-editions {
+    margin: 0;
 
-/*
-   Style the actual anchor itself as the button.
-*/
+    color: #555555;
 
-.archive-edition {
-    position: relative;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
-
-.archive-edition:hover {
-    background: #080808;
-}
-
-.archive-edition::before {
-    content: "OPEN";
-
-    grid-column: 2;
-    grid-row: 1 / span 2;
-
-    width: 132px;
-    height: 40px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border: 1px solid #363636;
-
-    color: #eee;
-
-    font-size: 9px;
-    font-weight: 900;
-    letter-spacing: 0.14em;
-}
-
-.archive-edition:hover::before {
-    border-color: #777;
-    background: #0d0d0d;
-}
-
-
-/* =========================================================
-   EMPTY ARCHIVE
-   ========================================================= */
 
 .archive-empty {
-    padding: 35px 0;
+    padding: 50px 0;
 
     border-top: 1px solid #292929;
     border-bottom: 1px solid #292929;
@@ -374,236 +357,485 @@ button {
 .archive-empty-label {
     margin: 0;
 
-    color: #666;
+    color: #f2f2f2;
 
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: 0.16em;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 2px;
 }
 
 .archive-empty-description {
-    margin: 10px 0 0;
+    margin: 8px 0 0;
 
-    color: #555;
+    color: #666666;
 
     font-size: 13px;
 }
 
 
 /* =========================================================
-   READER
-   ========================================================= */
+   ARCHIVE ACTION BUTTONS
+========================================================= */
 
 /*
-   The current reader is generated by the existing HTML/JS.
-   These broad selectors intentionally target images directly
-   instead of assuming a class that may not exist.
+   These rules deliberately remove browser-default
+   button styling and prevent the text duplication /
+   broken-looking boxes seen in the screenshot.
 */
 
-#archive img {
+.archive-title button,
+.archive-title a.button,
+.archive-title .open-button,
+.archive-title .archive-button,
+.archive-title .open-ebook,
+.archive-title .open-comic {
+    appearance: none;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: auto;
+    min-width: 132px;
+    height: 42px;
+
+    padding: 0 18px;
+
+    border: 1px solid #3a3a3a;
+    background: transparent;
+
+    color: #f2f2f2;
+
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+
+    cursor: pointer;
+
+    transition:
+        background 160ms ease,
+        border-color 160ms ease,
+        color 160ms ease;
+}
+
+.archive-title button:hover,
+.archive-title a.button:hover,
+.archive-title .open-button:hover,
+.archive-title .archive-button:hover,
+.archive-title .open-ebook:hover,
+.archive-title .open-comic:hover {
+    background: #f2f2f2;
+    border-color: #f2f2f2;
+    color: #050505;
+}
+
+
+/* =========================================================
+   EBOOK / COMIC DETAIL AREA
+========================================================= */
+
+/*
+   The important fix:
+   publication covers are treated as thumbnails,
+   NOT full-width page images.
+*/
+
+.ebook-detail,
+.comic-detail,
+.book-detail,
+.publication-detail,
+.ebook-viewer,
+.comic-viewer {
+    width: 100%;
+    max-width: 1080px;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    padding-top: 110px;
+    padding-bottom: 110px;
+
+    border-top: 1px solid #282828;
+}
+
+
+/* Detail heading */
+
+.ebook-detail h1,
+.comic-detail h1,
+.book-detail h1,
+.publication-detail h1,
+.ebook-viewer h1,
+.comic-viewer h1 {
+    margin: 0;
+
+    font-size: clamp(46px, 5vw, 76px);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -3px;
+}
+
+.ebook-detail .author,
+.comic-detail .author,
+.book-detail .author,
+.publication-detail .author {
+    margin-top: 18px;
+
+    color: #858585;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   COVER / THUMBNAIL
+========================================================= */
+
+/*
+   This is the key correction.
+
+   Never allow the cover to become a giant page-width
+   image. Desktop target: roughly 300–360px wide.
+*/
+
+.ebook-detail img,
+.comic-detail img,
+.book-detail img,
+.publication-detail img,
+.ebook-viewer img,
+.comic-viewer img {
+    display: block;
+
+    width: auto;
     max-width: 100%;
     height: auto;
+
+    max-height: 540px;
+
+    object-fit: contain;
 }
 
 
 /*
-   Once the SciVive reader is open, prevent the cover from
-   becoming an enormous full-width image.
+   More specific cover selectors.
 */
 
-#archive img[src*="cover"] {
-    width: 420px;
-    max-width: 100%;
+.ebook-cover,
+.comic-cover,
+.book-cover,
+.publication-cover {
+    width: 100%;
+    max-width: 360px;
+
+    margin-top: 38px;
+}
+
+.ebook-cover img,
+.comic-cover img,
+.book-cover img,
+.publication-cover img {
+    width: 100%;
+    max-width: 360px;
+
     height: auto;
+    max-height: 540px;
+
+    object-fit: contain;
+
+    border: 1px solid #292929;
 }
 
 
 /*
-   Keep the reader controls separated.
+   If the existing HTML doesn't have a cover wrapper,
+   constrain images directly inside the detail area.
 */
 
-#archive a,
-#archive button {
-    line-height: 1;
+.ebook-detail > img,
+.comic-detail > img,
+.book-detail > img,
+.publication-detail > img,
+.ebook-viewer > img,
+.comic-viewer > img {
+    width: auto;
+    max-width: 360px;
+    max-height: 540px;
+
+    margin-top: 38px;
+
+    border: 1px solid #292929;
+}
+
+
+/* =========================================================
+   READER / ACTION BUTTONS
+========================================================= */
+
+.ebook-actions,
+.comic-actions,
+.book-actions,
+.publication-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    width: 100%;
+    max-width: 360px;
+
+    margin-top: 22px;
+}
+
+.ebook-actions a,
+.ebook-actions button,
+.comic-actions a,
+.comic-actions button,
+.book-actions a,
+.book-actions button,
+.publication-actions a,
+.publication-actions button {
+    appearance: none;
+
+    width: 100%;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #333333;
+    background: transparent;
+
+    color: #f2f2f2;
+
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+
+    cursor: pointer;
+}
+
+.ebook-actions a:hover,
+.ebook-actions button:hover,
+.comic-actions a:hover,
+.comic-actions button:hover,
+.book-actions a:hover,
+.book-actions button:hover,
+.publication-actions a:hover,
+.publication-actions button:hover {
+    background: #f2f2f2;
+    color: #050505;
+}
+
+
+/* =========================================================
+   GENERIC DETAIL IMAGES
+========================================================= */
+
+/*
+   This catches the current SciVive image even if the
+   surrounding HTML doesn't use one of the expected
+   cover classes.
+*/
+
+#archive ~ img,
+#archive + img {
+    display: block;
+
+    width: auto;
+    max-width: 360px;
+    max-height: 540px;
+
+    margin: 38px auto 0;
+
+    object-fit: contain;
+
+    border: 1px solid #292929;
 }
 
 
 /* =========================================================
    PRESS
-   ========================================================= */
+========================================================= */
 
 .press-section {
-    border-top: 1px solid #292929;
+    min-height: 560px;
+
+    padding-top: 120px;
 }
 
 .press-section h2 {
-    margin: 0;
-
     max-width: 760px;
-
-    font-size: clamp(58px, 7vw, 96px);
-    font-weight: 900;
-
-    letter-spacing: -0.07em;
-    line-height: 0.88;
 }
 
 .status {
-    margin: 38px 0 0;
+    margin-top: 40px;
 
-    color: #555;
+    color: #555555;
 
-    font-size: 9px;
-    font-weight: 900;
-    letter-spacing: 0.22em;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
 }
 
 
 /* =========================================================
    FOOTER
-   ========================================================= */
+========================================================= */
 
 .site-footer {
-    min-height: 100px;
+    width: min(1080px, calc(100% - 48px));
 
-    padding-top: 28px;
+    margin: 0 auto;
+
+    padding: 34px 0 55px;
 
     display: flex;
-    align-items: flex-start;
     justify-content: space-between;
 
-    border-top: 1px solid #292929;
+    border-top: 1px solid #282828;
 
-    color: #4e4e4e;
+    color: #555555;
 
-    font-size: 8px;
-    font-weight: 900;
-    letter-spacing: 0.18em;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
 }
 
 
 /* =========================================================
    MOBILE
-   ========================================================= */
+========================================================= */
 
-@media (max-width: 800px) {
+@media (max-width: 700px) {
 
     .site-header {
-        height: 60px;
+        min-height: 60px;
         padding: 0 18px;
     }
 
     .brand {
-        font-size: 11px;
+        font-size: 12px;
+        letter-spacing: 1.5px;
     }
 
     .wallet-button {
+        min-width: 100px;
         height: 34px;
         padding: 0 12px;
-        font-size: 8px;
+
+        font-size: 9px;
     }
 
 
     .hellbox,
-    .main-nav,
     .content-section,
+    .main-nav,
     .site-footer {
         width: calc(100% - 32px);
     }
 
 
     .hellbox {
-        min-height: 430px;
+        min-height: 480px;
 
-        padding-top: 80px;
-        padding-bottom: 70px;
+        padding-top: 90px;
+        padding-bottom: 80px;
     }
 
     .hellbox h1 {
-        font-size: clamp(54px, 15vw, 84px);
+        font-size: clamp(52px, 15vw, 82px);
+        letter-spacing: -3px;
     }
 
 
     .main-nav {
-        grid-template-columns: 1fr;
+        display: block;
     }
 
-    .main-nav > a {
-        min-height: 105px;
+    .main-nav a {
+        min-height: 110px;
+        padding: 30px 20px;
     }
 
-    .main-nav > a:first-child {
-        border-right: 0;
-        border-bottom: 1px solid #292929;
+    .main-nav a + a {
+        border-left: 0;
+        border-top: 1px solid #282828;
     }
 
 
     .content-section {
-        padding-top: 75px;
-        padding-bottom: 70px;
+        padding-top: 85px;
+        padding-bottom: 85px;
     }
 
-
-    .archive-section h2 {
-        font-size: 52px;
+    .content-section h2 {
+        font-size: clamp(44px, 13vw, 65px);
+        letter-spacing: -2px;
     }
 
-
-    .archive-edition {
-        min-height: 100px;
-    }
-
-    .archive-edition::before {
-        display: none;
-    }
-
-
-    .press-section h2 {
-        font-size: 52px;
-    }
-
-
-    #archive img[src*="cover"] {
-        width: min(420px, 100%);
-    }
-
-
-    .site-footer {
-        min-height: 85px;
-    }
-}
-
-
-/* =========================================================
-   SMALL PHONES
-   ========================================================= */
-
-@media (max-width: 480px) {
-
-    .hellbox,
-    .main-nav,
-    .content-section,
-    .site-footer {
-        width: calc(100% - 24px);
-    }
-
-    .hellbox h1 {
-        font-size: 50px;
-    }
-
-    .archive-section h2 {
-        font-size: 45px;
-    }
 
     .archive-title-header h3 {
         font-size: 24px;
     }
 
-    .edition-name {
-        font-size: 22px;
+
+    /*
+       Mobile cover.
+       Still a thumbnail, never full-screen.
+    */
+
+    .ebook-detail img,
+    .comic-detail img,
+    .book-detail img,
+    .publication-detail img,
+    .ebook-viewer img,
+    .comic-viewer img,
+
+    .ebook-cover img,
+    .comic-cover img,
+    .book-cover img,
+    .publication-cover img,
+
+    .ebook-detail > img,
+    .comic-detail > img,
+    .book-detail > img,
+    .publication-detail > img,
+    .ebook-viewer > img,
+    .comic-viewer > img {
+        width: auto;
+        max-width: min(280px, 100%);
+        max-height: 420px;
+
+        margin-left: auto;
+        margin-right: auto;
     }
 
-    .press-section h2 {
-        font-size: 44px;
+
+    .ebook-cover,
+    .comic-cover,
+    .book-cover,
+    .publication-cover {
+        max-width: 280px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+
+    .ebook-actions,
+    .comic-actions,
+    .book-actions,
+    .publication-actions {
+        max-width: 100%;
+    }
+
+
+    .site-footer {
+        padding-bottom: 35px;
+
+        flex-direction: column;
+        gap: 12px;
     }
 }
