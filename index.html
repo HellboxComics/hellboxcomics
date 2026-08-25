@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -12,12 +11,7 @@
 
     <meta
         name="description"
-        content="Hellbox Comics — underground digital comics, graphic novels, illustrated editions, and contraband stories distributed on PulseChain."
-    >
-
-    <meta
-        name="theme-color"
-        content="#050505"
+        content="Hellbox Comics — underground digital comics, graphic novels, illustrated editions and on-chain releases on PulseChain."
     >
 
     <title>HELLBOX COMICS // THE BOX IS OPEN</title>
@@ -26,62 +20,37 @@
         rel="stylesheet"
         href="style.css"
     >
-
 </head>
 
 
 <body>
 
-
     <!-- =========================================================
-         GLOBAL ATMOSPHERE
-    ========================================================== -->
-
-    <div class="site-noise" aria-hidden="true"></div>
-    <div class="site-vignette" aria-hidden="true"></div>
-
-
-    <!-- =========================================================
-         HEADER
+         FIXED HEADER
     ========================================================== -->
 
     <header class="site-header">
 
         <a
             href="#top"
-            class="header-brand"
-            aria-label="Hellbox Comics home"
+            class="brand"
+            aria-label="Hellbox Comics"
         >
-
             <img
                 src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem.PNG"
                 alt=""
-                class="header-brand-emblem"
+                class="brand-emblem"
             >
 
-            <span>
-                HELLBOX COMICS
-            </span>
-
+            <span>HELLBOX COMICS</span>
         </a>
 
 
-        <div class="header-network">
-
+        <div class="network-status">
             <span class="network-light"></span>
-
-            <span>
-                HELLBOX ONLINE
-            </span>
-
-            <span class="network-divider">
-                /
-            </span>
-
-            <span>
-                PULSECHAIN 369
-            </span>
-
+            HELLBOX ONLINE
+            <span class="network-divider">/</span>
+            PULSECHAIN 369
         </div>
 
 
@@ -96,236 +65,179 @@
     </header>
 
 
+
     <main>
 
 
         <!-- =====================================================
-             HERO / ENTRY CHAMBER
+             HERO
         ====================================================== -->
 
         <section
-            class="hero-section"
+            class="hero"
             id="top"
         >
 
-            <div
-                class="hero-studio-art"
-                aria-hidden="true"
-            ></div>
+            <div class="hero-atmosphere"></div>
 
 
-            <div class="hero-terminal-line hero-terminal-left">
-
-                <span>
-                    BOX // 001
-                </span>
-
-                <strong>
-                    CLASSIFIED
-                </strong>
-
+            <div class="hero-classification hero-classification-left">
+                HX // 001<br>
+                <strong>CLASSIFIED</strong>
             </div>
 
 
-            <div class="hero-terminal-line hero-terminal-right">
-
-                <span>
-                    CHAIN 369
-                </span>
-
-                <strong>
-                    NO GATEKEEPERS
-                </strong>
-
+            <div class="hero-classification hero-classification-right">
+                CHAIN 369<br>
+                <strong>NO GATEKEEPERS</strong>
             </div>
 
 
-            <div class="hero-brand-art">
-
-                <img
-                    src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-banner-original.PNG"
-                    alt="Hellbox Comics — Created by Harrow"
-                    class="hero-brand-image"
-                >
-
-            </div>
+            <div class="hero-inner">
 
 
-            <div class="hero-release-line">
+                <!-- MAIN BRAND ART -->
 
-                <span>
-                    HELLBOX COMICS
-                </span>
+                <div class="hero-brand">
 
-                <span>
-                    PRIVATE DISTRIBUTION NETWORK
-                </span>
-
-            </div>
-
-
-            <div class="hero-layout">
-
-
-                <div class="hero-copy">
-
-                    <p class="eyebrow">
-                        HELLBOX COMICS
-                    </p>
-
-                    <h1>
-                        <span>THE BOX</span>
-                        <strong>IS OPEN.</strong>
-                    </h1>
-
-                    <div class="hero-manifesto">
-
-                        <p>
-                            UNDERGROUND COMICS.
-                        </p>
-
-                        <p>
-                            ON-CHAIN EDITIONS.
-                        </p>
-
-                        <p>
-                            NOTHING GETS OUT BY ACCIDENT.
-                        </p>
-
-                    </div>
+                    <img
+                        src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-banner-original.PNG"
+                        alt="Hellbox Comics — Created by Harrow"
+                        class="hero-logo"
+                    >
 
                 </div>
 
 
-                <a
-                    href="#gateway"
-                    class="hero-entry"
-                >
 
-                    <span class="hero-entry-number">
-                        01
-                    </span>
+                <!-- HERO MESSAGE -->
 
-                    <span class="hero-entry-copy">
+                <div class="hero-message">
 
-                        <strong>
-                            ENTER THE HELLBOX
-                        </strong>
+                    <p class="section-kicker">
+                        HELLBOX COMICS
+                    </p>
 
-                        <small>
-                            ACCESS THE ARCHIVE
-                        </small>
+                    <h1>
+                        THE BOX
+                        <span>IS OPEN.</span>
+                    </h1>
 
-                    </span>
+                    <div class="hero-lower">
 
-                    <span class="hero-entry-arrow">
-                        ↘
-                    </span>
+                        <p class="hero-manifesto">
+                            UNDERGROUND COMICS.<br>
+                            ON-CHAIN EDITIONS.<br>
+                            NOTHING GETS OUT BY ACCIDENT.
+                        </p>
 
-                </a>
+
+                        <a
+                            href="#archive"
+                            class="hero-entry"
+                        >
+                            <span class="terminal-number">
+                                01
+                            </span>
+
+                            <span class="hero-entry-copy">
+                                <strong>
+                                    ENTER THE HELLBOX
+                                </strong>
+
+                                <small>
+                                    ACCESS THE ARCHIVE
+                                </small>
+                            </span>
+
+                            <span class="hero-arrow">
+                                ↘
+                            </span>
+                        </a>
+
+                    </div>
+
+                </div>
 
             </div>
 
         </section>
 
 
+
         <!-- =====================================================
-             GATEWAY / MISSION
+             MANIFESTO / NAVIGATION
         ====================================================== -->
 
-        <section
-            class="gateway-section"
-            id="gateway"
-        >
+        <section class="access-panel">
 
-            <div class="restricted-strip">
 
-                <span class="restricted-badge">
+            <div class="access-intro">
+
+                <span class="restricted-stamp">
                     RESTRICTED MATERIAL
                 </span>
 
                 <p>
-                    <strong>HELLBOX</strong>
-                    is an underground publishing house.
+                    <strong>HELLBOX</strong> is an underground publishing house.
                     We make the books, seal the editions, and distribute them
-                    through the chain. No permission. No press tour.
-                    No middleman.
+                    through the chain. No permission. No press tour. No middleman.
                 </p>
 
-                <div class="restricted-code">
-                    <span>369</span>
-                    <span>BOX</span>
-                    <span>OPEN</span>
+                <div class="access-code">
+                    369<br>
+                    HX<br>
+                    OPEN
                 </div>
 
             </div>
 
 
-            <nav class="gateway-grid">
+            <nav class="main-nav">
 
-                <a
-                    href="#archive"
-                    class="gateway-card"
-                >
+                <a href="#archive">
 
-                    <span class="gateway-index">
+                    <span class="nav-code">
                         01 / ARCHIVE
                     </span>
 
-                    <h2>
+                    <strong>
                         ENTER THE<br>
                         HELLBOX
-                    </h2>
+                    </strong>
 
                     <p>
-                        Every title. Every issue. Every edition
-                        that made it through the door.
+                        Every title. Every issue. Every edition that made it
+                        through the door.
                     </p>
 
-                    <div class="gateway-action">
-
-                        <span>
-                            OPEN ARCHIVE
-                        </span>
-
-                        <strong>
-                            ↘
-                        </strong>
-
-                    </div>
+                    <span class="nav-bottom">
+                        OPEN ARCHIVE
+                        <b>↘</b>
+                    </span>
 
                 </a>
 
 
-                <a
-                    href="#press"
-                    class="gateway-card"
-                >
+                <a href="#press">
 
-                    <span class="gateway-index">
+                    <span class="nav-code">
                         02 / PRESS
                     </span>
 
-                    <h2>
+                    <strong>
                         THE PRESS
-                    </h2>
+                    </strong>
 
                     <p>
-                        New issues are printed here.
-                        When the press moves, the signal changes.
+                        New issues are printed here. When the press moves,
+                        the signal changes.
                     </p>
 
-                    <div class="gateway-action">
-
-                        <span>
-                            VIEW PRESS
-                        </span>
-
-                        <strong>
-                            ↘
-                        </strong>
-
-                    </div>
+                    <span class="nav-bottom">
+                        VIEW PRESS
+                        <b>↘</b>
+                    </span>
 
                 </a>
 
@@ -334,32 +246,30 @@
         </section>
 
 
+
         <!-- =====================================================
              ARCHIVE
         ====================================================== -->
 
         <section
-            class="archive-section"
+            class="content-section archive-section"
             id="archive"
         >
 
-            <div
-                class="archive-watermark"
-                aria-hidden="true"
-            ></div>
+            <div class="archive-watermark"></div>
 
 
-            <div class="section-heading-grid">
+            <div class="section-heading section-heading-grid">
 
                 <div>
 
-                    <p class="eyebrow">
+                    <p class="section-kicker">
                         THE HELLBOX / ARCHIVE
                     </p>
 
-                    <h2 class="display-heading">
-                        <span>THE</span>
-                        <strong>ARCHIVE</strong>
+                    <h2>
+                        THE
+                        <span>ARCHIVE</span>
                     </h2>
 
                 </div>
@@ -385,23 +295,12 @@
             </div>
 
 
-            <div class="archive-catalog-header">
+            <div class="archive-table-head">
 
-                <span>
-                    CATALOGUE
-                </span>
-
-                <span>
-                    TYPE
-                </span>
-
-                <span>
-                    ISSUE
-                </span>
-
-                <span>
-                    ACCESS
-                </span>
+                <span>CATALOGUE</span>
+                <span>TYPE</span>
+                <span>ISSUE</span>
+                <span>ACCESS</span>
 
             </div>
 
@@ -414,12 +313,13 @@
         </section>
 
 
+
         <!-- =====================================================
              PUBLICATION VIEWER
         ====================================================== -->
 
         <section
-            class="publication-section"
+            class="content-section publication-section"
             id="publication"
             hidden
         >
@@ -432,91 +332,95 @@
         </section>
 
 
+
         <!-- =====================================================
              PRESS
         ====================================================== -->
 
         <section
-            class="press-section"
+            class="content-section press-section"
             id="press"
         >
 
-            <div class="press-ghost-emblem" aria-hidden="true"></div>
+            <div class="press-art"></div>
 
 
-            <div class="press-stamp press-stamp-one">
+            <span class="press-stamp">
                 DO NOT DUPLICATE
-            </div>
-
-            <div class="press-stamp press-stamp-two">
-                BAY / PRESS
-            </div>
+            </span>
 
 
-            <p class="eyebrow">
-                THE PRESS / RELEASE BAY
-            </p>
+            <div class="press-copy">
 
+                <p class="section-kicker">
+                    THE PRESS / RELEASE BAY
+                </p>
 
-            <h2 class="press-heading">
-
-                <span>
+                <h2>
                     NOTHING
-                </span>
-
-                <span class="press-muted">
-                    ON THE PRESS
-                </span>
-
-                <strong>
-                    YET.
-                </strong>
-
-            </h2>
+                    <span class="muted">
+                        ON THE PRESS
+                    </span>
+                    <span class="red">
+                        YET.
+                    </span>
+                </h2>
 
 
-            <p class="press-description">
-                When an issue is ready, it gets pressed here.
-                Until then, the machine stays hot.
-            </p>
+                <p class="press-description">
+                    When an issue is ready, it gets pressed here.
+                    Until then, the machine stays hot.
+                </p>
 
 
-            <div class="press-status-box">
+                <div
+                    class="press-status"
+                    id="pressStatus"
+                >
+                    <span class="status-square"></span>
 
-                <span class="status-square"></span>
-
-                <div>
-
-                    <strong id="pressStatus">
-                        NO CURRENT EDITION
-                    </strong>
-
-                    <small>
-                        PRESS STATUS / STANDBY
-                    </small>
-
+                    <span>
+                        <strong>NO CURRENT EDITION</strong>
+                        <small>PRESS STATUS / STANDBY</small>
+                    </span>
                 </div>
 
             </div>
 
 
-            <div class="press-floor">
+            <div class="press-index">
+                02
+            </div>
 
-                <span>
-                    RELEASE PRESS ROOM
-                </span>
 
-                <span>
-                    AUTHORIZED ON PULSECHAIN
-                </span>
-
+            <div class="press-bay-stamp">
+                BAY / PRESS
             </div>
 
         </section>
 
 
+
         <!-- =====================================================
-             HARROW / CREATOR
+             TRANSMISSION BREAK
+        ====================================================== -->
+
+        <div class="transmission-break">
+
+            <span>
+                END OF TRANSMISSION
+            </span>
+
+            <span>
+                HELLBOX COMICS // PULSECHAIN 369
+            </span>
+
+        </div>
+
+
+
+        <!-- =====================================================
+             ABOUT HARROW
         ====================================================== -->
 
         <section
@@ -524,20 +428,14 @@
             id="harrow"
         >
 
-            <div
-                class="creator-watermark"
-                aria-hidden="true"
-            ></div>
+            <div class="creator-heading">
 
-
-            <div class="transmission-bar">
-
-                <span>
-                    END OF TRANSMISSION
+                <span class="micro-label">
+                    CREATED BY
                 </span>
 
-                <span>
-                    HELLBOX COMICS // PULSECHAIN 369
+                <span class="creator-file">
+                    HBX / 01
                 </span>
 
             </div>
@@ -546,11 +444,7 @@
             <div class="creator-grid">
 
 
-                <div class="creator-identity">
-
-                    <p class="micro-label">
-                        CREATED BY
-                    </p>
+                <div class="creator-copy">
 
                     <img
                         src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-wordmark-white.PNG"
@@ -558,56 +452,53 @@
                         class="harrow-signature"
                     >
 
-                    <p class="creator-copy">
+
+                    <p>
                         Harrow is the creator behind Hellbox Comics —
                         writing, illustrating, building and publishing
                         strange things from the wrong side of the chain.
                     </p>
 
 
-                    <div class="creator-links">
+                    <a
+                        href="https://x.com/SinnisterHarrow"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="creator-social"
+                    >
+                        <span>X</span>
 
-                        <a
-                            href="https://x.com/sinnisterharrow"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="social-link"
-                        >
+                        <strong>
+                            @SinnisterHarrow
+                        </strong>
 
-                            <span>
-                                X
-                            </span>
-
-                            <strong>
-                                @sinnisterharrow
-                            </strong>
-
-                            <small>
-                                ↗
-                            </small>
-
-                        </a>
-
-                    </div>
+                        <b>↗</b>
+                    </a>
 
                 </div>
 
 
-                <div class="creator-art-panel">
 
-                    <div class="creator-art-image"></div>
+                <div class="creator-portrait-shell">
 
-                    <div class="creator-art-caption">
+                    <div class="creator-portrait-ring">
 
-                        <span>
-                            FILE // HARROW
-                        </span>
-
-                        <span>
-                            CREATOR / OPERATOR
-                        </span>
+                        <img
+                            src="https://cdn.hellboxcomics.com/assets/brand/harrow/emblems/harrow-pfp.PNG"
+                            alt="Harrow"
+                            class="creator-portrait"
+                        >
 
                     </div>
+
+
+                    <span class="portrait-note portrait-note-left">
+                        FILE // HARROW
+                    </span>
+
+                    <span class="portrait-note portrait-note-right">
+                        CREATOR / OPERATOR
+                    </span>
 
                 </div>
 
@@ -616,22 +507,27 @@
         </section>
 
 
+
         <!-- =====================================================
-             NETWORK / SOCIAL CHANNELS
+             SOCIAL / DISTRIBUTION CHANNELS
         ====================================================== -->
 
-        <section class="network-section">
+        <section class="signal-section">
 
-            <p class="eyebrow">
-                DISTRIBUTION CHANNELS
-            </p>
+            <div class="signal-header">
 
+                <div>
 
-            <div class="network-heading-row">
+                    <p class="section-kicker">
+                        DISTRIBUTION CHANNELS
+                    </p>
 
-                <h2>
-                    FIND THE SIGNAL.
-                </h2>
+                    <h2>
+                        FIND THE SIGNAL.
+                    </h2>
+
+                </div>
+
 
                 <p>
                     Official Hellbox transmissions only.
@@ -641,56 +537,58 @@
             </div>
 
 
-            <div class="social-grid">
+            <div class="signal-grid">
 
 
                 <a
-                    href="https://x.com/hellboxcomics"
+                    href="https://x.com/HellboxComics"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="network-card network-card-live"
+                    class="signal-card active"
                 >
 
-                    <span class="network-card-label">
+                    <span class="signal-type">
                         HELLBOX // X
                     </span>
 
                     <strong>
-                        @hellboxcomics
+                        @HellboxComics
                     </strong>
 
-                    <span class="network-card-status">
+                    <span class="signal-state">
                         LIVE ↗
                     </span>
 
                 </a>
 
 
+
                 <a
-                    href="https://x.com/sinnisterharrow"
+                    href="https://x.com/SinnisterHarrow"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="network-card network-card-live"
+                    class="signal-card active"
                 >
 
-                    <span class="network-card-label">
+                    <span class="signal-type">
                         HARROW // X
                     </span>
 
                     <strong>
-                        @sinnisterharrow
+                        @SinnisterHarrow
                     </strong>
 
-                    <span class="network-card-status">
+                    <span class="signal-state">
                         LIVE ↗
                     </span>
 
                 </a>
 
 
-                <div class="network-card network-card-locked">
 
-                    <span class="network-card-label">
+                <div class="signal-card locked">
+
+                    <span class="signal-type">
                         TELEGRAM
                     </span>
 
@@ -698,16 +596,17 @@
                         CHANNEL LOCKED
                     </strong>
 
-                    <span class="network-card-status">
+                    <span class="signal-state">
                         LINK PENDING
                     </span>
 
                 </div>
 
 
-                <div class="network-card network-card-locked">
 
-                    <span class="network-card-label">
+                <div class="signal-card locked">
+
+                    <span class="signal-type">
                         DISCORD
                     </span>
 
@@ -715,7 +614,7 @@
                         CHANNEL LOCKED
                     </strong>
 
-                    <span class="network-card-status">
+                    <span class="signal-state">
                         LINK PENDING
                     </span>
 
@@ -726,100 +625,100 @@
         </section>
 
 
+
+        <!-- =====================================================
+             FINAL CREDIT SYSTEM
+        ====================================================== -->
+
+        <section class="credit-section">
+
+            <div class="credit-heading">
+
+                <span>
+                    TRANSMISSION ORIGIN
+                </span>
+
+                <span>
+                    HELLBOX // 369
+                </span>
+
+            </div>
+
+
+            <div class="credit-grid">
+
+
+                <div class="credit-cell creator-credit">
+
+                    <span class="micro-label">
+                        CREATED BY
+                    </span>
+
+                    <img
+                        src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-wordmark-white.PNG"
+                        alt="Harrow"
+                    >
+
+                </div>
+
+
+
+                <div class="credit-cell bytes-credit">
+
+                    <span class="micro-label">
+                        BACKED BY
+                    </span>
+
+                    <img
+                        src="https://cdn.hellboxcomics.com/assets/brand/footer/backed-by-bytes-footer.PNG"
+                        alt="Backed by Bytes"
+                    >
+
+                </div>
+
+
+
+                <div class="credit-cell sin-credit">
+
+                    <span class="micro-label">
+                        FUELED BY
+                    </span>
+
+                    <img
+                        src="https://cdn.hellboxcomics.com/assets/brand/sin/foreshadow/sin-wordmark.PNG"
+                        alt=""
+                        aria-hidden="true"
+                    >
+
+                </div>
+
+            </div>
+
+        </section>
+
     </main>
 
 
+
     <!-- =========================================================
-         FOOTER / PRODUCTION CREDITS
+         FOOTER
     ========================================================== -->
 
     <footer class="site-footer">
 
+        <span>
+            THE BOX IS OPEN.
+        </span>
 
-        <div class="footer-transmission">
+        <a
+            href="#top"
+        >
+            HELLBOXCOMICS.COM
+        </a>
 
-            <span>
-                PRODUCTION RECORD
-            </span>
-
-            <span>
-                HELLBOX // 01
-            </span>
-
-        </div>
-
-
-        <div class="footer-production-grid">
-
-
-            <div class="footer-credit footer-created">
-
-                <span class="footer-credit-label">
-                    CREATED BY
-                </span>
-
-                <img
-                    src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-wordmark-white.PNG"
-                    alt="Harrow"
-                    class="footer-harrow"
-                >
-
-            </div>
-
-
-            <div class="footer-credit footer-backed">
-
-                <span class="footer-credit-label">
-                    BACKED BY
-                </span>
-
-                <img
-                    src="https://cdn.hellboxcomics.com/assets/brand/footer/backed-by-bytes-footer.PNG"
-                    alt="Backed by Bytes"
-                    class="footer-bytes"
-                >
-
-            </div>
-
-
-            <div class="footer-credit footer-fueled">
-
-                <span class="footer-credit-label">
-                    FUELED BY
-                </span>
-
-                <img
-                    src="https://cdn.hellboxcomics.com/assets/brand/sin/foreshadow/sin-wordmark.PNG"
-                    alt=""
-                    class="footer-sin"
-                    aria-hidden="true"
-                >
-
-            </div>
-
-
-        </div>
-
-
-        <div class="footer-bottom">
-
-            <span>
-                THE BOX IS OPEN.
-            </span>
-
-            <a
-                href="https://x.com/hellboxcomics"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                @HELLBOXCOMICS
-            </a>
-
-            <span>
-                © HELLBOX COMICS
-            </span>
-
-        </div>
+        <span>
+            © HELLBOX COMICS
+        </span>
 
     </footer>
 
@@ -827,9 +726,8 @@
 
     <script>
 
-
         /* =========================================================
-           HELLBOX NETWORK CONFIGURATION
+           HELLBOX NETWORK
         ========================================================== */
 
         const HELLBOX = {
@@ -857,11 +755,8 @@
         };
 
 
-        /* =========================================================
-           API CONFIGURATION
-        ========================================================== */
-
         const HELLBOX_API = "";
+
 
 
         /* =========================================================
@@ -869,7 +764,6 @@
         ========================================================== */
 
         let connectedWallet = null;
-
         let walletOnPulseChain = false;
 
 
@@ -877,6 +771,7 @@
             document.getElementById(
                 "walletButton"
             );
+
 
 
         function hasWallet() {
@@ -889,12 +784,11 @@
         }
 
 
+
         function shortenAddress(address) {
 
             if (!address) {
-
                 return "";
-
             }
 
             return (
@@ -906,12 +800,11 @@
         }
 
 
+
         function updateWalletButton() {
 
             if (!walletButton) {
-
                 return;
-
             }
 
 
@@ -955,20 +848,18 @@
         }
 
 
+
         async function getCurrentChain() {
 
             if (!hasWallet()) {
-
                 return null;
-
             }
 
             try {
 
                 return await window.ethereum.request({
 
-                    method:
-                        "eth_chainId"
+                    method: "eth_chainId"
 
                 });
 
@@ -984,6 +875,7 @@
             }
 
         }
+
 
 
         async function addPulseChain() {
@@ -1046,12 +938,11 @@
         }
 
 
+
         async function switchToPulseChain() {
 
             if (!hasWallet()) {
-
                 return false;
-
             }
 
             try {
@@ -1062,30 +953,17 @@
                         "wallet_switchEthereumChain",
 
                     params: [
-
                         {
                             chainId:
                                 HELLBOX.chainId
                         }
-
                     ]
 
                 });
 
-
-                const verifiedChain =
-                    await getCurrentChain();
-
-
-                return (
-                    verifiedChain &&
-                    verifiedChain.toLowerCase() ===
-                    HELLBOX.chainId
-                );
-
+                return true;
 
             } catch (error) {
-
 
                 if (
                     error &&
@@ -1095,13 +973,9 @@
                     const added =
                         await addPulseChain();
 
-
                     if (!added) {
-
                         return false;
-
                     }
-
 
                     try {
 
@@ -1111,37 +985,26 @@
                                 "wallet_switchEthereumChain",
 
                             params: [
-
                                 {
                                     chainId:
                                         HELLBOX.chainId
                                 }
-
                             ]
 
                         });
 
+                        return true;
+
                     } catch (switchError) {
 
                         console.error(
-                            "Hellbox could not switch to PulseChain after adding it:",
+                            "Hellbox could not switch to PulseChain:",
                             switchError
                         );
 
                         return false;
 
                     }
-
-
-                    const verifiedChain =
-                        await getCurrentChain();
-
-
-                    return (
-                        verifiedChain &&
-                        verifiedChain.toLowerCase() ===
-                        HELLBOX.chainId
-                    );
 
                 }
 
@@ -1151,7 +1014,6 @@
                     error
                 );
 
-
                 return false;
 
             }
@@ -1159,18 +1021,18 @@
         }
 
 
+
         async function connectWallet() {
 
             if (!hasWallet()) {
 
                 alert(
-                    "No compatible browser wallet was detected."
+                    "No compatible EVM wallet was detected."
                 );
 
                 return;
 
             }
-
 
             try {
 
@@ -1187,9 +1049,7 @@
                     !accounts ||
                     accounts.length === 0
                 ) {
-
                     return;
-
                 }
 
 
@@ -1238,7 +1098,6 @@
 
                 updateWalletButton();
 
-
             } catch (error) {
 
                 console.error(
@@ -1247,7 +1106,6 @@
                 );
 
                 connectedWallet = null;
-
                 walletOnPulseChain = false;
 
                 updateWalletButton();
@@ -1255,6 +1113,7 @@
             }
 
         }
+
 
 
         function handleAccountsChanged(accounts) {
@@ -1265,7 +1124,6 @@
             ) {
 
                 connectedWallet = null;
-
                 walletOnPulseChain = false;
 
                 updateWalletButton();
@@ -1278,18 +1136,16 @@
             connectedWallet =
                 accounts[0];
 
-
             verifyWalletNetwork();
 
         }
 
 
+
         function handleChainChanged(chainId) {
 
             if (!chainId) {
-
                 return;
-
             }
 
 
@@ -1303,12 +1159,11 @@
         }
 
 
+
         async function verifyWalletNetwork() {
 
             if (!connectedWallet) {
-
                 return;
-
             }
 
 
@@ -1327,14 +1182,12 @@
         }
 
 
+
         async function restoreWallet() {
 
             if (!hasWallet()) {
-
                 return;
-
             }
-
 
             try {
 
@@ -1351,9 +1204,7 @@
                     !accounts ||
                     accounts.length === 0
                 ) {
-
                     return;
-
                 }
 
 
@@ -1362,7 +1213,6 @@
 
 
                 await verifyWalletNetwork();
-
 
             } catch (error) {
 
@@ -1376,12 +1226,14 @@
         }
 
 
+
         if (hasWallet()) {
 
             window.ethereum.on(
                 "accountsChanged",
                 handleAccountsChanged
             );
+
 
             window.ethereum.on(
                 "chainChanged",
@@ -1391,11 +1243,12 @@
         }
 
 
+
         if (walletButton) {
 
             walletButton.addEventListener(
                 "click",
-                async function() {
+                async function () {
 
                     if (!connectedWallet) {
 
@@ -1423,6 +1276,7 @@
             );
 
         }
+
 
 
         /* =========================================================
@@ -1454,6 +1308,7 @@
 
 
         let hellboxCatalog = [];
+
 
 
         async function loadCatalog() {
@@ -1509,7 +1364,6 @@
 
                 renderArchive();
 
-
             } catch (error) {
 
                 console.error(
@@ -1522,18 +1376,17 @@
                     "ARCHIVE TEMPORARILY UNAVAILABLE.";
 
 
-                archiveList.innerHTML =
-                    "";
+                archiveList.innerHTML = "";
 
             }
 
         }
 
 
+
         function renderArchive() {
 
-            archiveList.innerHTML =
-                "";
+            archiveList.innerHTML = "";
 
 
             if (
@@ -1578,25 +1431,24 @@
 
 
                     catalogue.className =
-                        "archive-catalogue-number";
+                        "archive-catalogue";
 
 
                     catalogue.textContent =
-                        String(
-                            index + 1
-                        ).padStart(
-                            2,
-                            "0"
-                        );
+                        String(index + 1)
+                            .padStart(
+                                2,
+                                "0"
+                            );
 
 
-                    const identity =
+                    const header =
                         document.createElement(
                             "div"
                         );
 
 
-                    identity.className =
+                    header.className =
                         "archive-title-header";
 
 
@@ -1642,38 +1494,9 @@
                         `ISSUE ${publication.issue}`;
 
 
-                    identity.appendChild(
-                        label
-                    );
-
-
-                    identity.appendChild(
-                        name
-                    );
-
-
-                    identity.appendChild(
-                        issue
-                    );
-
-
-                    const issueNumber =
-                        document.createElement(
-                            "span"
-                        );
-
-
-                    issueNumber.className =
-                        "archive-row-issue";
-
-
-                    issueNumber.textContent =
-                        String(
-                            publication.issue
-                        ).padStart(
-                            2,
-                            "0"
-                        );
+                    header.appendChild(label);
+                    header.appendChild(name);
+                    header.appendChild(issue);
 
 
                     const action =
@@ -1699,7 +1522,7 @@
 
                     action.addEventListener(
                         "click",
-                        function() {
+                        function () {
 
                             openPublication(
                                 publication
@@ -1715,12 +1538,7 @@
 
 
                     publicationCard.appendChild(
-                        identity
-                    );
-
-
-                    publicationCard.appendChild(
-                        issueNumber
+                        header
                     );
 
 
@@ -1739,9 +1557,6 @@
         }
 
 
-        /* =========================================================
-           PUBLICATION
-        ========================================================== */
 
         async function openPublication(
             publication
@@ -1752,20 +1567,16 @@
 
 
             publicationContent.innerHTML = `
-                <p class="eyebrow">
-                    ACCESSING ARCHIVE
+                <p class="section-kicker">
+                    LOADING PUBLICATION
                 </p>
 
-                <h2 class="publication-loading-title">
+                <h2>
                     ${escapeHtml(
                         publication.title ||
                         publication.slug
                     )}
                 </h2>
-
-                <p class="publication-loading-copy">
-                    Retrieving sealed publication metadata...
-                </p>
             `;
 
 
@@ -1819,7 +1630,6 @@
                     metadata
                 );
 
-
             } catch (error) {
 
                 console.error(
@@ -1829,33 +1639,19 @@
 
 
                 publicationContent.innerHTML = `
-                    <p class="eyebrow">
-                        ACCESS DENIED
+                    <p class="section-kicker">
+                        ERROR
                     </p>
 
-                    <h2 class="publication-loading-title">
-                        PUBLICATION UNAVAILABLE
+                    <h2>
+                        PUBLICATION UNAVAILABLE.
                     </h2>
-
-                    <p class="publication-loading-copy">
-                        Hellbox could not retrieve this edition.
-                    </p>
-
-                    <button
-                        type="button"
-                        class="publication-action publication-close"
-                        id="closePublication"
-                    >
-                        CLOSE
-                    </button>
                 `;
-
-
-                bindCloseButton();
 
             }
 
         }
+
 
 
         function renderPublication(
@@ -1881,6 +1677,7 @@
             );
 
         }
+
 
 
         function renderEbook(metadata) {
@@ -1919,7 +1716,7 @@
 
                 <div class="publication-header">
 
-                    <p class="eyebrow">
+                    <p class="section-kicker">
                         EBOOK / SECURE COPY
                     </p>
 
@@ -1947,10 +1744,6 @@
                         cover
                             ? `
                                 <div class="publication-cover">
-
-                                    <span class="publication-stamp">
-                                        ARCHIVE COPY
-                                    </span>
 
                                     <img
                                         src="${escapeAttribute(cover)}"
@@ -2002,7 +1795,7 @@
 
                         <button
                             type="button"
-                            class="publication-action publication-close"
+                            class="publication-action"
                             id="closePublication"
                         >
                             CLOSE
@@ -2013,52 +1806,6 @@
                 </div>
             `;
 
-
-            bindCloseButton();
-
-        }
-
-
-        function renderComic(metadata) {
-
-            publicationContent.innerHTML = `
-
-                <div class="publication-header">
-
-                    <p class="eyebrow">
-                        COMIC / SEALED EDITION
-                    </p>
-
-                    <h2>
-                        ${escapeHtml(
-                            metadata.title ||
-                            "UNTITLED"
-                        )}
-                    </h2>
-
-                    <p>
-                        Hellbox comic reader access point.
-                    </p>
-
-                </div>
-
-
-                <button
-                    type="button"
-                    class="publication-action publication-close"
-                    id="closePublication"
-                >
-                    CLOSE
-                </button>
-            `;
-
-
-            bindCloseButton();
-
-        }
-
-
-        function bindCloseButton() {
 
             const closeButton =
                 document.getElementById(
@@ -2076,6 +1823,55 @@
             }
 
         }
+
+
+
+        function renderComic(metadata) {
+
+            publicationContent.innerHTML = `
+
+                <p class="section-kicker">
+                    COMIC / SECURE COPY
+                </p>
+
+                <h2>
+                    ${escapeHtml(
+                        metadata.title ||
+                        "UNTITLED"
+                    )}
+                </h2>
+
+                <p class="publication-copy">
+                    This edition is connected to the Hellbox comic reader architecture.
+                </p>
+
+                <button
+                    type="button"
+                    class="publication-action"
+                    id="closePublication"
+                >
+                    CLOSE
+                </button>
+            `;
+
+
+            const closeButton =
+                document.getElementById(
+                    "closePublication"
+                );
+
+
+            if (closeButton) {
+
+                closeButton.addEventListener(
+                    "click",
+                    closePublication
+                );
+
+            }
+
+        }
+
 
 
         function closePublication() {
@@ -2102,35 +1898,38 @@
         }
 
 
-        /* =========================================================
-           HTML ESCAPING
-        ========================================================== */
 
         function escapeHtml(value) {
 
             return String(value)
+
                 .replace(
                     /&/g,
                     "&amp;"
                 )
+
                 .replace(
                     /</g,
                     "&lt;"
                 )
+
                 .replace(
                     />/g,
                     "&gt;"
                 )
+
                 .replace(
                     /"/g,
                     "&quot;"
                 )
+
                 .replace(
                     /'/g,
                     "&#039;"
                 );
 
         }
+
 
 
         function escapeAttribute(value) {
@@ -2142,9 +1941,14 @@
         }
 
 
-        /* =========================================================
-           SMOOTH NAVIGATION
-        ========================================================== */
+
+        updateWalletButton();
+
+        restoreWallet();
+
+        loadCatalog();
+
+
 
         document
             .querySelectorAll(
@@ -2155,7 +1959,7 @@
 
                     link.addEventListener(
                         "click",
-                        function(event) {
+                        function (event) {
 
                             const target =
                                 document.querySelector(
@@ -2188,21 +1992,7 @@
                 }
             );
 
-
-        /* =========================================================
-           INITIALIZE
-        ========================================================== */
-
-        updateWalletButton();
-
-        restoreWallet();
-
-        loadCatalog();
-
-
     </script>
 
-
 </body>
-
 </html>
