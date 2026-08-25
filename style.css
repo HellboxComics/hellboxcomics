@@ -2049,3 +2049,293 @@ main {
         transition-duration: .01ms !important;
     }
 }
+
+/* ============================================================
+   HELLBOX V3 — LAIR COMPOSITION / ASSET BALANCE
+   This block intentionally overrides the earlier composition.
+============================================================ */
+
+/* --- HERO: never let artwork create a blank first screen --- */
+.hero {
+    min-height: clamp(760px, 100svh, 1040px);
+    justify-content: flex-start;
+    isolation: isolate;
+    background:
+        linear-gradient(180deg, rgba(3,3,3,.14) 0%, rgba(3,3,3,.54) 52%, #030303 100%),
+        radial-gradient(circle at 62% 20%, rgba(255,42,10,.12), transparent 33%),
+        #030303;
+}
+
+.hero-lair {
+    position: absolute;
+    inset: var(--header-height) 0 auto auto;
+    z-index: 0;
+    width: min(760px, 58vw);
+    height: min(690px, 76vh);
+    overflow: hidden;
+    opacity: .20;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(to left, #000 28%, rgba(0,0,0,.72) 62%, transparent 100%);
+    mask-image: linear-gradient(to left, #000 28%, rgba(0,0,0,.72) 62%, transparent 100%);
+}
+
+.hero-lair img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    filter: saturate(.72) contrast(1.08) brightness(.66);
+}
+
+.hero-art {
+    position: absolute;
+    z-index: 3;
+    top: calc(var(--header-height) + 20px);
+    left: 50%;
+    width: min(1040px, 82vw);
+    padding: 0;
+    transform: translateX(-50%);
+    overflow: visible;
+    pointer-events: none;
+}
+
+.hellbox-banner {
+    width: 100%;
+    max-width: 100%;
+    max-height: 250px;
+    object-fit: contain;
+    object-position: center;
+    filter:
+        drop-shadow(0 18px 34px rgba(0,0,0,.78))
+        drop-shadow(0 0 24px rgba(255,48,0,.12));
+}
+
+.hero-copy {
+    z-index: 5;
+    width: 100%;
+    margin-top: 0;
+    padding:
+        clamp(290px, 33vw, 430px)
+        var(--gutter)
+        clamp(54px, 7vw, 90px);
+}
+
+.hero-kicker {
+    max-width: 1180px;
+}
+
+.hero-title-wrap {
+    max-width: 1180px;
+}
+
+.hero-title-wrap h1 {
+    max-width: 900px;
+    font-size: clamp(68px, 10vw, 150px);
+    line-height: .80;
+}
+
+.hero-bottom {
+    max-width: 1180px;
+}
+
+/* --- PRESS: SIN is no longer used as a giant background --- */
+.press-sin {
+    display: none !important;
+}
+
+.press-lair {
+    position: absolute;
+    z-index: 0;
+    top: 7%;
+    right: -3%;
+    width: min(760px, 58vw);
+    height: 82%;
+    opacity: .15;
+    overflow: hidden;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(to left, #000 20%, rgba(0,0,0,.85) 52%, transparent 100%);
+    mask-image: linear-gradient(to left, #000 20%, rgba(0,0,0,.85) 52%, transparent 100%);
+}
+
+.press-lair img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    filter: saturate(.64) brightness(.54) contrast(1.08);
+}
+
+/* --- CREATOR WALL: Harrow is dominant; SIN is a hidden wink --- */
+.creator-wall {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+}
+
+.creator-watermark {
+    position: absolute;
+    z-index: -1;
+    right: -8%;
+    top: 4%;
+    width: min(620px, 45vw);
+    opacity: .035;
+    filter: grayscale(1) brightness(1.4);
+    pointer-events: none;
+}
+
+.creator-mark img {
+    width: min(620px, 68vw);
+}
+
+.powered-grid {
+    grid-template-columns: minmax(0, 1fr) 180px;
+    align-items: stretch;
+}
+
+.bytes-card {
+    min-height: 165px;
+}
+
+.bytes-card img {
+    width: min(520px, 86%);
+}
+
+.sin-card {
+    min-height: 165px;
+    padding: 18px 16px;
+    background: transparent;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.powered-label-sin {
+    align-self: flex-start;
+    opacity: .36;
+    font-size: 5px;
+    letter-spacing: .20em;
+}
+
+.sin-card img {
+    width: 64px;
+    opacity: .22;
+    filter: grayscale(.32) saturate(.55) brightness(.68);
+}
+
+.sin-card:hover img {
+    opacity: .34;
+}
+
+/* --- More underground-paper / lair texture without another giant logo --- */
+.archive-section,
+.press-section,
+.site-footer {
+    background-image:
+        linear-gradient(rgba(255,255,255,.012) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.008) 1px, transparent 1px);
+    background-size: 72px 72px;
+}
+
+/* ============================================================
+   V3 RESPONSIVE
+============================================================ */
+
+@media (max-width: 900px) {
+    .hero {
+        min-height: auto;
+    }
+
+    .hero-lair {
+        width: 72vw;
+        height: 560px;
+        opacity: .15;
+    }
+
+    .hero-art {
+        top: calc(var(--header-height) + 18px);
+        width: min(900px, 94vw);
+    }
+
+    .hellbox-banner {
+        max-height: 215px;
+    }
+
+    .hero-copy {
+        padding-top: clamp(250px, 35vw, 350px);
+    }
+
+    .press-lair {
+        width: 76vw;
+        right: -12%;
+        opacity: .12;
+    }
+
+    .powered-grid {
+        grid-template-columns: 1fr 135px;
+    }
+}
+
+@media (max-width: 640px) {
+    .hero {
+        min-height: auto;
+    }
+
+    .hero-lair {
+        top: 58px;
+        right: -28%;
+        width: 115vw;
+        height: 500px;
+        opacity: .10;
+        -webkit-mask-image: linear-gradient(to bottom, #000 15%, rgba(0,0,0,.7) 60%, transparent 100%);
+        mask-image: linear-gradient(to bottom, #000 15%, rgba(0,0,0,.7) 60%, transparent 100%);
+    }
+
+    .hero-art {
+        top: 76px;
+        width: 94vw;
+    }
+
+    .hellbox-banner {
+        max-height: 165px;
+    }
+
+    .hero-copy {
+        padding-top: 230px;
+    }
+
+    .hero-title-wrap h1 {
+        font-size: clamp(58px, 18vw, 92px);
+    }
+
+    .press-lair {
+        top: 18%;
+        right: -42%;
+        width: 140vw;
+        height: 62%;
+        opacity: .10;
+    }
+
+    .creator-watermark {
+        right: -34%;
+        top: 8%;
+        width: 105vw;
+    }
+
+    .creator-mark img {
+        width: min(500px, 92vw);
+    }
+
+    .powered-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sin-card {
+        min-height: 72px;
+        flex-direction: row;
+        justify-content: space-between;
+        border-top: 1px solid var(--line) !important;
+    }
+
+    .sin-card img {
+        width: 48px;
+    }
+}
