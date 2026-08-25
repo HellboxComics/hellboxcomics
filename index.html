@@ -25,31 +25,20 @@
 </head>
 
 
-<body id="top">
-
+<body>
 
 <!-- =========================================================
      HEADER
-========================================================== -->
+========================================================= -->
 
 <header class="site-header">
 
     <a
         href="#top"
         class="brand"
-        aria-label="Hellbox Comics home"
+        aria-label="Hellbox Comics"
     >
-
-        <img
-            src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem.PNG"
-            alt="Hellbox Comics"
-            class="brand-emblem"
-        >
-
-        <span class="brand-text">
-            HELLBOX COMICS
-        </span>
-
+        HELLBOX COMICS
     </a>
 
 
@@ -65,24 +54,21 @@
 
 
 
-<main>
+<main id="top">
 
 
 <!-- =========================================================
-     HERO
-========================================================== -->
+     HELLBOX HERO
+========================================================= -->
 
-<section
-    class="hellbox"
-    id="hero"
->
+<section class="hellbox">
 
-    <div class="hero-art">
+    <div class="hellbox-banner-wrap">
 
         <img
+            class="hellbox-banner"
             src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-banner.PNG"
             alt="Hellbox Comics"
-            class="hero-banner"
         >
 
     </div>
@@ -113,7 +99,7 @@
 
 <!-- =========================================================
      NAVIGATION
-========================================================== -->
+========================================================= -->
 
 <nav class="main-nav">
 
@@ -148,7 +134,7 @@
 
 <!-- =========================================================
      ARCHIVE
-========================================================== -->
+========================================================= -->
 
 <section
     class="content-section archive-section"
@@ -189,7 +175,7 @@
 
 <!-- =========================================================
      PUBLICATION VIEWER
-========================================================== -->
+========================================================= -->
 
 <section
     class="content-section publication-section"
@@ -208,34 +194,12 @@
 
 <!-- =========================================================
      PRESS
-========================================================== -->
+========================================================= -->
 
 <section
     class="content-section press-section"
     id="press"
 >
-
-    <!--
-        SIN FORESHADOW ASSET
-
-        This is intentionally the WORDMARK only.
-
-        The SIN EMBLEM is NOT referenced anywhere in this
-        HTML and remains completely outside the public site
-        until officially announced.
-    -->
-
-    <div class="press-foreshadow">
-
-        <img
-            src="https://cdn.hellboxcomics.com/assets/brand/sin/foreshadow/sin-wordmark.PNG"
-            alt=""
-            class="sin-wordmark"
-            aria-hidden="true"
-        >
-
-    </div>
-
 
     <p class="section-label">
         THE PRESS
@@ -262,37 +226,92 @@
 
 </section>
 
-
 </main>
 
 
 
 <!-- =========================================================
      FOOTER
-========================================================== -->
+========================================================= -->
 
 <footer class="site-footer">
 
-    <div class="footer-copy">
+
+    <!-- ---------------------------------------------
+         PRIMARY CREATOR CREDIT
+    ---------------------------------------------- -->
+
+    <div class="footer-creator">
+
+        <p class="footer-credit-label">
+            CREATED BY
+        </p>
+
+
+        <img
+            class="footer-harrow"
+            src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-wordmark-white.PNG"
+            alt="Harrow"
+        >
+
+    </div>
+
+
+
+    <!-- ---------------------------------------------
+         INFRASTRUCTURE CREDIT
+    ---------------------------------------------- -->
+
+    <div class="footer-bytes">
+
+        <img
+            class="footer-bytes-image"
+            src="https://cdn.hellboxcomics.com/assets/brand/footer/backed-by-bytes-footer.PNG"
+            alt="Backed by Bytes"
+        >
+
+    </div>
+
+
+
+    <!-- ---------------------------------------------
+         DISCREET SIN CREDIT
+
+         Intentionally understated.
+         This is NOT a launch announcement.
+    ---------------------------------------------- -->
+
+    <div class="footer-sin">
+
+        <span class="footer-sin-label">
+            FUELED BY
+        </span>
+
+
+        <img
+            class="footer-sin-wordmark"
+            src="https://cdn.hellboxcomics.com/assets/brand/sin/foreshadow/sin-wordmark.PNG"
+            alt="SIN"
+        >
+
+    </div>
+
+
+
+    <!-- ---------------------------------------------
+         FINAL FOOTER LINE
+    ---------------------------------------------- -->
+
+    <div class="footer-bottom">
 
         <span>
             HELLBOX COMICS
         </span>
 
+
         <span>
             THE BOX IS OPEN.
         </span>
-
-    </div>
-
-
-    <div class="footer-backed-by">
-
-        <img
-            src="https://cdn.hellboxcomics.com/assets/brand/footer/backed-by-bytes-footer.PNG"
-            alt="Backed by Bytes"
-            class="backed-by-bytes"
-        >
 
     </div>
 
@@ -304,66 +323,8 @@
 
 
 /* =========================================================
-   HELLBOX ASSET CONFIGURATION
-
-   IMPORTANT:
-   ---------------------------------------------------------
-   This site uses ONLY:
-
-       cdn.hellboxcomics.com
-
-   It does NOT use:
-
-       assets.hellboxcomic.com
-       assets.hellboxcomics.com
-       hellbox-assets
-
-   Filename capitalization is intentional.
-   All image files are .PNG.
-========================================================== */
-
-const HELLBOX_ASSETS =
-    "https://cdn.hellboxcomics.com/assets";
-
-
-const HELLBOX_IMAGES = {
-
-    hellboxBanner:
-        `${HELLBOX_ASSETS}/brand/hellbox/banners/hellbox-banner.PNG`,
-
-    hellboxBannerDark:
-        `${HELLBOX_ASSETS}/brand/hellbox/banners/hellbox-banner-dark.PNG`,
-
-    hellboxEmblem:
-        `${HELLBOX_ASSETS}/brand/hellbox/emblems/hellbox-emblem.PNG`,
-
-    harrowWordmarkBlack:
-        `${HELLBOX_ASSETS}/brand/harrow/wordmarks/harrow-wordmark-black.PNG`,
-
-    harrowWordmarkWhite:
-        `${HELLBOX_ASSETS}/brand/harrow/wordmarks/harrow-wordmark-white.PNG`,
-
-    harrowEmblem:
-        `${HELLBOX_ASSETS}/brand/harrow/emblems/harrow-emblem.PNG`,
-
-    harrowConcept01:
-        `${HELLBOX_ASSETS}/brand/harrow/art/harrow-concept-01.PNG`,
-
-    harrowConcept02:
-        `${HELLBOX_ASSETS}/brand/harrow/art/harrow-concept-02.PNG`,
-
-    sinWordmark:
-        `${HELLBOX_ASSETS}/brand/sin/foreshadow/sin-wordmark.PNG`,
-
-    backedByBytes:
-        `${HELLBOX_ASSETS}/brand/footer/backed-by-bytes-footer.PNG`
-
-};
-
-
-/* =========================================================
    HELLBOX NETWORK CONFIGURATION
-========================================================== */
+========================================================= */
 
 const HELLBOX = {
 
@@ -393,9 +354,7 @@ const HELLBOX = {
 
 /* =========================================================
    HELLBOX API CONFIGURATION
-
-   Relative API path is intentional.
-========================================================== */
+========================================================= */
 
 const HELLBOX_API = "";
 
@@ -403,7 +362,7 @@ const HELLBOX_API = "";
 
 /* =========================================================
    WALLET STATE
-========================================================== */
+========================================================= */
 
 let connectedWallet = null;
 
@@ -413,7 +372,7 @@ let walletOnPulseChain = false;
 
 /* =========================================================
    WALLET ELEMENT
-========================================================== */
+========================================================= */
 
 const walletButton =
     document.getElementById(
@@ -424,7 +383,7 @@ const walletButton =
 
 /* =========================================================
    CHECK FOR EIP-1193 WALLET
-========================================================== */
+========================================================= */
 
 function hasWallet() {
 
@@ -439,7 +398,7 @@ function hasWallet() {
 
 /* =========================================================
    SHORTEN ADDRESS
-========================================================== */
+========================================================= */
 
 function shortenAddress(address) {
 
@@ -461,7 +420,7 @@ function shortenAddress(address) {
 
 /* =========================================================
    UPDATE WALLET BUTTON
-========================================================== */
+========================================================= */
 
 function updateWalletButton() {
 
@@ -515,7 +474,7 @@ function updateWalletButton() {
 
 /* =========================================================
    GET CURRENT CHAIN
-========================================================== */
+========================================================= */
 
 async function getCurrentChain() {
 
@@ -551,7 +510,7 @@ async function getCurrentChain() {
 
 /* =========================================================
    ADD PULSECHAIN
-========================================================== */
+========================================================= */
 
 async function addPulseChain() {
 
@@ -616,7 +575,7 @@ async function addPulseChain() {
 
 /* =========================================================
    SWITCH TO PULSECHAIN
-========================================================== */
+========================================================= */
 
 async function switchToPulseChain() {
 
@@ -725,7 +684,7 @@ async function switchToPulseChain() {
 
 /* =========================================================
    CONNECT WALLET
-========================================================== */
+========================================================= */
 
 async function connectWallet() {
 
@@ -749,6 +708,7 @@ async function connectWallet() {
 
             });
 
+
         if (
             !accounts ||
             accounts.length === 0
@@ -757,6 +717,7 @@ async function connectWallet() {
             return;
 
         }
+
 
         connectedWallet =
             accounts[0];
@@ -849,7 +810,7 @@ async function connectWallet() {
 
 /* =========================================================
    ACCOUNT CHANGE
-========================================================== */
+========================================================= */
 
 function handleAccountsChanged(accounts) {
 
@@ -880,7 +841,7 @@ function handleAccountsChanged(accounts) {
 
 /* =========================================================
    NETWORK CHANGE
-========================================================== */
+========================================================= */
 
 function handleChainChanged(chainId) {
 
@@ -895,7 +856,6 @@ function handleChainChanged(chainId) {
         chainId.toLowerCase() ===
         HELLBOX.chainId;
 
-
     updateWalletButton();
 
 }
@@ -904,7 +864,7 @@ function handleChainChanged(chainId) {
 
 /* =========================================================
    VERIFY WALLET NETWORK
-========================================================== */
+========================================================= */
 
 async function verifyWalletNetwork() {
 
@@ -933,7 +893,7 @@ async function verifyWalletNetwork() {
 
 /* =========================================================
    RESTORE EXISTING WALLET
-========================================================== */
+========================================================= */
 
 async function restoreWallet() {
 
@@ -985,7 +945,7 @@ async function restoreWallet() {
 
 /* =========================================================
    WALLET EVENTS
-========================================================== */
+========================================================= */
 
 if (hasWallet()) {
 
@@ -1006,7 +966,7 @@ if (hasWallet()) {
 
 /* =========================================================
    WALLET BUTTON
-========================================================== */
+========================================================= */
 
 walletButton.addEventListener(
     "click",
@@ -1054,7 +1014,7 @@ walletButton.addEventListener(
 
 /* =========================================================
    ARCHIVE ELEMENTS
-========================================================== */
+========================================================= */
 
 const archiveList =
     document.getElementById(
@@ -1083,7 +1043,7 @@ const publicationContent =
 
 /* =========================================================
    HELLBOX CATALOG
-========================================================== */
+========================================================= */
 
 let hellboxCatalog = [];
 
@@ -1091,7 +1051,7 @@ let hellboxCatalog = [];
 
 /* =========================================================
    LOAD CATALOG
-========================================================== */
+========================================================= */
 
 async function loadCatalog() {
 
@@ -1168,7 +1128,7 @@ async function loadCatalog() {
 
 /* =========================================================
    RENDER ARCHIVE
-========================================================== */
+========================================================= */
 
 function renderArchive() {
 
@@ -1222,6 +1182,7 @@ function renderArchive() {
                 "comic";
 
 
+
             const header =
                 document.createElement(
                     "div"
@@ -1230,6 +1191,7 @@ function renderArchive() {
 
             header.className =
                 "archive-title-header";
+
 
 
             const label =
@@ -1249,6 +1211,7 @@ function renderArchive() {
                     : "COMIC";
 
 
+
             const name =
                 document.createElement(
                     "h3"
@@ -1258,6 +1221,7 @@ function renderArchive() {
             name.textContent =
                 publication.title ||
                 publication.slug;
+
 
 
             const issue =
@@ -1274,11 +1238,13 @@ function renderArchive() {
                 `ISSUE ${publication.issue}`;
 
 
+
             header.appendChild(label);
 
             header.appendChild(name);
 
             header.appendChild(issue);
+
 
 
             const action =
@@ -1302,6 +1268,7 @@ function renderArchive() {
                     : "OPEN COMIC";
 
 
+
             action.addEventListener(
                 "click",
                 function() {
@@ -1312,6 +1279,7 @@ function renderArchive() {
 
                 }
             );
+
 
 
             publicationCard.appendChild(
@@ -1337,7 +1305,7 @@ function renderArchive() {
 
 /* =========================================================
    OPEN PUBLICATION
-========================================================== */
+========================================================= */
 
 async function openPublication(
     publication
@@ -1348,6 +1316,7 @@ async function openPublication(
 
 
     publicationContent.innerHTML = `
+
         <p class="section-label">
             LOADING
         </p>
@@ -1362,6 +1331,7 @@ async function openPublication(
         <p class="section-description">
             Loading publication metadata...
         </p>
+
     `;
 
 
@@ -1422,6 +1392,7 @@ async function openPublication(
 
 
         publicationContent.innerHTML = `
+
             <p class="section-label">
                 ERROR
             </p>
@@ -1433,6 +1404,7 @@ async function openPublication(
             <p class="section-description">
                 Hellbox could not load this publication.
             </p>
+
         `;
 
     }
@@ -1443,7 +1415,7 @@ async function openPublication(
 
 /* =========================================================
    RENDER PUBLICATION
-========================================================== */
+========================================================= */
 
 function renderPublication(
     metadata
@@ -1473,7 +1445,7 @@ function renderPublication(
 
 /* =========================================================
    EBOOK VIEW
-========================================================== */
+========================================================= */
 
 function renderEbook(metadata) {
 
@@ -1507,6 +1479,7 @@ function renderEbook(metadata) {
             : "";
 
 
+
     publicationContent.innerHTML = `
 
         <div class="publication-header">
@@ -1523,14 +1496,17 @@ function renderEbook(metadata) {
             </h2>
 
             <p class="section-description">
+
                 ${
                     author
                         ? `By ${escapeHtml(author)}`
                         : "Hellbox Comics"
                 }
+
             </p>
 
         </div>
+
 
 
         <div class="publication-book">
@@ -1538,6 +1514,7 @@ function renderEbook(metadata) {
             ${
                 cover
                     ? `
+
                         <div class="publication-cover">
 
                             <img
@@ -1549,9 +1526,11 @@ function renderEbook(metadata) {
                             >
 
                         </div>
+
                     `
                     : ""
             }
+
 
 
             <div class="publication-actions">
@@ -1559,6 +1538,7 @@ function renderEbook(metadata) {
                 ${
                     epub
                         ? `
+
                             <a
                                 class="publication-action"
                                 href="${escapeAttribute(epub)}"
@@ -1567,14 +1547,17 @@ function renderEbook(metadata) {
                             >
                                 READ EPUB
                             </a>
+
                         `
                         : ""
                 }
 
 
+
                 ${
                     pdf
                         ? `
+
                             <a
                                 class="publication-action"
                                 href="${escapeAttribute(pdf)}"
@@ -1583,9 +1566,11 @@ function renderEbook(metadata) {
                             >
                                 OPEN PDF
                             </a>
+
                         `
                         : ""
                 }
+
 
 
                 <button
@@ -1599,6 +1584,7 @@ function renderEbook(metadata) {
             </div>
 
         </div>
+
     `;
 
 
@@ -1623,7 +1609,7 @@ function renderEbook(metadata) {
 
 /* =========================================================
    COMIC VIEW
-========================================================== */
+========================================================= */
 
 function renderComic(metadata) {
 
@@ -1652,6 +1638,7 @@ function renderComic(metadata) {
         >
             CLOSE
         </button>
+
     `;
 
 
@@ -1676,7 +1663,7 @@ function renderComic(metadata) {
 
 /* =========================================================
    CLOSE PUBLICATION
-========================================================== */
+========================================================= */
 
 function closePublication() {
 
@@ -1703,33 +1690,39 @@ function closePublication() {
 
 /* =========================================================
    HTML ESCAPING
-========================================================== */
+========================================================= */
 
 function escapeHtml(value) {
 
     return String(value)
+
         .replace(
             /&/g,
             "&amp;"
         )
+
         .replace(
             /</g,
             "&lt;"
         )
+
         .replace(
             />/g,
             "&gt;"
         )
+
         .replace(
             /"/g,
             "&quot;"
         )
+
         .replace(
             /'/g,
             "&#039;"
         );
 
 }
+
 
 
 function escapeAttribute(value) {
@@ -1744,7 +1737,7 @@ function escapeAttribute(value) {
 
 /* =========================================================
    INITIALIZE
-========================================================== */
+========================================================= */
 
 updateWalletButton();
 
@@ -1756,7 +1749,7 @@ loadCatalog();
 
 /* =========================================================
    SMOOTH NAVIGATION
-========================================================== */
+========================================================= */
 
 document
     .querySelectorAll(
@@ -1800,9 +1793,9 @@ document
         }
     );
 
-
 </script>
 
 
 </body>
+
 </html>
