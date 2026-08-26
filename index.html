@@ -103,6 +103,481 @@
         href="/style.css"
     >
 
+
+    <!-- ========================================================
+         HELLBOX READER STYLES
+         Self-contained so style.css does not need replacement.
+    ========================================================= -->
+
+    <style>
+
+        body.reader-open {
+            overflow: hidden;
+        }
+
+        .hellbox-reader {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            display: none;
+            flex-direction: column;
+            background:
+                radial-gradient(
+                    circle at 50% 30%,
+                    rgba(82, 0, 120, 0.12),
+                    transparent 38%
+                ),
+                #020202;
+            color: #f4f1ec;
+        }
+
+        .hellbox-reader.active {
+            display: flex;
+        }
+
+        .reader-topbar {
+            position: relative;
+            z-index: 4;
+            display: grid;
+            grid-template-columns:
+                minmax(0, 1fr)
+                auto
+                minmax(0, 1fr);
+            align-items: center;
+            gap: 20px;
+            min-height: 72px;
+            padding: 12px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: rgba(2,2,2,0.94);
+            backdrop-filter: blur(16px);
+        }
+
+        .reader-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .reader-brand img {
+            width: 34px;
+            height: 34px;
+            object-fit: contain;
+        }
+
+        .reader-brand-copy {
+            min-width: 0;
+        }
+
+        .reader-kicker {
+            display: block;
+            margin-bottom: 3px;
+            font-size: 8px;
+            letter-spacing: 0.2em;
+            color: #ff321e;
+        }
+
+        .reader-title {
+            display: block;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+        }
+
+        .reader-progress-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            color: rgba(255,255,255,0.58);
+        }
+
+        .reader-progress-center strong {
+            color: #fff;
+        }
+
+        .reader-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reader-control {
+            appearance: none;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: transparent;
+            color: #fff;
+            min-height: 38px;
+            padding: 0 12px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            transition:
+                border-color 160ms ease,
+                color 160ms ease,
+                background 160ms ease;
+        }
+
+        .reader-control:hover:not(:disabled) {
+            border-color: #ff321e;
+            color: #ff321e;
+        }
+
+        .reader-control.active {
+            border-color: #ff321e;
+            color: #ff321e;
+            background: rgba(255,50,30,0.06);
+        }
+
+        .reader-control:disabled {
+            opacity: 0.3;
+            cursor: default;
+        }
+
+        .reader-close {
+            min-width: 42px;
+            font-size: 15px;
+        }
+
+        .reader-stage {
+            position: relative;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .reader-paged {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding:
+                28px
+                84px
+                78px;
+            overflow: auto;
+        }
+
+        .reader-page-frame {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 100%;
+            max-height: 100%;
+            margin: auto;
+        }
+
+        .reader-page-image {
+            display: block;
+            max-width: 100%;
+            max-height: calc(100vh - 180px);
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            user-select: none;
+            -webkit-user-drag: none;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.08),
+                0 28px 90px rgba(0,0,0,0.7);
+        }
+
+        .reader-page-image.fit-width {
+            width: min(1100px, 100%);
+            max-width: none;
+            max-height: none;
+            height: auto;
+        }
+
+        .reader-page-image.fit-page {
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: calc(100vh - 180px);
+        }
+
+        .reader-nav {
+            position: absolute;
+            top: 50%;
+            z-index: 5;
+            width: 48px;
+            height: 72px;
+            transform: translateY(-50%);
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(0,0,0,0.45);
+            color: rgba(255,255,255,0.8);
+            font-size: 22px;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+        }
+
+        .reader-nav:hover:not(:disabled) {
+            border-color: #ff321e;
+            color: #ff321e;
+        }
+
+        .reader-nav:disabled {
+            opacity: 0.18;
+            cursor: default;
+        }
+
+        .reader-nav-prev {
+            left: 20px;
+        }
+
+        .reader-nav-next {
+            right: 20px;
+        }
+
+        .reader-bottom {
+            position: absolute;
+            z-index: 7;
+            left: 50%;
+            bottom: 18px;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.72);
+            backdrop-filter: blur(12px);
+        }
+
+        .reader-bottom button {
+            appearance: none;
+            border: 0;
+            background: transparent;
+            color: rgba(255,255,255,0.65);
+            cursor: pointer;
+            font: inherit;
+            font-size: 9px;
+            letter-spacing: 0.12em;
+        }
+
+        .reader-bottom button:hover {
+            color: #ff321e;
+        }
+
+        .reader-bottom-label {
+            min-width: 90px;
+            text-align: center;
+            font-size: 9px;
+            letter-spacing: 0.14em;
+            color: #fff;
+        }
+
+        .reader-loading,
+        .reader-error {
+            position: absolute;
+            inset: 0;
+            z-index: 8;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+            background: #020202;
+        }
+
+        .reader-loading.active,
+        .reader-error.active {
+            display: flex;
+        }
+
+        .reader-message {
+            max-width: 540px;
+            text-align: center;
+        }
+
+        .reader-message-code {
+            display: block;
+            margin-bottom: 18px;
+            font-size: 8px;
+            letter-spacing: 0.22em;
+            color: #ff321e;
+        }
+
+        .reader-message h3 {
+            margin: 0 0 16px;
+            font-size: clamp(34px, 5vw, 72px);
+            line-height: 0.92;
+            letter-spacing: -0.05em;
+        }
+
+        .reader-message p {
+            margin: 0 auto 24px;
+            max-width: 460px;
+            color: rgba(255,255,255,0.52);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .reader-loader-mark {
+            width: 52px;
+            height: 52px;
+            margin: 0 auto 22px;
+            border: 1px solid rgba(255,50,30,0.25);
+            border-top-color: #ff321e;
+            border-radius: 50%;
+            animation: hellboxSpin 0.9s linear infinite;
+        }
+
+        @keyframes hellboxSpin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .reader-continuous {
+            position: absolute;
+            inset: 0;
+            display: none;
+            overflow-y: auto;
+            padding: 36px 20px 100px;
+            scroll-behavior: smooth;
+        }
+
+        .reader-continuous.active {
+            display: block;
+        }
+
+        .reader-continuous-page {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin: 0 auto 30px;
+        }
+
+        .reader-continuous-page img {
+            display: block;
+            width: min(100%, 1100px);
+            height: auto;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.06),
+                0 20px 70px rgba(0,0,0,0.6);
+        }
+
+        .reader-page-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: min(100%, 900px);
+            min-height: 70vh;
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.3);
+            font-size: 10px;
+            letter-spacing: 0.16em;
+        }
+
+        .reader-session-status {
+            position: absolute;
+            z-index: 6;
+            top: 84px;
+            right: 18px;
+            padding: 7px 9px;
+            border: 1px solid rgba(139,255,0,0.18);
+            background: rgba(0,0,0,0.65);
+            color: #9cff00;
+            font-size: 7px;
+            letter-spacing: 0.16em;
+            pointer-events: none;
+        }
+
+        @media (max-width: 900px) {
+
+            .reader-topbar {
+                grid-template-columns: 1fr auto;
+                gap: 10px;
+                min-height: 62px;
+                padding: 10px 12px;
+            }
+
+            .reader-progress-center {
+                display: none;
+            }
+
+            .reader-toolbar .reader-fit-page,
+            .reader-toolbar .reader-fit-width {
+                display: none;
+            }
+
+            .reader-paged {
+                padding:
+                    18px
+                    50px
+                    70px;
+            }
+
+            .reader-nav {
+                width: 40px;
+                height: 60px;
+            }
+
+            .reader-nav-prev {
+                left: 5px;
+            }
+
+            .reader-nav-next {
+                right: 5px;
+            }
+
+            .reader-page-image {
+                max-height: calc(100vh - 145px);
+            }
+
+            .reader-title {
+                font-size: 11px;
+            }
+
+            .reader-session-status {
+                display: none;
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            .reader-paged {
+                padding:
+                    8px
+                    35px
+                    62px;
+            }
+
+            .reader-brand img {
+                width: 28px;
+                height: 28px;
+            }
+
+            .reader-control {
+                min-height: 34px;
+                padding: 0 9px;
+            }
+
+            .reader-nav {
+                width: 32px;
+                height: 52px;
+                font-size: 18px;
+            }
+
+            .reader-bottom {
+                bottom: 10px;
+            }
+
+        }
+
+    </style>
+
 </head>
 
 
@@ -540,8 +1015,7 @@
                             </h3>
 
                             <p id="terminalMessage">
-                                Connect a wallet to identify your collection
-                                and inspect the editions currently in circulation.
+                                Connect a wallet to identify your collection and inspect the editions currently in circulation.
                             </p>
 
 
@@ -667,7 +1141,10 @@
             <div class="press-background"></div>
 
 
-            <div class="section-shell press-inner">
+            <div
+                class="section-shell press-inner"
+                id="pressContainer"
+            >
 
                 <div class="press-copy">
 
@@ -851,7 +1328,7 @@
 
 
         <!-- ====================================================
-             SOCIAL
+             SIGNAL
         ===================================================== -->
 
         <section class="signal-section">
@@ -1055,11 +1532,302 @@
     </footer>
 
 
+    <!-- ========================================================
+         PROTECTED HELLBOX READER
+    ========================================================= -->
+
+    <section
+        class="hellbox-reader"
+        id="hellboxReader"
+        aria-hidden="true"
+        aria-label="Hellbox protected reader"
+    >
+
+        <header class="reader-topbar">
+
+            <div class="reader-brand">
+
+                <img
+                    src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem.PNG"
+                    alt=""
+                >
+
+                <div class="reader-brand-copy">
+
+                    <span class="reader-kicker">
+                        HBX // PROTECTED READER
+                    </span>
+
+                    <strong
+                        class="reader-title"
+                        id="readerTitle"
+                    >
+                        HELLBOX EDITION
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="reader-progress-center">
+
+                <span>
+                    PAGE
+                </span>
+
+                <strong id="readerPageNumber">
+                    00
+                </strong>
+
+                <span>
+                    /
+                </span>
+
+                <strong id="readerPageCount">
+                    00
+                </strong>
+
+            </div>
+
+
+            <div class="reader-toolbar">
+
+                <button
+                    type="button"
+                    class="reader-control reader-fit-page active"
+                    id="readerFitPage"
+                >
+                    FIT PAGE
+                </button>
+
+                <button
+                    type="button"
+                    class="reader-control reader-fit-width"
+                    id="readerFitWidth"
+                >
+                    FIT WIDTH
+                </button>
+
+                <button
+                    type="button"
+                    class="reader-control"
+                    id="readerLayoutToggle"
+                >
+                    CONTINUOUS
+                </button>
+
+                <button
+                    type="button"
+                    class="reader-control reader-close"
+                    id="readerClose"
+                    aria-label="Close reader"
+                >
+                    ×
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <div class="reader-stage">
+
+
+            <!-- =================================================
+                 SESSION INDICATOR
+            ================================================== -->
+
+            <div
+                class="reader-session-status"
+                id="readerSessionStatus"
+            >
+                TOKEN VERIFIED // PULSECHAIN 369
+            </div>
+
+
+            <!-- =================================================
+                 PAGED MODE
+            ================================================== -->
+
+            <div
+                class="reader-paged"
+                id="readerPaged"
+            >
+
+                <div class="reader-page-frame">
+
+                    <img
+                        class="reader-page-image fit-page"
+                        id="readerPageImage"
+                        alt=""
+                    >
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="reader-nav reader-nav-prev"
+                id="readerPrevious"
+                aria-label="Previous page"
+            >
+                ‹
+            </button>
+
+
+            <button
+                type="button"
+                class="reader-nav reader-nav-next"
+                id="readerNext"
+                aria-label="Next page"
+            >
+                ›
+            </button>
+
+
+            <!-- =================================================
+                 CONTINUOUS MODE
+            ================================================== -->
+
+            <div
+                class="reader-continuous"
+                id="readerContinuous"
+            ></div>
+
+
+            <!-- =================================================
+                 BOTTOM PAGE CONTROLS
+            ================================================== -->
+
+            <div
+                class="reader-bottom"
+                id="readerBottom"
+            >
+
+                <button
+                    type="button"
+                    id="readerFirst"
+                >
+                    FIRST
+                </button>
+
+                <button
+                    type="button"
+                    id="readerPreviousBottom"
+                >
+                    ←
+                </button>
+
+                <span
+                    class="reader-bottom-label"
+                    id="readerBottomLabel"
+                >
+                    00 / 00
+                </span>
+
+                <button
+                    type="button"
+                    id="readerNextBottom"
+                >
+                    →
+                </button>
+
+                <button
+                    type="button"
+                    id="readerLast"
+                >
+                    LAST
+                </button>
+
+            </div>
+
+
+            <!-- =================================================
+                 LOADING
+            ================================================== -->
+
+            <div
+                class="reader-loading"
+                id="readerLoading"
+            >
+
+                <div class="reader-message">
+
+                    <div class="reader-loader-mark"></div>
+
+                    <span class="reader-message-code">
+                        HBX // SECURE TRANSMISSION
+                    </span>
+
+                    <h3>
+                        OPENING THE BOX.
+                    </h3>
+
+                    <p id="readerLoadingText">
+                        Verifying ownership and retrieving protected edition assets.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 ERROR
+            ================================================== -->
+
+            <div
+                class="reader-error"
+                id="readerError"
+            >
+
+                <div class="reader-message">
+
+                    <span class="reader-message-code">
+                        HBX // ACCESS INTERRUPTED
+                    </span>
+
+                    <h3>
+                        READER LOCKED.
+                    </h3>
+
+                    <p id="readerErrorText">
+                        Hellbox could not load this edition.
+                    </p>
+
+                    <button
+                        type="button"
+                        class="reader-control"
+                        id="readerErrorClose"
+                    >
+                        RETURN TO ARCHIVE
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================================================
+         JAVASCRIPT
+    ========================================================= -->
+
     <script>
 
         // ========================================================
-        // HELLBOX FRONTEND CONFIG
+        // CONFIG
         // ========================================================
+
+        const API_BASE =
+            "https://hellboxcomics.harrow-harrow.workers.dev";
+
 
         const HELLBOX = {
 
@@ -1096,40 +1864,110 @@
         };
 
 
-        // ========================================================
-        // IMPORTANT
-        //
-        // The test frontend is a separate Workers host.
-        //
-        // All Hellbox API traffic therefore goes explicitly to
-        // the real backend Worker.
-        // ========================================================
-
-        const API_BASE =
-            "https://hellboxcomics.harrow-harrow.workers.dev";
+        const SESSION_STORAGE_KEY =
+            "hellbox_reader_session";
 
 
+        const SESSION_WALLET_KEY =
+            "hellbox_reader_wallet";
+
+
+        const SESSION_EXPIRY_KEY =
+            "hellbox_reader_expiry";
+
+
         // ========================================================
-        // STATE
+        // GLOBAL STATE
         // ========================================================
 
         let connectedWallet =
             null;
 
+
         let connectedChainId =
             null;
+
 
         let walletStatus =
             null;
 
-        let publicPublications =
+
+        let circulatingPublications =
             [];
+
+
+        let pressPublications =
+            [];
+
 
         let selectedSeries =
             "all";
 
+
         let walletBusy =
             false;
+
+
+        let readerAuthBusy =
+            false;
+
+
+        let mintBusy =
+            false;
+
+
+        let readerSession =
+            null;
+
+
+        let readerSessionWallet =
+            null;
+
+
+        let readerSessionExpiry =
+            null;
+
+
+        // ========================================================
+        // READER STATE
+        // ========================================================
+
+        const readerState = {
+
+            open:
+                false,
+
+            publication:
+                null,
+
+            manifest:
+                null,
+
+            pages:
+                [],
+
+            currentIndex:
+                0,
+
+            mode:
+                "paged",
+
+            fit:
+                "page",
+
+            objectUrls:
+                new Map(),
+
+            loadingAssets:
+                new Map(),
+
+            touchStartX:
+                null,
+
+            touchStartY:
+                null
+
+        };
 
 
         // ========================================================
@@ -1238,6 +2076,154 @@
             );
 
 
+        const pressContainer =
+            document.getElementById(
+                "pressContainer"
+            );
+
+
+        // ========================================================
+        // READER ELEMENTS
+        // ========================================================
+
+        const hellboxReader =
+            document.getElementById(
+                "hellboxReader"
+            );
+
+
+        const readerTitle =
+            document.getElementById(
+                "readerTitle"
+            );
+
+
+        const readerPageNumber =
+            document.getElementById(
+                "readerPageNumber"
+            );
+
+
+        const readerPageCount =
+            document.getElementById(
+                "readerPageCount"
+            );
+
+
+        const readerBottomLabel =
+            document.getElementById(
+                "readerBottomLabel"
+            );
+
+
+        const readerPaged =
+            document.getElementById(
+                "readerPaged"
+            );
+
+
+        const readerContinuous =
+            document.getElementById(
+                "readerContinuous"
+            );
+
+
+        const readerPageImage =
+            document.getElementById(
+                "readerPageImage"
+            );
+
+
+        const readerPrevious =
+            document.getElementById(
+                "readerPrevious"
+            );
+
+
+        const readerNext =
+            document.getElementById(
+                "readerNext"
+            );
+
+
+        const readerPreviousBottom =
+            document.getElementById(
+                "readerPreviousBottom"
+            );
+
+
+        const readerNextBottom =
+            document.getElementById(
+                "readerNextBottom"
+            );
+
+
+        const readerFirst =
+            document.getElementById(
+                "readerFirst"
+            );
+
+
+        const readerLast =
+            document.getElementById(
+                "readerLast"
+            );
+
+
+        const readerClose =
+            document.getElementById(
+                "readerClose"
+            );
+
+
+        const readerErrorClose =
+            document.getElementById(
+                "readerErrorClose"
+            );
+
+
+        const readerFitPage =
+            document.getElementById(
+                "readerFitPage"
+            );
+
+
+        const readerFitWidth =
+            document.getElementById(
+                "readerFitWidth"
+            );
+
+
+        const readerLayoutToggle =
+            document.getElementById(
+                "readerLayoutToggle"
+            );
+
+
+        const readerLoading =
+            document.getElementById(
+                "readerLoading"
+            );
+
+
+        const readerLoadingText =
+            document.getElementById(
+                "readerLoadingText"
+            );
+
+
+        const readerError =
+            document.getElementById(
+                "readerError"
+            );
+
+
+        const readerErrorText =
+            document.getElementById(
+                "readerErrorText"
+            );
+
+
         // ========================================================
         // UTILITIES
         // ========================================================
@@ -1249,6 +2235,24 @@
                 typeof window.ethereum.request ===
                     "function"
             );
+
+        }
+
+
+        function normalizeAddressLocal(
+            address
+        ) {
+
+            if (!address) {
+
+                return null;
+
+            }
+
+
+            return String(
+                address
+            ).toLowerCase();
 
         }
 
@@ -1283,8 +2287,10 @@
         ) {
 
             if (
-                value === null ||
-                value === undefined
+                value ===
+                    null ||
+                value ===
+                    undefined
             ) {
 
                 return null;
@@ -1308,26 +2314,19 @@
                 ).trim();
 
 
-            if (
-                text
-                    .toLowerCase()
-                    .startsWith(
-                        "0x"
+            return text
+                .toLowerCase()
+                .startsWith(
+                    "0x"
+                )
+                    ? parseInt(
+                        text,
+                        16
                     )
-            ) {
-
-                return parseInt(
-                    text,
-                    16
-                );
-
-            }
-
-
-            return parseInt(
-                text,
-                10
-            );
+                    : parseInt(
+                        text,
+                        10
+                    );
 
         }
 
@@ -1350,7 +2349,8 @@
 
             return String(
                 Number(
-                    value || 0
+                    value ||
+                    0
                 )
             ).padStart(
                 2,
@@ -1384,6 +2384,305 @@
         }
 
 
+        function safeJsonParse(
+            value
+        ) {
+
+            try {
+
+                return JSON.parse(
+                    value
+                );
+
+            } catch {
+
+                return null;
+
+            }
+
+        }
+
+
+        function sleep(
+            milliseconds
+        ) {
+
+            return new Promise(
+                resolve =>
+                    setTimeout(
+                        resolve,
+                        milliseconds
+                    )
+            );
+
+        }
+
+
+        function formatSupply(
+            value
+        ) {
+
+            if (
+                value ===
+                    null ||
+                value ===
+                    undefined
+            ) {
+
+                return "—";
+
+            }
+
+
+            return Number(
+                value
+            ).toLocaleString();
+
+        }
+
+
+        function makeElement(
+            tag,
+            className,
+            text
+        ) {
+
+            const element =
+                document.createElement(
+                    tag
+                );
+
+
+            if (
+                className
+            ) {
+
+                element.className =
+                    className;
+
+            }
+
+
+            if (
+                text !==
+                    undefined &&
+                text !==
+                    null
+            ) {
+
+                element.textContent =
+                    text;
+
+            }
+
+
+            return element;
+
+        }
+
+
+        // ========================================================
+        // SESSION STORAGE
+        // ========================================================
+
+        function loadStoredReaderSession() {
+
+            const token =
+                sessionStorage.getItem(
+                    SESSION_STORAGE_KEY
+                );
+
+
+            const wallet =
+                sessionStorage.getItem(
+                    SESSION_WALLET_KEY
+                );
+
+
+            const expiry =
+                Number(
+                    sessionStorage.getItem(
+                        SESSION_EXPIRY_KEY
+                    ) ||
+                    0
+                );
+
+
+            if (
+                !token ||
+                !wallet ||
+                !expiry
+            ) {
+
+                clearReaderSession();
+
+                return;
+
+            }
+
+
+            const now =
+                Math.floor(
+                    Date.now() /
+                    1000
+                );
+
+
+            if (
+                expiry <=
+                now
+            ) {
+
+                clearReaderSession();
+
+                return;
+
+            }
+
+
+            readerSession =
+                token;
+
+
+            readerSessionWallet =
+                normalizeAddressLocal(
+                    wallet
+                );
+
+
+            readerSessionExpiry =
+                expiry;
+
+        }
+
+
+        function saveReaderSession(
+            token,
+            wallet,
+            expiresAt
+        ) {
+
+            readerSession =
+                token;
+
+
+            readerSessionWallet =
+                normalizeAddressLocal(
+                    wallet
+                );
+
+
+            readerSessionExpiry =
+                Number(
+                    expiresAt
+                );
+
+
+            sessionStorage.setItem(
+                SESSION_STORAGE_KEY,
+                readerSession
+            );
+
+
+            sessionStorage.setItem(
+                SESSION_WALLET_KEY,
+                readerSessionWallet
+            );
+
+
+            sessionStorage.setItem(
+                SESSION_EXPIRY_KEY,
+                String(
+                    readerSessionExpiry
+                )
+            );
+
+        }
+
+
+        function clearReaderSession() {
+
+            readerSession =
+                null;
+
+
+            readerSessionWallet =
+                null;
+
+
+            readerSessionExpiry =
+                null;
+
+
+            sessionStorage.removeItem(
+                SESSION_STORAGE_KEY
+            );
+
+
+            sessionStorage.removeItem(
+                SESSION_WALLET_KEY
+            );
+
+
+            sessionStorage.removeItem(
+                SESSION_EXPIRY_KEY
+            );
+
+        }
+
+
+        function hasValidReaderSession() {
+
+            if (
+                !readerSession ||
+                !readerSessionWallet ||
+                !readerSessionExpiry ||
+                !connectedWallet
+            ) {
+
+                return false;
+
+            }
+
+
+            const now =
+                Math.floor(
+                    Date.now() /
+                    1000
+                );
+
+
+            if (
+                readerSessionExpiry <=
+                now
+            ) {
+
+                clearReaderSession();
+
+                return false;
+
+            }
+
+
+            if (
+                readerSessionWallet !==
+                normalizeAddressLocal(
+                    connectedWallet
+                )
+            ) {
+
+                clearReaderSession();
+
+                return false;
+
+            }
+
+
+            return true;
+
+        }
+
+
         // ========================================================
         // PUBLICATIONS
         // ========================================================
@@ -1396,11 +2695,9 @@
                     await fetch(
                         `${API_BASE}/api/publications`,
                         {
+
                             method:
                                 "GET",
-
-                            mode:
-                                "cors",
 
                             headers: {
 
@@ -1411,49 +2708,24 @@
 
                             cache:
                                 "no-store"
+
                         }
                     );
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        `Publications HTTP ${response.status}`
-                    );
-
-                }
 
 
                 const data =
                     await response.json();
 
 
-                publicPublications =
-                    Array.isArray(
-                        data.publications
+                circulatingPublications =
+                    (
+                        response.ok &&
+                        Array.isArray(
+                            data.publications
+                        )
                     )
                         ? data.publications
                         : [];
-
-
-                if (
-                    publicPublications.length ===
-                    0
-                ) {
-
-                    publicationCount.textContent =
-                        "NO PUBLIC EDITIONS";
-
-                } else {
-
-                    publicationCount.textContent =
-                        `${publicPublications.length} PUBLIC ${
-                            publicPublications.length === 1
-                                ? "EDITION"
-                                : "EDITIONS"
-                        }`;
-
-                }
 
 
             } catch (error) {
@@ -1464,12 +2736,1155 @@
                 );
 
 
-                publicPublications =
+                circulatingPublications =
                     [];
 
+            }
 
-                publicationCount.textContent =
-                    "ARCHIVE STANDBY";
+
+            publicationCount.textContent =
+                circulatingPublications.length >
+                0
+                    ? `${circulatingPublications.length} PUBLIC ${
+                        circulatingPublications.length ===
+                            1
+                            ? "EDITION"
+                            : "EDITIONS"
+                    }`
+                    : "NO PUBLIC EDITIONS";
+
+        }
+
+
+        // ========================================================
+        // PRESS
+        // ========================================================
+
+        async function loadPress() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_BASE}/api/press`,
+                        {
+
+                            method:
+                                "GET",
+
+                            headers: {
+
+                                "Accept":
+                                    "application/json"
+
+                            },
+
+                            cache:
+                                "no-store"
+
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                pressPublications =
+                    (
+                        response.ok &&
+                        Array.isArray(
+                            data.publications
+                        )
+                    )
+                        ? data.publications
+                        : [];
+
+
+            } catch (error) {
+
+                console.error(
+                    "HELLBOX PRESS ERROR:",
+                    error
+                );
+
+
+                pressPublications =
+                    [];
+
+            }
+
+
+            await renderPress();
+
+        }
+
+
+        // ========================================================
+        // PRESS RENDER
+        // ========================================================
+
+        async function renderPress() {
+
+            if (
+                pressPublications.length ===
+                0
+            ) {
+
+                renderPressEmpty();
+
+                return;
+
+            }
+
+
+            clearElement(
+                pressContainer
+            );
+
+
+            for (
+                const publication
+                of pressPublications
+            ) {
+
+                pressContainer.appendChild(
+                    await buildPressRelease(
+                        publication
+                    )
+                );
+
+            }
+
+        }
+
+
+        function renderPressEmpty() {
+
+            clearElement(
+                pressContainer
+            );
+
+
+            const copy =
+                makeElement(
+                    "div",
+                    "press-copy"
+                );
+
+
+            copy.appendChild(
+                makeElement(
+                    "p",
+                    "eyebrow",
+                    "THE PRESS / RELEASE BAY"
+                )
+            );
+
+
+            const heading =
+                makeElement(
+                    "h2",
+                    "press-heading"
+                );
+
+
+            heading.appendChild(
+                document.createTextNode(
+                    "NOTHING "
+                )
+            );
+
+
+            heading.appendChild(
+                makeElement(
+                    "span",
+                    null,
+                    "ON THE PRESS"
+                )
+            );
+
+
+            heading.appendChild(
+                makeElement(
+                    "em",
+                    null,
+                    "YET."
+                )
+            );
+
+
+            copy.appendChild(
+                heading
+            );
+
+
+            copy.appendChild(
+                makeElement(
+                    "p",
+                    "press-description",
+                    "When an edition enters circulation, the press opens. Until then, the machine stays hot."
+                )
+            );
+
+
+            const statusBox =
+                makeElement(
+                    "div",
+                    "press-status-box"
+                );
+
+
+            statusBox.appendChild(
+                makeElement(
+                    "span",
+                    "press-status-square"
+                )
+            );
+
+
+            const statusCopy =
+                document.createElement(
+                    "div"
+                );
+
+
+            statusCopy.append(
+                makeElement(
+                    "strong",
+                    null,
+                    "NO CURRENT EDITION"
+                ),
+
+                makeElement(
+                    "small",
+                    null,
+                    "PRESS STATUS / STANDBY"
+                )
+            );
+
+
+            statusBox.appendChild(
+                statusCopy
+            );
+
+
+            copy.appendChild(
+                statusBox
+            );
+
+
+            const stamps =
+                makeElement(
+                    "div",
+                    "press-stamps"
+                );
+
+
+            stamps.append(
+                makeElement(
+                    "span",
+                    null,
+                    "DO NOT DUPLICATE"
+                ),
+
+                makeElement(
+                    "span",
+                    null,
+                    "BAY / PRESS"
+                )
+            );
+
+
+            pressContainer.append(
+                copy,
+                stamps
+            );
+
+        }
+
+
+        async function buildPressRelease(
+            publication
+        ) {
+
+            const wrapper =
+                makeElement(
+                    "article",
+                    "press-release"
+                );
+
+
+            const copy =
+                makeElement(
+                    "div",
+                    "press-copy"
+                );
+
+
+            copy.appendChild(
+                makeElement(
+                    "p",
+                    "eyebrow",
+                    publication.lifecycle ===
+                        "mint_live"
+                        ? "THE PRESS / MINT LIVE"
+                        : "THE PRESS / INCOMING EDITION"
+                )
+            );
+
+
+            const heading =
+                makeElement(
+                    "h2",
+                    "press-heading"
+                );
+
+
+            heading.appendChild(
+                document.createTextNode(
+                    String(
+                        publication.title ||
+                        "UNTITLED"
+                    ).toUpperCase()
+                )
+            );
+
+
+            heading.appendChild(
+                makeElement(
+                    "span",
+                    null,
+                    `${String(
+                        publication.seriesTitle ||
+                        publication.series ||
+                        "HELLBOX"
+                    ).toUpperCase()} // ISSUE ${
+                        publication.issue ||
+                        "—"
+                    }`
+                )
+            );
+
+
+            copy.appendChild(
+                heading
+            );
+
+
+            copy.appendChild(
+                makeElement(
+                    "p",
+                    "press-description",
+                    publication.lifecycle ===
+                        "mint_live"
+                        ? (
+                            publication.mint &&
+                            publication.mint.freeMint
+                                ? "The edition is live. Connect a PulseChain wallet and claim your copy while supply remains."
+                                : "The edition is live. Connect a PulseChain wallet to enter the mint."
+                        )
+                        : "The edition has been announced. The press is warming up, but minting has not opened yet."
+                )
+            );
+
+
+            const statusBox =
+                makeElement(
+                    "div",
+                    "press-status-box"
+                );
+
+
+            statusBox.appendChild(
+                makeElement(
+                    "span",
+                    "press-status-square"
+                )
+            );
+
+
+            const details =
+                document.createElement(
+                    "div"
+                );
+
+
+            const mint =
+                publication.mint ||
+                {};
+
+
+            details.append(
+                makeElement(
+                    "strong",
+                    null,
+                    publication.lifecycle ===
+                        "mint_live"
+                        ? (
+                            mint.freeMint
+                                ? "FREE MINT LIVE"
+                                : "MINT LIVE"
+                        )
+                        : "ANNOUNCED"
+                ),
+
+                makeElement(
+                    "small",
+                    null,
+                    [
+                        `SUPPLY ${formatSupply(
+                            mint.maxSupply
+                        )}`,
+
+                        mint.freeMint
+                            ? "PRICE FREE"
+                            : `PRICE ${
+                                mint.pricePLS ||
+                                "—"
+                            } PLS`,
+
+                        mint.royaltyPercent !==
+                            undefined &&
+                        mint.royaltyPercent !==
+                            null
+                            ? `ROYALTY ${mint.royaltyPercent}%`
+                            : "ROYALTY —"
+                    ].join(
+                        " // "
+                    )
+                )
+            );
+
+
+            statusBox.appendChild(
+                details
+            );
+
+
+            copy.appendChild(
+                statusBox
+            );
+
+
+            if (
+                publication.media &&
+                (
+                    publication.media.press ||
+                    publication.media.cover
+                )
+            ) {
+
+                const art =
+                    makeElement(
+                        "div",
+                        "press-release-art"
+                    );
+
+
+                const image =
+                    document.createElement(
+                        "img"
+                    );
+
+
+                image.src =
+                    publication.media.press ||
+                    publication.media.cover;
+
+
+                image.alt =
+                    publication.title ||
+                    "Hellbox edition";
+
+
+                art.appendChild(
+                    image
+                );
+
+
+                wrapper.appendChild(
+                    art
+                );
+
+            }
+
+
+            wrapper.appendChild(
+                copy
+            );
+
+
+            const actionPanel =
+                makeElement(
+                    "div",
+                    "press-release-action"
+                );
+
+
+            actionPanel.appendChild(
+                makeElement(
+                    "span",
+                    "terminal-stage-code",
+                    publication.lifecycle ===
+                        "mint_live"
+                        ? "HBX // MINT TERMINAL"
+                        : "HBX // RELEASE STATUS"
+                )
+            );
+
+
+            const message =
+                makeElement(
+                    "p",
+                    "press-description"
+                );
+
+
+            const button =
+                makeElement(
+                    "button",
+                    "terminal-primary-action"
+                );
+
+
+            button.type =
+                "button";
+
+
+            if (
+                publication.lifecycle !==
+                "mint_live"
+            ) {
+
+                message.textContent =
+                    "Minting has not opened yet.";
+
+
+                button.textContent =
+                    "MINT NOT LIVE";
+
+
+                button.disabled =
+                    true;
+
+
+            } else if (
+                !connectedWallet
+            ) {
+
+                message.textContent =
+                    "Connect your wallet to inspect mint eligibility.";
+
+
+                button.textContent =
+                    "CONNECT WALLET";
+
+
+                button.onclick =
+                    async () => {
+
+                        await connectWallet();
+
+                        await loadPress();
+
+                    };
+
+
+            } else if (
+                !isPulseChain()
+            ) {
+
+                message.textContent =
+                    "Switch to PulseChain to enter this mint.";
+
+
+                button.textContent =
+                    "SWITCH TO PULSECHAIN";
+
+
+                button.onclick =
+                    async () => {
+
+                        await switchToPulseChain();
+
+                        await loadPress();
+
+                    };
+
+
+            } else {
+
+                message.textContent =
+                    "Checking this wallet against the edition contract...";
+
+
+                button.textContent =
+                    "CHECKING...";
+
+
+                button.disabled =
+                    true;
+
+
+                await hydrateMintAction(
+                    publication,
+                    message,
+                    button
+                );
+
+            }
+
+
+            actionPanel.append(
+                message,
+                button
+            );
+
+
+            wrapper.appendChild(
+                actionPanel
+            );
+
+
+            return wrapper;
+
+        }
+
+
+        async function hydrateMintAction(
+            publication,
+            message,
+            button
+        ) {
+
+            try {
+
+                const status =
+                    await getMintStatus(
+                        publication
+                    );
+
+
+                const wallet =
+                    status &&
+                    status.wallet;
+
+
+                if (
+                    !wallet
+                ) {
+
+                    throw new Error(
+                        "Wallet mint status unavailable."
+                    );
+
+                }
+
+
+                if (
+                    wallet.state ===
+                    "already_owned"
+                ) {
+
+                    message.textContent =
+                        "This wallet already owns the edition.";
+
+
+                    button.textContent =
+                        "EDITION OWNED";
+
+
+                    button.disabled =
+                        true;
+
+
+                    return;
+
+                }
+
+
+                if (
+                    wallet.state ===
+                        "eligible" &&
+                    wallet.eligible ===
+                        true
+                ) {
+
+                    message.textContent =
+                        publication.mint &&
+                        publication.mint.freeMint
+                            ? "Wallet eligible. The edition is free; only network gas is required."
+                            : "Wallet eligible to mint this edition.";
+
+
+                    button.textContent =
+                        publication.mint &&
+                        publication.mint.freeMint
+                            ? "CLAIM EDITION"
+                            : "MINT EDITION";
+
+
+                    button.disabled =
+                        false;
+
+
+                    button.onclick =
+                        () =>
+                            executeMint(
+                                publication,
+                                button,
+                                message
+                            );
+
+
+                    return;
+
+                }
+
+
+                message.textContent =
+                    wallet.reason ||
+                    "This wallet is not currently eligible.";
+
+
+                button.textContent =
+                    "NOT ELIGIBLE";
+
+
+                button.disabled =
+                    true;
+
+
+            } catch (error) {
+
+                console.error(
+                    "HELLBOX MINT STATUS ERROR:",
+                    error
+                );
+
+
+                message.textContent =
+                    "Hellbox could not inspect mint eligibility.";
+
+
+                button.textContent =
+                    "RETRY";
+
+
+                button.disabled =
+                    false;
+
+
+                button.onclick =
+                    loadPress;
+
+            }
+
+        }
+
+
+        async function getMintStatus(
+            publication
+        ) {
+
+            const response =
+                await fetch(
+                    `${API_BASE}/api/mint/${encodeURIComponent(
+                        publication.slug
+                    )}/${encodeURIComponent(
+                        publication.issue
+                    )}/status?address=${encodeURIComponent(
+                        connectedWallet
+                    )}`,
+                    {
+
+                        headers: {
+
+                            "Accept":
+                                "application/json"
+
+                        },
+
+                        cache:
+                            "no-store"
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                !response.ok
+            ) {
+
+                throw new Error(
+                    data.error ||
+                    "Mint status unavailable."
+                );
+
+            }
+
+
+            return data;
+
+        }
+
+
+        async function prepareMint(
+            publication
+        ) {
+
+            const response =
+                await fetch(
+                    `${API_BASE}/api/mint/${encodeURIComponent(
+                        publication.slug
+                    )}/${encodeURIComponent(
+                        publication.issue
+                    )}/prepare`,
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Accept":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify(
+                                {
+
+                                    address:
+                                        connectedWallet
+
+                                }
+                            )
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                !response.ok ||
+                data.ok !==
+                    true ||
+                data.mintReady !==
+                    true
+            ) {
+
+                throw new Error(
+                    data.error ||
+                    (
+                        data.eligibility &&
+                        data.eligibility.reason
+                    ) ||
+                    "Mint transaction unavailable."
+                );
+
+            }
+
+
+            return data;
+
+        }
+
+
+        async function sendMintTransaction(
+            transaction
+        ) {
+
+            return await window.ethereum.request({
+
+                method:
+                    "eth_sendTransaction",
+
+                params: [
+                    {
+
+                        from:
+                            connectedWallet,
+
+                        to:
+                            transaction.to,
+
+                        data:
+                            transaction.data,
+
+                        value:
+                            transaction.value ||
+                            "0x0"
+
+                    }
+                ]
+
+            });
+
+        }
+
+
+        async function confirmMint(
+            publication,
+            txHash
+        ) {
+
+            const response =
+                await fetch(
+                    `${API_BASE}/api/mint/${encodeURIComponent(
+                        publication.slug
+                    )}/${encodeURIComponent(
+                        publication.issue
+                    )}/confirm`,
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Accept":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify(
+                                {
+
+                                    address:
+                                        connectedWallet,
+
+                                    txHash
+
+                                }
+                            )
+
+                    }
+                );
+
+
+            return {
+
+                status:
+                    response.status,
+
+                data:
+                    await response.json()
+
+            };
+
+        }
+
+
+        async function executeMint(
+            publication,
+            button,
+            message
+        ) {
+
+            if (
+                mintBusy
+            ) {
+
+                return;
+
+            }
+
+
+            mintBusy =
+                true;
+
+
+            const originalText =
+                button.textContent;
+
+
+            button.disabled =
+                true;
+
+
+            try {
+
+                if (
+                    !connectedWallet
+                ) {
+
+                    await connectWallet();
+
+                }
+
+
+                if (
+                    !isPulseChain()
+                ) {
+
+                    await switchToPulseChain();
+
+                }
+
+
+                button.textContent =
+                    "PREPARING...";
+
+
+                message.textContent =
+                    "Hellbox is preparing the approved mint transaction.";
+
+
+                const prepared =
+                    await prepareMint(
+                        publication
+                    );
+
+
+                button.textContent =
+                    "CONFIRM IN WALLET";
+
+
+                message.textContent =
+                    "Confirm the mint transaction in your wallet.";
+
+
+                const txHash =
+                    await sendMintTransaction(
+                        prepared.transaction
+                    );
+
+
+                button.textContent =
+                    "MINTING...";
+
+
+                message.textContent =
+                    "Transaction submitted. Waiting for PulseChain confirmation.";
+
+
+                for (
+                    let attempt = 0;
+                    attempt <
+                    45;
+                    attempt++
+                ) {
+
+                    const confirmation =
+                        await confirmMint(
+                            publication,
+                            txHash
+                        );
+
+
+                    const data =
+                        confirmation.data;
+
+
+                    if (
+                        confirmation.status ===
+                            200 &&
+                        data &&
+                        data.ownershipVerified ===
+                            true
+                    ) {
+
+                        button.textContent =
+                            "EDITION OWNED";
+
+
+                        message.textContent =
+                            "Mint confirmed. Hellbox independently verified the edition in your wallet.";
+
+
+                        await loadWalletStatus();
+
+
+                        await loadPress();
+
+
+                        return;
+
+                    }
+
+
+                    if (
+                        data &&
+                        data.transactionSucceeded ===
+                            false
+                    ) {
+
+                        throw new Error(
+                            data.error ||
+                            "Mint transaction reverted."
+                        );
+
+                    }
+
+
+                    message.textContent =
+                        data &&
+                        data.message
+                            ? data.message
+                            : "Waiting for PulseChain confirmation...";
+
+
+                    await sleep(
+                        3000
+                    );
+
+                }
+
+
+                button.textContent =
+                    "VERIFY LATER";
+
+
+                button.disabled =
+                    false;
+
+
+                message.textContent =
+                    "Transaction submitted. Ownership verification is still pending.";
+
+
+            } catch (error) {
+
+                console.error(
+                    "HELLBOX MINT ERROR:",
+                    error
+                );
+
+
+                button.textContent =
+                    originalText;
+
+
+                button.disabled =
+                    false;
+
+
+                message.textContent =
+                    error.message ||
+                    "Mint interrupted.";
+
+
+            } finally {
+
+                mintBusy =
+                    false;
 
             }
 
@@ -1477,19 +3892,23 @@
 
 
         // ========================================================
-        // CONNECT WALLET
+        // WALLET
         // ========================================================
 
         async function connectWallet() {
 
-            if (walletBusy) {
+            if (
+                walletBusy
+            ) {
 
                 return;
 
             }
 
 
-            if (!hasWalletProvider()) {
+            if (
+                !hasWalletProvider()
+            ) {
 
                 renderWalletError(
                     "WALLET NOT FOUND.",
@@ -1509,29 +3928,20 @@
                 "CONNECTING...";
 
 
-            terminalAction.hidden =
-                false;
-
-
-            terminalAction.textContent =
-                "CONNECTING...";
-
-
             try {
 
                 const accounts =
                     await window.ethereum.request({
+
                         method:
                             "eth_requestAccounts"
+
                     });
 
 
                 if (
-                    !Array.isArray(
-                        accounts
-                    ) ||
-                    accounts.length ===
-                        0
+                    !accounts ||
+                    !accounts.length
                 ) {
 
                     throw new Error(
@@ -1547,12 +3957,19 @@
 
                 connectedChainId =
                     await window.ethereum.request({
+
                         method:
                             "eth_chainId"
+
                     });
 
 
-                if (!isPulseChain()) {
+                loadStoredReaderSession();
+
+
+                if (
+                    !isPulseChain()
+                ) {
 
                     renderWrongNetwork();
 
@@ -1586,18 +4003,19 @@
 
                 updateHeaderWallet();
 
+
+                await loadPress();
+
             }
 
         }
 
 
-        // ========================================================
-        // RESTORE WALLET SESSION
-        // ========================================================
-
         async function restoreWallet() {
 
-            if (!hasWalletProvider()) {
+            if (
+                !hasWalletProvider()
+            ) {
 
                 renderDisconnected();
 
@@ -1610,24 +4028,25 @@
 
                 const accounts =
                     await window.ethereum.request({
+
                         method:
                             "eth_accounts"
+
                     });
 
 
                 connectedChainId =
                     await window.ethereum.request({
+
                         method:
                             "eth_chainId"
+
                     });
 
 
                 if (
-                    !Array.isArray(
-                        accounts
-                    ) ||
-                    accounts.length ===
-                        0
+                    !accounts ||
+                    !accounts.length
                 ) {
 
                     connectedWallet =
@@ -1645,7 +4064,12 @@
                     accounts[0];
 
 
-                if (!isPulseChain()) {
+                loadStoredReaderSession();
+
+
+                if (
+                    !isPulseChain()
+                ) {
 
                     renderWrongNetwork();
 
@@ -1660,16 +4084,12 @@
             } catch (error) {
 
                 console.error(
-                    "HELLBOX WALLET RESTORE ERROR:",
+                    "HELLBOX RESTORE ERROR:",
                     error
                 );
 
 
                 connectedWallet =
-                    null;
-
-
-                walletStatus =
                     null;
 
 
@@ -1680,13 +4100,11 @@
         }
 
 
-        // ========================================================
-        // SWITCH NETWORK
-        // ========================================================
-
         async function switchToPulseChain() {
 
-            if (!hasWalletProvider()) {
+            if (
+                !hasWalletProvider()
+            ) {
 
                 return;
 
@@ -1702,77 +4120,56 @@
 
                     params: [
                         {
+
                             chainId:
                                 HELLBOX.chainIdHex
+
                         }
                     ]
 
                 });
 
 
-            } catch (
-                switchError
-            ) {
+            } catch (error) {
 
                 if (
-                    switchError &&
-                    switchError.code ===
+                    error &&
+                    error.code ===
                         4902
                 ) {
 
-                    try {
+                    await window.ethereum.request({
 
-                        await window.ethereum.request({
+                        method:
+                            "wallet_addEthereumChain",
 
-                            method:
-                                "wallet_addEthereumChain",
+                        params: [
+                            {
 
-                            params: [
-                                {
-                                    chainId:
-                                        HELLBOX.chainIdHex,
+                                chainId:
+                                    HELLBOX.chainIdHex,
 
-                                    chainName:
-                                        HELLBOX.chainName,
+                                chainName:
+                                    HELLBOX.chainName,
 
-                                    nativeCurrency:
-                                        HELLBOX.currency,
+                                nativeCurrency:
+                                    HELLBOX.currency,
 
-                                    rpcUrls:
-                                        HELLBOX.rpcUrls,
+                                rpcUrls:
+                                    HELLBOX.rpcUrls,
 
-                                    blockExplorerUrls:
-                                        HELLBOX.explorerUrls
-                                }
-                            ]
+                                blockExplorerUrls:
+                                    HELLBOX.explorerUrls
 
-                        });
+                            }
+                        ]
 
-
-                    } catch (
-                        addError
-                    ) {
-
-                        console.error(
-                            "HELLBOX ADD NETWORK ERROR:",
-                            addError
-                        );
-
-
-                        return;
-
-                    }
+                    });
 
 
                 } else {
 
-                    console.error(
-                        "HELLBOX SWITCH NETWORK ERROR:",
-                        switchError
-                    );
-
-
-                    return;
+                    throw error;
 
                 }
 
@@ -1781,20 +4178,23 @@
 
             connectedChainId =
                 await window.ethereum.request({
+
                     method:
                         "eth_chainId"
+
                 });
 
 
-            if (isPulseChain()) {
+            if (
+                isPulseChain()
+            ) {
 
                 await loadWalletStatus();
 
-            } else {
-
-                renderWrongNetwork();
-
             }
+
+
+            await loadPress();
 
 
             updateHeaderWallet();
@@ -1808,18 +4208,11 @@
 
         async function loadWalletStatus() {
 
-            if (!connectedWallet) {
+            if (
+                !connectedWallet
+            ) {
 
                 renderDisconnected();
-
-                return;
-
-            }
-
-
-            if (!isPulseChain()) {
-
-                renderWrongNetwork();
 
                 return;
 
@@ -1831,29 +4224,12 @@
 
             try {
 
-                const requestUrl =
-                    `${API_BASE}/api/wallet-status` +
-                    `?address=${encodeURIComponent(
-                        connectedWallet
-                    )}` +
-                    `&chainId=${HELLBOX.chainIdDecimal}`;
-
-
-                console.log(
-                    "HELLBOX API REQUEST:",
-                    requestUrl
-                );
-
-
                 const response =
                     await fetch(
-                        requestUrl,
+                        `${API_BASE}/api/wallet-status?address=${encodeURIComponent(
+                            connectedWallet
+                        )}&chainId=369`,
                         {
-                            method:
-                                "GET",
-
-                            mode:
-                                "cors",
 
                             headers: {
 
@@ -1864,80 +4240,24 @@
 
                             cache:
                                 "no-store"
+
                         }
                     );
 
 
-                const responseText =
-                    await response.text();
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        `Wallet status HTTP ${response.status}: ${responseText}`
-                    );
-
-                }
-
-
-                let data;
-
-
-                try {
-
-                    data =
-                        JSON.parse(
-                            responseText
-                        );
-
-
-                } catch (error) {
-
-                    throw new Error(
-                        "Wallet status API returned invalid JSON."
-                    );
-
-                }
-
-
-                console.log(
-                    "HELLBOX WALLET STATUS:",
-                    data
-                );
+                const data =
+                    await response.json();
 
 
                 if (
+                    !response.ok ||
                     !data ||
                     data.ok !==
                         true
                 ) {
 
                     throw new Error(
-                        "Wallet status response did not return ok:true."
-                    );
-
-                }
-
-
-                if (
-                    !data.wallet ||
-                    !data.wallet.address
-                ) {
-
-                    throw new Error(
-                        "Wallet status response did not contain wallet data."
-                    );
-
-                }
-
-
-                if (
-                    !data.collection
-                ) {
-
-                    throw new Error(
-                        "Wallet status response did not contain collection data."
+                        "Wallet index unavailable."
                     );
 
                 }
@@ -1971,7 +4291,1846 @@
 
 
         // ========================================================
-        // HEADER
+        // READER AUTH
+        // ========================================================
+
+        async function requestReaderChallenge() {
+
+            const response =
+                await fetch(
+                    `${API_BASE}/api/auth/challenge`,
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Accept":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify(
+                                {
+
+                                    address:
+                                        connectedWallet
+
+                                }
+                            )
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                !response.ok ||
+                !data.challenge
+            ) {
+
+                throw new Error(
+                    data.error ||
+                    "Challenge request failed."
+                );
+
+            }
+
+
+            return data.challenge;
+
+        }
+
+
+        async function signReaderChallenge(
+            challenge
+        ) {
+
+            return window.ethereum.request({
+
+                method:
+                    "personal_sign",
+
+                params: [
+
+                    challenge.message,
+
+                    connectedWallet
+
+                ]
+
+            });
+
+        }
+
+
+        async function verifyReaderSignature(
+            challenge,
+            signature
+        ) {
+
+            const response =
+                await fetch(
+                    `${API_BASE}/api/auth/verify`,
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Accept":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify(
+                                {
+
+                                    address:
+                                        connectedWallet,
+
+                                    challengeId:
+                                        challenge.id,
+
+                                    signature
+
+                                }
+                            )
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                !response.ok ||
+                !data.session ||
+                !data.session.token
+            ) {
+
+                throw new Error(
+                    data.error ||
+                    "Signature verification failed."
+                );
+
+            }
+
+
+            saveReaderSession(
+                data.session.token,
+                connectedWallet,
+                data.session.expiresAt
+            );
+
+        }
+
+
+        async function authenticateReader() {
+
+            if (
+                readerAuthBusy
+            ) {
+
+                return false;
+
+            }
+
+
+            readerAuthBusy =
+                true;
+
+
+            try {
+
+                if (
+                    !connectedWallet
+                ) {
+
+                    await connectWallet();
+
+                }
+
+
+                if (
+                    !isPulseChain()
+                ) {
+
+                    await switchToPulseChain();
+
+                }
+
+
+                if (
+                    hasValidReaderSession()
+                ) {
+
+                    return true;
+
+                }
+
+
+                collectionStatus.textContent =
+                    "REQUESTING READER CLEARANCE...";
+
+
+                const challenge =
+                    await requestReaderChallenge();
+
+
+                collectionStatus.textContent =
+                    "SIGNATURE REQUIRED // NO GAS // NO TRANSACTION";
+
+
+                const signature =
+                    await signReaderChallenge(
+                        challenge
+                    );
+
+
+                await verifyReaderSignature(
+                    challenge,
+                    signature
+                );
+
+
+                collectionStatus.textContent =
+                    "READER CLEARANCE VERIFIED.";
+
+
+                return true;
+
+
+            } catch (error) {
+
+                console.error(
+                    "HELLBOX AUTH ERROR:",
+                    error
+                );
+
+
+                clearReaderSession();
+
+
+                collectionStatus.textContent =
+                    "READER CLEARANCE DENIED.";
+
+
+                return false;
+
+
+            } finally {
+
+                readerAuthBusy =
+                    false;
+
+            }
+
+        }
+
+
+        async function validateReaderSession() {
+
+            if (
+                !hasValidReaderSession()
+            ) {
+
+                return false;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_BASE}/api/auth/session`,
+                        {
+
+                            headers: {
+
+                                "Accept":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${readerSession}`
+
+                            },
+
+                            cache:
+                                "no-store"
+
+                        }
+                    );
+
+
+                if (
+                    !response.ok
+                ) {
+
+                    clearReaderSession();
+
+                    return false;
+
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                return (
+                    data.ok ===
+                        true &&
+                    data.authenticated ===
+                        true &&
+                    normalizeAddressLocal(
+                        data.wallet.address
+                    ) ===
+                    normalizeAddressLocal(
+                        connectedWallet
+                    )
+                );
+
+
+            } catch {
+
+                clearReaderSession();
+
+                return false;
+
+            }
+
+        }
+
+
+        // ========================================================
+        // OPEN PROTECTED EDITION
+        // ========================================================
+
+        async function openEdition(
+            edition,
+            button
+        ) {
+
+            const originalText =
+                button.textContent;
+
+
+            button.disabled =
+                true;
+
+
+            try {
+
+                let authenticated =
+                    await validateReaderSession();
+
+
+                if (
+                    !authenticated
+                ) {
+
+                    authenticated =
+                        await authenticateReader();
+
+                }
+
+
+                if (
+                    !authenticated
+                ) {
+
+                    throw new Error(
+                        "Reader authentication failed."
+                    );
+
+                }
+
+
+                button.textContent =
+                    "OPENING...";
+
+
+                const response =
+                    await fetch(
+                        `${API_BASE}/api/reader/${encodeURIComponent(
+                            edition.slug
+                        )}/${encodeURIComponent(
+                            edition.issue
+                        )}`,
+                        {
+
+                            headers: {
+
+                                "Accept":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${readerSession}`
+
+                            },
+
+                            cache:
+                                "no-store"
+
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (
+                    response.status ===
+                    401
+                ) {
+
+                    clearReaderSession();
+
+                }
+
+
+                if (
+                    !response.ok ||
+                    data.ok !==
+                        true ||
+                    data.access !==
+                        "granted"
+                ) {
+
+                    throw new Error(
+                        data.error ||
+                        "Reader access denied."
+                    );
+
+                }
+
+
+                await launchReader(
+                    data
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "HELLBOX OPEN READER ERROR:",
+                    error
+                );
+
+
+                collectionStatus.textContent =
+                    `READER LOCKED // ${
+                        error.message ||
+                        "ACCESS DENIED"
+                    }`;
+
+
+            } finally {
+
+                button.disabled =
+                    false;
+
+
+                button.textContent =
+                    originalText;
+
+            }
+
+        }
+
+
+        // ========================================================
+        // READER LAUNCH
+        // ========================================================
+
+        async function launchReader(
+            readerData
+        ) {
+
+            resetReaderState();
+
+
+            const publication =
+                readerData.publication ||
+                {};
+
+
+            const manifest =
+                readerData.reader &&
+                readerData.reader.manifest
+                    ? readerData.reader.manifest
+                    : null;
+
+
+            if (
+                !manifest ||
+                !Array.isArray(
+                    manifest.pages
+                ) ||
+                manifest.pages.length ===
+                    0
+            ) {
+
+                throw new Error(
+                    "Protected reader manifest contains no pages."
+                );
+
+            }
+
+
+            readerState.publication =
+                publication;
+
+
+            readerState.manifest =
+                manifest;
+
+
+            readerState.pages =
+                manifest.pages;
+
+
+            readerState.currentIndex =
+                0;
+
+
+            readerState.mode =
+                manifest.layout ===
+                    "continuous"
+                    ? "continuous"
+                    : "paged";
+
+
+            readerTitle.textContent =
+                `${
+                    publication.title ||
+                    manifest.title ||
+                    "HELLBOX EDITION"
+                } // ISSUE ${
+                    publication.issue ||
+                    manifest.issue ||
+                    "—"
+                }`;
+
+
+            readerPageCount.textContent =
+                formatCount(
+                    readerState.pages.length
+                );
+
+
+            hellboxReader.classList.add(
+                "active"
+            );
+
+
+            hellboxReader.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+
+            document.body.classList.add(
+                "reader-open"
+            );
+
+
+            readerState.open =
+                true;
+
+
+            showReaderLoading(
+                "Verifying ownership and retrieving protected edition assets."
+            );
+
+
+            syncReaderMode();
+
+
+            try {
+
+                if (
+                    readerState.mode ===
+                    "continuous"
+                ) {
+
+                    await buildContinuousReader();
+
+                } else {
+
+                    await showReaderPage(
+                        0
+                    );
+
+                }
+
+
+                hideReaderLoading();
+
+
+                preloadAdjacentPages();
+
+
+            } catch (error) {
+
+                console.error(
+                    "HELLBOX READER LOAD ERROR:",
+                    error
+                );
+
+
+                showReaderError(
+                    error.message ||
+                    "Hellbox could not load this edition."
+                );
+
+            }
+
+        }
+
+
+        // ========================================================
+        // PROTECTED PAGE FETCH
+        //
+        // IMPORTANT:
+        //
+        // We fetch page bytes ourselves with Authorization.
+        // We do NOT point <img src> directly at the Worker endpoint.
+        //
+        // The Worker checks the reader session and NFT ownership
+        // before streaming each private R2 object.
+        // ========================================================
+
+        async function fetchProtectedPage(
+            page
+        ) {
+
+            if (
+                readerState.objectUrls.has(
+                    page.id
+                )
+            ) {
+
+                return readerState.objectUrls.get(
+                    page.id
+                );
+
+            }
+
+
+            if (
+                readerState.loadingAssets.has(
+                    page.id
+                )
+            ) {
+
+                return readerState.loadingAssets.get(
+                    page.id
+                );
+
+            }
+
+
+            const promise =
+                (
+                    async () => {
+
+                        const endpoint =
+                            page.endpoint.startsWith(
+                                "http"
+                            )
+                                ? page.endpoint
+                                : `${API_BASE}${page.endpoint}`;
+
+
+                        const response =
+                            await fetch(
+                                endpoint,
+                                {
+
+                                    headers: {
+
+                                        "Authorization":
+                                            `Bearer ${readerSession}`,
+
+                                        "Accept":
+                                            page.mediaType ||
+                                            "image/*"
+
+                                    },
+
+                                    cache:
+                                        "no-store"
+
+                                }
+                            );
+
+
+                        if (
+                            response.status ===
+                            401
+                        ) {
+
+                            clearReaderSession();
+
+
+                            throw new Error(
+                                "Reader session expired."
+                            );
+
+                        }
+
+
+                        if (
+                            response.status ===
+                            403
+                        ) {
+
+                            throw new Error(
+                                "Edition ownership could not be verified."
+                            );
+
+                        }
+
+
+                        if (
+                            !response.ok
+                        ) {
+
+                            let message =
+                                `Protected page request failed with HTTP ${response.status}.`;
+
+
+                            try {
+
+                                const errorData =
+                                    await response.json();
+
+
+                                if (
+                                    errorData &&
+                                    errorData.error
+                                ) {
+
+                                    message =
+                                        errorData.error;
+
+                                }
+
+                            } catch {}
+
+
+                            throw new Error(
+                                message
+                            );
+
+                        }
+
+
+                        const blob =
+                            await response.blob();
+
+
+                        const objectUrl =
+                            URL.createObjectURL(
+                                blob
+                            );
+
+
+                        readerState.objectUrls.set(
+                            page.id,
+                            objectUrl
+                        );
+
+
+                        readerState.loadingAssets.delete(
+                            page.id
+                        );
+
+
+                        return objectUrl;
+
+                    }
+                )();
+
+
+            readerState.loadingAssets.set(
+                page.id,
+                promise
+            );
+
+
+            try {
+
+                return await promise;
+
+            } catch (error) {
+
+                readerState.loadingAssets.delete(
+                    page.id
+                );
+
+
+                throw error;
+
+            }
+
+        }
+
+
+        // ========================================================
+        // PAGED READER
+        // ========================================================
+
+        async function showReaderPage(
+            index
+        ) {
+
+            if (
+                !readerState.pages.length
+            ) {
+
+                return;
+
+            }
+
+
+            index =
+                Math.max(
+                    0,
+                    Math.min(
+                        index,
+                        readerState.pages.length -
+                        1
+                    )
+                );
+
+
+            readerState.currentIndex =
+                index;
+
+
+            const page =
+                readerState.pages[
+                    index
+                ];
+
+
+            showReaderLoading(
+                `Decrypting page ${
+                    index +
+                    1
+                } of ${
+                    readerState.pages.length
+                }.`
+            );
+
+
+            try {
+
+                const source =
+                    await fetchProtectedPage(
+                        page
+                    );
+
+
+                readerPageImage.src =
+                    source;
+
+
+                readerPageImage.alt =
+                    `${readerTitle.textContent} — Page ${
+                        index +
+                        1
+                    }`;
+
+
+                updateReaderNavigation();
+
+
+                hideReaderLoading();
+
+
+                preloadAdjacentPages();
+
+
+            } catch (error) {
+
+                showReaderError(
+                    error.message
+                );
+
+            }
+
+        }
+
+
+        function previousReaderPage() {
+
+            if (
+                readerState.mode !==
+                "paged"
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                readerState.currentIndex >
+                0
+            ) {
+
+                showReaderPage(
+                    readerState.currentIndex -
+                    1
+                );
+
+            }
+
+        }
+
+
+        function nextReaderPage() {
+
+            if (
+                readerState.mode !==
+                "paged"
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                readerState.currentIndex <
+                readerState.pages.length -
+                    1
+            ) {
+
+                showReaderPage(
+                    readerState.currentIndex +
+                    1
+                );
+
+            }
+
+        }
+
+
+        function updateReaderNavigation() {
+
+            const current =
+                readerState.currentIndex +
+                1;
+
+
+            const total =
+                readerState.pages.length;
+
+
+            readerPageNumber.textContent =
+                formatCount(
+                    current
+                );
+
+
+            readerPageCount.textContent =
+                formatCount(
+                    total
+                );
+
+
+            readerBottomLabel.textContent =
+                `${formatCount(
+                    current
+                )} / ${formatCount(
+                    total
+                )}`;
+
+
+            const first =
+                readerState.currentIndex ===
+                0;
+
+
+            const last =
+                readerState.currentIndex ===
+                total -
+                1;
+
+
+            readerPrevious.disabled =
+                first;
+
+
+            readerPreviousBottom.disabled =
+                first;
+
+
+            readerFirst.disabled =
+                first;
+
+
+            readerNext.disabled =
+                last;
+
+
+            readerNextBottom.disabled =
+                last;
+
+
+            readerLast.disabled =
+                last;
+
+        }
+
+
+        async function preloadAdjacentPages() {
+
+            if (
+                readerState.mode !==
+                "paged"
+            ) {
+
+                return;
+
+            }
+
+
+            const candidates =
+                [
+
+                    readerState.currentIndex +
+                        1,
+
+                    readerState.currentIndex -
+                        1,
+
+                    readerState.currentIndex +
+                        2
+
+                ];
+
+
+            for (
+                const index
+                of candidates
+            ) {
+
+                if (
+                    index <
+                        0 ||
+                    index >=
+                        readerState.pages.length
+                ) {
+
+                    continue;
+
+                }
+
+
+                fetchProtectedPage(
+                    readerState.pages[
+                        index
+                    ]
+                ).catch(
+                    () => {}
+                );
+
+            }
+
+        }
+
+
+        // ========================================================
+        // CONTINUOUS READER
+        // ========================================================
+
+        async function buildContinuousReader() {
+
+            clearElement(
+                readerContinuous
+            );
+
+
+            readerPageNumber.textContent =
+                "ALL";
+
+
+            readerBottomLabel.textContent =
+                `${formatCount(
+                    readerState.pages.length
+                )} PAGES`;
+
+
+            for (
+                let index = 0;
+                index <
+                readerState.pages.length;
+                index++
+            ) {
+
+                const page =
+                    readerState.pages[
+                        index
+                    ];
+
+
+                const wrapper =
+                    makeElement(
+                        "div",
+                        "reader-continuous-page"
+                    );
+
+
+                const placeholder =
+                    makeElement(
+                        "div",
+                        "reader-page-placeholder",
+                        `PAGE ${formatCount(
+                            index +
+                            1
+                        )} // LOADING`
+                    );
+
+
+                wrapper.appendChild(
+                    placeholder
+                );
+
+
+                readerContinuous.appendChild(
+                    wrapper
+                );
+
+
+                fetchProtectedPage(
+                    page
+                )
+                    .then(
+                        source => {
+
+                            const image =
+                                document.createElement(
+                                    "img"
+                                );
+
+
+                            image.src =
+                                source;
+
+
+                            image.alt =
+                                `${readerTitle.textContent} — Page ${
+                                    index +
+                                    1
+                                }`;
+
+
+                            wrapper.replaceChildren(
+                                image
+                            );
+
+                        }
+                    )
+                    .catch(
+                        error => {
+
+                            placeholder.textContent =
+                                `PAGE ${formatCount(
+                                    index +
+                                    1
+                                )} // ${
+                                    error.message ||
+                                    "UNAVAILABLE"
+                                }`;
+
+                        }
+                    );
+
+            }
+
+
+            readerContinuous.scrollTop =
+                0;
+
+
+            hideReaderLoading();
+
+        }
+
+
+        // ========================================================
+        // READER MODE
+        // ========================================================
+
+        function syncReaderMode() {
+
+            const continuous =
+                readerState.mode ===
+                "continuous";
+
+
+            readerPaged.style.display =
+                continuous
+                    ? "none"
+                    : "flex";
+
+
+            readerContinuous.classList.toggle(
+                "active",
+                continuous
+            );
+
+
+            readerPrevious.style.display =
+                continuous
+                    ? "none"
+                    : "";
+
+
+            readerNext.style.display =
+                continuous
+                    ? "none"
+                    : "";
+
+
+            readerBottom.style.display =
+                continuous
+                    ? "none"
+                    : "";
+
+
+            readerFitPage.style.display =
+                continuous
+                    ? "none"
+                    : "";
+
+
+            readerFitWidth.style.display =
+                continuous
+                    ? "none"
+                    : "";
+
+
+            readerLayoutToggle.textContent =
+                continuous
+                    ? "PAGED"
+                    : "CONTINUOUS";
+
+        }
+
+
+        async function toggleReaderMode() {
+
+            if (
+                readerState.mode ===
+                "paged"
+            ) {
+
+                readerState.mode =
+                    "continuous";
+
+
+                syncReaderMode();
+
+
+                showReaderLoading(
+                    "Preparing continuous edition."
+                );
+
+
+                await buildContinuousReader();
+
+
+            } else {
+
+                readerState.mode =
+                    "paged";
+
+
+                syncReaderMode();
+
+
+                await showReaderPage(
+                    readerState.currentIndex
+                );
+
+            }
+
+        }
+
+
+        // ========================================================
+        // FIT MODE
+        // ========================================================
+
+        function setReaderFit(
+            fit
+        ) {
+
+            readerState.fit =
+                fit;
+
+
+            readerPageImage.classList.toggle(
+                "fit-page",
+                fit ===
+                    "page"
+            );
+
+
+            readerPageImage.classList.toggle(
+                "fit-width",
+                fit ===
+                    "width"
+            );
+
+
+            readerFitPage.classList.toggle(
+                "active",
+                fit ===
+                    "page"
+            );
+
+
+            readerFitWidth.classList.toggle(
+                "active",
+                fit ===
+                    "width"
+            );
+
+        }
+
+
+        // ========================================================
+        // READER LOADING / ERRORS
+        // ========================================================
+
+        function showReaderLoading(
+            text
+        ) {
+
+            readerLoadingText.textContent =
+                text ||
+                "Loading protected edition.";
+
+
+            readerError.classList.remove(
+                "active"
+            );
+
+
+            readerLoading.classList.add(
+                "active"
+            );
+
+        }
+
+
+        function hideReaderLoading() {
+
+            readerLoading.classList.remove(
+                "active"
+            );
+
+        }
+
+
+        function showReaderError(
+            message
+        ) {
+
+            hideReaderLoading();
+
+
+            readerErrorText.textContent =
+                message ||
+                "Hellbox could not load this edition.";
+
+
+            readerError.classList.add(
+                "active"
+            );
+
+        }
+
+
+        // ========================================================
+        // CLOSE READER
+        // ========================================================
+
+        function closeReader() {
+
+            if (
+                !readerState.open
+            ) {
+
+                return;
+
+            }
+
+
+            hellboxReader.classList.remove(
+                "active"
+            );
+
+
+            hellboxReader.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+
+            document.body.classList.remove(
+                "reader-open"
+            );
+
+
+            readerState.open =
+                false;
+
+
+            readerPageImage.removeAttribute(
+                "src"
+            );
+
+
+            readerError.classList.remove(
+                "active"
+            );
+
+
+            readerLoading.classList.remove(
+                "active"
+            );
+
+
+            clearElement(
+                readerContinuous
+            );
+
+
+            revokeReaderObjectUrls();
+
+
+            readerState.publication =
+                null;
+
+
+            readerState.manifest =
+                null;
+
+
+            readerState.pages =
+                [];
+
+
+            readerState.currentIndex =
+                0;
+
+        }
+
+
+        function revokeReaderObjectUrls() {
+
+            for (
+                const objectUrl
+                of readerState.objectUrls.values()
+            ) {
+
+                URL.revokeObjectURL(
+                    objectUrl
+                );
+
+            }
+
+
+            readerState.objectUrls.clear();
+
+
+            readerState.loadingAssets.clear();
+
+        }
+
+
+        function resetReaderState() {
+
+            revokeReaderObjectUrls();
+
+
+            readerState.publication =
+                null;
+
+
+            readerState.manifest =
+                null;
+
+
+            readerState.pages =
+                [];
+
+
+            readerState.currentIndex =
+                0;
+
+
+            readerState.mode =
+                "paged";
+
+
+            readerState.fit =
+                "page";
+
+
+            setReaderFit(
+                "page"
+            );
+
+
+            clearElement(
+                readerContinuous
+            );
+
+
+            readerPageImage.removeAttribute(
+                "src"
+            );
+
+
+            readerError.classList.remove(
+                "active"
+            );
+
+        }
+
+
+        // ========================================================
+        // READER EVENTS
+        // ========================================================
+
+        readerPrevious.onclick =
+            previousReaderPage;
+
+
+        readerPreviousBottom.onclick =
+            previousReaderPage;
+
+
+        readerNext.onclick =
+            nextReaderPage;
+
+
+        readerNextBottom.onclick =
+            nextReaderPage;
+
+
+        readerFirst.onclick =
+            () => {
+
+                if (
+                    readerState.mode ===
+                    "paged"
+                ) {
+
+                    showReaderPage(
+                        0
+                    );
+
+                }
+
+            };
+
+
+        readerLast.onclick =
+            () => {
+
+                if (
+                    readerState.mode ===
+                    "paged"
+                ) {
+
+                    showReaderPage(
+                        readerState.pages.length -
+                            1
+                    );
+
+                }
+
+            };
+
+
+        readerClose.onclick =
+            closeReader;
+
+
+        readerErrorClose.onclick =
+            closeReader;
+
+
+        readerFitPage.onclick =
+            () =>
+                setReaderFit(
+                    "page"
+                );
+
+
+        readerFitWidth.onclick =
+            () =>
+                setReaderFit(
+                    "width"
+                );
+
+
+        readerLayoutToggle.onclick =
+            toggleReaderMode;
+
+
+        document.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    !readerState.open
+                ) {
+
+                    return;
+
+                }
+
+
+                if (
+                    event.key ===
+                    "Escape"
+                ) {
+
+                    closeReader();
+
+                    return;
+
+                }
+
+
+                if (
+                    readerState.mode !==
+                    "paged"
+                ) {
+
+                    return;
+
+                }
+
+
+                if (
+                    event.key ===
+                        "ArrowRight" ||
+                    event.key ===
+                        "PageDown"
+                ) {
+
+                    event.preventDefault();
+
+                    nextReaderPage();
+
+                }
+
+
+                if (
+                    event.key ===
+                        "ArrowLeft" ||
+                    event.key ===
+                        "PageUp"
+                ) {
+
+                    event.preventDefault();
+
+                    previousReaderPage();
+
+                }
+
+
+                if (
+                    event.key ===
+                    "Home"
+                ) {
+
+                    event.preventDefault();
+
+                    showReaderPage(
+                        0
+                    );
+
+                }
+
+
+                if (
+                    event.key ===
+                    "End"
+                ) {
+
+                    event.preventDefault();
+
+                    showReaderPage(
+                        readerState.pages.length -
+                            1
+                    );
+
+                }
+
+            }
+        );
+
+
+        readerPaged.addEventListener(
+            "touchstart",
+            event => {
+
+                if (
+                    event.touches.length !==
+                    1
+                ) {
+
+                    return;
+
+                }
+
+
+                readerState.touchStartX =
+                    event.touches[
+                        0
+                    ].clientX;
+
+
+                readerState.touchStartY =
+                    event.touches[
+                        0
+                    ].clientY;
+
+            },
+            {
+                passive:
+                    true
+            }
+        );
+
+
+        readerPaged.addEventListener(
+            "touchend",
+            event => {
+
+                if (
+                    readerState.touchStartX ===
+                        null ||
+                    readerState.touchStartY ===
+                        null ||
+                    !event.changedTouches.length
+                ) {
+
+                    return;
+
+                }
+
+
+                const endX =
+                    event.changedTouches[
+                        0
+                    ].clientX;
+
+
+                const endY =
+                    event.changedTouches[
+                        0
+                    ].clientY;
+
+
+                const deltaX =
+                    endX -
+                    readerState.touchStartX;
+
+
+                const deltaY =
+                    endY -
+                    readerState.touchStartY;
+
+
+                readerState.touchStartX =
+                    null;
+
+
+                readerState.touchStartY =
+                    null;
+
+
+                if (
+                    Math.abs(
+                        deltaX
+                    ) <
+                    50
+                ) {
+
+                    return;
+
+                }
+
+
+                if (
+                    Math.abs(
+                        deltaX
+                    ) <
+                    Math.abs(
+                        deltaY
+                    )
+                ) {
+
+                    return;
+
+                }
+
+
+                if (
+                    deltaX <
+                    0
+                ) {
+
+                    nextReaderPage();
+
+                } else {
+
+                    previousReaderPage();
+
+                }
+
+            },
+            {
+                passive:
+                    true
+            }
+        );
+
+
+        // ========================================================
+        // COLLECTION UI
         // ========================================================
 
         function updateHeaderWallet() {
@@ -1982,7 +6141,9 @@
             );
 
 
-            if (!connectedWallet) {
+            if (
+                !connectedWallet
+            ) {
 
                 walletButton.textContent =
                     "CONNECT WALLET";
@@ -1992,7 +6153,9 @@
             }
 
 
-            if (!isPulseChain()) {
+            if (
+                !isPulseChain()
+            ) {
 
                 walletButton.textContent =
                     "SWITCH NETWORK";
@@ -2001,6 +6164,7 @@
                 walletButton.classList.add(
                     "wrong-network"
                 );
+
 
                 return;
 
@@ -2019,10 +6183,6 @@
 
         }
 
-
-        // ========================================================
-        // DISCONNECTED
-        // ========================================================
 
         function renderDisconnected() {
 
@@ -2071,17 +6231,10 @@
 
 
             setStats({
-                known:
-                    0,
-
-                owned:
-                    0,
-
-                missing:
-                    0,
-
-                evolved:
-                    0
+                known: 0,
+                owned: 0,
+                missing: 0,
+                evolved: 0
             });
 
 
@@ -2108,14 +6261,22 @@
         }
 
 
-        // ========================================================
-        // WRONG NETWORK
-        // ========================================================
-
         function renderWrongNetwork() {
 
             walletStatus =
                 null;
+
+
+            clearReaderSession();
+
+
+            if (
+                readerState.open
+            ) {
+
+                closeReader();
+
+            }
 
 
             collectionWallet.textContent =
@@ -2128,7 +6289,8 @@
                 `CHAIN // ${
                     normalizeChainId(
                         connectedChainId
-                    ) || "UNKNOWN"
+                    ) ||
+                    "UNKNOWN"
                 }`;
 
 
@@ -2165,27 +6327,15 @@
 
 
             setStats({
-                known:
-                    0,
-
-                owned:
-                    0,
-
-                missing:
-                    0,
-
-                evolved:
-                    0
+                known: 0,
+                owned: 0,
+                missing: 0,
+                evolved: 0
             });
 
 
             seriesControl.hidden =
                 true;
-
-
-            clearElement(
-                seriesTabs
-            );
 
 
             clearElement(
@@ -2201,10 +6351,6 @@
 
         }
 
-
-        // ========================================================
-        // LOADING
-        // ========================================================
 
         function renderLoading() {
 
@@ -2243,10 +6389,6 @@
 
         }
 
-
-        // ========================================================
-        // ERROR
-        // ========================================================
 
         function renderWalletError(
             title,
@@ -2296,27 +6438,15 @@
 
 
             setStats({
-                known:
-                    0,
-
-                owned:
-                    0,
-
-                missing:
-                    0,
-
-                evolved:
-                    0
+                known: 0,
+                owned: 0,
+                missing: 0,
+                evolved: 0
             });
 
 
             seriesControl.hidden =
                 true;
-
-
-            clearElement(
-                seriesTabs
-            );
 
 
             clearElement(
@@ -2329,10 +6459,6 @@
 
         }
 
-
-        // ========================================================
-        // WALLET COLLECTION
-        // ========================================================
 
         function renderWalletCollection(
             data
@@ -2347,17 +6473,10 @@
                 collection.stats ||
                 {
 
-                    known:
-                        0,
-
-                    owned:
-                        0,
-
-                    missing:
-                        0,
-
-                    evolved:
-                        0
+                    known: 0,
+                    owned: 0,
+                    missing: 0,
+                    evolved: 0
 
                 };
 
@@ -2371,13 +6490,9 @@
 
 
             collectionWallet.textContent =
-                (
-                    data.wallet &&
-                    data.wallet.addressDisplay
-                )
-                    ? String(
-                        data.wallet.addressDisplay
-                    ).toUpperCase()
+                data.wallet &&
+                data.wallet.addressDisplay
+                    ? data.wallet.addressDisplay.toUpperCase()
                     : shortAddress(
                         connectedWallet
                     ).toUpperCase();
@@ -2404,10 +6519,6 @@
                 "CLEARANCE VERIFIED // OPEN COLLECTION";
 
 
-            // ====================================================
-            // CURRENT EMPTY ARCHIVE
-            // ====================================================
-
             if (
                 Number(
                     stats.known ||
@@ -2416,9 +6527,7 @@
                 0
             ) {
 
-                renderEmptyArchive(
-                    data
-                );
+                renderEmptyArchive();
 
                 return;
 
@@ -2451,51 +6560,16 @@
             );
 
 
-            const indexing =
-                collection.indexing ||
-                {};
-
-
-            if (
+            collectionStatus.textContent =
                 collection.ownershipIndexed ===
-                true
-            ) {
-
-                if (
-                    Number(
-                        indexing.unavailable ||
-                        0
-                    ) >
-                    0
-                ) {
-
-                    collectionStatus.textContent =
-                        `WALLET INDEX COMPLETE // ${indexing.unavailable} EDITION CHECKS UNAVAILABLE.`;
-
-                } else {
-
-                    collectionStatus.textContent =
-                        "WALLET INDEX COMPLETE.";
-
-                }
-
-            } else {
-
-                collectionStatus.textContent =
-                    "COLLECTION INDEX PARTIAL.";
-
-            }
+                    true
+                    ? "WALLET INDEX COMPLETE."
+                    : "COLLECTION INDEX PARTIAL.";
 
         }
 
 
-        // ========================================================
-        // EMPTY ARCHIVE
-        // ========================================================
-
-        function renderEmptyArchive(
-            data
-        ) {
+        function renderEmptyArchive() {
 
             terminalTitle.textContent =
                 "THE ARCHIVE IS EMPTY.";
@@ -2523,25 +6597,8 @@
             );
 
 
-            const collection =
-                data.collection ||
-                {};
-
-
-            if (
-                collection.ownershipIndexed ===
-                true
-            ) {
-
-                collectionStatus.textContent =
-                    "ARCHIVE ONLINE // ZERO PUBLIC EDITIONS.";
-
-            } else {
-
-                collectionStatus.textContent =
-                    "ARCHIVE ONLINE // INDEX STANDBY.";
-
-            }
+            collectionStatus.textContent =
+                "ARCHIVE ONLINE // ZERO PUBLIC EDITIONS.";
 
 
             publicationCount.textContent =
@@ -2549,10 +6606,6 @@
 
         }
 
-
-        // ========================================================
-        // STATS
-        // ========================================================
 
         function setStats(
             stats
@@ -2584,10 +6637,6 @@
         }
 
 
-        // ========================================================
-        // SERIES TABS
-        // ========================================================
-
         function renderSeriesTabs(
             series
         ) {
@@ -2598,11 +6647,7 @@
 
 
             if (
-                !Array.isArray(
-                    series
-                ) ||
-                series.length ===
-                    0
+                !series.length
             ) {
 
                 seriesControl.hidden =
@@ -2671,13 +6716,11 @@
 
             button.textContent =
                 String(
-                    title ||
-                    slug
+                    title
                 ).toUpperCase();
 
 
-            button.addEventListener(
-                "click",
+            button.onclick =
                 () => {
 
                     selectedSeries =
@@ -2687,22 +6730,11 @@
                     syncSeriesButtons();
 
 
-                    const currentSeries =
-                        walletStatus &&
-                        walletStatus.collection &&
-                        Array.isArray(
-                            walletStatus.collection.series
-                        )
-                            ? walletStatus.collection.series
-                            : [];
-
-
                     renderSeries(
-                        currentSeries
+                        walletStatus.collection.series
                     );
 
-                }
-            );
+                };
 
 
             return button;
@@ -2712,31 +6744,24 @@
 
         function syncSeriesButtons() {
 
-            const buttons =
-                seriesTabs.querySelectorAll(
+            seriesTabs
+                .querySelectorAll(
                     ".series-tab"
+                )
+                .forEach(
+                    button => {
+
+                        button.classList.toggle(
+                            "active",
+                            button.dataset.series ===
+                                selectedSeries
+                        );
+
+                    }
                 );
-
-
-            buttons.forEach(
-                button => {
-
-                    button.classList.toggle(
-                        "active",
-
-                        button.dataset.series ===
-                            selectedSeries
-                    );
-
-                }
-            );
 
         }
 
-
-        // ========================================================
-        // SERIES
-        // ========================================================
 
         function renderSeries(
             series
@@ -2747,143 +6772,115 @@
             );
 
 
-            const visibleSeries =
+            const visible =
                 selectedSeries ===
-                "all"
+                    "all"
                     ? series
                     : series.filter(
-                        entry =>
-                            entry.slug ===
+                        item =>
+                            item.slug ===
                             selectedSeries
                     );
 
 
-            visibleSeries.forEach(
-                seriesEntry => {
+            for (
+                const entry
+                of visible
+            ) {
 
-                    const block =
-                        document.createElement(
-                            "section"
-                        );
-
-
-                    block.className =
-                        "series-block";
-
-
-                    const header =
-                        document.createElement(
-                            "div"
-                        );
+                const block =
+                    makeElement(
+                        "section",
+                        "series-block"
+                    );
 
 
-                    header.className =
-                        "series-block-header";
+                const header =
+                    makeElement(
+                        "div",
+                        "series-block-header"
+                    );
 
 
-                    const left =
-                        document.createElement(
-                            "div"
-                        );
+                const left =
+                    document.createElement(
+                        "div"
+                    );
 
 
-                    const seriesCode =
-                        document.createElement(
-                            "span"
-                        );
-
-
-                    seriesCode.textContent =
+                left.append(
+                    makeElement(
+                        "span",
+                        null,
                         `SERIES // ${
                             String(
-                                seriesEntry.slug ||
-                                ""
+                                entry.slug
                             ).toUpperCase()
-                        }`;
+                        }`
+                    ),
+
+                    makeElement(
+                        "h3",
+                        null,
+                        entry.title ||
+                        entry.slug
+                    )
+                );
 
 
-                    const title =
-                        document.createElement(
-                            "h3"
+                header.append(
+                    left,
+
+                    makeElement(
+                        "small",
+                        null,
+                        `${formatCount(
+                            entry.owned
+                        )} OWNED // ${formatCount(
+                            entry.missing
+                        )} MISSING`
+                    )
+                );
+
+
+                block.appendChild(
+                    header
+                );
+
+
+                const editions =
+                    Array.isArray(
+                        entry.editions
+                    )
+                        ? entry.editions
+                        : [];
+
+
+                editions.forEach(
+                    (
+                        edition,
+                        index
+                    ) => {
+
+                        block.appendChild(
+                            renderEdition(
+                                edition,
+                                index
+                            )
                         );
 
-
-                    title.textContent =
-                        seriesEntry.title ||
-                        seriesEntry.slug ||
-                        "UNTITLED";
+                    }
+                );
 
 
-                    left.append(
-                        seriesCode,
-                        title
-                    );
+                collectionList.appendChild(
+                    block
+                );
 
-
-                    const counts =
-                        document.createElement(
-                            "small"
-                        );
-
-
-                    counts.textContent =
-                        `${formatCount(
-                            seriesEntry.owned
-                        )} OWNED // ` +
-                        `${formatCount(
-                            seriesEntry.missing
-                        )} MISSING`;
-
-
-                    header.append(
-                        left,
-                        counts
-                    );
-
-
-                    block.appendChild(
-                        header
-                    );
-
-
-                    const editions =
-                        Array.isArray(
-                            seriesEntry.editions
-                        )
-                            ? seriesEntry.editions
-                            : [];
-
-
-                    editions.forEach(
-                        (
-                            edition,
-                            index
-                        ) => {
-
-                            block.appendChild(
-                                renderEdition(
-                                    edition,
-                                    index
-                                )
-                            );
-
-                        }
-                    );
-
-
-                    collectionList.appendChild(
-                        block
-                    );
-
-                }
-            );
+            }
 
         }
 
-
-        // ========================================================
-        // EDITION
-        // ========================================================
 
         function renderEdition(
             edition,
@@ -2893,153 +6890,100 @@
             const ownership =
                 String(
                     edition.ownership ||
-                    edition.status ||
                     "unavailable"
                 ).toLowerCase();
 
 
             const row =
-                document.createElement(
-                    "article"
+                makeElement(
+                    "article",
+                    `collection-item state-${ownership}`
                 );
 
 
-            row.className =
-                `collection-item state-${ownership}`;
-
-
-            const number =
-                document.createElement(
-                    "span"
-                );
-
-
-            number.className =
-                "collection-item-index";
-
-
-            number.textContent =
-                String(
-                    index +
-                    1
-                ).padStart(
-                    2,
-                    "0"
-                );
+            row.appendChild(
+                makeElement(
+                    "span",
+                    "collection-item-index",
+                    String(
+                        index +
+                        1
+                    ).padStart(
+                        2,
+                        "0"
+                    )
+                )
+            );
 
 
             const main =
-                document.createElement(
-                    "div"
+                makeElement(
+                    "div",
+                    "collection-item-main"
                 );
-
-
-            main.className =
-                "collection-item-main";
-
-
-            const type =
-                document.createElement(
-                    "span"
-                );
-
-
-            type.className =
-                "collection-item-type";
-
-
-            type.textContent =
-                String(
-                    edition.lifecycle ||
-                    edition.contentType ||
-                    edition.content_type ||
-                    "EDITION"
-                ).toUpperCase();
-
-
-            const title =
-                document.createElement(
-                    "strong"
-                );
-
-
-            title.textContent =
-                edition.title ||
-                `ISSUE ${
-                    edition.issue ||
-                    ""
-                }`;
-
-
-            const issue =
-                document.createElement(
-                    "small"
-                );
-
-
-            issue.textContent =
-                `ISSUE ${
-                    edition.issue ||
-                    "—"
-                }`;
 
 
             main.append(
-                type,
-                title,
-                issue
+                makeElement(
+                    "span",
+                    "collection-item-type",
+                    String(
+                        edition.contentType ||
+                        "EDITION"
+                    ).toUpperCase()
+                ),
+
+                makeElement(
+                    "strong",
+                    null,
+                    edition.title ||
+                    "UNTITLED"
+                ),
+
+                makeElement(
+                    "small",
+                    null,
+                    `ISSUE ${
+                        edition.issue ||
+                        "—"
+                    }`
+                )
             );
 
 
             const state =
-                document.createElement(
-                    "div"
+                makeElement(
+                    "div",
+                    "collection-item-state"
                 );
-
-
-            state.className =
-                "collection-item-state";
-
-
-            const stateLabel =
-                document.createElement(
-                    "span"
-                );
-
-
-            stateLabel.textContent =
-                "STATUS";
-
-
-            const stateValue =
-                document.createElement(
-                    "strong"
-                );
-
-
-            stateValue.textContent =
-                ownership.toUpperCase();
 
 
             state.append(
-                stateLabel,
-                stateValue
+                makeElement(
+                    "span",
+                    null,
+                    "STATUS"
+                ),
+
+                makeElement(
+                    "strong",
+                    null,
+                    ownership.toUpperCase()
+                )
             );
 
 
             const action =
-                document.createElement(
-                    "div"
+                makeElement(
+                    "div",
+                    "collection-item-action"
                 );
 
 
-            action.className =
-                "collection-item-action";
-
-
             const button =
-                document.createElement(
-                    "button"
+                makeElement(
+                    "button",
+                    "edition-action"
                 );
 
 
@@ -3047,23 +6991,28 @@
                 "button";
 
 
-            button.className =
-                "edition-action";
-
-
             if (
-                ownership ===
-                    "owned" ||
-                ownership ===
-                    "evolved"
+                (
+                    ownership ===
+                        "owned" ||
+                    ownership ===
+                        "evolved"
+                ) &&
+                edition.reader &&
+                edition.reader.enabled ===
+                    true
             ) {
 
                 button.textContent =
                     "OPEN EDITION";
 
 
-                button.disabled =
-                    true;
+                button.onclick =
+                    () =>
+                        openEdition(
+                            edition,
+                            button
+                        );
 
 
             } else if (
@@ -3071,21 +7020,8 @@
                 "missing"
             ) {
 
-                if (
-                    edition.mint &&
-                    edition.mint.enabled ===
-                        true
-                ) {
-
-                    button.textContent =
-                        "MINT EDITION";
-
-                } else {
-
-                    button.textContent =
-                        "MISSING";
-
-                }
+                button.textContent =
+                    "MISSING";
 
 
                 button.disabled =
@@ -3095,7 +7031,12 @@
             } else {
 
                 button.textContent =
-                    "INDEX PENDING";
+                    ownership ===
+                        "owned" ||
+                    ownership ===
+                        "evolved"
+                        ? "READER LOCKED"
+                        : "INDEX PENDING";
 
 
                 button.disabled =
@@ -3110,7 +7051,6 @@
 
 
             row.append(
-                number,
                 main,
                 state,
                 action
@@ -3123,14 +7063,15 @@
 
 
         // ========================================================
-        // WALLET BUTTON
+        // HEADER BUTTON
         // ========================================================
 
-        walletButton.addEventListener(
-            "click",
+        walletButton.onclick =
             async () => {
 
-                if (!connectedWallet) {
+                if (
+                    !connectedWallet
+                ) {
 
                     await connectWallet();
 
@@ -3139,7 +7080,9 @@
                 }
 
 
-                if (!isPulseChain()) {
+                if (
+                    !isPulseChain()
+                ) {
 
                     await switchToPulseChain();
 
@@ -3152,18 +7095,19 @@
                     .getElementById(
                         "collection"
                     )
-                    .scrollIntoView({
+                    .scrollIntoView(
+                        {
 
-                        behavior:
-                            "smooth",
+                            behavior:
+                                "smooth",
 
-                        block:
-                            "start"
+                            block:
+                                "start"
 
-                    });
+                        }
+                    );
 
-            }
-        );
+            };
 
 
         terminalAction.onclick =
@@ -3174,18 +7118,29 @@
         // WALLET EVENTS
         // ========================================================
 
-        if (hasWalletProvider()) {
+        if (
+            hasWalletProvider()
+        ) {
 
             window.ethereum.on(
                 "accountsChanged",
                 async accounts => {
 
+                    clearReaderSession();
+
+
                     if (
-                        !Array.isArray(
-                            accounts
-                        ) ||
-                        accounts.length ===
-                            0
+                        readerState.open
+                    ) {
+
+                        closeReader();
+
+                    }
+
+
+                    if (
+                        !accounts ||
+                        !accounts.length
                     ) {
 
                         connectedWallet =
@@ -3198,6 +7153,10 @@
 
                         renderDisconnected();
 
+
+                        await loadPress();
+
+
                         return;
 
                     }
@@ -3209,12 +7168,16 @@
 
                     connectedChainId =
                         await window.ethereum.request({
+
                             method:
                                 "eth_chainId"
+
                         });
 
 
-                    if (isPulseChain()) {
+                    if (
+                        isPulseChain()
+                    ) {
 
                         await loadWalletStatus();
 
@@ -3223,6 +7186,9 @@
                         renderWrongNetwork();
 
                     }
+
+
+                    await loadPress();
 
 
                     updateHeaderWallet();
@@ -3235,11 +7201,25 @@
                 "chainChanged",
                 async chainId => {
 
+                    clearReaderSession();
+
+
+                    if (
+                        readerState.open
+                    ) {
+
+                        closeReader();
+
+                    }
+
+
                     connectedChainId =
                         chainId;
 
 
-                    if (!connectedWallet) {
+                    if (
+                        !connectedWallet
+                    ) {
 
                         renderDisconnected();
 
@@ -3248,7 +7228,9 @@
                     }
 
 
-                    if (isPulseChain()) {
+                    if (
+                        isPulseChain()
+                    ) {
 
                         await loadWalletStatus();
 
@@ -3257,6 +7239,9 @@
                         renderWrongNetwork();
 
                     }
+
+
+                    await loadPress();
 
 
                     updateHeaderWallet();
@@ -3273,10 +7258,16 @@
 
         async function initializeHellbox() {
 
+            loadStoredReaderSession();
+
+
             await loadPublications();
 
 
             await restoreWallet();
+
+
+            await loadPress();
 
 
             updateHeaderWallet();
