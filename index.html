@@ -17,8 +17,15 @@
         content="Hellbox Comics is an underground token-gated publishing house on PulseChain. Collect the editions. Enter the archive. Read what you own."
     >
 
-    <meta name="theme-color" content="#030303">
-    <meta name="color-scheme" content="dark">
+    <meta
+        name="theme-color"
+        content="#030303"
+    >
+
+    <meta
+        name="color-scheme"
+        content="dark"
+    >
 
     <link
         rel="canonical"
@@ -117,6 +124,10 @@
     ></div>
 
 
+    <!-- ========================================================
+         HEADER
+    ========================================================= -->
+
     <header class="site-header">
 
         <a
@@ -171,6 +182,10 @@
     <main>
 
 
+        <!-- ====================================================
+             HERO
+        ===================================================== -->
+
         <section
             class="hero"
             id="top"
@@ -178,9 +193,11 @@
 
             <div class="hero-art"></div>
 
+
             <div
                 class="hero-classification hero-classification-left"
             >
+
                 <span>
                     BOX // 001
                 </span>
@@ -188,12 +205,14 @@
                 <strong>
                     CLASSIFIED
                 </strong>
+
             </div>
 
 
             <div
                 class="hero-classification hero-classification-right"
             >
+
                 <span>
                     CHAIN // 369
                 </span>
@@ -201,6 +220,7 @@
                 <strong>
                     NO GATEKEEPERS
                 </strong>
+
             </div>
 
 
@@ -288,6 +308,10 @@
 
         </section>
 
+
+        <!-- ====================================================
+             PORTALS
+        ===================================================== -->
 
         <section class="manifest-strip">
 
@@ -395,6 +419,10 @@
 
         </section>
 
+
+        <!-- ====================================================
+             COLLECTION
+        ===================================================== -->
 
         <section
             class="collection-section"
@@ -627,6 +655,10 @@
         </section>
 
 
+        <!-- ====================================================
+             PRESS
+        ===================================================== -->
+
         <section
             class="press-section"
             id="press"
@@ -703,6 +735,10 @@
         </section>
 
 
+        <!-- ====================================================
+             TRANSMISSION
+        ===================================================== -->
+
         <div class="transmission-break">
 
             <span>
@@ -715,6 +751,10 @@
 
         </div>
 
+
+        <!-- ====================================================
+             HARROW
+        ===================================================== -->
 
         <section
             class="harrow-section"
@@ -809,6 +849,10 @@
 
         </section>
 
+
+        <!-- ====================================================
+             SOCIAL
+        ===================================================== -->
 
         <section class="signal-section">
 
@@ -924,6 +968,10 @@
     </main>
 
 
+    <!-- ========================================================
+         FOOTER
+    ========================================================= -->
+
     <footer class="site-footer">
 
         <div class="footer-topline">
@@ -1010,21 +1058,31 @@
     <script>
 
         // ========================================================
-        // HELLBOX CONFIG
+        // HELLBOX FRONTEND CONFIG
         // ========================================================
 
         const HELLBOX = {
 
-            chainIdHex: "0x171",
+            chainIdHex:
+                "0x171",
 
-            chainIdDecimal: 369,
+            chainIdDecimal:
+                369,
 
-            chainName: "PulseChain",
+            chainName:
+                "PulseChain",
 
             currency: {
-                name: "Pulse",
-                symbol: "PLS",
-                decimals: 18
+
+                name:
+                    "Pulse",
+
+                symbol:
+                    "PLS",
+
+                decimals:
+                    18
+
             },
 
             rpcUrls: [
@@ -1038,24 +1096,40 @@
         };
 
 
-        const API_BASE = "";
+        // ========================================================
+        // IMPORTANT
+        //
+        // The test frontend is a separate Workers host.
+        //
+        // All Hellbox API traffic therefore goes explicitly to
+        // the real backend Worker.
+        // ========================================================
+
+        const API_BASE =
+            "https://hellboxcomics.cody-samborski.workers.dev";
 
 
         // ========================================================
-        // APPLICATION STATE
+        // STATE
         // ========================================================
 
-        let connectedWallet = null;
+        let connectedWallet =
+            null;
 
-        let connectedChainId = null;
+        let connectedChainId =
+            null;
 
-        let walletStatus = null;
+        let walletStatus =
+            null;
 
-        let publicPublications = [];
+        let publicPublications =
+            [];
 
-        let selectedSeries = "all";
+        let selectedSeries =
+            "all";
 
-        let walletBusy = false;
+        let walletBusy =
+            false;
 
 
         // ========================================================
@@ -1063,55 +1137,105 @@
         // ========================================================
 
         const walletButton =
-            document.getElementById("walletButton");
+            document.getElementById(
+                "walletButton"
+            );
+
 
         const terminalAction =
-            document.getElementById("terminalAction");
+            document.getElementById(
+                "terminalAction"
+            );
+
 
         const collectionWallet =
-            document.getElementById("collectionWallet");
+            document.getElementById(
+                "collectionWallet"
+            );
+
 
         const collectionNetwork =
-            document.getElementById("collectionNetwork");
+            document.getElementById(
+                "collectionNetwork"
+            );
+
 
         const collectionAccessState =
-            document.getElementById("collectionAccessState");
+            document.getElementById(
+                "collectionAccessState"
+            );
+
 
         const publicationCount =
-            document.getElementById("publicationCount");
+            document.getElementById(
+                "publicationCount"
+            );
+
 
         const summaryKnown =
-            document.getElementById("summaryKnown");
+            document.getElementById(
+                "summaryKnown"
+            );
+
 
         const summaryOwned =
-            document.getElementById("summaryOwned");
+            document.getElementById(
+                "summaryOwned"
+            );
+
 
         const summaryMissing =
-            document.getElementById("summaryMissing");
+            document.getElementById(
+                "summaryMissing"
+            );
+
 
         const summaryEvolved =
-            document.getElementById("summaryEvolved");
+            document.getElementById(
+                "summaryEvolved"
+            );
+
 
         const terminalTitle =
-            document.getElementById("terminalTitle");
+            document.getElementById(
+                "terminalTitle"
+            );
+
 
         const terminalMessage =
-            document.getElementById("terminalMessage");
+            document.getElementById(
+                "terminalMessage"
+            );
+
 
         const seriesControl =
-            document.getElementById("seriesControl");
+            document.getElementById(
+                "seriesControl"
+            );
+
 
         const seriesTabs =
-            document.getElementById("seriesTabs");
+            document.getElementById(
+                "seriesTabs"
+            );
+
 
         const collectionList =
-            document.getElementById("collectionList");
+            document.getElementById(
+                "collectionList"
+            );
+
 
         const collectionStatus =
-            document.getElementById("collectionStatus");
+            document.getElementById(
+                "collectionStatus"
+            );
+
 
         const heroEntryStatus =
-            document.getElementById("heroEntryStatus");
+            document.getElementById(
+                "heroEntryStatus"
+            );
 
 
         // ========================================================
@@ -1122,13 +1246,16 @@
 
             return Boolean(
                 window.ethereum &&
-                typeof window.ethereum.request === "function"
+                typeof window.ethereum.request ===
+                    "function"
             );
 
         }
 
 
-        function shortAddress(address) {
+        function shortAddress(
+            address
+        ) {
 
             if (!address) {
 
@@ -1138,15 +1265,22 @@
 
 
             return (
-                address.slice(0, 6) +
+                address.slice(
+                    0,
+                    6
+                ) +
                 "..." +
-                address.slice(-4)
+                address.slice(
+                    -4
+                )
             );
 
         }
 
 
-        function normalizeChainId(value) {
+        function normalizeChainId(
+            value
+        ) {
 
             if (
                 value === null ||
@@ -1159,7 +1293,8 @@
 
 
             if (
-                typeof value === "number"
+                typeof value ===
+                "number"
             ) {
 
                 return value;
@@ -1168,11 +1303,17 @@
 
 
             const text =
-                String(value).trim();
+                String(
+                    value
+                ).trim();
 
 
             if (
-                text.toLowerCase().startsWith("0x")
+                text
+                    .toLowerCase()
+                    .startsWith(
+                        "0x"
+                    )
             ) {
 
                 return parseInt(
@@ -1203,10 +1344,14 @@
         }
 
 
-        function formatCount(value) {
+        function formatCount(
+            value
+        ) {
 
             return String(
-                Number(value || 0)
+                Number(
+                    value || 0
+                )
             ).padStart(
                 2,
                 "0"
@@ -1215,7 +1360,9 @@
         }
 
 
-        function clearElement(element) {
+        function clearElement(
+            element
+        ) {
 
             if (!element) {
 
@@ -1238,7 +1385,7 @@
 
 
         // ========================================================
-        // PUBLIC RELEASE REGISTRY
+        // PUBLICATIONS
         // ========================================================
 
         async function loadPublications() {
@@ -1252,9 +1399,14 @@
                             method:
                                 "GET",
 
+                            mode:
+                                "cors",
+
                             headers: {
+
                                 "Accept":
                                     "application/json"
+
                             },
 
                             cache:
@@ -1266,7 +1418,7 @@
                 if (!response.ok) {
 
                     throw new Error(
-                        `Publications returned HTTP ${response.status}`
+                        `Publications HTTP ${response.status}`
                     );
 
                 }
@@ -1285,7 +1437,8 @@
 
 
                 if (
-                    publicPublications.length === 0
+                    publicPublications.length ===
+                    0
                 ) {
 
                     publicationCount.textContent =
@@ -1306,20 +1459,14 @@
             } catch (error) {
 
                 console.error(
-                    "HELLBOX PUBLICATION REGISTRY ERROR:",
+                    "HELLBOX PUBLICATION ERROR:",
                     error
                 );
 
 
-                publicPublications = [];
+                publicPublications =
+                    [];
 
-
-                /*
-                 * The release registry being unavailable should
-                 * not make the entire collection terminal appear
-                 * broken. Wallet status is authoritative for the
-                 * user's archive state.
-                 */
 
                 publicationCount.textContent =
                     "ARCHIVE STANDBY";
@@ -1380,8 +1527,11 @@
 
 
                 if (
-                    !Array.isArray(accounts) ||
-                    accounts.length === 0
+                    !Array.isArray(
+                        accounts
+                    ) ||
+                    accounts.length ===
+                        0
                 ) {
 
                     throw new Error(
@@ -1417,7 +1567,7 @@
             } catch (error) {
 
                 console.error(
-                    "HELLBOX WALLET CONNECTION ERROR:",
+                    "HELLBOX WALLET ERROR:",
                     error
                 );
 
@@ -1442,7 +1592,7 @@
 
 
         // ========================================================
-        // RESTORE EXISTING WALLET SESSION
+        // RESTORE WALLET SESSION
         // ========================================================
 
         async function restoreWallet() {
@@ -1473,8 +1623,11 @@
 
 
                 if (
-                    !Array.isArray(accounts) ||
-                    accounts.length === 0
+                    !Array.isArray(
+                        accounts
+                    ) ||
+                    accounts.length ===
+                        0
                 ) {
 
                     connectedWallet =
@@ -1528,7 +1681,7 @@
 
 
         // ========================================================
-        // PULSECHAIN SWITCH
+        // SWITCH NETWORK
         // ========================================================
 
         async function switchToPulseChain() {
@@ -1557,16 +1710,14 @@
                 });
 
 
-            } catch (switchError) {
-
-                /*
-                 * 4902 means the wallet does not yet know
-                 * PulseChain, so add the network.
-                 */
+            } catch (
+                switchError
+            ) {
 
                 if (
                     switchError &&
-                    switchError.code === 4902
+                    switchError.code ===
+                        4902
                 ) {
 
                     try {
@@ -1598,17 +1749,13 @@
                         });
 
 
-                    } catch (addError) {
+                    } catch (
+                        addError
+                    ) {
 
                         console.error(
-                            "HELLBOX ADD PULSECHAIN ERROR:",
+                            "HELLBOX ADD NETWORK ERROR:",
                             addError
-                        );
-
-
-                        renderWalletError(
-                            "NETWORK CHANGE REJECTED.",
-                            "Hellbox requires PulseChain to inspect this wallet."
                         );
 
 
@@ -1620,14 +1767,8 @@
                 } else {
 
                     console.error(
-                        "HELLBOX NETWORK SWITCH ERROR:",
+                        "HELLBOX SWITCH NETWORK ERROR:",
                         switchError
-                    );
-
-
-                    renderWalletError(
-                        "NETWORK CHANGE REJECTED.",
-                        "Hellbox requires PulseChain to inspect this wallet."
                     );
 
 
@@ -1638,33 +1779,18 @@
             }
 
 
-            try {
-
-                connectedChainId =
-                    await window.ethereum.request({
-                        method:
-                            "eth_chainId"
-                    });
+            connectedChainId =
+                await window.ethereum.request({
+                    method:
+                        "eth_chainId"
+                });
 
 
-                if (isPulseChain()) {
+            if (isPulseChain()) {
 
-                    await loadWalletStatus();
+                await loadWalletStatus();
 
-                } else {
-
-                    renderWrongNetwork();
-
-                }
-
-
-            } catch (error) {
-
-                console.error(
-                    "HELLBOX NETWORK VERIFY ERROR:",
-                    error
-                );
-
+            } else {
 
                 renderWrongNetwork();
 
@@ -1677,7 +1803,7 @@
 
 
         // ========================================================
-        // WALLET STATUS API
+        // WALLET STATUS
         // ========================================================
 
         async function loadWalletStatus() {
@@ -1713,6 +1839,12 @@
                     `&chainId=${HELLBOX.chainIdDecimal}`;
 
 
+                console.log(
+                    "HELLBOX API REQUEST:",
+                    requestUrl
+                );
+
+
                 const response =
                     await fetch(
                         requestUrl,
@@ -1720,9 +1852,14 @@
                             method:
                                 "GET",
 
+                            mode:
+                                "cors",
+
                             headers: {
+
                                 "Accept":
                                     "application/json"
+
                             },
 
                             cache:
@@ -1772,11 +1909,12 @@
 
                 if (
                     !data ||
-                    data.ok !== true
+                    data.ok !==
+                        true
                 ) {
 
                     throw new Error(
-                        "Wallet status API did not return ok:true."
+                        "Wallet status response did not return ok:true."
                     );
 
                 }
@@ -1788,7 +1926,7 @@
                 ) {
 
                     throw new Error(
-                        "Wallet status API did not return wallet data."
+                        "Wallet status response did not contain wallet data."
                     );
 
                 }
@@ -1799,7 +1937,7 @@
                 ) {
 
                     throw new Error(
-                        "Wallet status API did not return collection data."
+                        "Wallet status response did not contain collection data."
                     );
 
                 }
@@ -1833,7 +1971,7 @@
 
 
         // ========================================================
-        // HEADER WALLET STATE
+        // HEADER
         // ========================================================
 
         function updateHeaderWallet() {
@@ -1883,7 +2021,7 @@
 
 
         // ========================================================
-        // DISCONNECTED STATE
+        // DISCONNECTED
         // ========================================================
 
         function renderDisconnected() {
@@ -1933,10 +2071,17 @@
 
 
             setStats({
-                known: 0,
-                owned: 0,
-                missing: 0,
-                evolved: 0
+                known:
+                    0,
+
+                owned:
+                    0,
+
+                missing:
+                    0,
+
+                evolved:
+                    0
             });
 
 
@@ -1964,7 +2109,7 @@
 
 
         // ========================================================
-        // WRONG NETWORK STATE
+        // WRONG NETWORK
         // ========================================================
 
         function renderWrongNetwork() {
@@ -2020,10 +2165,17 @@
 
 
             setStats({
-                known: 0,
-                owned: 0,
-                missing: 0,
-                evolved: 0
+                known:
+                    0,
+
+                owned:
+                    0,
+
+                missing:
+                    0,
+
+                evolved:
+                    0
             });
 
 
@@ -2051,7 +2203,7 @@
 
 
         // ========================================================
-        // LOADING STATE
+        // LOADING
         // ========================================================
 
         function renderLoading() {
@@ -2093,7 +2245,7 @@
 
 
         // ========================================================
-        // ERROR STATE
+        // ERROR
         // ========================================================
 
         function renderWalletError(
@@ -2144,10 +2296,17 @@
 
 
             setStats({
-                known: 0,
-                owned: 0,
-                missing: 0,
-                evolved: 0
+                known:
+                    0,
+
+                owned:
+                    0,
+
+                missing:
+                    0,
+
+                evolved:
+                    0
             });
 
 
@@ -2172,21 +2331,34 @@
 
 
         // ========================================================
-        // COLLECTION STATE
+        // WALLET COLLECTION
         // ========================================================
 
-        function renderWalletCollection(data) {
+        function renderWalletCollection(
+            data
+        ) {
 
             const collection =
-                data.collection || {};
+                data.collection ||
+                {};
 
 
             const stats =
-                collection.stats || {
-                    known: 0,
-                    owned: 0,
-                    missing: 0,
-                    evolved: 0
+                collection.stats ||
+                {
+
+                    known:
+                        0,
+
+                    owned:
+                        0,
+
+                    missing:
+                        0,
+
+                    evolved:
+                        0
+
                 };
 
 
@@ -2232,18 +2404,16 @@
                 "CLEARANCE VERIFIED // OPEN COLLECTION";
 
 
-            /*
-             * CURRENT EXPECTED STATE:
-             *
-             * No Hellbox releases are yet public, therefore
-             * known === 0 is legitimate and should produce
-             * an intentional dormant archive.
-             */
+            // ====================================================
+            // CURRENT EMPTY ARCHIVE
+            // ====================================================
 
             if (
                 Number(
-                    stats.known || 0
-                ) === 0
+                    stats.known ||
+                    0
+                ) ===
+                0
             ) {
 
                 renderEmptyArchive(
@@ -2282,17 +2452,21 @@
 
 
             const indexing =
-                collection.indexing || {};
+                collection.indexing ||
+                {};
 
 
             if (
-                collection.ownershipIndexed === true
+                collection.ownershipIndexed ===
+                true
             ) {
 
                 if (
                     Number(
-                        indexing.unavailable || 0
-                    ) > 0
+                        indexing.unavailable ||
+                        0
+                    ) >
+                    0
                 ) {
 
                     collectionStatus.textContent =
@@ -2319,7 +2493,9 @@
         // EMPTY ARCHIVE
         // ========================================================
 
-        function renderEmptyArchive(data) {
+        function renderEmptyArchive(
+            data
+        ) {
 
             terminalTitle.textContent =
                 "THE ARCHIVE IS EMPTY.";
@@ -2348,15 +2524,13 @@
 
 
             const collection =
-                data.collection || {};
-
-
-            const indexing =
-                collection.indexing || {};
+                data.collection ||
+                {};
 
 
             if (
-                collection.ownershipIndexed === true
+                collection.ownershipIndexed ===
+                true
             ) {
 
                 collectionStatus.textContent =
@@ -2370,51 +2544,19 @@
             }
 
 
-            /*
-             * Wallet status confirms zero public editions.
-             * This is authoritative even if /api/publications
-             * independently failed to load.
-             */
-
             publicationCount.textContent =
                 "NO PUBLIC EDITIONS";
-
-
-            console.log(
-                "HELLBOX EMPTY ARCHIVE:",
-                {
-                    ownershipIndexed:
-                        Boolean(
-                            collection.ownershipIndexed
-                        ),
-
-                    indexing: {
-                        total:
-                            Number(
-                                indexing.total || 0
-                            ),
-
-                        indexed:
-                            Number(
-                                indexing.indexed || 0
-                            ),
-
-                        unavailable:
-                            Number(
-                                indexing.unavailable || 0
-                            )
-                    }
-                }
-            );
 
         }
 
 
         // ========================================================
-        // COLLECTION COUNTS
+        // STATS
         // ========================================================
 
-        function setStats(stats) {
+        function setStats(
+            stats
+        ) {
 
             summaryKnown.textContent =
                 formatCount(
@@ -2443,10 +2585,12 @@
 
 
         // ========================================================
-        // SERIES NAVIGATION
+        // SERIES TABS
         // ========================================================
 
-        function renderSeriesTabs(series) {
+        function renderSeriesTabs(
+            series
+        ) {
 
             clearElement(
                 seriesTabs
@@ -2454,8 +2598,11 @@
 
 
             if (
-                !Array.isArray(series) ||
-                series.length === 0
+                !Array.isArray(
+                    series
+                ) ||
+                series.length ===
+                    0
             ) {
 
                 seriesControl.hidden =
@@ -2524,7 +2671,8 @@
 
             button.textContent =
                 String(
-                    title || slug
+                    title ||
+                    slug
                 ).toUpperCase();
 
 
@@ -2575,6 +2723,7 @@
 
                     button.classList.toggle(
                         "active",
+
                         button.dataset.series ===
                             selectedSeries
                     );
@@ -2586,10 +2735,12 @@
 
 
         // ========================================================
-        // SERIES RENDERING
+        // SERIES
         // ========================================================
 
-        function renderSeries(series) {
+        function renderSeries(
+            series
+        ) {
 
             clearElement(
                 collectionList
@@ -2597,7 +2748,8 @@
 
 
             const visibleSeries =
-                selectedSeries === "all"
+                selectedSeries ===
+                "all"
                     ? series
                     : series.filter(
                         entry =>
@@ -2644,7 +2796,8 @@
                     seriesCode.textContent =
                         `SERIES // ${
                             String(
-                                seriesEntry.slug || ""
+                                seriesEntry.slug ||
+                                ""
                             ).toUpperCase()
                         }`;
 
@@ -2729,7 +2882,7 @@
 
 
         // ========================================================
-        // EDITION RENDERING
+        // EDITION
         // ========================================================
 
         function renderEdition(
@@ -2767,7 +2920,8 @@
 
             number.textContent =
                 String(
-                    index + 1
+                    index +
+                    1
                 ).padStart(
                     2,
                     "0"
@@ -2812,7 +2966,8 @@
             title.textContent =
                 edition.title ||
                 `ISSUE ${
-                    edition.issue || ""
+                    edition.issue ||
+                    ""
                 }`;
 
 
@@ -2824,7 +2979,8 @@
 
             issue.textContent =
                 `ISSUE ${
-                    edition.issue || "—"
+                    edition.issue ||
+                    "—"
                 }`;
 
 
@@ -2896,30 +3052,29 @@
 
 
             if (
-                ownership === "owned" ||
-                ownership === "evolved"
+                ownership ===
+                    "owned" ||
+                ownership ===
+                    "evolved"
             ) {
 
                 button.textContent =
                     "OPEN EDITION";
 
 
-                /*
-                 * Reader routing will be activated when
-                 * the gated reader build is connected.
-                 */
-
                 button.disabled =
                     true;
 
 
             } else if (
-                ownership === "missing"
+                ownership ===
+                "missing"
             ) {
 
                 if (
                     edition.mint &&
-                    edition.mint.enabled === true
+                    edition.mint.enabled ===
+                        true
                 ) {
 
                     button.textContent =
@@ -2968,7 +3123,7 @@
 
 
         // ========================================================
-        // HEADER BUTTON
+        // WALLET BUTTON
         // ========================================================
 
         walletButton.addEventListener(
@@ -2998,20 +3153,18 @@
                         "collection"
                     )
                     .scrollIntoView({
+
                         behavior:
                             "smooth",
 
                         block:
                             "start"
+
                     });
 
             }
         );
 
-
-        // ========================================================
-        // INITIAL TERMINAL BUTTON
-        // ========================================================
 
         terminalAction.onclick =
             connectWallet;
@@ -3028,8 +3181,11 @@
                 async accounts => {
 
                     if (
-                        !Array.isArray(accounts) ||
-                        accounts.length === 0
+                        !Array.isArray(
+                            accounts
+                        ) ||
+                        accounts.length ===
+                            0
                     ) {
 
                         connectedWallet =
@@ -3051,23 +3207,11 @@
                         accounts[0];
 
 
-                    try {
-
-                        connectedChainId =
-                            await window.ethereum.request({
-                                method:
-                                    "eth_chainId"
-                            });
-
-
-                    } catch (error) {
-
-                        console.error(
-                            "HELLBOX CHAIN READ ERROR:",
-                            error
-                        );
-
-                    }
+                    connectedChainId =
+                        await window.ethereum.request({
+                            method:
+                                "eth_chainId"
+                        });
 
 
                     if (isPulseChain()) {
@@ -3124,17 +3268,10 @@
 
 
         // ========================================================
-        // INITIALIZE HELLBOX
+        // INITIALIZE
         // ========================================================
 
         async function initializeHellbox() {
-
-            /*
-             * These are intentionally independent.
-             *
-             * Failure of /api/publications must never prevent
-             * wallet collection state from loading.
-             */
 
             await loadPublications();
 
