@@ -1,361 +1,300 @@
-// Hellbox Comics Cloudflare Worker
-// Architecture: publication-key based, chain-aware, ERC-721 ready,
-// public PulseChain RPC primary + HairyLabs Byte fallback,
-// wallet-signature auth, protected reader, and contract-ready mint APIs.
-//
-// Required bindings:
-//   R2: PUBLIC_BUCKET
-//   R2: PRIVATE_BUCKET
-//   Assets: ASSETS
-//
-// Required runtime secrets:
-//   BYTE_RPC_URL
-//   HELLBOX_SESSION_SECRET
-//
-// No contract is deployed yet. SciVive is intentionally PRIVATE by default.
-// When the HellboxNFT contract is deployed later, only registry configuration
-// and transaction encoding helpers need to be updated.
-
 const API_VERSION = "hellbox-v2";
-
-const LIFECYCLE = Object.freeze({
-  PRIVATE: "private",
-  ANNOUNCED: "announced",
-  MINT_LIVE: "mint_live",
-  CIRCULATING: "circulating",
-});
-
-const OWNERSHIP = Object.freeze({
-  MISSING: "missing",
-  OWNED: "owned",
-  EVOLVED: "evolved",
-  UNAVAILABLE: "unavailable",
-});
-
-const MINT_STATE = Object.freeze({
-  UNAVAILABLE: "unavailable",
-  UPCOMING: "upcoming",
-  LIVE: "live",
-  SOLD_OUT: "sold_out",
-  ALREADY_OWNED: "already_owned",
-  ELIGIBLE: "eligible",
-  NOT_ELIGIBLE: "not_eligible",
-});
-
-const PAYMENT_TYPE = Object.freeze({
-  FREE: "free",
-  ERC20: "erc20",
-  NATIVE: "native",
-});
-
-const PUBLICATION_KIND = Object.freeze({
-  STANDALONE: "standalone",
-  SERIAL: "serial",
-});
-
-const AUTH = Object.freeze({
-  challengeLifetimeSeconds: 300,
-  sessionLifetimeSeconds: 1800,
-  challengePrefix: "auth/challenges/",
-  sessionIssuer: "hellboxcomics",
-  version: 2,
-});
+const SESSION_TTL_SECONDS = 15 * 60;
+const CHALLENGE_TTL_SECONDS = 5 * 60;
 
 const ALLOWED_ORIGINS = new Set([
-  "https://test-hellboxcomics.harrow-harrow.workers.dev",
-  "https://hellboxcomics.harrow-harrow.workers.dev",
   "https://hellboxcomics.com",
   "https://www.hellboxcomics.com",
+  "https://hellboxcomics.harrow-harrow.workers.dev",
+  "https://test-hellboxcomics.harrow-harrow.workers.dev",
 ]);
 
-const CHAINS = Object.freeze({
+const CHAIN_REGISTRY = {
   pulsechain: {
     key: "pulsechain",
-    name: "PulseChain",
     chainId: 369,
     chainIdHex: "0x171",
-    nativeSymbol: "PLS",
+    name: "PulseChain",
 
-    // Public PulseChain RPC is now PRIMARY.
-    rpcPrimary: "https://rpc.pulsechain.com",
+    nativeCurrency: {
+      name: "Pulse",
+      symbol: "PLS",
+      decimals: 18,
+    },
 
-    // HairyLabs Byte is our private BACKUP.
-    rpcFallbackEnv: "BYTE_RPC_URL",
+    explorerUrl: "https://scan.pulsechain.com",
+
+    primaryRpcUrl: "https://rpc.pulsechain.com",
+
+    fallbackRpcEnvKey: "BYTE_RPC_URL",
 
     stablecoins: {
       dai: {
         symbol: "DAI",
-        name: "DAI on PulseChain",
         address: "0xefD766cCb38EaF1dfd701853BFCe31359239F305",
         decimals: 18,
       },
     },
   },
-});
+};
 
-// ============================================================
-// PUBLICATION REGISTRY
-// ============================================================
-//
-// SciVive is:
-// - standalone
-// - NOT an issue
-// - hidden/private until intentionally launched
-// - free
-// - 5,555 supply
-// - one primary mint per wallet
-// - one per transaction
-// - 3.69% royalty
-// - no SIN, vault, seal, evolution, easter eggs, or Hellforge
-//
-// Contract fields remain null until HellboxNFT is deployed.
-
-const PUBLICATION_REGISTRY = Object.freeze([
-  {
+const PUBLICATION_REGISTRY = {
+  scivive: {
     publicationKey: "scivive",
 
     title: "SciVive",
 
-    kind: PUBLICATION_KIND.STANDALONE,
+    subtitle: null,
 
-    seriesKey: null,
-    seriesTitle: null,
-    issueNumber: null,
+    publicationType: "standalone",
 
-    lifecycle: LIFECYCLE.PRIVATE,
+    contentType: "ebook",
+
+    series: null,
+
+    issue: null,
+
+    lifecycle: "private",
 
     publicVisible: false,
 
     chainKey: "pulsechain",
 
-    deployment: {
-      contractAddress: null,
-      publicationId: null,
-      tokenStandard: "ERC721",
-    },
+    chainId: 369,
 
-    supply: {
-      max: 5555,
+    token: {
+      standard: "ERC721",
+
+      contractAddress: null,
+
+      publicationId: null,
+
+      tokenBoundAccountCompatible: true,
     },
 
     mint: {
       enabled: false,
 
-      paymentType: PAYMENT_TYPE.FREE,
+      paymentType: "FREE",
 
       paymentToken: null,
 
-      priceDisplay: "FREE",
+      price: null,
 
-      priceBaseUnits: "0",
+      maxSupply: 5555,
 
       maxPrimaryMintsPerWallet: 1,
 
       maxPerTransaction: 1,
 
-      mintFunction: null,
-    },
-
-    royalty: {
-      bps: 369,
-      percentDisplay: "3.69%",
-      receiver: null,
-    },
-
-    features: {
-      reader: true,
-
-      sealed: false,
-
-      vault: false,
-
-      sin: false,
-
-      evolution: false,
-
-      easterEggs: false,
-
-      hellforge: false,
-
-      tokenBoundAccount: true,
-    },
-
-    metadata: {
-      image: null,
-
-      animationUrl: null,
-
-      externalUrl: "https://hellboxcomics.com",
+      royaltyBps: 369,
     },
 
     reader: {
       enabled: true,
 
-      // For now this uses the existing private-reader architecture.
-      //
-      // Later SciVive may use public/IPFS reader assets after ownership
-      // verification because the ebook itself is already public elsewhere.
+      source: "private",
 
-      sourceMode: "private",
+      manifestKey: "comics/scivive/private/reader/manifest.json",
 
-      manifestKey:
-        "comics/scivive/private/reader/manifest.json",
-
-      privatePrefix:
-        "comics/scivive/private/",
+      assetPrefix: "comics/scivive/private/",
     },
 
-    press: {
-      eyebrow: "FREE MINT",
+    features: {
+      sealed: false,
 
-      description:
-        "Standalone SciVive digital collectible.",
+      vaulting: false,
+
+      evolution: false,
+
+      hellforge: false,
+
+      sin: false,
+
+      easterEggs: false,
+    },
+
+    media: {
+      cover: null,
+
+      press: null,
     },
   },
-]);
+};
 
-// ============================================================
-// LEGACY ROUTE MAP
-// ============================================================
-//
-// Current frontend may still use old slug + issue routes.
-//
-// We are phasing those out.
-//
-// SciVive is intentionally NOT mapped here because it is NOT an issue.
-
-const LEGACY_SLUG_MAP = Object.freeze({});
-
-// ============================================================
-// WORKER ENTRY
-// ============================================================
+const LEGACY_SLUG_MAP = {};
 
 export default {
-  async fetch(request, env, ctx) {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+
+    const origin = request.headers.get("Origin");
+
+    if (request.method === "OPTIONS") {
+      return corsPreflight(origin);
+    }
+
     try {
-      const url = new URL(request.url);
-
-      if (request.method === "OPTIONS") {
-        return handleOptions(request);
-      }
-
       if (url.pathname.startsWith("/api/")) {
-        return await handleApi(
+        const response = await handleApi(
           request,
           env,
-          ctx,
           url
+        );
+
+        return withCors(
+          response,
+          origin
         );
       }
 
-      if (env.ASSETS) {
+      if (
+        env.ASSETS &&
+        typeof env.ASSETS.fetch === "function"
+      ) {
         return env.ASSETS.fetch(request);
       }
 
-      return textResponse(
-        "Hellbox Comics Worker",
-        200,
-        request
+      return json(
+        {
+          ok: false,
+          error: "Static asset binding unavailable.",
+        },
+        503
       );
     } catch (error) {
       console.error(
-        "Unhandled Worker error:",
+        "HELLBOX WORKER ERROR",
         error
       );
 
-      return jsonResponse(
-        {
-          ok: false,
+      return withCors(
+        json(
+          {
+            ok: false,
 
-          error: "internal_error",
+            error:
+              "Hellbox backend failure.",
 
-          message:
-            safeErrorMessage(error),
-        },
-        500,
-        request
+            detail:
+              error instanceof Error
+                ? error.message
+                : String(error),
+          },
+          500
+        ),
+        origin
       );
     }
   },
 };
 
-// ============================================================
-// API ROUTER
-// ============================================================
-
 async function handleApi(
   request,
   env,
-  ctx,
   url
 ) {
-  const method =
-    request.method.toUpperCase();
+  const {
+    pathname,
+  } = url;
 
-  const path =
-    url.pathname;
-
-  // ----------------------------------------------------------
+  // ============================================================
   // HEALTH
-  // ----------------------------------------------------------
+  // ============================================================
 
   if (
-    method === "GET" &&
-    path === "/api/health"
+    pathname === "/api/health" &&
+    request.method === "GET"
   ) {
-    return handleHealth(
-      request,
-      env
-    );
+    return handleHealth(env);
   }
 
-  if (
-    method === "GET" &&
-    path === "/api/runtime-bindings"
-  ) {
-    return handleRuntimeBindings(
-      request,
-      env
-    );
-  }
+  // ============================================================
+  // CHAIN STATUS
+  // ============================================================
 
   if (
-    method === "GET" &&
-    path === "/api/node-health"
-  ) {
-    return handleNodeHealth(
-      request,
-      env
-    );
-  }
-
-  if (
-    method === "GET" &&
-    path === "/api/chain-status"
+    pathname === "/api/chain-status" &&
+    request.method === "GET"
   ) {
     return handleChainStatus(
-      request,
-      env
+      env,
+      url
     );
   }
 
-  // ----------------------------------------------------------
-  // AUTH
-  // ----------------------------------------------------------
+  // ============================================================
+  // BYTE FALLBACK HEALTH
+  // ============================================================
 
   if (
-    method === "GET" &&
-    path === "/api/auth/status"
+    pathname === "/api/node-health" &&
+    request.method === "GET"
   ) {
-    return handleAuthStatus(
-      request,
-      env
+    return handleNodeHealth(env);
+  }
+
+  // ============================================================
+  // PUBLICATION INDEX
+  // ============================================================
+
+  if (
+    pathname === "/api/publications" &&
+    request.method === "GET"
+  ) {
+    return handlePublications();
+  }
+
+  // ============================================================
+  // INDIVIDUAL PUBLICATION
+  // ============================================================
+
+  const publicationMatch =
+    pathname.match(
+      /^\/api\/publications\/([a-z0-9-]+)$/
+    );
+
+  if (
+    publicationMatch &&
+    request.method === "GET"
+  ) {
+    return handlePublication(
+      publicationMatch[1]
     );
   }
 
+  // ============================================================
+  // PRESS
+  // ============================================================
+
   if (
-    method === "POST" &&
-    path === "/api/auth/challenge"
+    pathname === "/api/press" &&
+    request.method === "GET"
+  ) {
+    return handlePress();
+  }
+
+  // ============================================================
+  // WALLET STATUS
+  // ============================================================
+
+  if (
+    pathname === "/api/wallet-status" &&
+    request.method === "GET"
+  ) {
+    return handleWalletStatus(
+      env,
+      url
+    );
+  }
+
+  // ============================================================
+  // AUTH CHALLENGE
+  // ============================================================
+
+  if (
+    pathname === "/api/auth/challenge" &&
+    request.method === "POST"
   ) {
     return handleAuthChallenge(
       request,
@@ -363,9 +302,13 @@ async function handleApi(
     );
   }
 
+  // ============================================================
+  // AUTH VERIFY
+  // ============================================================
+
   if (
-    method === "POST" &&
-    path === "/api/auth/verify"
+    pathname === "/api/auth/verify" &&
+    request.method === "POST"
   ) {
     return handleAuthVerify(
       request,
@@ -373,9 +316,13 @@ async function handleApi(
     );
   }
 
+  // ============================================================
+  // AUTH SESSION CHECK
+  // ============================================================
+
   if (
-    method === "GET" &&
-    path === "/api/auth/session"
+    pathname === "/api/auth/session" &&
+    request.method === "GET"
   ) {
     return handleAuthSession(
       request,
@@ -383,798 +330,244 @@ async function handleApi(
     );
   }
 
-  // ----------------------------------------------------------
-  // PUBLICATION ENGINE
-  // ----------------------------------------------------------
-
-  if (
-    method === "GET" &&
-    path === "/api/publication-status"
-  ) {
-    return handlePublicationStatus(
-      request
-    );
-  }
-
-  if (
-    method === "GET" &&
-    path === "/api/press"
-  ) {
-    return handlePress(
-      request
-    );
-  }
-
-  if (
-    method === "GET" &&
-    path === "/api/publications"
-  ) {
-    return handlePublications(
-      request
-    );
-  }
-
-  if (
-    method === "GET" &&
-    path === "/api/collection"
-  ) {
-    return handleCollection(
-      request,
-      env,
-      url
-    );
-  }
-
-  if (
-    method === "GET" &&
-    path === "/api/wallet-status"
-  ) {
-    return handleWalletStatus(
-      request,
-      env,
-      url
-    );
-  }
-
-  // ----------------------------------------------------------
-  // NEW PUBLICATION KEY ROUTES
-  // ----------------------------------------------------------
-
-  {
-    const match =
-      path.match(
-        /^\/api\/publications\/([a-z0-9-]+)$/i
-      );
-
-    if (
-      match &&
-      method === "GET"
-    ) {
-      return handlePublication(
-        request,
-        match[1]
-      );
-    }
-  }
-
-  // ----------------------------------------------------------
+  // ============================================================
   // MINT STATUS
-  // ----------------------------------------------------------
+  // ============================================================
 
-  {
-    const match =
-      path.match(
-        /^\/api\/mint\/([a-z0-9-]+)\/status$/i
-      );
-
-    if (
-      match &&
-      method === "GET"
-    ) {
-      return handleMintStatus(
-        request,
-        env,
-        url,
-        match[1]
-      );
-    }
-  }
-
-  // ----------------------------------------------------------
-  // MINT PREPARE
-  // ----------------------------------------------------------
-
-  {
-    const match =
-      path.match(
-        /^\/api\/mint\/([a-z0-9-]+)\/prepare$/i
-      );
-
-    if (
-      match &&
-      method === "POST"
-    ) {
-      return handleMintPrepare(
-        request,
-        env,
-        match[1]
-      );
-    }
-  }
-
-  // ----------------------------------------------------------
-  // MINT CONFIRM
-  // ----------------------------------------------------------
-
-  {
-    const match =
-      path.match(
-        /^\/api\/mint\/([a-z0-9-]+)\/confirm$/i
-      );
-
-    if (
-      match &&
-      method === "POST"
-    ) {
-      return handleMintConfirm(
-        request,
-        env,
-        match[1]
-      );
-    }
-  }
-
-  // ----------------------------------------------------------
-  // READER ASSET
-  // ----------------------------------------------------------
-
-  {
-    const match =
-      path.match(
-        /^\/api\/reader\/([a-z0-9-]+)\/asset\/([a-zA-Z0-9._-]+)$/i
-      );
-
-    if (
-      match &&
-      method === "GET"
-    ) {
-      return handleReaderAsset(
-        request,
-        env,
-        match[1],
-        match[2]
-      );
-    }
-  }
-
-  // ----------------------------------------------------------
-  // READER MANIFEST
-  // ----------------------------------------------------------
-
-  {
-    const match =
-      path.match(
-        /^\/api\/reader\/([a-z0-9-]+)$/i
-      );
-
-    if (
-      match &&
-      method === "GET"
-    ) {
-      return handleReaderManifest(
-        request,
-        env,
-        match[1]
-      );
-    }
-  }
-
-  // ----------------------------------------------------------
-  // TEMPORARY LEGACY COMPATIBILITY
-  // ----------------------------------------------------------
-
-  const legacyResponse =
-    await handleLegacyApi(
-      request,
-      env,
-      url
-    );
-
-  if (legacyResponse) {
-    return legacyResponse;
-  }
-
-  // ----------------------------------------------------------
-  // NOT FOUND
-  // ----------------------------------------------------------
-
-  return jsonResponse(
-    {
-      ok: false,
-
-      error: "not_found",
-
-      message:
-        "API route not found.",
-    },
-    404,
-    request
-  );
-}
-
-// ============================================================
-// LEGACY API SUPPORT
-// ============================================================
-
-async function handleLegacyApi(
-  request,
-  env,
-  url
-) {
-  const method =
-    request.method.toUpperCase();
-
-  const path =
-    url.pathname;
-
-  let match =
-    path.match(
-      /^\/api\/publication\/([a-z0-9-]+)\/(\d+)$/i
+  const mintStatusMatch =
+    pathname.match(
+      /^\/api\/mint\/([a-z0-9-]+)\/status$/
     );
 
   if (
-    match &&
-    method === "GET"
+    mintStatusMatch &&
+    request.method === "GET"
   ) {
-    const publication =
-      findLegacyPublication(
-        match[1],
-        Number(match[2])
-      );
-
-    if (!publication) {
-      return publicationNotFound(
-        request
-      );
-    }
-
-    return jsonResponse(
-      {
-        ok: true,
-
-        publication:
-          serializePublication(
-            publication
-          ),
-      },
-      200,
-      request
-    );
-  }
-
-  match =
-    path.match(
-      /^\/api\/mint\/([a-z0-9-]+)\/(\d+)\/status$/i
-    );
-
-  if (
-    match &&
-    method === "GET"
-  ) {
-    const publication =
-      findLegacyPublication(
-        match[1],
-        Number(match[2])
-      );
-
-    if (!publication) {
-      return publicationNotFound(
-        request
-      );
-    }
-
     return handleMintStatus(
-      request,
       env,
       url,
-      publication.publicationKey
+      mintStatusMatch[1]
     );
   }
 
-  match =
-    path.match(
-      /^\/api\/mint\/([a-z0-9-]+)\/(\d+)\/prepare$/i
+  // ============================================================
+  // PREPARE MINT
+  // ============================================================
+
+  const mintPrepareMatch =
+    pathname.match(
+      /^\/api\/mint\/([a-z0-9-]+)\/prepare$/
     );
 
   if (
-    match &&
-    method === "POST"
+    mintPrepareMatch &&
+    request.method === "POST"
   ) {
-    const publication =
-      findLegacyPublication(
-        match[1],
-        Number(match[2])
-      );
-
-    if (!publication) {
-      return publicationNotFound(
-        request
-      );
-    }
-
     return handleMintPrepare(
       request,
       env,
-      publication.publicationKey
+      mintPrepareMatch[1]
     );
   }
 
-  match =
-    path.match(
-      /^\/api\/mint\/([a-z0-9-]+)\/(\d+)\/confirm$/i
+  // ============================================================
+  // CONFIRM MINT
+  // ============================================================
+
+  const mintConfirmMatch =
+    pathname.match(
+      /^\/api\/mint\/([a-z0-9-]+)\/confirm$/
     );
 
   if (
-    match &&
-    method === "POST"
+    mintConfirmMatch &&
+    request.method === "POST"
   ) {
-    const publication =
-      findLegacyPublication(
-        match[1],
-        Number(match[2])
-      );
-
-    if (!publication) {
-      return publicationNotFound(
-        request
-      );
-    }
-
     return handleMintConfirm(
       request,
       env,
-      publication.publicationKey
+      mintConfirmMatch[1]
     );
   }
 
-  match =
-    path.match(
-      /^\/api\/reader\/([a-z0-9-]+)\/(\d+)\/asset\/([a-zA-Z0-9._-]+)$/i
+  // ============================================================
+  // READER MANIFEST
+  // ============================================================
+
+  const readerManifestMatch =
+    pathname.match(
+      /^\/api\/reader\/([a-z0-9-]+)$/
     );
 
   if (
-    match &&
-    method === "GET"
+    readerManifestMatch &&
+    request.method === "GET"
   ) {
-    const publication =
-      findLegacyPublication(
-        match[1],
-        Number(match[2])
-      );
+    return handleReaderManifest(
+      request,
+      env,
+      readerManifestMatch[1]
+    );
+  }
 
-    if (!publication) {
-      return publicationNotFound(
-        request
-      );
-    }
+  // ============================================================
+  // READER ASSET
+  // ============================================================
 
+  const readerAssetMatch =
+    pathname.match(
+      /^\/api\/reader\/([a-z0-9-]+)\/asset\/([^/]+)$/
+    );
+
+  if (
+    readerAssetMatch &&
+    request.method === "GET"
+  ) {
     return handleReaderAsset(
       request,
       env,
-      publication.publicationKey,
-      match[3]
+      readerAssetMatch[1],
+      decodeURIComponent(
+        readerAssetMatch[2]
+      )
     );
   }
 
-  match =
-    path.match(
-      /^\/api\/reader\/([a-z0-9-]+)\/(\d+)$/i
+  // ============================================================
+  // LEGACY ROUTES
+  // ============================================================
+
+  const legacyPublication =
+    resolveLegacyPublication(
+      pathname
     );
 
-  if (
-    match &&
-    method === "GET"
-  ) {
-    const publication =
-      findLegacyPublication(
-        match[1],
-        Number(match[2])
-      );
+  if (legacyPublication) {
+    return json(
+      {
+        ok: false,
 
-    if (!publication) {
-      return publicationNotFound(
-        request
-      );
-    }
+        error:
+          "Legacy issue routes are retired. Use publicationKey routes.",
 
-    return handleReaderManifest(
-      request,
-      env,
-      publication.publicationKey
+        publicationKey:
+          legacyPublication.publicationKey,
+      },
+      410
     );
   }
 
-  match =
-    path.match(
-      /^\/api\/comics\/([a-z0-9-]+)\/(\d+)$/i
-    );
+  return json(
+    {
+      ok: false,
 
-  if (
-    match &&
-    method === "GET"
-  ) {
-    const publication =
-      findLegacyPublication(
-        match[1],
-        Number(match[2])
-      );
+      error:
+        "API route not found.",
 
-    if (!publication) {
-      return publicationNotFound(
-        request
-      );
-    }
-
-    return handleReaderManifest(
-      request,
-      env,
-      publication.publicationKey
-    );
-  }
-
-  return null;
+      path:
+        pathname,
+    },
+    404
+  );
 }
 
 // ============================================================
 // HEALTH
 // ============================================================
 
-function handleHealth(
-  request,
-  env
-) {
+function handleHealth(env) {
   const publicPublications =
-    PUBLICATION_REGISTRY.filter(
-      (p) =>
-        p.publicVisible &&
-        p.lifecycle !==
-          LIFECYCLE.PRIVATE
+    getPublicPublications();
+
+  const privatePublications =
+    Object.values(
+      PUBLICATION_REGISTRY
+    ).filter(
+      publication =>
+        !publication.publicVisible
     );
 
-  return jsonResponse(
-    {
-      ok: true,
+  return json({
+    ok: true,
 
-      service:
-        "Hellbox Comics",
+    service:
+      "Hellbox Comics",
 
-      apiVersion:
-        API_VERSION,
+    apiVersion:
+      API_VERSION,
 
-      networkArchitecture:
-        "multi-chain-ready",
+    networkArchitecture:
+      "multi-chain-ready",
 
-      defaultChain:
-        "pulsechain",
+    defaultChain:
+      "pulsechain",
 
-      engines: {
-        architecture:
-          "token-gated-publishing",
+    engines: {
+      architecture:
+        "token-gated-publishing",
 
-        publicationEngine:
-          "publication-key-v2",
+      publicationEngine:
+        "publication-key-v2",
 
-        pressEngine:
-          "release-bay-v2",
+      pressEngine:
+        "release-bay-v2",
 
-        mintEngine:
-          "erc721-ready-verified-mint-v2",
+      mintEngine:
+        "erc721-ready-verified-mint-v2",
 
-        readerEngine:
-          "protected-assets-v2",
+      readerEngine:
+        "protected-assets-v2",
 
-        authentication:
-          "wallet-signature-short-session",
+      authentication:
+        "wallet-signature-short-session",
 
-        payments:
-          "free-erc20-native",
+      payments:
+        "free-erc20-native",
 
-        rpc:
-          "public-primary-byte-fallback",
-      },
-
-      registry: {
-        totalConfigured:
-          PUBLICATION_REGISTRY.length,
-
-        publicCount:
-          publicPublications.length,
-
-        privateCount:
-          PUBLICATION_REGISTRY.filter(
-            (p) =>
-              p.lifecycle ===
-              LIFECYCLE.PRIVATE
-          ).length,
-      },
-
-      bindings: {
-        publicBucket:
-          Boolean(
-            env.PUBLIC_BUCKET
-          ),
-
-        privateBucket:
-          Boolean(
-            env.PRIVATE_BUCKET
-          ),
-
-        assets:
-          Boolean(
-            env.ASSETS
-          ),
-
-        byteFallbackConfigured:
-          Boolean(
-            env.BYTE_RPC_URL
-          ),
-
-        sessionSecretConfigured:
-          Boolean(
-            env.HELLBOX_SESSION_SECRET
-          ),
-      },
+      rpc:
+        "public-primary-byte-fallback",
     },
-    200,
-    request
-  );
-}
 
-// ============================================================
-// RUNTIME BINDINGS
-// ============================================================
+    registry: {
+      totalConfigured:
+        Object.keys(
+          PUBLICATION_REGISTRY
+        ).length,
 
-function handleRuntimeBindings(
-  request,
-  env
-) {
-  return jsonResponse(
-    {
-      ok: true,
+      publicCount:
+        publicPublications.length,
 
-      bindings: {
-        PUBLIC_BUCKET:
-          Boolean(
-            env.PUBLIC_BUCKET
-          ),
-
-        PRIVATE_BUCKET:
-          Boolean(
-            env.PRIVATE_BUCKET
-          ),
-
-        ASSETS:
-          Boolean(
-            env.ASSETS
-          ),
-      },
-
-      secrets: {
-        BYTE_RPC_URL:
-          Boolean(
-            env.BYTE_RPC_URL
-          ),
-
-        HELLBOX_SESSION_SECRET:
-          Boolean(
-            env.HELLBOX_SESSION_SECRET
-          ),
-      },
-
-      note:
-        "Secret values are never returned.",
+      privateCount:
+        privatePublications.length,
     },
-    200,
-    request
-  );
-}
 
-// ============================================================
-// BYTE NODE HEALTH
-// ============================================================
+    bindings: {
+      publicBucket:
+        Boolean(
+          env.PUBLIC_BUCKET
+        ),
 
-async function handleNodeHealth(
-  request,
-  env
-) {
-  const chain =
-    CHAINS.pulsechain;
+      privateBucket:
+        Boolean(
+          env.PRIVATE_BUCKET
+        ),
 
-  if (!env.BYTE_RPC_URL) {
-    return jsonResponse(
-      {
-        ok: false,
+      assets:
+        Boolean(
+          env.ASSETS
+        ),
 
-        node: {
-          configured: false,
+      byteFallbackConfigured:
+        Boolean(
+          env.BYTE_RPC_URL
+        ),
 
-          reachable: false,
-
-          provider:
-            "HairyLabs Byte",
-
-          role:
-            "fallback",
-
-          network:
-            chain.name,
-
-          chainId:
-            chain.chainId,
-
-          chainIdHex:
-            chain.chainIdHex,
-        },
-
-        diagnostic: {
-          stage:
-            "configuration",
-
-          message:
-            "BYTE_RPC_URL is not configured.",
-        },
-      },
-      503,
-      request
-    );
-  }
-
-  try {
-    const chainIdResult =
-      await rawRpcRequest(
-        env.BYTE_RPC_URL,
-        "eth_chainId",
-        [],
-        8000
-      );
-
-    const blockResult =
-      await rawRpcRequest(
-        env.BYTE_RPC_URL,
-        "eth_blockNumber",
-        [],
-        8000
-      );
-
-    const actualChainId =
-      parseInt(
-        chainIdResult,
-        16
-      );
-
-    if (
-      actualChainId !==
-      chain.chainId
-    ) {
-      return jsonResponse(
-        {
-          ok: false,
-
-          node: {
-            configured: true,
-
-            reachable: true,
-
-            provider:
-              "HairyLabs Byte",
-
-            role:
-              "fallback",
-
-            network:
-              chain.name,
-
-            expectedChainId:
-              chain.chainId,
-
-            actualChainId,
-
-            chainIdHex:
-              chainIdResult,
-          },
-
-          diagnostic: {
-            stage:
-              "chain_validation",
-
-            message:
-              "Byte RPC responded, but on the wrong chain.",
-          },
-        },
-        502,
-        request
-      );
-    }
-
-    return jsonResponse(
-      {
-        ok: true,
-
-        node: {
-          configured: true,
-
-          reachable: true,
-
-          provider:
-            "HairyLabs Byte",
-
-          role:
-            "fallback",
-
-          network:
-            chain.name,
-
-          chainId:
-            actualChainId,
-
-          chainIdHex:
-            chainIdResult,
-
-          currentBlock:
-            parseInt(
-              blockResult,
-              16
-            ),
-
-          currentBlockHex:
-            blockResult,
-        },
-
-        diagnostic: {
-          stage:
-            "complete",
-
-          message:
-            "Hellbox private PulseChain fallback node is online.",
-        },
-      },
-      200,
-      request
-    );
-  } catch (error) {
-    return jsonResponse(
-      {
-        ok: false,
-
-        node: {
-          configured: true,
-
-          reachable: false,
-
-          provider:
-            "HairyLabs Byte",
-
-          role:
-            "fallback",
-
-          network:
-            chain.name,
-        },
-
-        diagnostic: {
-          stage:
-            "rpc_request",
-
-          message:
-            safeErrorMessage(
-              error
-            ),
-        },
-      },
-      503,
-      request
-    );
-  }
+      sessionSecretConfigured:
+        Boolean(
+          env.HELLBOX_SESSION_SECRET
+        ),
+    },
+  });
 }
 
 // ============================================================
@@ -1182,132 +575,864 @@ async function handleNodeHealth(
 // ============================================================
 
 async function handleChainStatus(
-  request,
-  env
+  env,
+  url
 ) {
+  const chainKey =
+    url.searchParams.get(
+      "chain"
+    ) ||
+    "pulsechain";
+
   const chain =
-    CHAINS.pulsechain;
+    CHAIN_REGISTRY[
+      chainKey
+    ];
 
-  try {
-    const result =
-      await rpcRequestWithFallback(
-        env,
-        chain.key,
-        "eth_blockNumber",
-        []
-      );
-
-    return jsonResponse(
-      {
-        ok: true,
-
-        chain: {
-          key:
-            chain.key,
-
-          name:
-            chain.name,
-
-          chainId:
-            chain.chainId,
-
-          chainIdHex:
-            chain.chainIdHex,
-
-          nativeSymbol:
-            chain.nativeSymbol,
-        },
-
-        rpc: {
-          provider:
-            result.provider,
-
-          fallbackUsed:
-            result.fallbackUsed,
-
-          currentBlock:
-            parseInt(
-              result.result,
-              16
-            ),
-
-          currentBlockHex:
-            result.result,
-
-          strategy:
-            "public-primary-byte-fallback",
-        },
-      },
-      200,
-      request
-    );
-  } catch (error) {
-    return jsonResponse(
+  if (!chain) {
+    return json(
       {
         ok: false,
 
         error:
-          "rpc_unavailable",
+          "Unknown chain.",
 
-        message:
-          safeErrorMessage(
-            error
+        chainKey,
+      },
+      404
+    );
+  }
+
+  const rpcResult =
+    await rpcWithFallback(
+      env,
+      chain,
+      "eth_blockNumber",
+      []
+    );
+
+  const blockHex =
+    rpcResult.result;
+
+  const blockNumber =
+    parseInt(
+      blockHex,
+      16
+    );
+
+  return json({
+    ok: true,
+
+    chain: {
+      key:
+        chain.key,
+
+      name:
+        chain.name,
+
+      chainId:
+        chain.chainId,
+
+      chainIdHex:
+        chain.chainIdHex,
+    },
+
+    provider:
+      rpcResult.provider,
+
+    fallbackUsed:
+      rpcResult.fallbackUsed,
+
+    currentBlock:
+      Number.isFinite(
+        blockNumber
+      )
+        ? blockNumber
+        : null,
+
+    currentBlockHex:
+      blockHex,
+
+    strategy:
+      "public-primary-byte-fallback",
+  });
+}
+
+// ============================================================
+// BYTE FALLBACK HEALTH
+// ============================================================
+
+async function handleNodeHealth(
+  env
+) {
+  const chain =
+    CHAIN_REGISTRY.pulsechain;
+
+  if (!env.BYTE_RPC_URL) {
+    return json(
+      {
+        ok: false,
+
+        provider:
+          "HairyLabs Byte",
+
+        role:
+          "fallback",
+
+        error:
+          "BYTE_RPC_URL is not configured.",
+      },
+      503
+    );
+  }
+
+  const [
+    chainIdHex,
+    blockHex,
+  ] =
+    await Promise.all([
+      rpcCall(
+        env.BYTE_RPC_URL,
+        "eth_chainId",
+        []
+      ),
+
+      rpcCall(
+        env.BYTE_RPC_URL,
+        "eth_blockNumber",
+        []
+      ),
+    ]);
+
+  const chainId =
+    parseInt(
+      chainIdHex,
+      16
+    );
+
+  const blockNumber =
+    parseInt(
+      blockHex,
+      16
+    );
+
+  const ok =
+    chainId ===
+    chain.chainId;
+
+  return json(
+    {
+      ok,
+
+      provider:
+        "HairyLabs Byte",
+
+      role:
+        "fallback",
+
+      chainId,
+
+      chainIdHex,
+
+      expectedChainId:
+        chain.chainId,
+
+      currentBlock:
+        Number.isFinite(
+          blockNumber
+        )
+          ? blockNumber
+          : null,
+
+      currentBlockHex:
+        blockHex,
+    },
+    ok
+      ? 200
+      : 502
+  );
+}
+
+// ============================================================
+// PUBLICATIONS
+// ============================================================
+
+function handlePublications() {
+  const publications =
+    getPublicPublications()
+      .map(
+        publicPublicationView
+      );
+
+  return json({
+    ok: true,
+
+    apiVersion:
+      API_VERSION,
+
+    publications,
+
+    count:
+      publications.length,
+  });
+}
+
+// ============================================================
+// INDIVIDUAL PUBLICATION
+// ============================================================
+
+function handlePublication(
+  publicationKey
+) {
+  const publication =
+    getPublication(
+      publicationKey
+    );
+
+  if (
+    !publication ||
+    !publication.publicVisible
+  ) {
+    return json(
+      {
+        ok: false,
+
+        error:
+          "Publication not found.",
+      },
+      404
+    );
+  }
+
+  return json({
+    ok: true,
+
+    publication:
+      publicPublicationView(
+        publication
+      ),
+  });
+}
+
+// ============================================================
+// PRESS
+// ============================================================
+
+function handlePress() {
+  const publications =
+    getPublicPublications()
+      .filter(
+        publication =>
+          [
+            "announced",
+            "mint_live",
+          ].includes(
+            publication.lifecycle
+          )
+      )
+      .map(
+        publicPublicationView
+      );
+
+  return json({
+    ok: true,
+
+    engine:
+      "release-bay-v2",
+
+    publications,
+
+    count:
+      publications.length,
+  });
+}
+
+// ============================================================
+// WALLET STATUS
+// ============================================================
+
+async function handleWalletStatus(
+  env,
+  url
+) {
+  const address =
+    normalizeAddress(
+      url.searchParams.get(
+        "address"
+      )
+    );
+
+  const requestedChainId =
+    Number(
+      url.searchParams.get(
+        "chainId"
+      ) ||
+      369
+    );
+
+  if (!address) {
+    return json(
+      {
+        ok: false,
+
+        error:
+          "Valid wallet address required.",
+      },
+      400
+    );
+  }
+
+  const chain =
+    Object.values(
+      CHAIN_REGISTRY
+    ).find(
+      candidate =>
+        candidate.chainId ===
+        requestedChainId
+    );
+
+  if (!chain) {
+    return json(
+      {
+        ok: false,
+
+        error:
+          "Unsupported chain.",
+
+        chainId:
+          requestedChainId,
+      },
+      400
+    );
+  }
+
+  const publicPublications =
+    getPublicPublications()
+      .filter(
+        publication =>
+          publication.chainId ===
+          requestedChainId
+      );
+
+  const editions = [];
+
+  for (
+    const publication
+    of publicPublications
+  ) {
+    const copies =
+      await getOwnedTokenCopies(
+        env,
+        publication,
+        address
+      );
+
+    if (
+      copies.length >
+      0
+    ) {
+      for (
+        const copy
+        of copies
+      ) {
+        editions.push({
+          ...publicPublicationView(
+            publication
           ),
 
-        chain: {
-          key:
-            chain.key,
+          ownership:
+            copy.evolved
+              ? "evolved"
+              : "owned",
 
-          name:
-            chain.name,
+          tokenId:
+            copy.tokenId,
 
-          chainId:
-            chain.chainId,
-        },
+          copyNumber:
+            copy.copyNumber ??
+            null,
+
+          tokenState:
+            copy.tokenState ||
+            null,
+        });
+      }
+    } else {
+      editions.push({
+        ...publicPublicationView(
+          publication
+        ),
+
+        ownership:
+          publication
+            .token
+            .contractAddress
+            ? "missing"
+            : "unavailable",
+
+        tokenId:
+          null,
+
+        copyNumber:
+          null,
+
+        tokenState:
+          null,
+      });
+    }
+  }
+
+  const ownedCount =
+    editions.filter(
+      edition =>
+        edition.ownership ===
+        "owned"
+    ).length;
+
+  const evolvedCount =
+    editions.filter(
+      edition =>
+        edition.ownership ===
+        "evolved"
+    ).length;
+
+  const missingCount =
+    editions.filter(
+      edition =>
+        edition.ownership ===
+        "missing"
+    ).length;
+
+  return json({
+    ok: true,
+
+    wallet: {
+      address,
+
+      chainId:
+        requestedChainId,
+
+      chainKey:
+        chain.key,
+    },
+
+    summary: {
+      known:
+        editions.length,
+
+      owned:
+        ownedCount,
+
+      missing:
+        missingCount,
+
+      evolved:
+        evolvedCount,
+
+      unavailable:
+        editions.filter(
+          edition =>
+            edition.ownership ===
+            "unavailable"
+        ).length,
+    },
+
+    editions,
+  });
+}
+
+// ============================================================
+// MINT STATUS
+// ============================================================
+
+async function handleMintStatus(
+  env,
+  url,
+  publicationKey
+) {
+  const publication =
+    getPublicPublication(
+      publicationKey
+    );
+
+  if (!publication) {
+    return json(
+      {
+        ok: false,
+
+        error:
+          "Publication not found.",
       },
-      503,
+      404
+    );
+  }
+
+  const address =
+    normalizeAddress(
+      url.searchParams.get(
+        "address"
+      )
+    );
+
+  if (!address) {
+    return json(
+      {
+        ok: false,
+
+        error:
+          "Valid wallet address required.",
+      },
+      400
+    );
+  }
+
+  const claimInfo =
+    await getPrimaryMintClaimInfo(
+      env,
+      publication,
+      address
+    );
+
+  return json({
+    ok: true,
+
+    publication:
+      publicPublicationView(
+        publication
+      ),
+
+    wallet:
+      claimInfo,
+  });
+}
+
+// ============================================================
+// PREPARE MINT
+// ============================================================
+
+async function handleMintPrepare(
+  request,
+  env,
+  publicationKey
+) {
+  const publication =
+    getPublicPublication(
+      publicationKey
+    );
+
+  if (!publication) {
+    return json(
+      {
+        ok: false,
+
+        error:
+          "Publication not found.",
+      },
+      404
+    );
+  }
+
+  const body =
+    await readJson(
       request
+    );
+
+  const address =
+    normalizeAddress(
+      body?.address
+    );
+
+  const quantity =
+    sanitizeQuantity(
+      body?.quantity ??
+      1
+    );
+
+  if (!address) {
+    return json(
+      {
+        ok: false,
+
+        error:
+          "Valid wallet address required.",
+      },
+      400
+    );
+  }
+
+  if (
+    !publication
+      .mint
+      .enabled ||
+    publication.lifecycle !==
+      "mint_live"
+  ) {
+    return json(
+      {
+        ok: false,
+
+        mintReady:
+          false,
+
+        error:
+          "Mint is not live.",
+      },
+      409
+    );
+  }
+
+  if (
+    !publication
+      .token
+      .contractAddress ||
+    publication
+      .token
+      .publicationId ==
+      null
+  ) {
+    return json(
+      {
+        ok: false,
+
+        mintReady:
+          false,
+
+        error:
+          "Publication contract has not been deployed yet.",
+      },
+      409
+    );
+  }
+
+  if (
+    quantity >
+    publication
+      .mint
+      .maxPerTransaction
+  ) {
+    return json(
+      {
+        ok: false,
+
+        mintReady:
+          false,
+
+        error:
+          `Maximum ${publication.mint.maxPerTransaction} per transaction.`,
+      },
+      400
+    );
+  }
+
+  const eligibility =
+    await getPrimaryMintClaimInfo(
+      env,
+      publication,
+      address,
+      quantity
+    );
+
+  if (
+    !eligibility.eligible
+  ) {
+    return json(
+      {
+        ok: false,
+
+        mintReady:
+          false,
+
+        eligibility,
+
+        error:
+          eligibility.reason,
+      },
+      409
+    );
+  }
+
+  try {
+    const transaction =
+      await buildMintTransaction(
+        publication,
+        address,
+        quantity
+      );
+
+    return json({
+      ok: true,
+
+      mintReady:
+        true,
+
+      publication:
+        publicPublicationView(
+          publication
+        ),
+
+      eligibility,
+
+      transaction,
+    });
+  } catch (error) {
+    return json(
+      {
+        ok: false,
+
+        mintReady:
+          false,
+
+        error:
+          error instanceof Error
+            ? error.message
+            : String(error),
+      },
+      501
     );
   }
 }
 
 // ============================================================
-// AUTH STATUS
+// CONFIRM MINT
 // ============================================================
 
-function handleAuthStatus(
+async function handleMintConfirm(
   request,
-  env
+  env,
+  publicationKey
 ) {
-  return jsonResponse(
-    {
+  const publication =
+    getPublicPublication(
+      publicationKey
+    );
+
+  if (!publication) {
+    return json(
+      {
+        ok: false,
+
+        error:
+          "Publication not found.",
+      },
+      404
+    );
+  }
+
+  const body =
+    await readJson(
+      request
+    );
+
+  const address =
+    normalizeAddress(
+      body?.address
+    );
+
+  const txHash =
+    normalizeTxHash(
+      body?.txHash
+    );
+
+  if (
+    !address ||
+    !txHash
+  ) {
+    return json(
+      {
+        ok: false,
+
+        error:
+          "Valid address and transaction hash required.",
+      },
+      400
+    );
+  }
+
+  const chain =
+    CHAIN_REGISTRY[
+      publication.chainKey
+    ];
+
+  const receipt =
+    await rpcWithFallback(
+      env,
+      chain,
+      "eth_getTransactionReceipt",
+      [
+        txHash,
+      ]
+    );
+
+  if (
+    !receipt.result
+  ) {
+    return json(
+      {
+        ok: true,
+
+        pending:
+          true,
+
+        transactionHash:
+          txHash,
+
+        transactionSucceeded:
+          null,
+
+        ownershipVerified:
+          false,
+      },
+      202
+    );
+  }
+
+  const succeeded =
+    receipt.result.status ===
+    "0x1";
+
+  if (!succeeded) {
+    return json({
       ok: true,
 
-      auth: {
-        version:
-          AUTH.version,
+      pending:
+        false,
 
-        challengeLifetimeSeconds:
-          AUTH.challengeLifetimeSeconds,
+      transactionHash:
+        txHash,
 
-        sessionLifetimeSeconds:
-          AUTH.sessionLifetimeSeconds,
+      transactionSucceeded:
+        false,
 
-        configured:
-          Boolean(
-            env.PRIVATE_BUCKET
-          ) &&
-          Boolean(
-            env.HELLBOX_SESSION_SECRET
-          ),
+      ownershipVerified:
+        false,
+    });
+  }
 
-        method:
-          "EIP-191 personal_sign",
-      },
-    },
-    200,
-    request
-  );
+  const copies =
+    await getOwnedTokenCopies(
+      env,
+      publication,
+      address
+    );
+
+  return json({
+    ok: true,
+
+    pending:
+      false,
+
+    transactionHash:
+      txHash,
+
+    transactionSucceeded:
+      true,
+
+    ownershipVerified:
+      copies.length >
+      0,
+
+    copies,
+  });
 }
 
 // ============================================================
@@ -1322,10 +1447,6 @@ async function handleAuthChallenge(
     env
   );
 
-  requireSessionSecret(
-    env
-  );
-
   const body =
     await readJson(
       request
@@ -1337,147 +1458,98 @@ async function handleAuthChallenge(
     );
 
   if (!address) {
-    return jsonResponse(
+    return json(
       {
         ok: false,
 
         error:
-          "invalid_address",
-
-        message:
-          "A valid EVM address is required.",
+          "Valid wallet address required.",
       },
-      400,
-      request
+      400
     );
   }
 
-  const chainKey =
-    typeof body?.chainKey ===
-      "string" &&
-    CHAINS[
-      body.chainKey
-    ]
-      ? body.chainKey
-      : "pulsechain";
+  const now =
+    unixNow();
 
-  const chain =
-    CHAINS[
-      chainKey
-    ];
-
-  const challengeId =
+  const id =
     crypto.randomUUID();
 
-  const nonce =
-    randomHex(16);
-
-  const createdAt =
-    Math.floor(
-      Date.now() / 1000
-    );
-
   const expiresAt =
-    createdAt +
-    AUTH.challengeLifetimeSeconds;
+    now +
+    CHALLENGE_TTL_SECONDS;
 
-  const origin =
-    request.headers.get(
-      "Origin"
-    ) ||
-    "https://hellboxcomics.com";
+  const nonce =
+    randomHex(
+      16
+    );
 
   const message =
     [
-      "Hellbox Comics",
+      "Hellbox Comics Reader Authentication",
 
       "",
 
-      "Sign this message to prove wallet ownership.",
-
-      "This does not create a blockchain transaction and does not cost gas.",
-
-      "",
-
-      `Address: ${address}`,
-
-      `Chain: ${chain.name} (${chain.chainId})`,
+      `Wallet: ${address}`,
 
       `Nonce: ${nonce}`,
 
-      `Challenge: ${challengeId}`,
-
       `Issued At: ${new Date(
-        createdAt * 1000
+        now * 1000
       ).toISOString()}`,
 
       `Expires At: ${new Date(
         expiresAt * 1000
       ).toISOString()}`,
 
-      `Origin: ${origin}`,
-    ].join("\n");
+      "",
 
-  const challengeRecord =
-    {
-      version:
-        AUTH.version,
+      "Signing proves wallet control. This is not a transaction and costs no gas.",
+    ].join(
+      "\n"
+    );
 
-      challengeId,
+  const record = {
+    id,
 
-      nonce,
+    address,
 
-      address,
+    message,
 
-      chainKey,
+    nonce,
 
-      chainId:
-        chain.chainId,
+    issuedAt:
+      now,
 
-      message,
+    expiresAt,
+  };
 
-      origin,
+  await env
+    .PRIVATE_BUCKET
+    .put(
+      `auth/challenges/${id}.json`,
+      JSON.stringify(
+        record
+      ),
+      {
+        httpMetadata: {
+          contentType:
+            "application/json",
+        },
+      }
+    );
 
-      createdAt,
+  return json({
+    ok: true,
 
-      expiresAt,
-    };
-
-  await env.PRIVATE_BUCKET.put(
-    `${AUTH.challengePrefix}${challengeId}.json`,
-
-    JSON.stringify(
-      challengeRecord
-    ),
-
-    {
-      httpMetadata: {
-        contentType:
-          "application/json",
-      },
-    }
-  );
-
-  return jsonResponse(
-    {
-      ok: true,
-
-      challengeId,
-
-      address,
-
-      chainKey,
-
-      chainId:
-        chain.chainId,
+    challenge: {
+      id,
 
       message,
 
       expiresAt,
     },
-    200,
-    request
-  );
+  });
 }
 
 // ============================================================
@@ -1501,237 +1573,175 @@ async function handleAuthVerify(
       request
     );
 
+  const address =
+    normalizeAddress(
+      body?.address
+    );
+
   const challengeId =
-    typeof body?.challengeId ===
-    "string"
-      ? body.challengeId
-      : "";
+    String(
+      body?.challengeId ||
+      ""
+    ).trim();
 
   const signature =
-    typeof body?.signature ===
-    "string"
-      ? body.signature
-      : "";
-
-  if (
-    !/^[0-9a-fA-F-]{20,80}$/.test(
-      challengeId
-    )
-  ) {
-    return jsonResponse(
-      {
-        ok: false,
-
-        error:
-          "invalid_challenge",
-
-        message:
-          "Invalid challenge identifier.",
-      },
-      400,
-      request
+    normalizeSignature(
+      body?.signature
     );
-  }
 
   if (
-    !/^0x[0-9a-fA-F]{130}$/.test(
-      signature
-    )
+    !address ||
+    !challengeId ||
+    !signature
   ) {
-    return jsonResponse(
+    return json(
       {
         ok: false,
 
         error:
-          "invalid_signature",
-
-        message:
-          "A 65-byte EVM signature is required.",
+          "Address, challengeId and signature are required.",
       },
-      400,
-      request
+      400
     );
   }
 
   const key =
-    `${AUTH.challengePrefix}${challengeId}.json`;
+    `auth/challenges/${challengeId}.json`;
 
   const object =
-    await env.PRIVATE_BUCKET.get(
-      key
-    );
+    await env
+      .PRIVATE_BUCKET
+      .get(
+        key
+      );
 
   if (!object) {
-    return jsonResponse(
+    return json(
       {
         ok: false,
 
         error:
-          "challenge_not_found",
-
-        message:
-          "Challenge is missing, expired, or already used.",
+          "Challenge not found or already used.",
       },
-      401,
-      request
+      404
     );
   }
 
-  let challenge;
+  const challenge =
+    await object.json();
+
+  if (
+    challenge.address !==
+      address ||
+    challenge.expiresAt <=
+      unixNow() ||
+    typeof challenge.message !==
+      "string"
+  ) {
+    await env
+      .PRIVATE_BUCKET
+      .delete(
+        key
+      );
+
+    return json(
+      {
+        ok: false,
+
+        error:
+          "Challenge is invalid or expired.",
+      },
+      401
+    );
+  }
+
+  let recoveredAddress;
 
   try {
-    challenge =
-      JSON.parse(
-        await object.text()
+    recoveredAddress =
+      await recoverPersonalSignAddress(
+        env,
+        challenge.message,
+        signature
       );
-  } catch {
-    await env.PRIVATE_BUCKET.delete(
-      key
-    );
-
-    return jsonResponse(
+  } catch (error) {
+    return json(
       {
         ok: false,
 
         error:
-          "challenge_invalid",
+          "Signature verification service unavailable.",
 
-        message:
-          "Stored challenge is invalid.",
+        detail:
+          error instanceof Error
+            ? error.message
+            : String(error),
       },
-      401,
-      request
+      502
     );
   }
-
-  const now =
-    Math.floor(
-      Date.now() / 1000
-    );
 
   if (
-    !challenge.expiresAt ||
-    now >
-      challenge.expiresAt
+    recoveredAddress !==
+    address
   ) {
-    await env.PRIVATE_BUCKET.delete(
-      key
-    );
-
-    return jsonResponse(
+    return json(
       {
         ok: false,
 
         error:
-          "challenge_expired",
-
-        message:
-          "Challenge expired. Request a new challenge.",
+          "Signature does not match wallet.",
       },
-      401,
-      request
+      401
     );
   }
 
-  const recovered =
-    await recoverPersonalSignAddress(
-      env,
-
-      challenge.chainKey ||
-        "pulsechain",
-
-      challenge.message,
-
-      signature
-    );
-
-  if (
-    !recovered ||
-    recovered !==
-      normalizeAddress(
-        challenge.address
-      )
-  ) {
-    await env.PRIVATE_BUCKET.delete(
+  await env
+    .PRIVATE_BUCKET
+    .delete(
       key
     );
-
-    return jsonResponse(
-      {
-        ok: false,
-
-        error:
-          "signature_mismatch",
-
-        message:
-          "Signature does not match the requested wallet.",
-      },
-      401,
-      request
-    );
-  }
-
-  // One-time challenge.
-  await env.PRIVATE_BUCKET.delete(
-    key
-  );
 
   const issuedAt =
-    now;
+    unixNow();
 
   const expiresAt =
     issuedAt +
-    AUTH.sessionLifetimeSeconds;
-
-  const payload =
-    {
-      v:
-        AUTH.version,
-
-      iss:
-        AUTH.sessionIssuer,
-
-      sub:
-        recovered,
-
-      chainKey:
-        challenge.chainKey ||
-        "pulsechain",
-
-      iat:
-        issuedAt,
-
-      exp:
-        expiresAt,
-
-      jti:
-        crypto.randomUUID(),
-    };
+    SESSION_TTL_SECONDS;
 
   const token =
-    await signSession(
-      payload,
+    await signSessionToken(
+      env,
+      {
+        wallet:
+          address,
 
-      env.HELLBOX_SESSION_SECRET
+        chainId:
+          369,
+
+        issuedAt,
+
+        expiresAt,
+
+        nonce:
+          randomHex(
+            12
+          ),
+      }
     );
 
-  return jsonResponse(
-    {
-      ok: true,
+  return json({
+    ok: true,
 
-      address:
-        recovered,
+    verified:
+      true,
 
-      chainKey:
-        payload.chainKey,
-
+    session: {
       token,
 
       expiresAt,
     },
-    200,
-    request
-  );
+  });
 }
 
 // ============================================================
@@ -1742,27 +1752,14 @@ async function handleAuthSession(
   request,
   env
 ) {
-  try {
-    const session =
-      await requireSession(
-        request,
-        env
-      );
-
-    return jsonResponse(
-      {
-        ok: true,
-
-        authenticated:
-          true,
-
-        session,
-      },
-      200,
-      request
+  const session =
+    await requireSession(
+      request,
+      env
     );
-  } catch (error) {
-    return jsonResponse(
+
+  if (!session.ok) {
+    return json(
       {
         ok: false,
 
@@ -1770,848 +1767,35 @@ async function handleAuthSession(
           false,
 
         error:
-          "invalid_session",
-
-        message:
-          safeErrorMessage(
-            error
-          ),
+          session.error,
       },
-      401,
-      request
+      session.status
     );
   }
-}
 
-// ============================================================
-// PUBLICATION STATUS
-// ============================================================
+  return json({
+    ok: true,
 
-function handlePublicationStatus(
-  request
-) {
-  const publicPublications =
-    PUBLICATION_REGISTRY.filter(
-      isPublicPublication
-    );
+    authenticated:
+      true,
 
-  const counts =
-    {
-      private:
-        PUBLICATION_REGISTRY.filter(
-          (p) =>
-            p.lifecycle ===
-            LIFECYCLE.PRIVATE
-        ).length,
+    wallet: {
+      address:
+        session
+          .payload
+          .wallet,
 
-      announced:
-        publicPublications.filter(
-          (p) =>
-            p.lifecycle ===
-            LIFECYCLE.ANNOUNCED
-        ).length,
-
-      mintLive:
-        publicPublications.filter(
-          (p) =>
-            p.lifecycle ===
-            LIFECYCLE.MINT_LIVE
-        ).length,
-
-      circulating:
-        publicPublications.filter(
-          (p) =>
-            p.lifecycle ===
-            LIFECYCLE.CIRCULATING
-        ).length,
-    };
-
-  return jsonResponse(
-    {
-      ok: true,
-
-      lifecycle:
-        LIFECYCLE,
-
-      counts,
+      chainId:
+        session
+          .payload
+          .chainId,
     },
-    200,
-    request
-  );
-}
 
-// ============================================================
-// PRESS
-// ============================================================
-
-function handlePress(
-  request
-) {
-  const publications =
-    PUBLICATION_REGISTRY.filter(
-      (p) =>
-        p.publicVisible &&
-        [
-          LIFECYCLE.ANNOUNCED,
-          LIFECYCLE.MINT_LIVE,
-        ].includes(
-          p.lifecycle
-        )
-    ).map(
-      serializePublication
-    );
-
-  return jsonResponse(
-    {
-      ok: true,
-
-      publications,
-
-      empty:
-        publications.length ===
-        0,
-
-      emptyMessage:
-        publications.length ===
-        0
-          ? "NOTHING ON THE PRESS YET."
-          : null,
-    },
-    200,
-    request
-  );
-}
-
-// ============================================================
-// PUBLICATIONS
-// ============================================================
-
-function handlePublications(
-  request
-) {
-  const publications =
-    PUBLICATION_REGISTRY.filter(
-      isPublicPublication
-    ).map(
-      serializePublication
-    );
-
-  return jsonResponse(
-    {
-      ok: true,
-
-      publications,
-    },
-    200,
-    request
-  );
-}
-
-// ============================================================
-// SINGLE PUBLICATION
-// ============================================================
-
-function handlePublication(
-  request,
-  publicationKey
-) {
-  const publication =
-    findPublicPublication(
-      publicationKey
-    );
-
-  if (!publication) {
-    return publicationNotFound(
-      request
-    );
-  }
-
-  return jsonResponse(
-    {
-      ok: true,
-
-      publication:
-        serializePublication(
-          publication
-        ),
-    },
-    200,
-    request
-  );
-}
-
-// ============================================================
-// COLLECTION
-// ============================================================
-
-async function handleCollection(
-  request,
-  env,
-  url
-) {
-  const address =
-    normalizeAddress(
-      url.searchParams.get(
-        "address"
-      )
-    );
-
-  if (!address) {
-    return jsonResponse(
-      {
-        ok: false,
-
-        error:
-          "invalid_address",
-
-        message:
-          "Query parameter ?address=0x... is required.",
-      },
-      400,
-      request
-    );
-  }
-
-  const circulating =
-    PUBLICATION_REGISTRY.filter(
-      (p) =>
-        p.publicVisible &&
-        p.lifecycle ===
-          LIFECYCLE.CIRCULATING
-    );
-
-  const publications =
-    [];
-
-  for (
-    const publication
-    of circulating
-  ) {
-    const owned =
-      await getOwnedTokenCopies(
-        env,
-
-        publication,
-
-        address
-      );
-
-    if (
-      owned.length >
-      0
-    ) {
-      publications.push(
-        {
-          publication:
-            serializePublication(
-              publication
-            ),
-
-          tokens:
-            owned,
-
-          owned:
-            true,
-        }
-      );
-    }
-  }
-
-  return jsonResponse(
-    {
-      ok: true,
-
-      address,
-
-      publications,
-
-      empty:
-        publications.length ===
-        0,
-
-      emptyMessage:
-        publications.length ===
-        0
-          ? "THE ARCHIVE IS EMPTY."
-          : null,
-    },
-    200,
-    request
-  );
-}
-
-// ============================================================
-// WALLET STATUS
-// ============================================================
-
-async function handleWalletStatus(
-  request,
-  env,
-  url
-) {
-  const address =
-    normalizeAddress(
-      url.searchParams.get(
-        "address"
-      )
-    );
-
-  if (!address) {
-    return jsonResponse(
-      {
-        ok: false,
-
-        error:
-          "invalid_address",
-
-        message:
-          "Query parameter ?address=0x... is required.",
-      },
-      400,
-      request
-    );
-  }
-
-  const statuses =
-    [];
-
-  for (
-    const publication
-    of PUBLICATION_REGISTRY.filter(
-      isPublicPublication
-    )
-  ) {
-    const tokens =
-      await getOwnedTokenCopies(
-        env,
-
-        publication,
-
-        address
-      );
-
-    statuses.push(
-      {
-        publicationKey:
-          publication.publicationKey,
-
-        lifecycle:
-          publication.lifecycle,
-
-        ownership:
-          publication.deployment
-            .contractAddress ==
-          null
-            ? OWNERSHIP.UNAVAILABLE
-            : tokens.length >
-              0
-            ? OWNERSHIP.OWNED
-            : OWNERSHIP.MISSING,
-
-        tokenCount:
-          tokens.length,
-
-        tokens,
-      }
-    );
-  }
-
-  return jsonResponse(
-    {
-      ok: true,
-
-      address,
-
-      statuses,
-    },
-    200,
-    request
-  );
-}
-
-// ============================================================
-// MINT STATUS
-// ============================================================
-
-async function handleMintStatus(
-  request,
-  env,
-  url,
-  publicationKey
-) {
-  const publication =
-    findPublicPublication(
-      publicationKey
-    );
-
-  if (!publication) {
-    return publicationNotFound(
-      request
-    );
-  }
-
-  const address =
-    normalizeAddress(
-      url.searchParams.get(
-        "address"
-      )
-    );
-
-  if (!address) {
-    return jsonResponse(
-      {
-        ok: true,
-
-        publication:
-          serializePublication(
-            publication
-          ),
-
-        mint: {
-          state:
-            deriveBaseMintState(
-              publication
-            ),
-
-          walletRequired:
-            true,
-        },
-      },
-      200,
-      request
-    );
-  }
-
-  const status =
-    await evaluateMintStatus(
-      env,
-
-      publication,
-
-      address
-    );
-
-  return jsonResponse(
-    {
-      ok: true,
-
-      publication:
-        serializePublication(
-          publication
-        ),
-
-      address,
-
-      mint:
-        status,
-    },
-    200,
-    request
-  );
-}
-
-// ============================================================
-// MINT PREPARE
-// ============================================================
-
-async function handleMintPrepare(
-  request,
-  env,
-  publicationKey
-) {
-  const publication =
-    findPublicPublication(
-      publicationKey
-    );
-
-  if (!publication) {
-    return publicationNotFound(
-      request
-    );
-  }
-
-  const body =
-    await readJson(
-      request
-    );
-
-  const address =
-    normalizeAddress(
-      body?.address
-    );
-
-  const quantity =
-    normalizeQuantity(
-      body?.quantity,
-      1
-    );
-
-  if (!address) {
-    return jsonResponse(
-      {
-        ok: false,
-
-        error:
-          "invalid_address",
-
-        message:
-          "A valid wallet address is required.",
-      },
-      400,
-      request
-    );
-  }
-
-  if (
-    quantity < 1 ||
-    quantity >
-      publication.mint
-        .maxPerTransaction ||
-    quantity >
-      publication.mint
-        .maxPrimaryMintsPerWallet
-  ) {
-    return jsonResponse(
-      {
-        ok: false,
-
-        error:
-          "invalid_quantity",
-
-        message:
-          `Quantity must be between 1 and ${publication.mint.maxPerTransaction}.`,
-      },
-      400,
-      request
-    );
-  }
-
-  const status =
-    await evaluateMintStatus(
-      env,
-
-      publication,
-
-      address,
-
-      quantity
-    );
-
-  if (
-    ![
-      MINT_STATE.ELIGIBLE,
-      MINT_STATE.LIVE,
-    ].includes(
-      status.state
-    )
-  ) {
-    return jsonResponse(
-      {
-        ok: false,
-
-        error:
-          "mint_not_available",
-
-        message:
-          status.message ||
-          "Mint is not currently available.",
-
-        mint:
-          status,
-      },
-      409,
-      request
-    );
-  }
-
-  if (
-    !publication.deployment
-      .contractAddress
-  ) {
-    return jsonResponse(
-      {
-        ok: false,
-
-        error:
-          "contract_not_deployed",
-
-        message:
-          "This publication is configured, but the HellboxNFT contract has not been deployed yet.",
-      },
-      409,
-      request
-    );
-  }
-
-  const transaction =
-    await buildMintTransaction(
-      env,
-
-      publication,
-
-      address,
-
-      quantity
-    );
-
-  return jsonResponse(
-    {
-      ok: true,
-
-      publicationKey:
-        publication.publicationKey,
-
-      quantity,
-
-      transaction,
-    },
-    200,
-    request
-  );
-}
-
-// ============================================================
-// MINT CONFIRM
-// ============================================================
-
-async function handleMintConfirm(
-  request,
-  env,
-  publicationKey
-) {
-  const publication =
-    findPublicPublication(
-      publicationKey
-    );
-
-  if (!publication) {
-    return publicationNotFound(
-      request
-    );
-  }
-
-  const body =
-    await readJson(
-      request
-    );
-
-  const address =
-    normalizeAddress(
-      body?.address
-    );
-
-  const txHash =
-    typeof body?.txHash ===
-      "string" &&
-    /^0x[0-9a-fA-F]{64}$/.test(
-      body.txHash
-    )
-      ? body.txHash
-      : null;
-
-  if (
-    !address ||
-    !txHash
-  ) {
-    return jsonResponse(
-      {
-        ok: false,
-
-        error:
-          "invalid_confirmation",
-
-        message:
-          "A valid address and transaction hash are required.",
-      },
-      400,
-      request
-    );
-  }
-
-  if (
-    !publication.deployment
-      .contractAddress
-  ) {
-    return jsonResponse(
-      {
-        ok: false,
-
-        error:
-          "contract_not_deployed",
-
-        message:
-          "Publication contract is not deployed.",
-      },
-      409,
-      request
-    );
-  }
-
-  const chainKey =
-    publication.chainKey;
-
-  const receiptRpc =
-    await rpcRequestWithFallback(
-      env,
-
-      chainKey,
-
-      "eth_getTransactionReceipt",
-
-      [
-        txHash,
-      ]
-    );
-
-  const receipt =
-    receiptRpc.result;
-
-  if (!receipt) {
-    return jsonResponse(
-      {
-        ok: true,
-
-        confirmed:
-          false,
-
-        pending:
-          true,
-
-        provider:
-          receiptRpc.provider,
-      },
-      200,
-      request
-    );
-  }
-
-  if (
-    receipt.status !==
-    "0x1"
-  ) {
-    return jsonResponse(
-      {
-        ok: false,
-
-        confirmed:
-          false,
-
-        error:
-          "transaction_failed",
-
-        message:
-          "Mint transaction reverted.",
-      },
-      409,
-      request
-    );
-  }
-
-  const txRpc =
-    await rpcRequestWithFallback(
-      env,
-
-      chainKey,
-
-      "eth_getTransactionByHash",
-
-      [
-        txHash,
-      ]
-    );
-
-  const tx =
-    txRpc.result;
-
-  const expectedTarget =
-    normalizeAddress(
-      publication.deployment
-        .contractAddress
-    );
-
-  const actualTarget =
-    normalizeAddress(
-      tx?.to
-    );
-
-  if (
-    !tx ||
-    !expectedTarget ||
-    actualTarget !==
-      expectedTarget
-  ) {
-    return jsonResponse(
-      {
-        ok: false,
-
-        confirmed:
-          false,
-
-        error:
-          "wrong_contract",
-
-        message:
-          "Transaction did not target the configured Hellbox contract.",
-      },
-      409,
-      request
-    );
-  }
-
-  const owned =
-    await getOwnedTokenCopies(
-      env,
-
-      publication,
-
-      address
-    );
-
-  if (
-    owned.length ===
-    0
-  ) {
-    return jsonResponse(
-      {
-        ok: false,
-
-        confirmed:
-          false,
-
-        error:
-          "ownership_not_verified",
-
-        message:
-          "Transaction succeeded, but Hellbox could not independently verify ERC-721 ownership yet.",
-      },
-      409,
-      request
-    );
-  }
-
-  return jsonResponse(
-    {
-      ok: true,
-
-      confirmed:
-        true,
-
-      address,
-
-      transactionHash:
-        txHash,
-
-      publicationKey,
-
-      tokens:
-        owned,
-
-      provider:
-        receiptRpc.provider,
-    },
-    200,
-    request
-  );
+    expiresAt:
+      session
+        .payload
+        .expiresAt,
+  });
 }
 
 // ============================================================
@@ -2624,34 +1808,37 @@ async function handleReaderManifest(
   publicationKey
 ) {
   const publication =
-    findPublicPublication(
+    getPublicPublication(
       publicationKey
     );
 
   if (!publication) {
-    return publicationNotFound(
-      request
+    return json(
+      {
+        ok: false,
+
+        error:
+          "Publication not found.",
+      },
+      404
     );
   }
 
   if (
     publication.lifecycle !==
-      LIFECYCLE.CIRCULATING ||
-    !publication.features.reader ||
-    !publication.reader?.enabled
+      "circulating" ||
+    !publication
+      .reader
+      .enabled
   ) {
-    return jsonResponse(
+    return json(
       {
         ok: false,
 
         error:
-          "reader_unavailable",
-
-        message:
-          "Reader is not currently available for this publication.",
+          "Reader is not available for this publication.",
       },
-      404,
-      request
+      409
     );
   }
 
@@ -2661,185 +1848,67 @@ async function handleReaderManifest(
       env
     );
 
-  const tokens =
-    await getOwnedTokenCopies(
-      env,
-
-      publication,
-
-      session.sub
-    );
-
-  if (
-    tokens.length ===
-    0
-  ) {
-    return jsonResponse(
+  if (!session.ok) {
+    return json(
       {
         ok: false,
 
         error:
-          "ownership_required",
-
-        message:
-          "Wallet does not own this publication.",
+          session.error,
       },
-      403,
-      request
+      session.status
     );
   }
+
+  const ownership =
+    await verifyPublicationOwnership(
+      env,
+      publication,
+      session
+        .payload
+        .wallet
+    );
 
   if (
-    publication.reader
-      .sourceMode ===
-    "private"
+    !ownership.owned
   ) {
-    requirePrivateBucket(
-      env
-    );
-
-    const object =
-      await env.PRIVATE_BUCKET.get(
-        publication.reader
-          .manifestKey
-      );
-
-    if (!object) {
-      return jsonResponse(
-        {
-          ok: false,
-
-          error:
-            "manifest_missing",
-
-          message:
-            "Protected reader manifest was not found.",
-        },
-        404,
-        request
-      );
-    }
-
-    let manifest;
-
-    try {
-      manifest =
-        JSON.parse(
-          await object.text()
-        );
-    } catch {
-      return jsonResponse(
-        {
-          ok: false,
-
-          error:
-            "manifest_invalid",
-
-          message:
-            "Protected reader manifest is invalid.",
-        },
-        500,
-        request
-      );
-    }
-
-    const safeManifest =
-      sanitizeReaderManifest(
-        manifest,
-
-        publication.publicationKey
-      );
-
-    return jsonResponse(
+    return json(
       {
-        ok: true,
+        ok: false,
 
-        publication:
-          serializePublication(
-            publication
-          ),
+        access:
+          "denied",
 
-        ownedTokens:
-          tokens,
-
-        reader:
-          safeManifest,
+        error:
+          "Edition ownership required.",
       },
-      200,
-      request,
-      {
-        "Cache-Control":
-          "private, no-store",
-      }
+      403
     );
   }
 
-  if (
-    publication.reader
-      .sourceMode ===
-      "public" ||
-    publication.reader
-      .sourceMode ===
-      "ipfs"
-  ) {
-    const manifest =
-      publication.reader
-        .publicManifest ||
-      null;
-
-    if (!manifest) {
-      return jsonResponse(
-        {
-          ok: false,
-
-          error:
-            "manifest_missing",
-
-          message:
-            "Public reader manifest is not configured.",
-        },
-        404,
-        request
-      );
-    }
-
-    return jsonResponse(
-      {
-        ok: true,
-
-        publication:
-          serializePublication(
-            publication
-          ),
-
-        ownedTokens:
-          tokens,
-
-        reader:
-          manifest,
-      },
-      200,
-      request,
-      {
-        "Cache-Control":
-          "private, no-store",
-      }
+  const manifest =
+    await loadReaderManifest(
+      env,
+      publication
     );
-  }
 
-  return jsonResponse(
-    {
-      ok: false,
+  return json({
+    ok: true,
 
-      error:
-        "reader_mode_invalid",
+    access:
+      "granted",
 
-      message:
-        "Reader source mode is not supported.",
+    publication:
+      publicPublicationView(
+        publication
+      ),
+
+    ownership,
+
+    reader: {
+      manifest,
     },
-    500,
-    request
-  );
+  });
 }
 
 // ============================================================
@@ -2853,35 +1922,37 @@ async function handleReaderAsset(
   assetId
 ) {
   const publication =
-    findPublicPublication(
+    getPublicPublication(
       publicationKey
     );
 
   if (!publication) {
-    return publicationNotFound(
-      request
+    return json(
+      {
+        ok: false,
+
+        error:
+          "Publication not found.",
+      },
+      404
     );
   }
 
   if (
     publication.lifecycle !==
-      LIFECYCLE.CIRCULATING ||
-    publication.reader
-      ?.sourceMode !==
-      "private"
+      "circulating" ||
+    !publication
+      .reader
+      .enabled
   ) {
-    return jsonResponse(
+    return json(
       {
         ok: false,
 
         error:
-          "asset_unavailable",
-
-        message:
-          "Protected asset route is unavailable.",
+          "Reader is not available for this publication.",
       },
-      404,
-      request
+      409
     );
   }
 
@@ -2891,160 +1962,109 @@ async function handleReaderAsset(
       env
     );
 
-  const tokens =
-    await getOwnedTokenCopies(
+  if (!session.ok) {
+    return json(
+      {
+        ok: false,
+
+        error:
+          session.error,
+      },
+      session.status
+    );
+  }
+
+  const ownership =
+    await verifyPublicationOwnership(
       env,
-
       publication,
-
-      session.sub
+      session
+        .payload
+        .wallet
     );
 
   if (
-    tokens.length ===
-    0
+    !ownership.owned
   ) {
-    return jsonResponse(
+    return json(
       {
         ok: false,
 
         error:
-          "ownership_required",
-
-        message:
-          "Wallet does not own this publication.",
+          "Edition ownership required.",
       },
-      403,
-      request
+      403
     );
   }
 
-  requirePrivateBucket(
-    env
-  );
-
-  const manifestObject =
-    await env.PRIVATE_BUCKET.get(
-      publication.reader
-        .manifestKey
+  const manifest =
+    await loadReaderManifest(
+      env,
+      publication
     );
 
-  if (!manifestObject) {
-    return jsonResponse(
-      {
-        ok: false,
-
-        error:
-          "manifest_missing",
-
-        message:
-          "Reader manifest not found.",
-      },
-      404,
-      request
-    );
-  }
-
-  let manifest;
-
-  try {
-    manifest =
-      JSON.parse(
-        await manifestObject.text()
-      );
-  } catch {
-    return jsonResponse(
-      {
-        ok: false,
-
-        error:
-          "manifest_invalid",
-
-        message:
-          "Reader manifest is invalid.",
-      },
-      500,
-      request
-    );
-  }
-
-  const asset =
-    resolveManifestAsset(
-      manifest,
-
-      assetId
+  const page =
+    manifest.pages.find(
+      candidate =>
+        String(
+          candidate.id
+        ) ===
+        String(
+          assetId
+        )
     );
 
   if (
-    !asset ||
-    !asset.objectKey
+    !page ||
+    !page.storageKey
   ) {
-    return jsonResponse(
+    return json(
       {
         ok: false,
 
         error:
-          "asset_not_found",
-
-        message:
           "Reader asset not found.",
       },
-      404,
-      request
+      404
     );
   }
 
   const normalizedKey =
-    normalizePrivateObjectKey(
-      asset.objectKey
-    );
-
-  const requiredPrefix =
-    normalizePrivateObjectKey(
-      publication.reader
-        .privatePrefix
+    normalizePrivateReaderKey(
+      publication,
+      page.storageKey
     );
 
   if (
-    !normalizedKey ||
-    !requiredPrefix ||
-    !normalizedKey.startsWith(
-      requiredPrefix
-    )
+    !normalizedKey
   ) {
-    return jsonResponse(
+    return json(
       {
         ok: false,
 
         error:
-          "unsafe_asset_path",
-
-        message:
-          "Reader asset path failed validation.",
+          "Reader asset key rejected.",
       },
-      403,
-      request
+      400
     );
   }
 
   const object =
-    await env.PRIVATE_BUCKET.get(
-      normalizedKey
-    );
+    await env
+      .PRIVATE_BUCKET
+      .get(
+        normalizedKey
+      );
 
   if (!object) {
-    return jsonResponse(
+    return json(
       {
         ok: false,
 
         error:
-          "asset_missing",
-
-        message:
-          "Reader asset is missing.",
+          "Protected reader asset unavailable.",
       },
-      404,
-      request
+      404
     );
   }
 
@@ -3065,15 +2085,11 @@ async function handleReaderAsset(
     "nosniff"
   );
 
-  addCorsHeaders(
-    request,
-    headers
-  );
-
   return new Response(
     object.body,
     {
-      status: 200,
+      status:
+        200,
 
       headers,
     }
@@ -3081,294 +2097,149 @@ async function handleReaderAsset(
 }
 
 // ============================================================
-// MINT EVALUATION
+// PUBLICATION HELPERS
 // ============================================================
 
-async function evaluateMintStatus(
-  env,
-  publication,
-  address,
-  quantity = 1
+function getPublicPublications() {
+  return Object.values(
+    PUBLICATION_REGISTRY
+  ).filter(
+    publication =>
+      publication.publicVisible
+  );
+}
+
+function getPublication(
+  publicationKey
 ) {
-  const baseState =
-    deriveBaseMintState(
-      publication
+  return (
+    PUBLICATION_REGISTRY[
+      String(
+        publicationKey ||
+        ""
+      ).toLowerCase()
+    ] ||
+    null
+  );
+}
+
+function getPublicPublication(
+  publicationKey
+) {
+  const publication =
+    getPublication(
+      publicationKey
     );
 
-  if (
-    baseState ===
-      MINT_STATE.UNAVAILABLE ||
-    baseState ===
-      MINT_STATE.UPCOMING ||
-    baseState ===
-      MINT_STATE.SOLD_OUT
-  ) {
-    return {
-      state:
-        baseState,
+  return (
+    publication &&
+    publication.publicVisible
+  )
+    ? publication
+    : null;
+}
 
-      eligible:
-        false,
-
-      message:
-        mintStateMessage(
-          baseState
-        ),
-
-      maxPerWallet:
-        publication.mint
-          .maxPrimaryMintsPerWallet,
-
-      maxPerTransaction:
-        publication.mint
-          .maxPerTransaction,
-    };
-  }
-
-  if (
-    !publication.deployment
-      .contractAddress
-  ) {
-    return {
-      state:
-        MINT_STATE.UPCOMING,
-
-      eligible:
-        false,
-
-      message:
-        "Contract not deployed yet.",
-
-      maxPerWallet:
-        publication.mint
-          .maxPrimaryMintsPerWallet,
-
-      maxPerTransaction:
-        publication.mint
-          .maxPerTransaction,
-    };
-  }
-
-  const claimInfo =
-    await getPrimaryMintClaimInfo(
-      env,
-
-      publication,
-
-      address
-    );
-
-  if (
-    !claimInfo.available
-  ) {
-    return {
-      state:
-        MINT_STATE.UNAVAILABLE,
-
-      eligible:
-        false,
-
-      message:
-        "Mint claim information is unavailable.",
-    };
-  }
-
-  const remainingWalletAllowance =
-    Math.max(
-      0,
-
-      publication.mint
-        .maxPrimaryMintsPerWallet -
-        claimInfo.claimed
-    );
-
-  if (
-    remainingWalletAllowance ===
-    0
-  ) {
-    return {
-      state:
-        MINT_STATE.NOT_ELIGIBLE,
-
-      eligible:
-        false,
-
-      message:
-        "This wallet has reached its primary mint limit.",
-
-      claimed:
-        claimInfo.claimed,
-
-      remainingWalletAllowance:
-        0,
-    };
-  }
-
-  if (
-    quantity >
-    remainingWalletAllowance
-  ) {
-    return {
-      state:
-        MINT_STATE.NOT_ELIGIBLE,
-
-      eligible:
-        false,
-
-      message:
-        `This wallet may mint at most ${remainingWalletAllowance} more.`,
-
-      claimed:
-        claimInfo.claimed,
-
-      remainingWalletAllowance,
-    };
-  }
-
+function publicPublicationView(
+  publication
+) {
   return {
-    state:
-      MINT_STATE.ELIGIBLE,
+    publicationKey:
+      publication
+        .publicationKey,
 
-    eligible:
-      true,
+    title:
+      publication.title,
 
-    claimed:
-      claimInfo.claimed,
+    subtitle:
+      publication.subtitle,
 
-    remainingWalletAllowance,
+    publicationType:
+      publication
+        .publicationType,
 
-    maxPerWallet:
-      publication.mint
-        .maxPrimaryMintsPerWallet,
+    contentType:
+      publication
+        .contentType,
 
-    maxPerTransaction:
-      publication.mint
-        .maxPerTransaction,
+    series:
+      publication.series,
 
-    quantityRequested:
-      quantity,
+    issue:
+      publication.issue,
+
+    lifecycle:
+      publication.lifecycle,
+
+    chainKey:
+      publication.chainKey,
+
+    chainId:
+      publication.chainId,
+
+    token: {
+      ...publication.token,
+    },
+
+    mint: {
+      ...publication.mint,
+    },
+
+    reader: {
+      enabled:
+        publication
+          .reader
+          .enabled,
+    },
+
+    features: {
+      ...publication.features,
+    },
+
+    media: {
+      ...publication.media,
+    },
   };
 }
 
 // ============================================================
-// BASE MINT STATE
+// LEGACY ROUTE DETECTION
 // ============================================================
 
-function deriveBaseMintState(
-  publication
+function resolveLegacyPublication(
+  pathname
 ) {
-  if (
-    !publication.publicVisible ||
-    publication.lifecycle ===
-      LIFECYCLE.PRIVATE
-  ) {
-    return MINT_STATE.UNAVAILABLE;
+  const match =
+    pathname.match(
+      /^\/api\/(?:comics|reader|mint)\/([a-z0-9-]+)\/(\d+)(?:\/.*)?$/
+    );
+
+  if (!match) {
+    return null;
   }
 
-  if (
-    publication.lifecycle ===
-    LIFECYCLE.ANNOUNCED
-  ) {
-    return MINT_STATE.UPCOMING;
-  }
+  const legacyKey =
+    `${match[1]}:${Number(
+      match[2]
+    )}`;
 
-  if (
-    publication.lifecycle !==
-    LIFECYCLE.MINT_LIVE
-  ) {
-    return MINT_STATE.UNAVAILABLE;
-  }
+  const publicationKey =
+    LEGACY_SLUG_MAP[
+      legacyKey
+    ];
 
-  if (
-    !publication.mint.enabled
-  ) {
-    return MINT_STATE.UNAVAILABLE;
-  }
-
-  return MINT_STATE.LIVE;
+  return publicationKey
+    ? getPublication(
+        publicationKey
+      )
+    : {
+        publicationKey:
+          null,
+      };
 }
 
 // ============================================================
-// MINT STATE MESSAGES
+// OWNERSHIP
 // ============================================================
-
-function mintStateMessage(
-  state
-) {
-  switch (state) {
-    case MINT_STATE.UPCOMING:
-      return "Mint is not live yet.";
-
-    case MINT_STATE.SOLD_OUT:
-      return "Mint is sold out.";
-
-    case MINT_STATE.UNAVAILABLE:
-    default:
-      return "Mint is unavailable.";
-  }
-}
-
-// ============================================================
-// CLAIM INFO
-// ============================================================
-//
-// This is intentionally NOT implemented until HellboxNFT.sol exists.
-//
-// We will not guess a selector or ABI.
-
-async function getPrimaryMintClaimInfo(
-  env,
-  publication,
-  address
-) {
-  if (
-    !publication.deployment
-      .contractAddress
-  ) {
-    return {
-      available:
-        false,
-
-      claimed:
-        0,
-    };
-  }
-
-  throw new Error(
-    "HellboxNFT claim-count ABI is not configured yet."
-  );
-}
-
-// ============================================================
-// BUILD MINT TRANSACTION
-// ============================================================
-//
-// Also intentionally dormant until the verified HellboxNFT ABI exists.
-
-async function buildMintTransaction(
-  env,
-  publication,
-  address,
-  quantity
-) {
-  throw new Error(
-    "HellboxNFT mint ABI is not configured yet."
-  );
-}
-
-// ============================================================
-// OWNED ERC-721 COPIES
-// ============================================================
-//
-// ERC-721 does not provide native enumeration.
-//
-// We intentionally avoid ERC721Enumerable.
-//
-// Later this will use:
-// 1. Hellbox Transfer-event indexing
-// 2. independent ownerOf() RPC verification
-//
-// Until the contract exists we claim no ownership.
 
 async function getOwnedTokenCopies(
   env,
@@ -3376,660 +2247,360 @@ async function getOwnedTokenCopies(
   address
 ) {
   if (
-    !publication.deployment
-      .contractAddress
+    !publication
+      .token
+      .contractAddress ||
+    publication
+      .token
+      .publicationId ==
+      null
   ) {
     return [];
   }
 
+  /*
+   * INTENTIONALLY NOT GUESSED.
+   *
+   * The Hellbox ERC-721 contract has not been deployed yet.
+   *
+   * Once deployed, this function will use:
+   *
+   * 1. indexed Transfer-event ownership cache
+   * 2. final ownerOf verification
+   *
+   * We will NOT use ERC721Enumerable.
+   * We will NOT repeatedly scan the entire chain per request.
+   */
+
   return [];
 }
 
-// ============================================================
-// SERIALIZE PUBLICATION
-// ============================================================
-
-function serializePublication(
-  publication
+async function verifyPublicationOwnership(
+  env,
+  publication,
+  address
 ) {
-  const chain =
-    CHAINS[
-      publication.chainKey
-    ];
+  const copies =
+    await getOwnedTokenCopies(
+      env,
+      publication,
+      address
+    );
 
   return {
-    publicationKey:
-      publication.publicationKey,
+    owned:
+      copies.length >
+      0,
 
-    title:
-      publication.title,
-
-    kind:
-      publication.kind,
-
-    seriesKey:
-      publication.seriesKey,
-
-    seriesTitle:
-      publication.seriesTitle,
-
-    issueNumber:
-      publication.issueNumber,
-
-    lifecycle:
-      publication.lifecycle,
-
-    chain: {
-      key:
-        chain.key,
-
-      name:
-        chain.name,
-
-      chainId:
-        chain.chainId,
-
-      chainIdHex:
-        chain.chainIdHex,
-
-      nativeSymbol:
-        chain.nativeSymbol,
-    },
-
-    deployment: {
-      contractAddress:
-        publication.deployment
-          .contractAddress,
-
-      publicationId:
-        publication.deployment
-          .publicationId,
-
-      tokenStandard:
-        publication.deployment
-          .tokenStandard,
-
-      deployed:
-        Boolean(
-          publication.deployment
-            .contractAddress
-        ),
-    },
-
-    supply:
-      publication.supply,
-
-    mint: {
-      enabled:
-        publication.mint
-          .enabled,
-
-      paymentType:
-        publication.mint
-          .paymentType,
-
-      paymentToken:
-        serializePaymentToken(
-          publication
-        ),
-
-      priceDisplay:
-        publication.mint
-          .priceDisplay,
-
-      priceBaseUnits:
-        publication.mint
-          .priceBaseUnits,
-
-      maxPrimaryMintsPerWallet:
-        publication.mint
-          .maxPrimaryMintsPerWallet,
-
-      maxPerTransaction:
-        publication.mint
-          .maxPerTransaction,
-    },
-
-    royalty:
-      publication.royalty,
-
-    features:
-      publication.features,
-
-    metadata:
-      publication.metadata,
-
-    press:
-      publication.press,
+    copies,
   };
 }
 
 // ============================================================
-// SERIALIZE PAYMENT TOKEN
+// PRIMARY MINT CLAIM STATUS
 // ============================================================
 
-function serializePaymentToken(
-  publication
+async function getPrimaryMintClaimInfo(
+  env,
+  publication,
+  address,
+  requestedQuantity = 1
 ) {
   if (
-    publication.mint
-      .paymentType ===
-    PAYMENT_TYPE.FREE
+    !publication
+      .mint
+      .enabled ||
+    publication.lifecycle !==
+      "mint_live"
   ) {
-    return null;
-  }
-
-  if (
-    publication.mint
-      .paymentType ===
-    PAYMENT_TYPE.NATIVE
-  ) {
-    const chain =
-      CHAINS[
-        publication.chainKey
-      ];
-
     return {
-      type:
-        PAYMENT_TYPE.NATIVE,
+      address,
 
-      symbol:
-        chain.nativeSymbol,
+      state:
+        "mint_closed",
 
-      address:
-        null,
+      eligible:
+        false,
 
-      decimals:
-        18,
+      reason:
+        "Mint is not live.",
+
+      lifetimePrimaryMinted:
+        0,
+
+      remainingPrimaryAllowance:
+        publication
+          .mint
+          .maxPrimaryMintsPerWallet,
     };
   }
 
   if (
-    publication.mint
-      .paymentType ===
-    PAYMENT_TYPE.ERC20
+    !publication
+      .token
+      .contractAddress ||
+    publication
+      .token
+      .publicationId ==
+      null
   ) {
-    const configured =
-      publication.mint
-        .paymentToken;
-
-    if (!configured) {
-      return null;
-    }
-
-    const chain =
-      CHAINS[
-        publication.chainKey
-      ];
-
-    for (
-      const token
-      of Object.values(
-        chain.stablecoins ||
-          {}
-      )
-    ) {
-      if (
-        normalizeAddress(
-          token.address
-        ) ===
-        normalizeAddress(
-          configured
-        )
-      ) {
-        return {
-          type:
-            PAYMENT_TYPE.ERC20,
-
-          symbol:
-            token.symbol,
-
-          name:
-            token.name,
-
-          address:
-            token.address,
-
-          decimals:
-            token.decimals,
-        };
-      }
-    }
-
     return {
-      type:
-        PAYMENT_TYPE.ERC20,
+      address,
 
-      symbol:
-        "ERC20",
+      state:
+        "contract_pending",
 
-      address:
-        configured,
+      eligible:
+        false,
 
-      decimals:
-        null,
+      reason:
+        "Publication contract has not been deployed yet.",
+
+      lifetimePrimaryMinted:
+        0,
+
+      remainingPrimaryAllowance:
+        publication
+          .mint
+          .maxPrimaryMintsPerWallet,
     };
   }
 
-  return null;
+  throw new Error(
+    "Primary mint claim lookup is intentionally disabled until the deployed HellboxNFT ABI and addresses are configured."
+  );
 }
 
 // ============================================================
-// READER MANIFEST SANITIZER
+// MINT TRANSACTION BUILDER
 // ============================================================
 
-function sanitizeReaderManifest(
-  manifest,
-  publicationKey
+async function buildMintTransaction(
+  publication,
+  address,
+  quantity
 ) {
-  const assets =
+  throw new Error(
+    "Mint transaction encoding is intentionally disabled until the deployed HellboxNFT ABI is configured."
+  );
+}
+
+// ============================================================
+// READER MANIFEST
+// ============================================================
+
+async function loadReaderManifest(
+  env,
+  publication
+) {
+  requirePrivateBucket(
+    env
+  );
+
+  if (
+    publication
+      .reader
+      .source !==
+    "private"
+  ) {
+    throw new Error(
+      "Unsupported reader source."
+    );
+  }
+
+  const object =
+    await env
+      .PRIVATE_BUCKET
+      .get(
+        publication
+          .reader
+          .manifestKey
+      );
+
+  if (!object) {
+    throw new Error(
+      "Protected reader manifest unavailable."
+    );
+  }
+
+  const rawManifest =
+    await object.json();
+
+  const rawPages =
     Array.isArray(
-      manifest.assets
+      rawManifest.pages
     )
-      ? manifest.assets
+      ? rawManifest.pages
       : [];
 
   const pages =
-    Array.isArray(
-      manifest.pages
-    )
-      ? manifest.pages
-      : [];
-
-  const safeAssets =
-    assets.map(
-      (
-        asset,
-        index
-      ) => {
-        const assetId =
-          typeof asset.id ===
-            "string" &&
-          /^[a-zA-Z0-9._-]+$/.test(
-            asset.id
-          )
-            ? asset.id
-            : `asset-${index + 1}`;
-
-        return {
-          id:
-            assetId,
-
-          type:
-            asset.type ||
-            null,
-
-          label:
-            asset.label ||
-            null,
-
-          endpoint:
-            `/api/reader/${encodeURIComponent(
-              publicationKey
-            )}/asset/${encodeURIComponent(
-              assetId
-            )}`,
-        };
-      }
-    );
-
-  const safePages =
-    pages.map(
+    rawPages.map(
       (
         page,
         index
       ) => {
-        const assetId =
-          typeof page.assetId ===
-          "string"
-            ? page.assetId
+        const id =
+          String(
+            page.id ??
+            page.assetId ??
+            index +
+              1
+          );
 
-            : typeof page.asset ===
-              "string"
-            ? page.asset
+        const storageKey =
+          String(
+            page.storageKey ??
+            page.key ??
+            page.path ??
+            ""
+          );
 
-            : safeAssets[
-                index
-              ]?.id ||
-              null;
+        if (
+          !storageKey
+        ) {
+          throw new Error(
+            `Reader manifest page ${index + 1} has no storage key.`
+          );
+        }
 
         return {
-          index:
-            index + 1,
+          id,
 
-          title:
-            page.title ||
-            null,
+          pageNumber:
+            Number(
+              page.pageNumber ??
+              index +
+                1
+            ),
 
-          assetId,
+          mediaType:
+            page.mediaType ||
+            page.contentType ||
+            "image/*",
 
           endpoint:
-            assetId
-              ? `/api/reader/${encodeURIComponent(
-                  publicationKey
-                )}/asset/${encodeURIComponent(
-                  assetId
-                )}`
-              : null,
+            `/api/reader/${encodeURIComponent(
+              publication.publicationKey
+            )}/asset/${encodeURIComponent(
+              id
+            )}`,
+
+          storageKey,
         };
       }
     );
 
   return {
+    ...rawManifest,
+
+    publicationKey:
+      publication
+        .publicationKey,
+
     title:
-      manifest.title ||
-      null,
+      rawManifest.title ||
+      publication.title,
 
-    mode:
-      manifest.mode ||
-      "paged",
+    layout:
+      rawManifest.layout ===
+      "continuous"
+        ? "continuous"
+        : "paged",
 
-    pageCount:
-      safePages.length ||
-      safeAssets.length,
-
-    assets:
-      safeAssets,
-
-    pages:
-      safePages,
+    pages,
   };
 }
 
 // ============================================================
-// MANIFEST ASSET RESOLUTION
+// PRIVATE READER PATH SAFETY
 // ============================================================
 
-function resolveManifestAsset(
-  manifest,
-  assetId
+function normalizePrivateReaderKey(
+  publication,
+  inputKey
 ) {
-  const assets =
-    Array.isArray(
-      manifest.assets
-    )
-      ? manifest.assets
-      : [];
+  const prefix =
+    publication
+      .reader
+      .assetPrefix;
 
-  let asset =
-    assets.find(
-      (item) =>
-        item?.id ===
-        assetId
-    );
-
-  if (asset) {
-    return asset;
-  }
-
-  const pages =
-    Array.isArray(
-      manifest.pages
-    )
-      ? manifest.pages
-      : [];
-
-  const page =
-    pages.find(
-      (item) =>
-        item?.assetId ===
-          assetId ||
-        item?.asset ===
-          assetId
-    );
-
-  if (
-    page?.objectKey
-  ) {
-    return page;
-  }
-
-  return null;
-}
-
-// ============================================================
-// PRIVATE OBJECT KEY SAFETY
-// ============================================================
-
-function normalizePrivateObjectKey(
-  key
-) {
-  if (
-    typeof key !==
-    "string"
-  ) {
-    return null;
-  }
-
-  let decoded;
-
-  try {
-    decoded =
-      decodeURIComponent(
-        key
-      );
-  } catch {
-    return null;
-  }
-
-  decoded =
-    decoded.replace(
+  const raw =
+    String(
+      inputKey ||
+      ""
+    ).replace(
       /^\/+/,
       ""
     );
 
+  const key =
+    raw.startsWith(
+      prefix
+    )
+      ? raw
+      : `${prefix}${raw}`;
+
   if (
-    decoded.includes(
+    key.includes(
       ".."
     ) ||
-    decoded.includes(
-      "\\"
-    ) ||
-    decoded.includes(
-      "\0"
-    ) ||
-    decoded.startsWith(
-      "/"
+    !key.startsWith(
+      prefix
     )
   ) {
     return null;
   }
 
-  return decoded;
+  return key;
 }
 
 // ============================================================
-// PUBLICATION LOOKUP
+// RPC PRIMARY + FALLBACK
 // ============================================================
 
-function findPublication(
-  publicationKey
-) {
-  const normalized =
-    typeof publicationKey ===
-    "string"
-      ? publicationKey
-          .trim()
-          .toLowerCase()
-      : "";
-
-  return (
-    PUBLICATION_REGISTRY.find(
-      (p) =>
-        p.publicationKey
-          .toLowerCase() ===
-        normalized
-    ) ||
-    null
-  );
-}
-
-// ============================================================
-// PUBLIC PUBLICATION LOOKUP
-// ============================================================
-
-function findPublicPublication(
-  publicationKey
-) {
-  const publication =
-    findPublication(
-      publicationKey
-    );
-
-  return publication &&
-    isPublicPublication(
-      publication
-    )
-    ? publication
-    : null;
-}
-
-// ============================================================
-// PUBLIC VISIBILITY CHECK
-// ============================================================
-
-function isPublicPublication(
-  publication
-) {
-  return (
-    publication.publicVisible ===
-      true &&
-    publication.lifecycle !==
-      LIFECYCLE.PRIVATE
-  );
-}
-
-// ============================================================
-// LEGACY LOOKUP
-// ============================================================
-
-function findLegacyPublication(
-  slug,
-  issueNumber
-) {
-  const key =
-    `${String(
-      slug
-    ).toLowerCase()}:${Number(
-      issueNumber
-    )}`;
-
-  const publicationKey =
-    LEGACY_SLUG_MAP[
-      key
-    ];
-
-  if (!publicationKey) {
-    return null;
-  }
-
-  return findPublicPublication(
-    publicationKey
-  );
-}
-
-// ============================================================
-// PUBLICATION NOT FOUND
-// ============================================================
-
-function publicationNotFound(
-  request
-) {
-  return jsonResponse(
-    {
-      ok: false,
-
-      error:
-        "publication_not_found",
-
-      message:
-        "Publication not found.",
-    },
-    404,
-    request
-  );
-}
-
-// ============================================================
-// RPC WITH FALLBACK
-// ============================================================
-//
-// NEW STRATEGY:
-//
-// 1. Public PulseChain RPC first
-// 2. HairyLabs Byte only if public fails
-//
-// This reduces paid/limited Byte usage.
-
-async function rpcRequestWithFallback(
+async function rpcWithFallback(
   env,
-  chainKey,
+  chain,
   method,
   params
 ) {
-  const chain =
-    CHAINS[
-      chainKey
-    ];
-
-  if (!chain) {
-    throw new Error(
-      `Unsupported chain: ${chainKey}`
-    );
-  }
-
-  let primaryError =
-    null;
-
   try {
     const result =
-      await rawRpcRequest(
-        chain.rpcPrimary,
-
+      await rpcCall(
+        chain.primaryRpcUrl,
         method,
-
-        params,
-
-        8000
+        params
       );
 
     return {
       result,
 
       provider:
-        `Public ${chain.name} RPC`,
+        "Public PulseChain RPC",
 
       fallbackUsed:
         false,
     };
-  } catch (error) {
-    primaryError =
-      error;
-  }
+  } catch (
+    primaryError
+  ) {
+    if (
+      !env[
+        chain
+          .fallbackRpcEnvKey
+      ]
+    ) {
+      throw primaryError;
+    }
 
-  const fallbackUrl =
-    env[
-      chain.rpcFallbackEnv
-    ];
-
-  if (!fallbackUrl) {
-    throw new Error(
-      `Primary RPC failed and fallback is not configured: ${safeErrorMessage(
-        primaryError
-      )}`
-    );
-  }
-
-  try {
     const result =
-      await rawRpcRequest(
-        fallbackUrl,
-
+      await rpcCall(
+        env[
+          chain
+            .fallbackRpcEnvKey
+        ],
         method,
-
-        params,
-
-        8000
+        params
       );
 
     return {
@@ -4040,59 +2611,39 @@ async function rpcRequestWithFallback(
 
       fallbackUsed:
         true,
-
-      primaryError:
-        safeErrorMessage(
-          primaryError
-        ),
     };
-  } catch (
-    fallbackError
-  ) {
-    throw new Error(
-      `Both RPC providers failed. Public: ${safeErrorMessage(
-        primaryError
-      )}; Byte: ${safeErrorMessage(
-        fallbackError
-      )}`
-    );
   }
 }
 
 // ============================================================
-// RAW JSON-RPC REQUEST
+// RAW RPC
 // ============================================================
 
-async function rawRpcRequest(
-  url,
+async function rpcCall(
+  rpcUrl,
   method,
-  params = [],
-  timeoutMs = 8000
+  params
 ) {
-  if (
-    !url ||
-    typeof url !==
-      "string"
-  ) {
+  if (!rpcUrl) {
     throw new Error(
-      "RPC URL is not configured."
+      `RPC URL unavailable for ${method}.`
     );
   }
 
   const controller =
     new AbortController();
 
-  const timer =
+  const timeout =
     setTimeout(
       () =>
         controller.abort(),
-      timeoutMs
+      8000
     );
 
   try {
     const response =
       await fetch(
-        url,
+        rpcUrl,
         {
           method:
             "POST",
@@ -4100,25 +2651,20 @@ async function rawRpcRequest(
           headers: {
             "Content-Type":
               "application/json",
-
-            Accept:
-              "application/json",
           },
 
           body:
-            JSON.stringify(
-              {
-                jsonrpc:
-                  "2.0",
+            JSON.stringify({
+              jsonrpc:
+                "2.0",
 
-                id:
-                  1,
+              id:
+                1,
 
-                method,
+              method,
 
-                params,
-              }
-            ),
+              params,
+            }),
 
           signal:
             controller.signal,
@@ -4129,7 +2675,7 @@ async function rawRpcRequest(
       !response.ok
     ) {
       throw new Error(
-        `RPC HTTP ${response.status}`
+        `RPC HTTP ${response.status}.`
       );
     }
 
@@ -4137,125 +2683,106 @@ async function rawRpcRequest(
       await response.json();
 
     if (
-      payload?.error
+      payload.error
     ) {
       throw new Error(
-        payload.error
+        payload
+          .error
           .message ||
-          `RPC error ${payload.error.code || "unknown"}`
+        `RPC ${method} failed.`
       );
     }
 
     if (
-      !Object.prototype
-        .hasOwnProperty.call(
-          payload,
-          "result"
-        )
+      payload.result ===
+      undefined
     ) {
       throw new Error(
-        "RPC response did not include a result."
+        `RPC ${method} returned no result.`
       );
     }
 
     return payload.result;
   } finally {
     clearTimeout(
-      timer
+      timeout
     );
   }
 }
 
 // ============================================================
-// EIP-191 SIGNATURE RECOVERY
+// PERSONAL_SIGN RECOVERY
 // ============================================================
 
 async function recoverPersonalSignAddress(
   env,
-  chainKey,
   message,
   signature
 ) {
-  const messageBytes =
-    new TextEncoder().encode(
-      message
-    );
+  const chain =
+    CHAIN_REGISTRY
+      .pulsechain;
 
-  const prefix =
-    `\x19Ethereum Signed Message:\n${messageBytes.length}`;
+  const messageBytes =
+    new TextEncoder()
+      .encode(
+        message
+      );
 
   const prefixBytes =
-    new TextEncoder().encode(
-      prefix
+    new TextEncoder()
+      .encode(
+        `\x19Ethereum Signed Message:\n${messageBytes.length}`
+      );
+
+  const signedBytes =
+    concatBytes(
+      prefixBytes,
+      messageBytes
     );
 
-  const full =
-    new Uint8Array(
-      prefixBytes.length +
-        messageBytes.length
-    );
-
-  full.set(
-    prefixBytes,
-    0
-  );
-
-  full.set(
-    messageBytes,
-    prefixBytes.length
-  );
-
-  const hashRpc =
-    await rpcRequestWithFallback(
+  const digest =
+    await rpcWithFallback(
       env,
-
-      chainKey,
-
+      chain,
       "web3_sha3",
-
       [
         bytesToHex(
-          full
+          signedBytes
         ),
       ]
     );
 
-  const hash =
-    hashRpc.result;
+  const signatureBytes =
+    hexToBytes(
+      signature
+    );
 
   if (
-    !/^0x[0-9a-fA-F]{64}$/.test(
-      hash
-    )
+    signatureBytes.length !==
+    65
   ) {
     throw new Error(
-      "Could not hash signed message."
+      "Signature must be 65 bytes."
     );
   }
 
-  const sig =
-    signature.slice(2);
-
   const r =
-    sig.slice(
+    signatureBytes.slice(
       0,
-      64
+      32
     );
 
   const s =
-    sig.slice(
-      64,
-      128
+    signatureBytes.slice(
+      32,
+      64
     );
 
   let v =
-    parseInt(
-      sig.slice(
-        128,
-        130
-      ),
-      16
-    );
+    signatureBytes[
+      64
+    ];
 
   if (
     v <
@@ -4265,192 +2792,153 @@ async function recoverPersonalSignAddress(
       27;
   }
 
-  if (
-    v !== 27 &&
-    v !== 28
-  ) {
-    throw new Error(
-      "Invalid signature recovery value."
-    );
-  }
-
   const input =
-    hash
-      .slice(2)
-      .padStart(
-        64,
-        "0"
-      ) +
+    concatBytes(
+      hexToBytes(
+        digest.result
+      ),
 
-    v
-      .toString(16)
-      .padStart(
-        64,
-        "0"
-      ) +
+      leftPadBytes(
+        new Uint8Array(
+          [
+            v,
+          ]
+        ),
+        32
+      ),
 
-    r.padStart(
-      64,
-      "0"
-    ) +
+      r,
 
-    s.padStart(
-      64,
-      "0"
+      s
     );
 
-  const recoveredRpc =
-    await rpcRequestWithFallback(
+  const recovered =
+    await rpcWithFallback(
       env,
-
-      chainKey,
-
+      chain,
       "eth_call",
-
       [
         {
           to:
             "0x0000000000000000000000000000000000000001",
 
           data:
-            `0x${input}`,
+            bytesToHex(
+              input
+            ),
         },
 
         "latest",
       ]
     );
 
-  const returned =
-    recoveredRpc.result;
+  const output =
+    String(
+      recovered.result ||
+      ""
+    ).replace(
+      /^0x/,
+      ""
+    );
 
   if (
-    !/^0x[0-9a-fA-F]{64}$/.test(
-      returned
-    )
+    output.length <
+    40
   ) {
-    return null;
+    throw new Error(
+      "ecrecover returned no address."
+    );
   }
 
   return normalizeAddress(
-    `0x${returned.slice(
+    `0x${output.slice(
       -40
     )}`
   );
 }
 
 // ============================================================
-// SIGN SESSION
+// SESSION SIGNING
 // ============================================================
 
-async function signSession(
-  payload,
-  secret
+async function signSessionToken(
+  env,
+  payload
 ) {
-  const header =
-    {
-      alg:
-        "HS256",
-
-      typ:
-        "HBOX",
-    };
-
-  const encodedHeader =
-    base64UrlEncode(
-      new TextEncoder().encode(
-        JSON.stringify(
-          header
-        )
-      )
-    );
+  requireSessionSecret(
+    env
+  );
 
   const encodedPayload =
-    base64UrlEncode(
-      new TextEncoder().encode(
-        JSON.stringify(
-          payload
-        )
+    base64UrlEncodeString(
+      JSON.stringify(
+        payload
       )
     );
-
-  const signingInput =
-    `${encodedHeader}.${encodedPayload}`;
 
   const signature =
     await hmacSha256(
-      secret,
-
-      new TextEncoder().encode(
-        signingInput
-      )
+      env
+        .HELLBOX_SESSION_SECRET,
+      encodedPayload
     );
 
-  return `${signingInput}.${base64UrlEncode(
+  return `${encodedPayload}.${base64UrlEncodeBytes(
     signature
   )}`;
 }
 
 // ============================================================
-// VERIFY SESSION
+// SESSION VERIFICATION
 // ============================================================
 
 async function verifySessionToken(
-  token,
-  secret
+  env,
+  token
 ) {
-  if (
-    typeof token !==
-    "string"
-  ) {
-    throw new Error(
-      "Session token missing."
-    );
-  }
+  requireSessionSecret(
+    env
+  );
 
   const parts =
-    token.split(".");
+    String(
+      token ||
+      ""
+    ).split(
+      "."
+    );
 
   if (
     parts.length !==
-    3
+    2
   ) {
-    throw new Error(
-      "Session token format is invalid."
-    );
+    return null;
   }
 
   const [
-    encodedHeader,
     encodedPayload,
     encodedSignature,
   ] = parts;
 
-  const signingInput =
-    `${encodedHeader}.${encodedPayload}`;
-
   const expected =
     await hmacSha256(
-      secret,
-
-      new TextEncoder().encode(
-        signingInput
-      )
+      env
+        .HELLBOX_SESSION_SECRET,
+      encodedPayload
     );
 
   const actual =
-    base64UrlDecode(
+    base64UrlDecodeBytes(
       encodedSignature
     );
 
   if (
-    !constantTimeEqual(
+    !timingSafeEqual(
       expected,
       actual
     )
   ) {
-    throw new Error(
-      "Session signature is invalid."
-    );
+    return null;
   }
 
   let payload;
@@ -4458,59 +2946,36 @@ async function verifySessionToken(
   try {
     payload =
       JSON.parse(
-        new TextDecoder().decode(
-          base64UrlDecode(
-            encodedPayload
-          )
+        base64UrlDecodeString(
+          encodedPayload
         )
       );
   } catch {
-    throw new Error(
-      "Session payload is invalid."
-    );
-  }
-
-  const now =
-    Math.floor(
-      Date.now() / 1000
-    );
-
-  if (
-    payload.iss !==
-    AUTH.sessionIssuer
-  ) {
-    throw new Error(
-      "Session issuer is invalid."
-    );
+    return null;
   }
 
   if (
-    !payload.exp ||
-    now >=
-      payload.exp
+    !normalizeAddress(
+      payload.wallet
+    ) ||
+    Number(
+      payload.chainId
+    ) !==
+      369 ||
+    Number(
+      payload.expiresAt
+    ) <=
+      unixNow()
   ) {
-    throw new Error(
-      "Session expired."
-    );
+    return null;
   }
 
-  const address =
+  payload.wallet =
     normalizeAddress(
-      payload.sub
+      payload.wallet
     );
 
-  if (!address) {
-    throw new Error(
-      "Session wallet is invalid."
-    );
-  }
-
-  return {
-    ...payload,
-
-    sub:
-      address,
-  };
+  return payload;
 }
 
 // ============================================================
@@ -4521,32 +2986,55 @@ async function requireSession(
   request,
   env
 ) {
-  requireSessionSecret(
-    env
-  );
-
-  const authHeader =
+  const authorization =
     request.headers.get(
       "Authorization"
     ) ||
     "";
 
   const match =
-    authHeader.match(
+    authorization.match(
       /^Bearer\s+(.+)$/i
     );
 
   if (!match) {
-    throw new Error(
-      "Authorization session required."
-    );
+    return {
+      ok:
+        false,
+
+      status:
+        401,
+
+      error:
+        "Reader session required.",
+    };
   }
 
-  return verifySessionToken(
-    match[1],
+  const payload =
+    await verifySessionToken(
+      env,
+      match[1]
+    );
 
-    env.HELLBOX_SESSION_SECRET
-  );
+  if (!payload) {
+    return {
+      ok:
+        false,
+
+      status:
+        401,
+
+      error:
+        "Reader session is invalid or expired.",
+    };
+  }
+
+  return {
+    ok:
+      true,
+
+    payload,
+  };
 }
 
 // ============================================================
@@ -4555,39 +3043,47 @@ async function requireSession(
 
 async function hmacSha256(
   secret,
-  data
+  message
 ) {
   const key =
-    await crypto.subtle.importKey(
-      "raw",
+    await crypto
+      .subtle
+      .importKey(
+        "raw",
 
-      new TextEncoder().encode(
-        secret
-      ),
+        new TextEncoder()
+          .encode(
+            secret
+          ),
 
-      {
-        name:
-          "HMAC",
+        {
+          name:
+            "HMAC",
 
-        hash:
-          "SHA-256",
-      },
+          hash:
+            "SHA-256",
+        },
 
-      false,
+        false,
 
-      [
-        "sign",
-      ]
-    );
+        [
+          "sign",
+        ]
+      );
 
   const signature =
-    await crypto.subtle.sign(
-      "HMAC",
+    await crypto
+      .subtle
+      .sign(
+        "HMAC",
 
-      key,
+        key,
 
-      data
-    );
+        new TextEncoder()
+          .encode(
+            message
+          )
+      );
 
   return new Uint8Array(
     signature
@@ -4595,42 +3091,39 @@ async function hmacSha256(
 }
 
 // ============================================================
-// CONSTANT TIME COMPARE
+// TIMING SAFE COMPARISON
 // ============================================================
 
-function constantTimeEqual(
+function timingSafeEqual(
   a,
   b
 ) {
   if (
     !(a instanceof Uint8Array) ||
-    !(b instanceof Uint8Array)
-  ) {
-    return false;
-  }
-
-  if (
+    !(b instanceof Uint8Array) ||
     a.length !==
-    b.length
+      b.length
   ) {
     return false;
   }
 
-  let result =
+  let diff =
     0;
 
   for (
-    let i = 0;
-    i < a.length;
+    let i =
+      0;
+    i <
+    a.length;
     i++
   ) {
-    result |=
+    diff |=
       a[i] ^
       b[i];
   }
 
   return (
-    result ===
+    diff ===
     0
   );
 }
@@ -4639,7 +3132,29 @@ function constantTimeEqual(
 // BASE64 URL
 // ============================================================
 
-function base64UrlEncode(
+function base64UrlEncodeString(
+  value
+) {
+  return base64UrlEncodeBytes(
+    new TextEncoder()
+      .encode(
+        value
+      )
+  );
+}
+
+function base64UrlDecodeString(
+  value
+) {
+  return new TextDecoder()
+    .decode(
+      base64UrlDecodeBytes(
+        value
+      )
+    );
+}
+
+function base64UrlEncodeBytes(
   bytes
 ) {
   let binary =
@@ -4672,11 +3187,13 @@ function base64UrlEncode(
     );
 }
 
-function base64UrlDecode(
+function base64UrlDecodeBytes(
   value
 ) {
   const normalized =
-    value
+    String(
+      value
+    )
       .replace(
         /-/g,
         "+"
@@ -4696,7 +3213,7 @@ function base64UrlDecode(
           4
         )
       ) %
-        4
+      4
     );
 
   const binary =
@@ -4704,43 +3221,29 @@ function base64UrlDecode(
       padded
     );
 
-  return Uint8Array.from(
-    binary,
+  const bytes =
+    new Uint8Array(
+      binary.length
+    );
 
-    (char) =>
-      char.charCodeAt(
-        0
-      )
-  );
+  for (
+    let i =
+      0;
+    i <
+    binary.length;
+    i++
+  ) {
+    bytes[i] =
+      binary.charCodeAt(
+        i
+      );
+  }
+
+  return bytes;
 }
 
 // ============================================================
-// BYTES TO HEX
-// ============================================================
-
-function bytesToHex(
-  bytes
-) {
-  return (
-    "0x" +
-    Array.from(
-      bytes
-    )
-      .map(
-        (b) =>
-          b
-            .toString(16)
-            .padStart(
-              2,
-              "0"
-            )
-      )
-      .join("")
-  );
-}
-
-// ============================================================
-// RANDOM HEX
+// RANDOM
 // ============================================================
 
 function randomHex(
@@ -4757,100 +3260,260 @@ function randomHex(
 
   return bytesToHex(
     bytes
+  ).slice(
+    2
   );
 }
 
 // ============================================================
-// NORMALIZE ADDRESS
+// HEX
+// ============================================================
+
+function bytesToHex(
+  bytes
+) {
+  return `0x${Array.from(
+    bytes,
+    byte =>
+      byte
+        .toString(
+          16
+        )
+        .padStart(
+          2,
+          "0"
+        )
+  ).join(
+    ""
+  )}`;
+}
+
+function hexToBytes(
+  value
+) {
+  const hex =
+    String(
+      value ||
+      ""
+    ).replace(
+      /^0x/,
+      ""
+    );
+
+  if (
+    hex.length %
+      2 !==
+      0 ||
+    !/^[0-9a-f]*$/i.test(
+      hex
+    )
+  ) {
+    throw new Error(
+      "Invalid hex value."
+    );
+  }
+
+  const bytes =
+    new Uint8Array(
+      hex.length /
+      2
+    );
+
+  for (
+    let i =
+      0;
+    i <
+    bytes.length;
+    i++
+  ) {
+    bytes[i] =
+      parseInt(
+        hex.slice(
+          i *
+            2,
+          i *
+            2 +
+            2
+        ),
+        16
+      );
+  }
+
+  return bytes;
+}
+
+// ============================================================
+// BYTE HELPERS
+// ============================================================
+
+function concatBytes(
+  ...arrays
+) {
+  const totalLength =
+    arrays.reduce(
+      (
+        sum,
+        array
+      ) =>
+        sum +
+        array.length,
+      0
+    );
+
+  const result =
+    new Uint8Array(
+      totalLength
+    );
+
+  let offset =
+    0;
+
+  for (
+    const array
+    of arrays
+  ) {
+    result.set(
+      array,
+      offset
+    );
+
+    offset +=
+      array.length;
+  }
+
+  return result;
+}
+
+function leftPadBytes(
+  bytes,
+  targetLength
+) {
+  if (
+    bytes.length >
+    targetLength
+  ) {
+    throw new Error(
+      "Value exceeds target length."
+    );
+  }
+
+  const result =
+    new Uint8Array(
+      targetLength
+    );
+
+  result.set(
+    bytes,
+    targetLength -
+      bytes.length
+  );
+
+  return result;
+}
+
+// ============================================================
+// NORMALIZATION
 // ============================================================
 
 function normalizeAddress(
   value
 ) {
-  if (
-    typeof value !==
-    "string"
-  ) {
-    return null;
-  }
-
-  const trimmed =
-    value.trim();
-
-  if (
-    !/^0x[0-9a-fA-F]{40}$/.test(
-      trimmed
+  const address =
+    String(
+      value ||
+      ""
     )
-  ) {
-    return null;
-  }
+      .trim()
+      .toLowerCase();
 
-  return trimmed.toLowerCase();
+  return /^0x[0-9a-f]{40}$/.test(
+    address
+  )
+    ? address
+    : null;
 }
 
-// ============================================================
-// NORMALIZE QUANTITY
-// ============================================================
-
-function normalizeQuantity(
-  value,
-  fallback = 1
+function normalizeTxHash(
+  value
 ) {
-  if (
-    value == null ||
-    value ===
+  const hash =
+    String(
+      value ||
       ""
-  ) {
-    return fallback;
-  }
+    )
+      .trim()
+      .toLowerCase();
 
-  const number =
+  return /^0x[0-9a-f]{64}$/.test(
+    hash
+  )
+    ? hash
+    : null;
+}
+
+function normalizeSignature(
+  value
+) {
+  const signature =
+    String(
+      value ||
+      ""
+    )
+      .trim()
+      .toLowerCase();
+
+  return /^0x[0-9a-f]{130}$/.test(
+    signature
+  )
+    ? signature
+    : null;
+}
+
+function sanitizeQuantity(
+  value
+) {
+  const quantity =
     Number(
       value
     );
 
   if (
-    !Number.isSafeInteger(
-      number
-    )
+    !Number.isInteger(
+      quantity
+    ) ||
+    quantity <
+      1 ||
+    quantity >
+      100
   ) {
-    return -1;
+    return 1;
   }
 
-  return number;
+  return quantity;
 }
 
 // ============================================================
-// READ JSON
+// TIME
+// ============================================================
+
+function unixNow() {
+  return Math.floor(
+    Date.now() /
+    1000
+  );
+}
+
+// ============================================================
+// JSON BODY
 // ============================================================
 
 async function readJson(
   request
 ) {
-  const contentType =
-    request.headers.get(
-      "Content-Type"
-    ) ||
-    "";
-
-  if (
-    !contentType
-      .toLowerCase()
-      .includes(
-        "application/json"
-      )
-  ) {
-    throw new Error(
-      "Content-Type must be application/json."
-    );
-  }
-
   try {
     return await request.json();
   } catch {
-    throw new Error(
-      "Request body must contain valid JSON."
-    );
+    return null;
   }
 }
 
@@ -4865,7 +3528,7 @@ function requirePrivateBucket(
     !env.PRIVATE_BUCKET
   ) {
     throw new Error(
-      "PRIVATE_BUCKET binding is not configured."
+      "PRIVATE_BUCKET binding is unavailable."
     );
   }
 }
@@ -4877,80 +3540,29 @@ function requireSessionSecret(
     !env.HELLBOX_SESSION_SECRET
   ) {
     throw new Error(
-      "HELLBOX_SESSION_SECRET is not configured."
+      "HELLBOX_SESSION_SECRET is unavailable."
     );
   }
 }
 
 // ============================================================
-// SAFE ERROR MESSAGE
+// CORS PREFLIGHT
 // ============================================================
 
-function safeErrorMessage(
-  error
-) {
-  if (!error) {
-    return "Unknown error.";
-  }
-
-  if (
-    error.name ===
-    "AbortError"
-  ) {
-    return "Request timed out.";
-  }
-
-  return String(
-    error.message ||
-    error
-  ).slice(
-    0,
-    500
-  );
-}
-
-// ============================================================
-// OPTIONS / CORS
-// ============================================================
-
-function handleOptions(
-  request
+function corsPreflight(
+  origin
 ) {
   const headers =
-    new Headers();
+    new Headers({
+      "Access-Control-Allow-Methods":
+        "GET, POST, OPTIONS",
 
-  addCorsHeaders(
-    request,
-    headers
-  );
+      "Access-Control-Allow-Headers":
+        "Content-Type, Authorization",
 
-  headers.set(
-    "Access-Control-Max-Age",
-    "86400"
-  );
-
-  return new Response(
-    null,
-    {
-      status: 204,
-
-      headers,
-    }
-  );
-}
-
-// ============================================================
-// CORS HEADERS
-// ============================================================
-
-function addCorsHeaders(
-  request,
-  headers
-) {
-  const origin =
-    request.headers.get(
-      "Origin"
-    );
+      "Access-Control-Max-Age":
+        "86400",
+    });
 
   if (
     origin &&
@@ -4969,14 +3581,60 @@ function addCorsHeaders(
     );
   }
 
+  return new Response(
+    null,
+    {
+      status:
+        204,
+
+      headers,
+    }
+  );
+}
+
+// ============================================================
+// CORS
+// ============================================================
+
+function withCors(
+  response,
+  origin
+) {
+  if (
+    !origin ||
+    !ALLOWED_ORIGINS.has(
+      origin
+    )
+  ) {
+    return response;
+  }
+
+  const headers =
+    new Headers(
+      response.headers
+    );
+
   headers.set(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization"
+    "Access-Control-Allow-Origin",
+    origin
   );
 
   headers.set(
-    "Access-Control-Allow-Methods",
-    "GET, POST, OPTIONS"
+    "Vary",
+    "Origin"
+  );
+
+  return new Response(
+    response.body,
+    {
+      status:
+        response.status,
+
+      statusText:
+        response.statusText,
+
+      headers,
+    }
   );
 }
 
@@ -4984,30 +3642,10 @@ function addCorsHeaders(
 // JSON RESPONSE
 // ============================================================
 
-function jsonResponse(
+function json(
   data,
-  status = 200,
-  request = null,
-  extraHeaders = {}
+  status = 200
 ) {
-  const headers =
-    new Headers({
-      "Content-Type":
-        "application/json; charset=utf-8",
-
-      "X-Content-Type-Options":
-        "nosniff",
-
-      ...extraHeaders,
-    });
-
-  if (request) {
-    addCorsHeaders(
-      request,
-      headers
-    );
-  }
-
   return new Response(
     JSON.stringify(
       data,
@@ -5017,45 +3655,16 @@ function jsonResponse(
     {
       status,
 
-      headers,
-    }
-  );
-}
+      headers: {
+        "Content-Type":
+          "application/json; charset=utf-8",
 
-// ============================================================
-// TEXT RESPONSE
-// ============================================================
+        "Cache-Control":
+          "no-store",
 
-function textResponse(
-  text,
-  status = 200,
-  request = null,
-  extraHeaders = {}
-) {
-  const headers =
-    new Headers({
-      "Content-Type":
-        "text/plain; charset=utf-8",
-
-      "X-Content-Type-Options":
-        "nosniff",
-
-      ...extraHeaders,
-    });
-
-  if (request) {
-    addCorsHeaders(
-      request,
-      headers
-    );
-  }
-
-  return new Response(
-    text,
-    {
-      status,
-
-      headers,
+        "X-Content-Type-Options":
+          "nosniff",
+      },
     }
   );
 }
