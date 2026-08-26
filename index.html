@@ -1,56 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+
     <meta charset="UTF-8">
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     >
 
     <meta
         name="description"
-        content="Hellbox Comics — underground digital comics, graphic novels, illustrated editions and on-chain releases on PulseChain."
+        content="Hellbox Comics — token-gated underground comics on PulseChain."
+    >
+
+    <meta
+        name="theme-color"
+        content="#050505"
     >
 
     <title>HELLBOX COMICS // THE BOX IS OPEN</title>
 
     <link
         rel="stylesheet"
-        href="style.css"
+        href="/style.css"
     >
-</head>
 
+</head>
 
 <body>
 
     <!-- =========================================================
-         FIXED HEADER
+         SITE ATMOSPHERE
+    ========================================================== -->
+
+    <div
+        class="site-noise"
+        aria-hidden="true"
+    ></div>
+
+    <div
+        class="site-glow site-glow-one"
+        aria-hidden="true"
+    ></div>
+
+    <div
+        class="site-glow site-glow-two"
+        aria-hidden="true"
+    ></div>
+
+
+    <!-- =========================================================
+         HEADER
     ========================================================== -->
 
     <header class="site-header">
 
         <a
             href="#top"
-            class="brand"
-            aria-label="Hellbox Comics"
+            class="header-brand"
+            aria-label="Hellbox Comics home"
         >
+
             <img
                 src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem.PNG"
                 alt=""
-                class="brand-emblem"
+                class="header-emblem"
             >
 
-            <span>HELLBOX COMICS</span>
+            <span>
+                HELLBOX COMICS
+            </span>
+
         </a>
 
 
-        <div class="network-status">
+        <div class="header-network">
+
             <span class="network-light"></span>
-            HELLBOX ONLINE
-            <span class="network-divider">/</span>
-            PULSECHAIN 369
+
+            <span>
+                HELLBOX ONLINE
+            </span>
+
+            <span class="header-divider">
+                //
+            </span>
+
+            <span>
+                PULSECHAIN 369
+            </span>
+
         </div>
 
 
@@ -65,7 +105,6 @@
     </header>
 
 
-
     <main>
 
 
@@ -78,52 +117,75 @@
             id="top"
         >
 
-            <div class="hero-atmosphere"></div>
+            <div class="hero-art"></div>
 
 
             <div class="hero-classification hero-classification-left">
-                HX // 001<br>
-                <strong>CLASSIFIED</strong>
+
+                <span>
+                    BOX // 001
+                </span>
+
+                <strong>
+                    CLASSIFIED
+                </strong>
+
             </div>
 
 
             <div class="hero-classification hero-classification-right">
-                CHAIN 369<br>
-                <strong>NO GATEKEEPERS</strong>
+
+                <span>
+                    CHAIN // 369
+                </span>
+
+                <strong>
+                    NO GATEKEEPERS
+                </strong>
+
             </div>
 
 
             <div class="hero-inner">
 
-
-                <!-- MAIN BRAND ART -->
-
-                <div class="hero-brand">
+                <div class="hero-logo-wrap">
 
                     <img
                         src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-banner-original.PNG"
-                        alt="Hellbox Comics — Created by Harrow"
+                        alt="Hellbox Comics"
                         class="hero-logo"
                     >
 
                 </div>
 
 
+                <div class="hero-rule">
 
-                <!-- HERO MESSAGE -->
-
-                <div class="hero-message">
-
-                    <p class="section-kicker">
+                    <span>
                         HELLBOX COMICS
-                    </p>
+                    </span>
 
-                    <h1>
-                        THE BOX
-                        <span>IS OPEN.</span>
-                    </h1>
+                    <span>
+                        PRIVATE DISTRIBUTION NETWORK
+                    </span>
 
-                    <div class="hero-lower">
+                </div>
+
+
+                <div class="hero-content">
+
+                    <div class="hero-copy">
+
+                        <p class="eyebrow">
+                            HELLBOX COMICS
+                        </p>
+
+                        <h1>
+                            THE BOX
+                            <span>
+                                IS OPEN.
+                            </span>
+                        </h1>
 
                         <p class="hero-manifesto">
                             UNDERGROUND COMICS.<br>
@@ -131,31 +193,35 @@
                             NOTHING GETS OUT BY ACCIDENT.
                         </p>
 
-
-                        <a
-                            href="#archive"
-                            class="hero-entry"
-                        >
-                            <span class="terminal-number">
-                                01
-                            </span>
-
-                            <span class="hero-entry-copy">
-                                <strong>
-                                    ENTER THE HELLBOX
-                                </strong>
-
-                                <small>
-                                    ACCESS THE ARCHIVE
-                                </small>
-                            </span>
-
-                            <span class="hero-arrow">
-                                ↘
-                            </span>
-                        </a>
-
                     </div>
+
+
+                    <a
+                        href="#collection"
+                        class="hero-entry"
+                    >
+
+                        <span class="hero-entry-number">
+                            01
+                        </span>
+
+                        <span class="hero-entry-copy">
+
+                            <strong>
+                                ENTER THE HELLBOX
+                            </strong>
+
+                            <small>
+                                INSPECT THE COLLECTION
+                            </small>
+
+                        </span>
+
+                        <span class="hero-entry-arrow">
+                            ↘
+                        </span>
+
+                    </a>
 
                 </div>
 
@@ -164,17 +230,15 @@
         </section>
 
 
-
         <!-- =====================================================
              MANIFESTO / NAVIGATION
         ====================================================== -->
 
-        <section class="access-panel">
+        <section class="manifest-strip">
 
+            <div class="manifest-topline">
 
-            <div class="access-intro">
-
-                <span class="restricted-stamp">
+                <span class="stamp">
                     RESTRICTED MATERIAL
                 </span>
 
@@ -184,60 +248,75 @@
                     through the chain. No permission. No press tour. No middleman.
                 </p>
 
-                <div class="access-code">
-                    369<br>
-                    HX<br>
-                    OPEN
+                <div class="manifest-code">
+                    <span>BOX</span>
+                    <span>369</span>
+                    <span>OPEN</span>
                 </div>
 
             </div>
 
 
-            <nav class="main-nav">
+            <nav class="portal-grid">
 
-                <a href="#archive">
+                <a
+                    href="#collection"
+                    class="portal-card"
+                >
 
-                    <span class="nav-code">
-                        01 / ARCHIVE
+                    <span class="portal-index">
+                        01 / COLLECTION
                     </span>
 
-                    <strong>
-                        ENTER THE<br>
+                    <h2>
+                        ENTER THE
+                        <br>
                         HELLBOX
-                    </strong>
+                    </h2>
 
                     <p>
-                        Every title. Every issue. Every edition that made it
-                        through the door.
+                        Your wallet determines what survives inside.
                     </p>
 
-                    <span class="nav-bottom">
-                        OPEN ARCHIVE
-                        <b>↘</b>
-                    </span>
+                    <div class="portal-action">
+                        <span>
+                            OPEN COLLECTION
+                        </span>
+
+                        <span>
+                            ↘
+                        </span>
+                    </div>
 
                 </a>
 
 
-                <a href="#press">
+                <a
+                    href="#press"
+                    class="portal-card"
+                >
 
-                    <span class="nav-code">
+                    <span class="portal-index">
                         02 / PRESS
                     </span>
 
-                    <strong>
+                    <h2>
                         THE PRESS
-                    </strong>
+                    </h2>
 
                     <p>
-                        New issues are printed here. When the press moves,
-                        the signal changes.
+                        New editions are minted here when the machine moves.
                     </p>
 
-                    <span class="nav-bottom">
-                        VIEW PRESS
-                        <b>↘</b>
-                    </span>
+                    <div class="portal-action">
+                        <span>
+                            VIEW PRESS
+                        </span>
+
+                        <span>
+                            ↘
+                        </span>
+                    </div>
 
                 </a>
 
@@ -246,91 +325,186 @@
         </section>
 
 
-
         <!-- =====================================================
-             ARCHIVE
+             COLLECTION / HELLBOX
         ====================================================== -->
 
         <section
-            class="content-section archive-section"
-            id="archive"
+            class="collection-section"
+            id="collection"
         >
 
-            <div class="archive-watermark"></div>
+            <div class="section-shell">
+
+                <div class="collection-heading-grid">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            THE HELLBOX / COLLECTION
+                        </p>
+
+                        <h2 class="mega-heading">
+                            THE
+                            <span>
+                                HELLBOX
+                            </span>
+                        </h2>
+
+                    </div>
 
 
-            <div class="section-heading section-heading-grid">
+                    <div class="collection-intro">
 
-                <div>
+                        <p>
+                            Every known edition exists here whether you own it
+                            or not. Your wallet decides which pieces belong to
+                            your collection.
+                        </p>
 
-                    <p class="section-kicker">
-                        THE HELLBOX / ARCHIVE
-                    </p>
+                        <div class="collection-count">
 
-                    <h2>
-                        THE
-                        <span>ARCHIVE</span>
-                    </h2>
+                            <span class="status-dot"></span>
 
-                </div>
+                            <strong id="publicationCount">
+                                LOADING...
+                            </strong>
 
+                        </div>
 
-                <div class="section-intro">
-
-                    <p>
-                        The shelves below are the surviving record.
-                        Every title enters the archive as an edition,
-                        not as a webpage.
-                    </p>
-
-                    <div
-                        id="archive-status"
-                        class="archive-status"
-                    >
-                        LOADING ARCHIVE...
                     </div>
 
                 </div>
 
+
+                <!-- WALLET COLLECTION TERMINAL -->
+
+                <div class="collection-terminal">
+
+                    <div class="terminal-header">
+
+                        <div>
+
+                            <span class="terminal-label">
+                                COLLECTION TERMINAL
+                            </span>
+
+                            <strong id="collectionWallet">
+                                WALLET NOT CONNECTED
+                            </strong>
+
+                        </div>
+
+
+                        <div class="terminal-header-state">
+
+                            <span id="collectionNetwork">
+                                PULSECHAIN // 369
+                            </span>
+
+                            <span
+                                class="terminal-access-state"
+                                id="collectionAccessState"
+                            >
+                                INSPECTION MODE
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="collection-summary"
+                        id="collectionSummary"
+                    >
+
+                        <div class="summary-cell">
+
+                            <span>
+                                KNOWN
+                            </span>
+
+                            <strong id="summaryKnown">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="summary-cell owned">
+
+                            <span>
+                                OWNED
+                            </span>
+
+                            <strong id="summaryOwned">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="summary-cell missing">
+
+                            <span>
+                                MISSING
+                            </span>
+
+                            <strong id="summaryMissing">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="summary-cell evolved">
+
+                            <span>
+                                EVOLVED
+                            </span>
+
+                            <strong id="summaryEvolved">
+                                0
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="series-control">
+
+                        <span class="series-control-label">
+                            SERIES
+                        </span>
+
+                        <div
+                            class="series-tabs"
+                            id="seriesTabs"
+                        ></div>
+
+                    </div>
+
+
+                    <div
+                        class="collection-status"
+                        id="collectionStatus"
+                    >
+                        ESTABLISHING COLLECTION INDEX...
+                    </div>
+
+
+                    <div
+                        class="collection-list"
+                        id="collectionList"
+                    ></div>
+
+                </div>
+
             </div>
 
-
-            <div class="archive-table-head">
-
-                <span>CATALOGUE</span>
-                <span>TYPE</span>
-                <span>ISSUE</span>
-                <span>ACCESS</span>
-
-            </div>
-
-
-            <div
-                id="archive-list"
-                class="archive-list"
-            ></div>
-
         </section>
-
-
-
-        <!-- =====================================================
-             PUBLICATION VIEWER
-        ====================================================== -->
-
-        <section
-            class="content-section publication-section"
-            id="publication"
-            hidden
-        >
-
-            <div
-                id="publication-content"
-                class="publication-content"
-            ></div>
-
-        </section>
-
 
 
         <!-- =====================================================
@@ -338,67 +512,73 @@
         ====================================================== -->
 
         <section
-            class="content-section press-section"
+            class="press-section"
             id="press"
         >
 
-            <div class="press-art"></div>
+            <div class="press-background"></div>
 
 
-            <span class="press-stamp">
-                DO NOT DUPLICATE
-            </span>
+            <div class="section-shell press-inner">
+
+                <div class="press-copy">
+
+                    <p class="eyebrow">
+                        THE PRESS / RELEASE BAY
+                    </p>
+
+                    <h2 class="press-heading">
+                        NOTHING
+                        <span>
+                            ON THE PRESS
+                        </span>
+                        <em>
+                            YET.
+                        </em>
+                    </h2>
+
+                    <p class="press-description">
+                        When an issue is ready, the press opens.
+                        Until then, the machine stays hot.
+                    </p>
 
 
-            <div class="press-copy">
+                    <div class="press-status-box">
 
-                <p class="section-kicker">
-                    THE PRESS / RELEASE BAY
-                </p>
+                        <span class="press-status-square"></span>
 
-                <h2>
-                    NOTHING
-                    <span class="muted">
-                        ON THE PRESS
-                    </span>
-                    <span class="red">
-                        YET.
-                    </span>
-                </h2>
+                        <div>
 
+                            <strong>
+                                NO CURRENT EDITION
+                            </strong>
 
-                <p class="press-description">
-                    When an issue is ready, it gets pressed here.
-                    Until then, the machine stays hot.
-                </p>
+                            <small>
+                                PRESS STATUS / STANDBY
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
 
-                <div
-                    class="press-status"
-                    id="pressStatus"
-                >
-                    <span class="status-square"></span>
+                <div class="press-stamps">
 
                     <span>
-                        <strong>NO CURRENT EDITION</strong>
-                        <small>PRESS STATUS / STANDBY</small>
+                        DO NOT DUPLICATE
                     </span>
+
+                    <span>
+                        BAY / PRESS
+                    </span>
+
                 </div>
 
             </div>
 
-
-            <div class="press-index">
-                02
-            </div>
-
-
-            <div class="press-bay-stamp">
-                BAY / PRESS
-            </div>
-
         </section>
-
 
 
         <!-- =====================================================
@@ -418,277 +598,212 @@
         </div>
 
 
-
         <!-- =====================================================
-             ABOUT HARROW
+             HARROW
         ====================================================== -->
 
         <section
-            class="creator-section"
+            class="harrow-section"
             id="harrow"
         >
 
-            <div class="creator-heading">
+            <div class="section-shell">
 
-                <span class="micro-label">
-                    CREATED BY
-                </span>
+                <div class="harrow-meta">
 
-                <span class="creator-file">
-                    HBX / 01
-                </span>
+                    <span>
+                        CREATED BY
+                    </span>
+
+                    <span>
+                        HBX / 01
+                    </span>
+
+                </div>
+
+
+                <div class="harrow-grid">
+
+                    <div class="harrow-copy">
+
+                        <img
+                            src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-wordmark-white.PNG"
+                            alt="Harrow"
+                            class="harrow-wordmark"
+                        >
+
+                        <p>
+                            Harrow is the creator behind Hellbox Comics —
+                            writing, illustrating, building and publishing
+                            strange things from the wrong side of the chain.
+                        </p>
+
+
+                        <a
+                            href="https://x.com/SinnisterHarrow"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="harrow-social"
+                        >
+
+                            <span>
+                                X
+                            </span>
+
+                            <strong>
+                                @SinnisterHarrow
+                            </strong>
+
+                            <span>
+                                ↗
+                            </span>
+
+                        </a>
+
+                    </div>
+
+
+                    <div class="harrow-portrait-wrap">
+
+                        <div class="harrow-portrait-frame">
+
+                            <img
+                                src="https://cdn.hellboxcomics.com/assets/brand/harrow/emblems/harrow-pfp.PNG"
+                                alt="Harrow"
+                                class="harrow-portrait"
+                            >
+
+                        </div>
+
+                        <div class="portrait-meta">
+
+                            <span>
+                                FILE // HARROW
+                            </span>
+
+                            <span>
+                                CREATOR / OPERATOR
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
+        </section>
 
-            <div class="creator-grid">
 
+        <!-- =====================================================
+             SOCIAL SIGNAL
+        ====================================================== -->
 
-                <div class="creator-copy">
+        <section class="signal-section">
 
-                    <img
-                        src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-wordmark-white.PNG"
-                        alt="Harrow"
-                        class="harrow-signature"
-                    >
+            <div class="section-shell">
 
+                <div class="signal-heading-grid">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            DISTRIBUTION CHANNELS
+                        </p>
+
+                        <h2>
+                            FIND THE SIGNAL.
+                        </h2>
+
+                    </div>
 
                     <p>
-                        Harrow is the creator behind Hellbox Comics —
-                        writing, illustrating, building and publishing
-                        strange things from the wrong side of the chain.
+                        Official Hellbox transmissions only.
+                        Everything else is noise.
                     </p>
+
+                </div>
+
+
+                <div class="signal-grid">
+
+                    <a
+                        href="https://x.com/HellboxComics"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="signal-card active"
+                    >
+
+                        <span class="signal-label">
+                            HELLBOX // X
+                        </span>
+
+                        <strong>
+                            @HellboxComics
+                        </strong>
+
+                        <small>
+                            LIVE ↗
+                        </small>
+
+                    </a>
 
 
                     <a
                         href="https://x.com/SinnisterHarrow"
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="creator-social"
+                        class="signal-card active"
                     >
-                        <span>X</span>
+
+                        <span class="signal-label">
+                            HARROW // X
+                        </span>
 
                         <strong>
                             @SinnisterHarrow
                         </strong>
 
-                        <b>↗</b>
+                        <small>
+                            LIVE ↗
+                        </small>
+
                     </a>
 
-                </div>
 
+                    <div class="signal-card locked">
 
+                        <span class="signal-label">
+                            TELEGRAM
+                        </span>
 
-                <div class="creator-portrait-shell">
+                        <strong>
+                            CHANNEL LOCKED
+                        </strong>
 
-                    <div class="creator-portrait-ring">
-
-                        <img
-                            src="https://cdn.hellboxcomics.com/assets/brand/harrow/emblems/harrow-pfp.PNG"
-                            alt="Harrow"
-                            class="creator-portrait"
-                        >
+                        <small>
+                            LINK PENDING
+                        </small>
 
                     </div>
 
 
-                    <span class="portrait-note portrait-note-left">
-                        FILE // HARROW
-                    </span>
+                    <div class="signal-card locked">
 
-                    <span class="portrait-note portrait-note-right">
-                        CREATOR / OPERATOR
-                    </span>
+                        <span class="signal-label">
+                            DISCORD
+                        </span>
 
-                </div>
+                        <strong>
+                            CHANNEL LOCKED
+                        </strong>
 
-            </div>
+                        <small>
+                            LINK PENDING
+                        </small>
 
-        </section>
-
-
-
-        <!-- =====================================================
-             SOCIAL / DISTRIBUTION CHANNELS
-        ====================================================== -->
-
-        <section class="signal-section">
-
-            <div class="signal-header">
-
-                <div>
-
-                    <p class="section-kicker">
-                        DISTRIBUTION CHANNELS
-                    </p>
-
-                    <h2>
-                        FIND THE SIGNAL.
-                    </h2>
-
-                </div>
-
-
-                <p>
-                    Official Hellbox transmissions only.
-                    Everything else is noise.
-                </p>
-
-            </div>
-
-
-            <div class="signal-grid">
-
-
-                <a
-                    href="https://x.com/HellboxComics"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="signal-card active"
-                >
-
-                    <span class="signal-type">
-                        HELLBOX // X
-                    </span>
-
-                    <strong>
-                        @HellboxComics
-                    </strong>
-
-                    <span class="signal-state">
-                        LIVE ↗
-                    </span>
-
-                </a>
-
-
-
-                <a
-                    href="https://x.com/SinnisterHarrow"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="signal-card active"
-                >
-
-                    <span class="signal-type">
-                        HARROW // X
-                    </span>
-
-                    <strong>
-                        @SinnisterHarrow
-                    </strong>
-
-                    <span class="signal-state">
-                        LIVE ↗
-                    </span>
-
-                </a>
-
-
-
-                <div class="signal-card locked">
-
-                    <span class="signal-type">
-                        TELEGRAM
-                    </span>
-
-                    <strong>
-                        CHANNEL LOCKED
-                    </strong>
-
-                    <span class="signal-state">
-                        LINK PENDING
-                    </span>
-
-                </div>
-
-
-
-                <div class="signal-card locked">
-
-                    <span class="signal-type">
-                        DISCORD
-                    </span>
-
-                    <strong>
-                        CHANNEL LOCKED
-                    </strong>
-
-                    <span class="signal-state">
-                        LINK PENDING
-                    </span>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-
-        <!-- =====================================================
-             FINAL CREDIT SYSTEM
-        ====================================================== -->
-
-        <section class="credit-section">
-
-            <div class="credit-heading">
-
-                <span>
-                    TRANSMISSION ORIGIN
-                </span>
-
-                <span>
-                    HELLBOX // 369
-                </span>
-
-            </div>
-
-
-            <div class="credit-grid">
-
-
-                <div class="credit-cell creator-credit">
-
-                    <span class="micro-label">
-                        CREATED BY
-                    </span>
-
-                    <img
-                        src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-wordmark-white.PNG"
-                        alt="Harrow"
-                    >
-
-                </div>
-
-
-
-                <div class="credit-cell bytes-credit">
-
-                    <span class="micro-label">
-                        BACKED BY
-                    </span>
-
-                    <img
-                        src="https://cdn.hellboxcomics.com/assets/brand/footer/backed-by-bytes-footer.PNG"
-                        alt="Backed by Bytes"
-                    >
-
-                </div>
-
-
-
-                <div class="credit-cell sin-credit">
-
-                    <span class="micro-label">
-                        FUELED BY
-                    </span>
-
-                    <img
-                        src="https://cdn.hellboxcomics.com/assets/brand/sin/foreshadow/sin-wordmark.PNG"
-                        alt=""
-                        aria-hidden="true"
-                    >
+                    </div>
 
                 </div>
 
@@ -699,36 +814,98 @@
     </main>
 
 
-
     <!-- =========================================================
          FOOTER
     ========================================================== -->
 
     <footer class="site-footer">
 
-        <span>
-            THE BOX IS OPEN.
-        </span>
+        <div class="footer-topline">
 
-        <a
-            href="#top"
-        >
-            HELLBOXCOMICS.COM
-        </a>
+            <span>
+                TRANSMISSION ORIGIN
+            </span>
 
-        <span>
-            © HELLBOX COMICS
-        </span>
+            <span>
+                HELLBOX // 369
+            </span>
+
+        </div>
+
+
+        <div class="footer-grid">
+
+            <div class="footer-cell">
+
+                <span class="footer-label">
+                    CREATED BY
+                </span>
+
+                <img
+                    src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-wordmark-white.PNG"
+                    alt="Harrow"
+                    class="footer-harrow"
+                >
+
+            </div>
+
+
+            <div class="footer-cell">
+
+                <span class="footer-label">
+                    BACKED BY
+                </span>
+
+                <img
+                    src="https://cdn.hellboxcomics.com/assets/brand/footer/backed-by-bytes-footer.PNG"
+                    alt="Backed by Bytes"
+                    class="footer-bytes"
+                >
+
+            </div>
+
+
+            <div class="footer-cell footer-sin-cell">
+
+                <span class="footer-label">
+                    FUELED BY
+                </span>
+
+                <img
+                    src="https://cdn.hellboxcomics.com/assets/brand/sin/foreshadow/sin-wordmark.PNG"
+                    alt=""
+                    class="footer-sin"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <span>
+                THE BOX IS OPEN.
+            </span>
+
+            <span>
+                HELLBOXCOMICS.COM
+            </span>
+
+            <span>
+                © HELLBOX COMICS
+            </span>
+
+        </div>
 
     </footer>
 
 
-
     <script>
 
-        /* =========================================================
-           HELLBOX NETWORK
-        ========================================================== */
+        // ========================================================
+        // HELLBOX CONFIGURATION
+        // ========================================================
 
         const HELLBOX = {
 
@@ -758,21 +935,84 @@
         const HELLBOX_API = "";
 
 
-
-        /* =========================================================
-           WALLET STATE
-        ========================================================== */
+        // ========================================================
+        // WALLET STATE
+        // ========================================================
 
         let connectedWallet = null;
+
         let walletOnPulseChain = false;
 
+        let publications = [];
+
+        let walletCollection = [];
+
+        let selectedSeries = "all";
+
+
+        // ========================================================
+        // ELEMENTS
+        // ========================================================
 
         const walletButton =
             document.getElementById(
                 "walletButton"
             );
 
+        const collectionWallet =
+            document.getElementById(
+                "collectionWallet"
+            );
 
+        const collectionAccessState =
+            document.getElementById(
+                "collectionAccessState"
+            );
+
+        const collectionStatus =
+            document.getElementById(
+                "collectionStatus"
+            );
+
+        const collectionList =
+            document.getElementById(
+                "collectionList"
+            );
+
+        const seriesTabs =
+            document.getElementById(
+                "seriesTabs"
+            );
+
+        const publicationCount =
+            document.getElementById(
+                "publicationCount"
+            );
+
+        const summaryKnown =
+            document.getElementById(
+                "summaryKnown"
+            );
+
+        const summaryOwned =
+            document.getElementById(
+                "summaryOwned"
+            );
+
+        const summaryMissing =
+            document.getElementById(
+                "summaryMissing"
+            );
+
+        const summaryEvolved =
+            document.getElementById(
+                "summaryEvolved"
+            );
+
+
+        // ========================================================
+        // WALLET HELPERS
+        // ========================================================
 
         function hasWallet() {
 
@@ -784,11 +1024,12 @@
         }
 
 
-
         function shortenAddress(address) {
 
             if (!address) {
+
                 return "";
+
             }
 
             return (
@@ -800,73 +1041,27 @@
         }
 
 
-
-        function updateWalletButton() {
-
-            if (!walletButton) {
-                return;
-            }
-
-
-            if (!connectedWallet) {
-
-                walletButton.textContent =
-                    "CONNECT WALLET";
-
-                walletButton.classList.remove(
-                    "wallet-connected"
-                );
-
-                return;
-
-            }
-
-
-            if (!walletOnPulseChain) {
-
-                walletButton.textContent =
-                    "SWITCH TO PULSECHAIN";
-
-                walletButton.classList.remove(
-                    "wallet-connected"
-                );
-
-                return;
-
-            }
-
-
-            walletButton.textContent =
-                shortenAddress(
-                    connectedWallet
-                );
-
-            walletButton.classList.add(
-                "wallet-connected"
-            );
-
-        }
-
-
-
         async function getCurrentChain() {
 
             if (!hasWallet()) {
+
                 return null;
+
             }
 
             try {
 
                 return await window.ethereum.request({
 
-                    method: "eth_chainId"
+                    method:
+                        "eth_chainId"
 
                 });
 
             } catch (error) {
 
                 console.error(
-                    "Hellbox could not read wallet network:",
+                    "HELLBOX CHAIN READ FAILED:",
                     error
                 );
 
@@ -875,7 +1070,6 @@
             }
 
         }
-
 
 
         async function addPulseChain() {
@@ -927,7 +1121,7 @@
             } catch (error) {
 
                 console.error(
-                    "Hellbox could not add PulseChain:",
+                    "HELLBOX COULD NOT ADD PULSECHAIN:",
                     error
                 );
 
@@ -938,11 +1132,12 @@
         }
 
 
-
         async function switchToPulseChain() {
 
             if (!hasWallet()) {
+
                 return false;
+
             }
 
             try {
@@ -953,10 +1148,12 @@
                         "wallet_switchEthereumChain",
 
                     params: [
+
                         {
                             chainId:
                                 HELLBOX.chainId
                         }
+
                     ]
 
                 });
@@ -974,7 +1171,9 @@
                         await addPulseChain();
 
                     if (!added) {
+
                         return false;
+
                     }
 
                     try {
@@ -985,10 +1184,12 @@
                                 "wallet_switchEthereumChain",
 
                             params: [
+
                                 {
                                     chainId:
                                         HELLBOX.chainId
                                 }
+
                             ]
 
                         });
@@ -998,7 +1199,7 @@
                     } catch (switchError) {
 
                         console.error(
-                            "Hellbox could not switch to PulseChain:",
+                            "HELLBOX SWITCH FAILED:",
                             switchError
                         );
 
@@ -1008,9 +1209,8 @@
 
                 }
 
-
                 console.error(
-                    "Hellbox PulseChain switch failed:",
+                    "HELLBOX SWITCH FAILED:",
                     error
                 );
 
@@ -1021,18 +1221,111 @@
         }
 
 
+        function updateWalletInterface() {
+
+            if (!connectedWallet) {
+
+                walletButton.textContent =
+                    "CONNECT WALLET";
+
+                walletButton.classList.remove(
+                    "connected"
+                );
+
+                collectionWallet.textContent =
+                    "WALLET NOT CONNECTED";
+
+                collectionAccessState.textContent =
+                    "INSPECTION MODE";
+
+                return;
+
+            }
+
+
+            if (!walletOnPulseChain) {
+
+                walletButton.textContent =
+                    "SWITCH TO PULSECHAIN";
+
+                walletButton.classList.remove(
+                    "connected"
+                );
+
+                collectionWallet.textContent =
+                    shortenAddress(
+                        connectedWallet
+                    );
+
+                collectionAccessState.textContent =
+                    "WRONG NETWORK";
+
+                return;
+
+            }
+
+
+            walletButton.textContent =
+                shortenAddress(
+                    connectedWallet
+                );
+
+            walletButton.classList.add(
+                "connected"
+            );
+
+            collectionWallet.textContent =
+                connectedWallet;
+
+            collectionAccessState.textContent =
+                "WALLET INDEXED";
+
+        }
+
+
+        async function verifyWalletNetwork() {
+
+            if (!connectedWallet) {
+
+                walletOnPulseChain =
+                    false;
+
+                updateWalletInterface();
+
+                return;
+
+            }
+
+
+            const chainId =
+                await getCurrentChain();
+
+
+            walletOnPulseChain =
+                Boolean(
+                    chainId &&
+                    chainId.toLowerCase() ===
+                    HELLBOX.chainId
+                );
+
+
+            updateWalletInterface();
+
+        }
+
 
         async function connectWallet() {
 
             if (!hasWallet()) {
 
                 alert(
-                    "No compatible EVM wallet was detected."
+                    "No compatible EIP-1193 wallet was detected."
                 );
 
                 return;
 
             }
+
 
             try {
 
@@ -1049,7 +1342,9 @@
                     !accounts ||
                     accounts.length === 0
                 ) {
+
                     return;
+
                 }
 
 
@@ -1057,137 +1352,52 @@
                     accounts[0];
 
 
-                let chainId =
-                    await getCurrentChain();
+                await verifyWalletNetwork();
 
 
-                if (
-                    chainId &&
-                    chainId.toLowerCase() ===
-                    HELLBOX.chainId
-                ) {
+                if (!walletOnPulseChain) {
 
-                    walletOnPulseChain = true;
+                    const switched =
+                        await switchToPulseChain();
 
-                    updateWalletButton();
 
-                    return;
+                    if (!switched) {
+
+                        updateWalletInterface();
+
+                        return;
+
+                    }
+
+
+                    await verifyWalletNetwork();
 
                 }
 
 
-                walletOnPulseChain = false;
+                await loadWalletCollection();
 
-                updateWalletButton();
-
-
-                const switched =
-                    await switchToPulseChain();
-
-
-                chainId =
-                    await getCurrentChain();
-
-
-                walletOnPulseChain =
-                    switched &&
-                    chainId &&
-                    chainId.toLowerCase() ===
-                    HELLBOX.chainId;
-
-
-                updateWalletButton();
 
             } catch (error) {
 
                 console.error(
-                    "Hellbox wallet connection failed:",
+                    "HELLBOX WALLET CONNECTION FAILED:",
                     error
                 );
 
-                connectedWallet = null;
-                walletOnPulseChain = false;
-
-                updateWalletButton();
-
             }
 
         }
-
-
-
-        function handleAccountsChanged(accounts) {
-
-            if (
-                !accounts ||
-                accounts.length === 0
-            ) {
-
-                connectedWallet = null;
-                walletOnPulseChain = false;
-
-                updateWalletButton();
-
-                return;
-
-            }
-
-
-            connectedWallet =
-                accounts[0];
-
-            verifyWalletNetwork();
-
-        }
-
-
-
-        function handleChainChanged(chainId) {
-
-            if (!chainId) {
-                return;
-            }
-
-
-            walletOnPulseChain =
-                chainId.toLowerCase() ===
-                HELLBOX.chainId;
-
-
-            updateWalletButton();
-
-        }
-
-
-
-        async function verifyWalletNetwork() {
-
-            if (!connectedWallet) {
-                return;
-            }
-
-
-            const chainId =
-                await getCurrentChain();
-
-
-            walletOnPulseChain =
-                chainId &&
-                chainId.toLowerCase() ===
-                HELLBOX.chainId;
-
-
-            updateWalletButton();
-
-        }
-
 
 
         async function restoreWallet() {
 
             if (!hasWallet()) {
+
                 return;
+
             }
+
 
             try {
 
@@ -1204,7 +1414,9 @@
                     !accounts ||
                     accounts.length === 0
                 ) {
+
                     return;
+
                 }
 
 
@@ -1214,10 +1426,18 @@
 
                 await verifyWalletNetwork();
 
+
+                if (walletOnPulseChain) {
+
+                    await loadWalletCollection();
+
+                }
+
+
             } catch (error) {
 
                 console.error(
-                    "Hellbox could not restore wallet:",
+                    "HELLBOX WALLET RESTORE FAILED:",
                     error
                 );
 
@@ -1226,102 +1446,21 @@
         }
 
 
+        // ========================================================
+        // PUBLICATION REGISTRY
+        // ========================================================
 
-        if (hasWallet()) {
+        async function loadPublications() {
 
-            window.ethereum.on(
-                "accountsChanged",
-                handleAccountsChanged
-            );
+            collectionStatus.textContent =
+                "ESTABLISHING COLLECTION INDEX...";
 
-
-            window.ethereum.on(
-                "chainChanged",
-                handleChainChanged
-            );
-
-        }
-
-
-
-        if (walletButton) {
-
-            walletButton.addEventListener(
-                "click",
-                async function () {
-
-                    if (!connectedWallet) {
-
-                        await connectWallet();
-
-                        return;
-
-                    }
-
-
-                    if (!walletOnPulseChain) {
-
-                        await switchToPulseChain();
-
-                        await verifyWalletNetwork();
-
-                        return;
-
-                    }
-
-
-                    await verifyWalletNetwork();
-
-                }
-            );
-
-        }
-
-
-
-        /* =========================================================
-           ARCHIVE
-        ========================================================== */
-
-        const archiveList =
-            document.getElementById(
-                "archive-list"
-            );
-
-
-        const archiveStatus =
-            document.getElementById(
-                "archive-status"
-            );
-
-
-        const publicationSection =
-            document.getElementById(
-                "publication"
-            );
-
-
-        const publicationContent =
-            document.getElementById(
-                "publication-content"
-            );
-
-
-        let hellboxCatalog = [];
-
-
-
-        async function loadCatalog() {
 
             try {
 
-                archiveStatus.textContent =
-                    "LOADING ARCHIVE...";
-
-
                 const response =
                     await fetch(
-                        `${HELLBOX_API}/api/comics`,
+                        `${HELLBOX_API}/api/publications`,
                         {
                             headers: {
                                 "Accept":
@@ -1334,7 +1473,7 @@
                 if (!response.ok) {
 
                     throw new Error(
-                        `Catalog request failed: ${response.status}`
+                        `Publication registry failed: ${response.status}`
                     );
 
                 }
@@ -1347,263 +1486,118 @@
                 if (
                     !data ||
                     !Array.isArray(
-                        data.comics
+                        data.publications
                     )
                 ) {
 
                     throw new Error(
-                        "Invalid Hellbox catalog response."
+                        "Invalid publication registry."
                     );
 
                 }
 
 
-                hellboxCatalog =
-                    data.comics;
+                publications =
+                    data.publications;
 
 
-                renderArchive();
+                walletCollection =
+                    publications.map(
+                        publication =>
+                            createDefaultCollectionState(
+                                publication
+                            )
+                    );
+
+
+                renderSeriesTabs();
+
+                renderCollection();
+
 
             } catch (error) {
 
                 console.error(
-                    "Hellbox catalog failed:",
+                    "HELLBOX PUBLICATION REGISTRY FAILED:",
                     error
                 );
 
 
-                archiveStatus.textContent =
-                    "ARCHIVE TEMPORARILY UNAVAILABLE.";
-
-
-                archiveList.innerHTML = "";
+                collectionStatus.textContent =
+                    "COLLECTION INDEX TEMPORARILY UNAVAILABLE.";
 
             }
 
         }
 
 
+        function createDefaultCollectionState(
+            publication
+        ) {
 
-        function renderArchive() {
+            return {
 
-            archiveList.innerHTML = "";
+                ...publication,
 
+                ownership: {
+                    owned: false,
+                    balance: 0,
+                    tokenIds: []
+                },
+
+                state: {
+                    status:
+                        "missing",
+
+                    sealed:
+                        null,
+
+                    evolved:
+                        false,
+
+                    evolution:
+                        null
+                }
+
+            };
+
+        }
+
+
+        // ========================================================
+        // WALLET COLLECTION
+        //
+        // FUTURE ENDPOINT:
+        //
+        // /api/collection?wallet=0x...
+        //
+        // If it does not exist yet, the UI remains functional and
+        // simply displays all known publications as missing.
+        // ========================================================
+
+        async function loadWalletCollection() {
 
             if (
-                !hellboxCatalog ||
-                hellboxCatalog.length === 0
+                !connectedWallet ||
+                !walletOnPulseChain
             ) {
-
-                archiveStatus.textContent =
-                    "NO TITLES YET.";
 
                 return;
 
             }
 
 
-            archiveStatus.textContent =
-                `${hellboxCatalog.length} PUBLICATION${
-                    hellboxCatalog.length === 1
-                        ? ""
-                        : "S"
-                }`;
-
-
-            hellboxCatalog.forEach(
-                (publication, index) => {
-
-
-                    const publicationCard =
-                        document.createElement(
-                            "article"
-                        );
-
-
-                    publicationCard.className =
-                        "archive-title";
-
-
-                    const catalogue =
-                        document.createElement(
-                            "span"
-                        );
-
-
-                    catalogue.className =
-                        "archive-catalogue";
-
-
-                    catalogue.textContent =
-                        String(index + 1)
-                            .padStart(
-                                2,
-                                "0"
-                            );
-
-
-                    const header =
-                        document.createElement(
-                            "div"
-                        );
-
-
-                    header.className =
-                        "archive-title-header";
-
-
-                    const label =
-                        document.createElement(
-                            "p"
-                        );
-
-
-                    label.className =
-                        "archive-title-label";
-
-
-                    label.textContent =
-                        publication.content_type ===
-                        "ebook"
-                            ? "EBOOK"
-                            : "COMIC";
-
-
-                    const name =
-                        document.createElement(
-                            "h3"
-                        );
-
-
-                    name.textContent =
-                        publication.title ||
-                        publication.slug;
-
-
-                    const issue =
-                        document.createElement(
-                            "span"
-                        );
-
-
-                    issue.className =
-                        "archive-issue";
-
-
-                    issue.textContent =
-                        `ISSUE ${publication.issue}`;
-
-
-                    header.appendChild(label);
-                    header.appendChild(name);
-                    header.appendChild(issue);
-
-
-                    const action =
-                        document.createElement(
-                            "button"
-                        );
-
-
-                    action.type =
-                        "button";
-
-
-                    action.className =
-                        "archive-edition";
-
-
-                    action.textContent =
-                        publication.content_type ===
-                        "ebook"
-                            ? "OPEN EBOOK"
-                            : "OPEN COMIC";
-
-
-                    action.addEventListener(
-                        "click",
-                        function () {
-
-                            openPublication(
-                                publication
-                            );
-
-                        }
-                    );
-
-
-                    publicationCard.appendChild(
-                        catalogue
-                    );
-
-
-                    publicationCard.appendChild(
-                        header
-                    );
-
-
-                    publicationCard.appendChild(
-                        action
-                    );
-
-
-                    archiveList.appendChild(
-                        publicationCard
-                    );
-
-                }
-            );
-
-        }
-
-
-
-        async function openPublication(
-            publication
-        ) {
-
-            publicationSection.hidden =
-                false;
-
-
-            publicationContent.innerHTML = `
-                <p class="section-kicker">
-                    LOADING PUBLICATION
-                </p>
-
-                <h2>
-                    ${escapeHtml(
-                        publication.title ||
-                        publication.slug
-                    )}
-                </h2>
-            `;
-
-
-            publicationSection.scrollIntoView({
-                behavior:
-                    "smooth",
-                block:
-                    "start"
-            });
+            collectionStatus.textContent =
+                "READING WALLET COLLECTION...";
 
 
             try {
 
-                const issue =
-                    String(
-                        publication.issue
-                    ).padStart(
-                        3,
-                        "0"
-                    );
-
-
                 const response =
                     await fetch(
-                        `${HELLBOX_API}/api/comics/${encodeURIComponent(
-                            publication.slug
-                        )}/${issue}`,
+                        `${HELLBOX_API}/api/collection?wallet=${encodeURIComponent(
+                            connectedWallet
+                        )}`,
                         {
                             headers: {
                                 "Accept":
@@ -1616,55 +1610,683 @@
                 if (!response.ok) {
 
                     throw new Error(
-                        `Publication request failed: ${response.status}`
+                        `Collection endpoint unavailable: ${response.status}`
                     );
 
                 }
 
 
-                const metadata =
+                const data =
                     await response.json();
 
 
-                renderPublication(
-                    metadata
-                );
+                if (
+                    !data ||
+                    !Array.isArray(
+                        data.publications
+                    )
+                ) {
+
+                    throw new Error(
+                        "Invalid collection response."
+                    );
+
+                }
+
+
+                walletCollection =
+                    mergeCollectionData(
+                        publications,
+                        data.publications
+                    );
+
 
             } catch (error) {
 
-                console.error(
-                    "Hellbox publication failed:",
+                console.info(
+                    "HELLBOX COLLECTION INDEX NOT ACTIVE YET:",
                     error
                 );
 
 
-                publicationContent.innerHTML = `
-                    <p class="section-kicker">
-                        ERROR
-                    </p>
-
-                    <h2>
-                        PUBLICATION UNAVAILABLE.
-                    </h2>
-                `;
+                walletCollection =
+                    publications.map(
+                        publication =>
+                            createDefaultCollectionState(
+                                publication
+                            )
+                    );
 
             }
+
+
+            renderCollection();
 
         }
 
 
-
-        function renderPublication(
-            metadata
+        function mergeCollectionData(
+            registry,
+            collection
         ) {
 
-            if (
-                metadata.content_type ===
-                "ebook"
+            return registry.map(
+                publication => {
+
+                    const walletEntry =
+                        collection.find(
+                            entry =>
+                                entry.id ===
+                                publication.id
+                        );
+
+
+                    if (!walletEntry) {
+
+                        return createDefaultCollectionState(
+                            publication
+                        );
+
+                    }
+
+
+                    return {
+
+                        ...publication,
+
+                        ...walletEntry,
+
+                        ownership: {
+                            owned:
+                                Boolean(
+                                    walletEntry.ownership &&
+                                    walletEntry.ownership.owned
+                                ),
+
+                            balance:
+                                walletEntry.ownership &&
+                                walletEntry.ownership.balance
+                                    ? walletEntry.ownership.balance
+                                    : 0,
+
+                            tokenIds:
+                                walletEntry.ownership &&
+                                Array.isArray(
+                                    walletEntry.ownership.tokenIds
+                                )
+                                    ? walletEntry.ownership.tokenIds
+                                    : []
+                        },
+
+                        state: {
+                            status:
+                                walletEntry.state &&
+                                walletEntry.state.status
+                                    ? walletEntry.state.status
+                                    : (
+                                        walletEntry.ownership &&
+                                        walletEntry.ownership.owned
+                                            ? "owned"
+                                            : "missing"
+                                    ),
+
+                            sealed:
+                                walletEntry.state
+                                    ? walletEntry.state.sealed
+                                    : null,
+
+                            evolved:
+                                Boolean(
+                                    walletEntry.state &&
+                                    walletEntry.state.evolved
+                                ),
+
+                            evolution:
+                                walletEntry.state
+                                    ? walletEntry.state.evolution
+                                    : null
+                        }
+
+                    };
+
+                }
+            );
+
+        }
+
+
+        // ========================================================
+        // SERIES TABS
+        // ========================================================
+
+        function renderSeriesTabs() {
+
+            seriesTabs.innerHTML =
+                "";
+
+
+            const series =
+                [
+                    "all",
+                    ...new Set(
+                        publications.map(
+                            publication =>
+                                publication.series ||
+                                publication.slug
+                        )
+                    )
+                ];
+
+
+            series.forEach(
+                seriesName => {
+
+                    const button =
+                        document.createElement(
+                            "button"
+                        );
+
+
+                    button.type =
+                        "button";
+
+
+                    button.className =
+                        "series-tab";
+
+
+                    if (
+                        selectedSeries ===
+                        seriesName
+                    ) {
+
+                        button.classList.add(
+                            "active"
+                        );
+
+                    }
+
+
+                    button.textContent =
+                        seriesName === "all"
+                            ? "ALL"
+                            : seriesName.toUpperCase();
+
+
+                    button.addEventListener(
+                        "click",
+                        function() {
+
+                            selectedSeries =
+                                seriesName;
+
+                            renderSeriesTabs();
+
+                            renderCollection();
+
+                        }
+                    );
+
+
+                    seriesTabs.appendChild(
+                        button
+                    );
+
+                }
+            );
+
+        }
+
+
+        // ========================================================
+        // COLLECTION RENDERING
+        // ========================================================
+
+        function renderCollection() {
+
+            collectionList.innerHTML =
+                "";
+
+
+            const entries =
+                walletCollection.length
+                    ? walletCollection
+                    : publications.map(
+                        createDefaultCollectionState
+                    );
+
+
+            const known =
+                entries.length;
+
+
+            const owned =
+                entries.filter(
+                    entry =>
+                        entry.ownership &&
+                        entry.ownership.owned
+                ).length;
+
+
+            const missing =
+                known - owned;
+
+
+            const evolved =
+                entries.filter(
+                    entry =>
+                        entry.state &&
+                        entry.state.evolved
+                ).length;
+
+
+            summaryKnown.textContent =
+                known;
+
+            summaryOwned.textContent =
+                owned;
+
+            summaryMissing.textContent =
+                missing;
+
+            summaryEvolved.textContent =
+                evolved;
+
+
+            publicationCount.textContent =
+                `${known} KNOWN EDITION${
+                    known === 1
+                        ? ""
+                        : "S"
+                }`;
+
+
+            const filtered =
+                selectedSeries === "all"
+                    ? entries
+                    : entries.filter(
+                        entry =>
+                            (
+                                entry.series ||
+                                entry.slug
+                            ) === selectedSeries
+                    );
+
+
+            if (filtered.length === 0) {
+
+                collectionStatus.textContent =
+                    "NO EDITIONS IN THIS SERIES.";
+
+                return;
+
+            }
+
+
+            if (!connectedWallet) {
+
+                collectionStatus.textContent =
+                    "CONNECT WALLET TO INSPECT OWNERSHIP.";
+
+            } else if (!walletOnPulseChain) {
+
+                collectionStatus.textContent =
+                    "SWITCH TO PULSECHAIN TO INSPECT COLLECTION.";
+
+            } else {
+
+                collectionStatus.textContent =
+                    "COLLECTION INDEX READY.";
+
+            }
+
+
+            filtered.forEach(
+                (
+                    publication,
+                    index
+                ) => {
+
+                    collectionList.appendChild(
+                        createPublicationCard(
+                            publication,
+                            index
+                        )
+                    );
+
+                }
+            );
+
+        }
+
+
+        function createPublicationCard(
+            publication,
+            index
+        ) {
+
+            const owned =
+                Boolean(
+                    publication.ownership &&
+                    publication.ownership.owned
+                );
+
+
+            const evolved =
+                Boolean(
+                    publication.state &&
+                    publication.state.evolved
+                );
+
+
+            const sealed =
+                Boolean(
+                    publication.state &&
+                    publication.state.sealed
+                );
+
+
+            const card =
+                document.createElement(
+                    "article"
+                );
+
+
+            card.className =
+                "collection-item";
+
+
+            if (owned) {
+
+                card.classList.add(
+                    "is-owned"
+                );
+
+            } else {
+
+                card.classList.add(
+                    "is-missing"
+                );
+
+            }
+
+
+            if (evolved) {
+
+                card.classList.add(
+                    "is-evolved"
+                );
+
+            }
+
+
+            const issue =
+                String(
+                    publication.issue || 1
+                ).padStart(
+                    3,
+                    "0"
+                );
+
+
+            const type =
+                publication.contentType ||
+                publication.content_type ||
+                "comic";
+
+
+            const supply =
+                publication.mint &&
+                publication.mint.maxSupply
+                    ? formatNumber(
+                        publication.mint.maxSupply
+                    )
+                    : "TBA";
+
+
+            const royalty =
+                publication.mint &&
+                publication.mint.royaltyPercent !==
+                undefined
+                    ? `${publication.mint.royaltyPercent}%`
+                    : "TBA";
+
+
+            const mintEnabled =
+                Boolean(
+                    publication.mint &&
+                    publication.mint.enabled
+                );
+
+
+            const releaseStatus =
+                publication.releaseStatus ||
+                "prelaunch";
+
+
+            let stateText =
+                owned
+                    ? "OWNED"
+                    : "MISSING";
+
+
+            if (owned && sealed) {
+
+                stateText =
+                    "SEALED";
+
+            }
+
+
+            if (evolved) {
+
+                stateText =
+                    "EVOLVED";
+
+            }
+
+
+            let actionText =
+                "NOT YET PRESSED";
+
+
+            if (owned) {
+
+                actionText =
+                    "OPEN ISSUE";
+
+            } else if (
+                mintEnabled &&
+                publication.mint &&
+                publication.mint.freeMint
             ) {
 
-                renderEbook(
-                    metadata
+                actionText =
+                    "FREE MINT";
+
+            } else if (
+                mintEnabled
+            ) {
+
+                actionText =
+                    "MINT EDITION";
+
+            }
+
+
+            card.innerHTML = `
+
+                <div class="collection-item-index">
+                    ${String(index + 1).padStart(2, "0")}
+                </div>
+
+                <div class="collection-item-main">
+
+                    <div class="collection-item-kicker">
+
+                        <span>
+                            ${escapeHtml(
+                                type.toUpperCase()
+                            )}
+                        </span>
+
+                        <span>
+                            ISSUE ${escapeHtml(issue)}
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        ${escapeHtml(
+                            publication.title ||
+                            publication.seriesTitle ||
+                            publication.slug ||
+                            "UNTITLED"
+                        )}
+                    </h3>
+
+                    <div class="collection-item-meta">
+
+                        <span>
+                            PRC-1155
+                        </span>
+
+                        <span>
+                            ${escapeHtml(supply)} SUPPLY
+                        </span>
+
+                        <span>
+                            ${escapeHtml(royalty)} ROYALTY
+                        </span>
+
+                        ${
+                            publication.mint &&
+                            publication.mint.freeMint
+                                ? `
+                                    <span>
+                                        FREE MINT
+                                    </span>
+                                `
+                                : ""
+                        }
+
+                    </div>
+
+                </div>
+
+                <div class="collection-item-state">
+
+                    <span class="state-label">
+                        COLLECTION STATUS
+                    </span>
+
+                    <strong>
+                        ${escapeHtml(stateText)}
+                    </strong>
+
+                    ${
+                        evolved &&
+                        publication.state &&
+                        publication.state.evolution
+                            ? `
+                                <small>
+                                    ${escapeHtml(
+                                        publication.state.evolution
+                                    )}
+                                </small>
+                            `
+                            : ""
+                    }
+
+                </div>
+
+                <div class="collection-item-action">
+
+                    <button
+                        type="button"
+                        class="edition-action"
+                        ${
+                            releaseStatus === "prelaunch" &&
+                            !owned &&
+                            !mintEnabled
+                                ? "disabled"
+                                : ""
+                        }
+                    >
+                        ${escapeHtml(actionText)}
+                    </button>
+
+                </div>
+
+            `;
+
+
+            const action =
+                card.querySelector(
+                    ".edition-action"
+                );
+
+
+            if (action) {
+
+                action.addEventListener(
+                    "click",
+                    function() {
+
+                        handlePublicationAction(
+                            publication
+                        );
+
+                    }
+                );
+
+            }
+
+
+            return card;
+
+        }
+
+
+        // ========================================================
+        // PUBLICATION ACTION
+        // ========================================================
+
+        async function handlePublicationAction(
+            publication
+        ) {
+
+            const owned =
+                Boolean(
+                    publication.ownership &&
+                    publication.ownership.owned
+                );
+
+
+            if (!connectedWallet) {
+
+                await connectWallet();
+
+                return;
+
+            }
+
+
+            if (!walletOnPulseChain) {
+
+                await switchToPulseChain();
+
+                await verifyWalletNetwork();
+
+                return;
+
+            }
+
+
+            if (owned) {
+
+                alert(
+                    `${publication.title} reader access will connect to the token-gated reader here.`
                 );
 
                 return;
@@ -1672,283 +2294,149 @@
             }
 
 
-            renderComic(
-                metadata
-            );
+            const mintEnabled =
+                Boolean(
+                    publication.mint &&
+                    publication.mint.enabled
+                );
+
+
+            if (!mintEnabled) {
+
+                return;
+
+            }
+
+
+            if (
+                publication.gate &&
+                publication.gate.contractAddress
+            ) {
+
+                alert(
+                    `${publication.title} mint transaction will connect here when the launch contract is activated.`
+                );
+
+            }
 
         }
 
 
+        // ========================================================
+        // WALLET EVENTS
+        // ========================================================
 
-        function renderEbook(metadata) {
+        if (hasWallet()) {
 
-            const cover =
-                metadata.images &&
-                metadata.images.cover
-                    ? metadata.images.cover
-                    : "";
+            window.ethereum.on(
+                "accountsChanged",
+                async function(accounts) {
 
+                    if (
+                        !accounts ||
+                        accounts.length === 0
+                    ) {
 
-            const epub =
-                metadata.book &&
-                metadata.book.formats &&
-                metadata.book.formats.epub
-                    ? metadata.book.formats.epub.url
-                    : "";
+                        connectedWallet =
+                            null;
 
+                        walletOnPulseChain =
+                            false;
 
-            const pdf =
-                metadata.book &&
-                metadata.book.formats &&
-                metadata.book.formats.pdf
-                    ? metadata.book.formats.pdf.url
-                    : "";
+                        walletCollection =
+                            publications.map(
+                                createDefaultCollectionState
+                            );
 
+                        updateWalletInterface();
 
-            const author =
-                metadata.author &&
-                metadata.author.name
-                    ? metadata.author.name
-                    : "";
+                        renderCollection();
 
+                        return;
 
-            publicationContent.innerHTML = `
-
-                <div class="publication-header">
-
-                    <p class="section-kicker">
-                        EBOOK / SECURE COPY
-                    </p>
-
-                    <h2>
-                        ${escapeHtml(
-                            metadata.title ||
-                            "UNTITLED"
-                        )}
-                    </h2>
-
-                    <p>
-                        ${
-                            author
-                                ? `By ${escapeHtml(author)}`
-                                : "Hellbox Comics"
-                        }
-                    </p>
-
-                </div>
-
-
-                <div class="publication-book">
-
-                    ${
-                        cover
-                            ? `
-                                <div class="publication-cover">
-
-                                    <img
-                                        src="${escapeAttribute(cover)}"
-                                        alt="${escapeAttribute(
-                                            metadata.title ||
-                                            "Book cover"
-                                        )}"
-                                    >
-
-                                </div>
-                            `
-                            : ""
                     }
 
 
-                    <div class="publication-actions">
-
-                        ${
-                            epub
-                                ? `
-                                    <a
-                                        class="publication-action"
-                                        href="${escapeAttribute(epub)}"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        READ EPUB
-                                    </a>
-                                `
-                                : ""
-                        }
+                    connectedWallet =
+                        accounts[0];
 
 
-                        ${
-                            pdf
-                                ? `
-                                    <a
-                                        class="publication-action"
-                                        href="${escapeAttribute(pdf)}"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        OPEN PDF
-                                    </a>
-                                `
-                                : ""
-                        }
+                    await verifyWalletNetwork();
 
 
-                        <button
-                            type="button"
-                            class="publication-action"
-                            id="closePublication"
-                        >
-                            CLOSE
-                        </button>
+                    if (walletOnPulseChain) {
 
-                    </div>
+                        await loadWalletCollection();
 
-                </div>
-            `;
+                    }
+
+                }
+            );
 
 
-            const closeButton =
-                document.getElementById(
-                    "closePublication"
-                );
+            window.ethereum.on(
+                "chainChanged",
+                async function(chainId) {
+
+                    walletOnPulseChain =
+                        Boolean(
+                            chainId &&
+                            chainId.toLowerCase() ===
+                            HELLBOX.chainId
+                        );
 
 
-            if (closeButton) {
-
-                closeButton.addEventListener(
-                    "click",
-                    closePublication
-                );
-
-            }
-
-        }
+                    updateWalletInterface();
 
 
+                    if (
+                        connectedWallet &&
+                        walletOnPulseChain
+                    ) {
 
-        function renderComic(metadata) {
+                        await loadWalletCollection();
 
-            publicationContent.innerHTML = `
+                    }
 
-                <p class="section-kicker">
-                    COMIC / SECURE COPY
-                </p>
-
-                <h2>
-                    ${escapeHtml(
-                        metadata.title ||
-                        "UNTITLED"
-                    )}
-                </h2>
-
-                <p class="publication-copy">
-                    This edition is connected to the Hellbox comic reader architecture.
-                </p>
-
-                <button
-                    type="button"
-                    class="publication-action"
-                    id="closePublication"
-                >
-                    CLOSE
-                </button>
-            `;
-
-
-            const closeButton =
-                document.getElementById(
-                    "closePublication"
-                );
-
-
-            if (closeButton) {
-
-                closeButton.addEventListener(
-                    "click",
-                    closePublication
-                );
-
-            }
-
-        }
-
-
-
-        function closePublication() {
-
-            publicationSection.hidden =
-                true;
-
-
-            publicationContent.innerHTML =
-                "";
-
-
-            document
-                .getElementById(
-                    "archive"
-                )
-                .scrollIntoView({
-                    behavior:
-                        "smooth",
-                    block:
-                        "start"
-                });
-
-        }
-
-
-
-        function escapeHtml(value) {
-
-            return String(value)
-
-                .replace(
-                    /&/g,
-                    "&amp;"
-                )
-
-                .replace(
-                    /</g,
-                    "&lt;"
-                )
-
-                .replace(
-                    />/g,
-                    "&gt;"
-                )
-
-                .replace(
-                    /"/g,
-                    "&quot;"
-                )
-
-                .replace(
-                    /'/g,
-                    "&#039;"
-                );
-
-        }
-
-
-
-        function escapeAttribute(value) {
-
-            return escapeHtml(
-                value
+                }
             );
 
         }
 
 
+        walletButton.addEventListener(
+            "click",
+            async function() {
 
-        updateWalletButton();
+                if (!connectedWallet) {
 
-        restoreWallet();
+                    await connectWallet();
 
-        loadCatalog();
+                    return;
+
+                }
 
 
+                if (!walletOnPulseChain) {
+
+                    await switchToPulseChain();
+
+                    await verifyWalletNetwork();
+
+                    return;
+
+                }
+
+
+                await loadWalletCollection();
+
+            }
+        );
+
+
+        // ========================================================
+        // SMOOTH INTERNAL NAVIGATION
+        // ========================================================
 
         document
             .querySelectorAll(
@@ -1959,38 +2447,117 @@
 
                     link.addEventListener(
                         "click",
-                        function (event) {
+                        function(event) {
 
-                            const target =
-                                document.querySelector(
-                                    this.getAttribute(
-                                        "href"
-                                    )
+                            const selector =
+                                this.getAttribute(
+                                    "href"
                                 );
 
 
-                            if (target) {
+                            if (
+                                !selector ||
+                                selector === "#"
+                            ) {
 
-                                event.preventDefault();
-
-
-                                target.scrollIntoView({
-
-                                    behavior:
-                                        "smooth",
-
-                                    block:
-                                        "start"
-
-                                });
+                                return;
 
                             }
+
+
+                            const target =
+                                document.querySelector(
+                                    selector
+                                );
+
+
+                            if (!target) {
+
+                                return;
+
+                            }
+
+
+                            event.preventDefault();
+
+
+                            target.scrollIntoView({
+
+                                behavior:
+                                    "smooth",
+
+                                block:
+                                    "start"
+
+                            });
 
                         }
                     );
 
                 }
             );
+
+
+        // ========================================================
+        // HELPERS
+        // ========================================================
+
+        function escapeHtml(value) {
+
+            return String(
+                value ?? ""
+            )
+                .replace(
+                    /&/g,
+                    "&amp;"
+                )
+                .replace(
+                    /</g,
+                    "&lt;"
+                )
+                .replace(
+                    />/g,
+                    "&gt;"
+                )
+                .replace(
+                    /"/g,
+                    "&quot;"
+                )
+                .replace(
+                    /'/g,
+                    "&#039;"
+                );
+
+        }
+
+
+        function formatNumber(value) {
+
+            return Number(
+                value
+            ).toLocaleString(
+                "en-US"
+            );
+
+        }
+
+
+        // ========================================================
+        // INITIALIZE
+        // ========================================================
+
+        async function initializeHellbox() {
+
+            updateWalletInterface();
+
+            await loadPublications();
+
+            await restoreWallet();
+
+        }
+
+
+        initializeHellbox();
 
     </script>
 
