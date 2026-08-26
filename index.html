@@ -43,6 +43,11 @@
         href="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem.PNG"
     >
 
+
+    <!-- ========================================================
+         SOCIAL / LINK PREVIEW
+    ========================================================= -->
+
     <meta
         property="og:type"
         content="website"
@@ -78,6 +83,7 @@
         content="Hellbox Comics"
     >
 
+
     <meta
         name="twitter:card"
         content="summary_large_image"
@@ -97,6 +103,7 @@
         name="twitter:image"
         content="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-banner-original.PNG"
     >
+
 
     <link
         rel="stylesheet"
@@ -851,7 +858,7 @@
 
 
         <!-- ====================================================
-             SOCIAL
+             SIGNAL
         ===================================================== -->
 
         <section class="signal-section">
@@ -1055,10 +1062,14 @@
     </footer>
 
 
+    <!-- ========================================================
+         JAVASCRIPT
+    ========================================================= -->
+
     <script>
 
         // ========================================================
-        // HELLBOX FRONTEND CONFIG
+        // CONFIG
         // ========================================================
 
         const HELLBOX = {
@@ -1096,17 +1107,20 @@
         };
 
 
-        // ========================================================
-        // IMPORTANT
-        //
-        // The test frontend is a separate Workers host.
-        //
-        // All Hellbox API traffic therefore goes explicitly to
-        // the real backend Worker.
-        // ========================================================
-
         const API_BASE =
             "https://hellboxcomics.harrow-harrow.workers.dev";
+
+
+        const SESSION_STORAGE_KEY =
+            "hellbox_reader_session";
+
+
+        const SESSION_WALLET_KEY =
+            "hellbox_reader_wallet";
+
+
+        const SESSION_EXPIRY_KEY =
+            "hellbox_reader_expiry";
 
 
         // ========================================================
@@ -1116,20 +1130,41 @@
         let connectedWallet =
             null;
 
+
         let connectedChainId =
             null;
+
 
         let walletStatus =
             null;
 
+
         let publicPublications =
             [];
+
 
         let selectedSeries =
             "all";
 
+
         let walletBusy =
             false;
+
+
+        let readerAuthBusy =
+            false;
+
+
+        let readerSession =
+            null;
+
+
+        let readerSessionWallet =
+            null;
+
+
+        let readerSessionExpiry =
+            null;
 
 
         // ========================================================
@@ -1239,7 +1274,7 @@
 
 
         // ========================================================
-        // UTILITIES
+        // BASIC UTILITIES
         // ========================================================
 
         function hasWalletProvider() {
@@ -1278,13 +1313,33 @@
         }
 
 
+        function normalizeAddressLocal(
+            address
+        ) {
+
+            if (!address) {
+
+                return null;
+
+            }
+
+
+            return String(
+                address
+            ).toLowerCase();
+
+        }
+
+
         function normalizeChainId(
             value
         ) {
 
             if (
-                value === null ||
-                value === undefined
+                value ===
+                    null ||
+                value ===
+                    undefined
             ) {
 
                 return null;
@@ -1350,7 +1405,8 @@
 
             return String(
                 Number(
-                    value || 0
+                    value ||
+                    0
                 )
             ).padStart(
                 2,
@@ -1384,6 +1440,227 @@
         }
 
 
+        function safeJsonParse(
+            value
+        ) {
+
+            try {
+
+                return JSON.parse(
+                    value
+                );
+
+            } catch (error) {
+
+                return null;
+
+            }
+
+        }
+
+
+        // ========================================================
+        // SESSION STORAGE
+        // ========================================================
+
+        function loadStoredReaderSession() {
+
+            const token =
+                sessionStorage.getItem(
+                    SESSION_STORAGE_KEY
+                );
+
+
+            const wallet =
+                sessionStorage.getItem(
+                    SESSION_WALLET_KEY
+                );
+
+
+            const expiry =
+                Number(
+                    sessionStorage.getItem(
+                        SESSION_EXPIRY_KEY
+                    ) ||
+                    0
+                );
+
+
+            if (
+                !token ||
+                !wallet ||
+                !expiry
+            ) {
+
+                clearReaderSession();
+
+                return;
+
+            }
+
+
+            const now =
+                Math.floor(
+                    Date.now() /
+                    1000
+                );
+
+
+            if (
+                expiry <=
+                now
+            ) {
+
+                clearReaderSession();
+
+                return;
+
+            }
+
+
+            readerSession =
+                token;
+
+
+            readerSessionWallet =
+                normalizeAddressLocal(
+                    wallet
+                );
+
+
+            readerSessionExpiry =
+                expiry;
+
+        }
+
+
+        function saveReaderSession(
+            token,
+            wallet,
+            expiresAt
+        ) {
+
+            readerSession =
+                token;
+
+
+            readerSessionWallet =
+                normalizeAddressLocal(
+                    wallet
+                );
+
+
+            readerSessionExpiry =
+                Number(
+                    expiresAt
+                );
+
+
+            sessionStorage.setItem(
+                SESSION_STORAGE_KEY,
+                readerSession
+            );
+
+
+            sessionStorage.setItem(
+                SESSION_WALLET_KEY,
+                readerSessionWallet
+            );
+
+
+            sessionStorage.setItem(
+                SESSION_EXPIRY_KEY,
+                String(
+                    readerSessionExpiry
+                )
+            );
+
+        }
+
+
+        function clearReaderSession() {
+
+            readerSession =
+                null;
+
+
+            readerSessionWallet =
+                null;
+
+
+            readerSessionExpiry =
+                null;
+
+
+            sessionStorage.removeItem(
+                SESSION_STORAGE_KEY
+            );
+
+
+            sessionStorage.removeItem(
+                SESSION_WALLET_KEY
+            );
+
+
+            sessionStorage.removeItem(
+                SESSION_EXPIRY_KEY
+            );
+
+        }
+
+
+        function hasValidReaderSession() {
+
+            if (
+                !readerSession ||
+                !readerSessionWallet ||
+                !readerSessionExpiry ||
+                !connectedWallet
+            ) {
+
+                return false;
+
+            }
+
+
+            const now =
+                Math.floor(
+                    Date.now() /
+                    1000
+                );
+
+
+            if (
+                readerSessionExpiry <=
+                now
+            ) {
+
+                clearReaderSession();
+
+                return false;
+
+            }
+
+
+            if (
+                readerSessionWallet !==
+                normalizeAddressLocal(
+                    connectedWallet
+                )
+            ) {
+
+                clearReaderSession();
+
+                return false;
+
+            }
+
+
+            return true;
+
+        }
+
+
         // ========================================================
         // PUBLICATIONS
         // ========================================================
@@ -1396,6 +1673,7 @@
                     await fetch(
                         `${API_BASE}/api/publications`,
                         {
+
                             method:
                                 "GET",
 
@@ -1411,11 +1689,14 @@
 
                             cache:
                                 "no-store"
+
                         }
                     );
 
 
-                if (!response.ok) {
+                if (
+                    !response.ok
+                ) {
 
                     throw new Error(
                         `Publications HTTP ${response.status}`
@@ -1448,7 +1729,8 @@
 
                     publicationCount.textContent =
                         `${publicPublications.length} PUBLIC ${
-                            publicPublications.length === 1
+                            publicPublications.length ===
+                                1
                                 ? "EDITION"
                                 : "EDITIONS"
                         }`;
@@ -1482,14 +1764,18 @@
 
         async function connectWallet() {
 
-            if (walletBusy) {
+            if (
+                walletBusy
+            ) {
 
                 return;
 
             }
 
 
-            if (!hasWalletProvider()) {
+            if (
+                !hasWalletProvider()
+            ) {
 
                 renderWalletError(
                     "WALLET NOT FOUND.",
@@ -1521,8 +1807,10 @@
 
                 const accounts =
                     await window.ethereum.request({
+
                         method:
                             "eth_requestAccounts"
+
                     });
 
 
@@ -1547,12 +1835,19 @@
 
                 connectedChainId =
                     await window.ethereum.request({
+
                         method:
                             "eth_chainId"
+
                     });
 
 
-                if (!isPulseChain()) {
+                loadStoredReaderSession();
+
+
+                if (
+                    !isPulseChain()
+                ) {
 
                     renderWrongNetwork();
 
@@ -1592,12 +1887,14 @@
 
 
         // ========================================================
-        // RESTORE WALLET SESSION
+        // RESTORE WALLET
         // ========================================================
 
         async function restoreWallet() {
 
-            if (!hasWalletProvider()) {
+            if (
+                !hasWalletProvider()
+            ) {
 
                 renderDisconnected();
 
@@ -1610,15 +1907,19 @@
 
                 const accounts =
                     await window.ethereum.request({
+
                         method:
                             "eth_accounts"
+
                     });
 
 
                 connectedChainId =
                     await window.ethereum.request({
+
                         method:
                             "eth_chainId"
+
                     });
 
 
@@ -1634,6 +1935,9 @@
                         null;
 
 
+                    clearReaderSession();
+
+
                     renderDisconnected();
 
                     return;
@@ -1645,7 +1949,12 @@
                     accounts[0];
 
 
-                if (!isPulseChain()) {
+                loadStoredReaderSession();
+
+
+                if (
+                    !isPulseChain()
+                ) {
 
                     renderWrongNetwork();
 
@@ -1673,6 +1982,9 @@
                     null;
 
 
+                clearReaderSession();
+
+
                 renderDisconnected();
 
             }
@@ -1681,12 +1993,14 @@
 
 
         // ========================================================
-        // SWITCH NETWORK
+        // SWITCH TO PULSECHAIN
         // ========================================================
 
         async function switchToPulseChain() {
 
-            if (!hasWalletProvider()) {
+            if (
+                !hasWalletProvider()
+            ) {
 
                 return;
 
@@ -1702,8 +2016,10 @@
 
                     params: [
                         {
+
                             chainId:
                                 HELLBOX.chainIdHex
+
                         }
                     ]
 
@@ -1729,6 +2045,7 @@
 
                             params: [
                                 {
+
                                     chainId:
                                         HELLBOX.chainIdHex,
 
@@ -1743,6 +2060,7 @@
 
                                     blockExplorerUrls:
                                         HELLBOX.explorerUrls
+
                                 }
                             ]
 
@@ -1781,12 +2099,16 @@
 
             connectedChainId =
                 await window.ethereum.request({
+
                     method:
                         "eth_chainId"
+
                 });
 
 
-            if (isPulseChain()) {
+            if (
+                isPulseChain()
+            ) {
 
                 await loadWalletStatus();
 
@@ -1808,7 +2130,9 @@
 
         async function loadWalletStatus() {
 
-            if (!connectedWallet) {
+            if (
+                !connectedWallet
+            ) {
 
                 renderDisconnected();
 
@@ -1817,7 +2141,9 @@
             }
 
 
-            if (!isPulseChain()) {
+            if (
+                !isPulseChain()
+            ) {
 
                 renderWrongNetwork();
 
@@ -1839,16 +2165,11 @@
                     `&chainId=${HELLBOX.chainIdDecimal}`;
 
 
-                console.log(
-                    "HELLBOX API REQUEST:",
-                    requestUrl
-                );
-
-
                 const response =
                     await fetch(
                         requestUrl,
                         {
+
                             method:
                                 "GET",
 
@@ -1864,6 +2185,7 @@
 
                             cache:
                                 "no-store"
+
                         }
                     );
 
@@ -1872,7 +2194,9 @@
                     await response.text();
 
 
-                if (!response.ok) {
+                if (
+                    !response.ok
+                ) {
 
                     throw new Error(
                         `Wallet status HTTP ${response.status}: ${responseText}`
@@ -1881,30 +2205,10 @@
                 }
 
 
-                let data;
-
-
-                try {
-
-                    data =
-                        JSON.parse(
-                            responseText
-                        );
-
-
-                } catch (error) {
-
-                    throw new Error(
-                        "Wallet status API returned invalid JSON."
+                const data =
+                    safeJsonParse(
+                        responseText
                     );
-
-                }
-
-
-                console.log(
-                    "HELLBOX WALLET STATUS:",
-                    data
-                );
 
 
                 if (
@@ -1971,6 +2275,794 @@
 
 
         // ========================================================
+        // AUTH — CHALLENGE
+        // ========================================================
+
+        async function requestReaderChallenge() {
+
+            if (
+                !connectedWallet
+            ) {
+
+                throw new Error(
+                    "Wallet is not connected."
+                );
+
+            }
+
+
+            const response =
+                await fetch(
+                    `${API_BASE}/api/auth/challenge`,
+                    {
+
+                        method:
+                            "POST",
+
+                        mode:
+                            "cors",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Accept":
+                                "application/json"
+
+                        },
+
+                        cache:
+                            "no-store",
+
+                        body:
+                            JSON.stringify(
+                                {
+
+                                    address:
+                                        connectedWallet
+
+                                }
+                            )
+
+                    }
+                );
+
+
+            const text =
+                await response.text();
+
+
+            const data =
+                safeJsonParse(
+                    text
+                );
+
+
+            if (
+                !response.ok ||
+                !data ||
+                data.ok !==
+                    true ||
+                !data.challenge
+            ) {
+
+                throw new Error(
+                    data &&
+                    data.error
+                        ? data.error
+                        : `Challenge request failed with HTTP ${response.status}.`
+                );
+
+            }
+
+
+            return data.challenge;
+
+        }
+
+
+        // ========================================================
+        // AUTH — SIGN
+        // ========================================================
+
+        async function signReaderChallenge(
+            challenge
+        ) {
+
+            if (
+                !hasWalletProvider()
+            ) {
+
+                throw new Error(
+                    "Wallet provider unavailable."
+                );
+
+            }
+
+
+            /*
+             * MetaMask-compatible personal_sign.
+             *
+             * No transaction is submitted.
+             * No gas is spent.
+             */
+
+            return await window.ethereum.request({
+
+                method:
+                    "personal_sign",
+
+                params: [
+
+                    challenge.message,
+
+                    connectedWallet
+
+                ]
+
+            });
+
+        }
+
+
+        // ========================================================
+        // AUTH — VERIFY
+        // ========================================================
+
+        async function verifyReaderSignature(
+            challenge,
+            signature
+        ) {
+
+            const response =
+                await fetch(
+                    `${API_BASE}/api/auth/verify`,
+                    {
+
+                        method:
+                            "POST",
+
+                        mode:
+                            "cors",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Accept":
+                                "application/json"
+
+                        },
+
+                        cache:
+                            "no-store",
+
+                        body:
+                            JSON.stringify(
+                                {
+
+                                    address:
+                                        connectedWallet,
+
+                                    challengeId:
+                                        challenge.id,
+
+                                    signature
+
+                                }
+                            )
+
+                    }
+                );
+
+
+            const text =
+                await response.text();
+
+
+            const data =
+                safeJsonParse(
+                    text
+                );
+
+
+            if (
+                !response.ok ||
+                !data ||
+                data.ok !==
+                    true ||
+                !data.session ||
+                !data.session.token
+            ) {
+
+                throw new Error(
+                    data &&
+                    data.error
+                        ? data.error
+                        : `Signature verification failed with HTTP ${response.status}.`
+                );
+
+            }
+
+
+            saveReaderSession(
+
+                data.session.token,
+
+                connectedWallet,
+
+                data.session.expiresAt
+
+            );
+
+
+            return data;
+
+        }
+
+
+        // ========================================================
+        // AUTH — COMPLETE HANDSHAKE
+        // ========================================================
+
+        async function authenticateReader() {
+
+            if (
+                readerAuthBusy
+            ) {
+
+                return false;
+
+            }
+
+
+            if (
+                !connectedWallet
+            ) {
+
+                await connectWallet();
+
+
+                if (
+                    !connectedWallet
+                ) {
+
+                    return false;
+
+                }
+
+            }
+
+
+            if (
+                !isPulseChain()
+            ) {
+
+                await switchToPulseChain();
+
+
+                if (
+                    !isPulseChain()
+                ) {
+
+                    return false;
+
+                }
+
+            }
+
+
+            if (
+                hasValidReaderSession()
+            ) {
+
+                return true;
+
+            }
+
+
+            readerAuthBusy =
+                true;
+
+
+            collectionStatus.textContent =
+                "REQUESTING READER CLEARANCE...";
+
+
+            try {
+
+                const challenge =
+                    await requestReaderChallenge();
+
+
+                collectionStatus.textContent =
+                    "SIGNATURE REQUIRED // NO GAS // NO TRANSACTION";
+
+
+                const signature =
+                    await signReaderChallenge(
+                        challenge
+                    );
+
+
+                collectionStatus.textContent =
+                    "VERIFYING SIGNATURE...";
+
+
+                await verifyReaderSignature(
+                    challenge,
+                    signature
+                );
+
+
+                collectionStatus.textContent =
+                    "READER CLEARANCE VERIFIED.";
+
+
+                return true;
+
+
+            } catch (error) {
+
+                console.error(
+                    "HELLBOX READER AUTH ERROR:",
+                    error
+                );
+
+
+                clearReaderSession();
+
+
+                collectionStatus.textContent =
+                    "READER CLEARANCE DENIED.";
+
+
+                return false;
+
+
+            } finally {
+
+                readerAuthBusy =
+                    false;
+
+            }
+
+        }
+
+
+        // ========================================================
+        // AUTH — SESSION VERIFY
+        // ========================================================
+
+        async function validateReaderSession() {
+
+            if (
+                !hasValidReaderSession()
+            ) {
+
+                return false;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_BASE}/api/auth/session`,
+                        {
+
+                            method:
+                                "GET",
+
+                            mode:
+                                "cors",
+
+                            headers: {
+
+                                "Accept":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${readerSession}`
+
+                            },
+
+                            cache:
+                                "no-store"
+
+                        }
+                    );
+
+
+                if (
+                    !response.ok
+                ) {
+
+                    clearReaderSession();
+
+                    return false;
+
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                if (
+                    !data ||
+                    data.ok !==
+                        true ||
+                    data.authenticated !==
+                        true
+                ) {
+
+                    clearReaderSession();
+
+                    return false;
+
+                }
+
+
+                const returnedWallet =
+                    data.wallet &&
+                    data.wallet.address
+                        ? normalizeAddressLocal(
+                            data.wallet.address
+                        )
+                        : null;
+
+
+                if (
+                    returnedWallet !==
+                    normalizeAddressLocal(
+                        connectedWallet
+                    )
+                ) {
+
+                    clearReaderSession();
+
+                    return false;
+
+                }
+
+
+                return true;
+
+
+            } catch (error) {
+
+                console.error(
+                    "HELLBOX SESSION VALIDATION ERROR:",
+                    error
+                );
+
+
+                clearReaderSession();
+
+
+                return false;
+
+            }
+
+        }
+
+
+        // ========================================================
+        // OPEN PROTECTED EDITION
+        // ========================================================
+
+        async function openEdition(
+            edition,
+            button
+        ) {
+
+            if (
+                !edition
+            ) {
+
+                return;
+
+            }
+
+
+            const originalText =
+                button
+                    ? button.textContent
+                    : null;
+
+
+            if (
+                button
+            ) {
+
+                button.disabled =
+                    true;
+
+
+                button.textContent =
+                    "VERIFYING...";
+
+            }
+
+
+            try {
+
+                let authenticated =
+                    await validateReaderSession();
+
+
+                if (
+                    !authenticated
+                ) {
+
+                    authenticated =
+                        await authenticateReader();
+
+                }
+
+
+                if (
+                    !authenticated
+                ) {
+
+                    throw new Error(
+                        "Reader authentication failed."
+                    );
+
+                }
+
+
+                if (
+                    button
+                ) {
+
+                    button.textContent =
+                        "OPENING...";
+
+                }
+
+
+                collectionStatus.textContent =
+                    "VERIFYING EDITION OWNERSHIP...";
+
+
+                const response =
+                    await fetch(
+                        `${API_BASE}/api/reader/${encodeURIComponent(
+                            edition.slug
+                        )}/${encodeURIComponent(
+                            edition.issue
+                        )}`,
+                        {
+
+                            method:
+                                "GET",
+
+                            mode:
+                                "cors",
+
+                            headers: {
+
+                                "Accept":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${readerSession}`
+
+                            },
+
+                            cache:
+                                "no-store"
+
+                        }
+                    );
+
+
+                const text =
+                    await response.text();
+
+
+                const data =
+                    safeJsonParse(
+                        text
+                    );
+
+
+                if (
+                    response.status ===
+                    401
+                ) {
+
+                    clearReaderSession();
+
+
+                    throw new Error(
+                        "Reader session expired."
+                    );
+
+                }
+
+
+                if (
+                    !response.ok ||
+                    !data ||
+                    data.ok !==
+                        true ||
+                    data.access !==
+                        "granted"
+                ) {
+
+                    const message =
+                        data &&
+                        data.error
+                            ? data.error
+                            : "Reader access was denied.";
+
+
+                    throw new Error(
+                        message
+                    );
+
+                }
+
+
+                collectionStatus.textContent =
+                    "ACCESS GRANTED // EDITION OPEN";
+
+
+                launchReader(
+                    data
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "HELLBOX OPEN EDITION ERROR:",
+                    error
+                );
+
+
+                collectionStatus.textContent =
+                    `READER LOCKED // ${
+                        error.message ||
+                        "ACCESS DENIED"
+                    }`;
+
+
+            } finally {
+
+                if (
+                    button
+                ) {
+
+                    button.disabled =
+                        false;
+
+
+                    button.textContent =
+                        originalText ||
+                        "OPEN EDITION";
+
+                }
+
+            }
+
+        }
+
+
+        // ========================================================
+        // READER LAUNCH FOUNDATION
+        // ========================================================
+        //
+        // No live publication exists yet, so there is no final
+        // comic reader UI to render today.
+        //
+        // When SciVive is prepared, its private manifest will
+        // define pages / assets and this function will become
+        // the full-screen Hellbox reader.
+        //
+        // ========================================================
+
+        function launchReader(
+            readerData
+        ) {
+
+            const publication =
+                readerData.publication ||
+                {};
+
+
+            const manifest =
+                readerData.reader &&
+                readerData.reader.manifest
+                    ? readerData.reader.manifest
+                    : {};
+
+
+            console.log(
+                "HELLBOX READER ACCESS GRANTED:",
+                readerData
+            );
+
+
+            /*
+             * Foundation behavior:
+             *
+             * If the private manifest eventually supplies a
+             * reader URL, route, or entry point, we can use it.
+             *
+             * Until the first real publication is installed,
+             * we intentionally do not fabricate a reader.
+             */
+
+            if (
+                manifest.entryUrl &&
+                typeof manifest.entryUrl ===
+                    "string"
+            ) {
+
+                window.location.href =
+                    manifest.entryUrl;
+
+                return;
+
+            }
+
+
+            if (
+                manifest.entryRoute &&
+                typeof manifest.entryRoute ===
+                    "string"
+            ) {
+
+                window.location.href =
+                    manifest.entryRoute;
+
+                return;
+
+            }
+
+
+            terminalTitle.textContent =
+                "CLEARANCE VERIFIED.";
+
+
+            terminalMessage.textContent =
+                `${
+                    publication.title ||
+                    "This edition"
+                } is authorized for this wallet. The protected reader manifest has been unlocked.`;
+
+
+            terminalAction.hidden =
+                true;
+
+
+            document
+                .getElementById(
+                    "collection"
+                )
+                .scrollIntoView(
+                    {
+
+                        behavior:
+                            "smooth",
+
+                        block:
+                            "start"
+
+                    }
+                );
+
+        }
+
+
+        // ========================================================
         // HEADER
         // ========================================================
 
@@ -1982,7 +3074,9 @@
             );
 
 
-            if (!connectedWallet) {
+            if (
+                !connectedWallet
+            ) {
 
                 walletButton.textContent =
                     "CONNECT WALLET";
@@ -1992,7 +3086,9 @@
             }
 
 
-            if (!isPulseChain()) {
+            if (
+                !isPulseChain()
+            ) {
 
                 walletButton.textContent =
                     "SWITCH NETWORK";
@@ -2070,19 +3166,23 @@
                 "CONNECT WALLET // INSPECT COLLECTION";
 
 
-            setStats({
-                known:
-                    0,
+            setStats(
+                {
 
-                owned:
-                    0,
+                    known:
+                        0,
 
-                missing:
-                    0,
+                    owned:
+                        0,
 
-                evolved:
-                    0
-            });
+                    missing:
+                        0,
+
+                    evolved:
+                        0
+
+                }
+            );
 
 
             seriesControl.hidden =
@@ -2118,6 +3218,9 @@
                 null;
 
 
+            clearReaderSession();
+
+
             collectionWallet.textContent =
                 shortAddress(
                     connectedWallet
@@ -2128,7 +3231,8 @@
                 `CHAIN // ${
                     normalizeChainId(
                         connectedChainId
-                    ) || "UNKNOWN"
+                    ) ||
+                    "UNKNOWN"
                 }`;
 
 
@@ -2164,19 +3268,23 @@
                 "SWITCH TO PULSECHAIN";
 
 
-            setStats({
-                known:
-                    0,
+            setStats(
+                {
 
-                owned:
-                    0,
+                    known:
+                        0,
 
-                missing:
-                    0,
+                    owned:
+                        0,
 
-                evolved:
-                    0
-            });
+                    missing:
+                        0,
+
+                    evolved:
+                        0
+
+                }
+            );
 
 
             seriesControl.hidden =
@@ -2295,19 +3403,23 @@
                     : connectWallet;
 
 
-            setStats({
-                known:
-                    0,
+            setStats(
+                {
 
-                owned:
-                    0,
+                    known:
+                        0,
 
-                missing:
-                    0,
+                    owned:
+                        0,
 
-                evolved:
-                    0
-            });
+                    missing:
+                        0,
+
+                    evolved:
+                        0
+
+                }
+            );
 
 
             seriesControl.hidden =
@@ -2331,7 +3443,7 @@
 
 
         // ========================================================
-        // WALLET COLLECTION
+        // COLLECTION RENDER
         // ========================================================
 
         function renderWalletCollection(
@@ -2403,10 +3515,6 @@
             heroEntryStatus.textContent =
                 "CLEARANCE VERIFIED // OPEN COLLECTION";
 
-
-            // ====================================================
-            // CURRENT EMPTY ARCHIVE
-            // ====================================================
 
             if (
                 Number(
@@ -2749,7 +3857,7 @@
 
             const visibleSeries =
                 selectedSeries ===
-                "all"
+                    "all"
                     ? series
                     : series.filter(
                         entry =>
@@ -3051,6 +4159,10 @@
                 "edition-action";
 
 
+            // ====================================================
+            // OWNED / EVOLVED
+            // ====================================================
+
             if (
                 ownership ===
                     "owned" ||
@@ -3058,17 +4170,52 @@
                     "evolved"
             ) {
 
-                button.textContent =
-                    "OPEN EDITION";
+                if (
+                    edition.reader &&
+                    edition.reader.enabled ===
+                        true
+                ) {
+
+                    button.textContent =
+                        "OPEN EDITION";
 
 
-                button.disabled =
-                    true;
+                    button.disabled =
+                        false;
 
+
+                    button.addEventListener(
+                        "click",
+                        () => {
+
+                            openEdition(
+                                edition,
+                                button
+                            );
+
+                        }
+                    );
+
+
+                } else {
+
+                    button.textContent =
+                        "READER LOCKED";
+
+
+                    button.disabled =
+                        true;
+
+                }
+
+
+            // ====================================================
+            // MISSING
+            // ====================================================
 
             } else if (
                 ownership ===
-                "missing"
+                    "missing"
             ) {
 
                 if (
@@ -3078,19 +4225,35 @@
                 ) {
 
                     button.textContent =
-                        "MINT EDITION";
+                        edition.mint.freeMint ===
+                            true
+                            ? "CLAIM EDITION"
+                            : "MINT EDITION";
+
+
+                    /*
+                     * Mint transaction flow will be wired later.
+                     */
+
+                    button.disabled =
+                        true;
+
 
                 } else {
 
                     button.textContent =
                         "MISSING";
 
+
+                    button.disabled =
+                        true;
+
                 }
 
 
-                button.disabled =
-                    true;
-
+            // ====================================================
+            // UNAVAILABLE
+            // ====================================================
 
             } else {
 
@@ -3130,7 +4293,9 @@
             "click",
             async () => {
 
-                if (!connectedWallet) {
+                if (
+                    !connectedWallet
+                ) {
 
                     await connectWallet();
 
@@ -3139,7 +4304,9 @@
                 }
 
 
-                if (!isPulseChain()) {
+                if (
+                    !isPulseChain()
+                ) {
 
                     await switchToPulseChain();
 
@@ -3152,15 +4319,17 @@
                     .getElementById(
                         "collection"
                     )
-                    .scrollIntoView({
+                    .scrollIntoView(
+                        {
 
-                        behavior:
-                            "smooth",
+                            behavior:
+                                "smooth",
 
-                        block:
-                            "start"
+                            block:
+                                "start"
 
-                    });
+                        }
+                    );
 
             }
         );
@@ -3174,11 +4343,22 @@
         // WALLET EVENTS
         // ========================================================
 
-        if (hasWalletProvider()) {
+        if (
+            hasWalletProvider()
+        ) {
 
             window.ethereum.on(
                 "accountsChanged",
                 async accounts => {
+
+                    /*
+                     * A reader session belongs to one wallet only.
+                     * Changing accounts immediately destroys the
+                     * browser-side session.
+                     */
+
+                    clearReaderSession();
+
 
                     if (
                         !Array.isArray(
@@ -3209,12 +4389,16 @@
 
                     connectedChainId =
                         await window.ethereum.request({
+
                             method:
                                 "eth_chainId"
+
                         });
 
 
-                    if (isPulseChain()) {
+                    if (
+                        isPulseChain()
+                    ) {
 
                         await loadWalletStatus();
 
@@ -3235,11 +4419,20 @@
                 "chainChanged",
                 async chainId => {
 
+                    /*
+                     * Reader authentication is PulseChain-bound.
+                     */
+
+                    clearReaderSession();
+
+
                     connectedChainId =
                         chainId;
 
 
-                    if (!connectedWallet) {
+                    if (
+                        !connectedWallet
+                    ) {
 
                         renderDisconnected();
 
@@ -3248,7 +4441,9 @@
                     }
 
 
-                    if (isPulseChain()) {
+                    if (
+                        isPulseChain()
+                    ) {
 
                         await loadWalletStatus();
 
@@ -3272,6 +4467,9 @@
         // ========================================================
 
         async function initializeHellbox() {
+
+            loadStoredReaderSession();
+
 
             await loadPublications();
 
