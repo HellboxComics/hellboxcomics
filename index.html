@@ -25,10 +25,6 @@
         href="https://hellboxcomics.com/"
     >
 
-    <!-- ========================================================
-         FAVICON / APP ICON
-    ========================================================= -->
-
     <link
         rel="icon"
         type="image/png"
@@ -39,10 +35,6 @@
         rel="apple-touch-icon"
         href="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem.PNG"
     >
-
-    <!-- ========================================================
-         SOCIAL / SHARE PREVIEW
-    ========================================================= -->
 
     <meta
         property="og:type"
@@ -109,10 +101,6 @@
 
 <body>
 
-    <!-- ========================================================
-         SITE ATMOSPHERE
-    ========================================================= -->
-
     <div
         class="site-noise"
         aria-hidden="true"
@@ -128,10 +116,6 @@
         aria-hidden="true"
     ></div>
 
-
-    <!-- ========================================================
-         HEADER
-    ========================================================= -->
 
     <header class="site-header">
 
@@ -186,10 +170,6 @@
 
     <main>
 
-
-        <!-- ====================================================
-             HERO
-        ===================================================== -->
 
         <section
             class="hero"
@@ -309,10 +289,6 @@
         </section>
 
 
-        <!-- ====================================================
-             MANIFEST / NAVIGATION
-        ===================================================== -->
-
         <section class="manifest-strip">
 
             <div class="manifest-topline">
@@ -420,10 +396,6 @@
         </section>
 
 
-        <!-- ====================================================
-             COLLECTION / HELLBOX
-        ===================================================== -->
-
         <section
             class="collection-section"
             id="collection"
@@ -476,10 +448,6 @@
                 </div>
 
 
-                <!-- ==============================================
-                     COLLECTION TERMINAL
-                =============================================== -->
-
                 <div
                     class="collection-terminal"
                     id="collectionTerminal"
@@ -517,10 +485,6 @@
 
                     </div>
 
-
-                    <!-- ==========================================
-                         TERMINAL MAIN STATE
-                    =========================================== -->
 
                     <div
                         class="terminal-stage"
@@ -565,10 +529,6 @@
 
                     </div>
 
-
-                    <!-- ==========================================
-                         STATUS RAIL
-                    =========================================== -->
 
                     <div
                         class="collection-summary"
@@ -629,10 +589,6 @@
                     </div>
 
 
-                    <!-- ==========================================
-                         SERIES CONTROL
-                    =========================================== -->
-
                     <div
                         class="series-control"
                         id="seriesControl"
@@ -650,10 +606,6 @@
 
                     </div>
 
-
-                    <!-- ==========================================
-                         COLLECTION LIST
-                    =========================================== -->
 
                     <div
                         class="collection-list"
@@ -674,10 +626,6 @@
 
         </section>
 
-
-        <!-- ====================================================
-             PRESS
-        ===================================================== -->
 
         <section
             class="press-section"
@@ -755,10 +703,6 @@
         </section>
 
 
-        <!-- ====================================================
-             TRANSMISSION BREAK
-        ===================================================== -->
-
         <div class="transmission-break">
 
             <span>
@@ -771,10 +715,6 @@
 
         </div>
 
-
-        <!-- ====================================================
-             HARROW
-        ===================================================== -->
 
         <section
             class="harrow-section"
@@ -869,10 +809,6 @@
 
         </section>
 
-
-        <!-- ====================================================
-             SIGNAL
-        ===================================================== -->
 
         <section class="signal-section">
 
@@ -987,10 +923,6 @@
 
     </main>
 
-
-    <!-- ========================================================
-         FOOTER
-    ========================================================= -->
 
     <footer class="site-footer">
 
@@ -1110,7 +1042,7 @@
 
 
         // ========================================================
-        // STATE
+        // APPLICATION STATE
         // ========================================================
 
         let connectedWallet = null;
@@ -1159,9 +1091,6 @@
 
         const summaryEvolved =
             document.getElementById("summaryEvolved");
-
-        const terminalStage =
-            document.getElementById("terminalStage");
 
         const terminalTitle =
             document.getElementById("terminalTitle");
@@ -1217,18 +1146,6 @@
         }
 
 
-        function formatCount(value) {
-
-            const number =
-                Number(value || 0);
-
-
-            return String(number)
-                .padStart(2, "0");
-
-        }
-
-
         function normalizeChainId(value) {
 
             if (
@@ -1258,12 +1175,18 @@
                 text.toLowerCase().startsWith("0x")
             ) {
 
-                return parseInt(text, 16);
+                return parseInt(
+                    text,
+                    16
+                );
 
             }
 
 
-            return parseInt(text, 10);
+            return parseInt(
+                text,
+                10
+            );
 
         }
 
@@ -1280,9 +1203,30 @@
         }
 
 
+        function formatCount(value) {
+
+            return String(
+                Number(value || 0)
+            ).padStart(
+                2,
+                "0"
+            );
+
+        }
+
+
         function clearElement(element) {
 
-            while (element.firstChild) {
+            if (!element) {
+
+                return;
+
+            }
+
+
+            while (
+                element.firstChild
+            ) {
 
                 element.removeChild(
                     element.firstChild
@@ -1294,7 +1238,7 @@
 
 
         // ========================================================
-        // PUBLIC REGISTRY
+        // PUBLIC RELEASE REGISTRY
         // ========================================================
 
         async function loadPublications() {
@@ -1305,10 +1249,16 @@
                     await fetch(
                         `${API_BASE}/api/publications`,
                         {
+                            method:
+                                "GET",
+
                             headers: {
                                 "Accept":
                                     "application/json"
-                            }
+                            },
+
+                            cache:
+                                "no-store"
                         }
                     );
 
@@ -1316,7 +1266,7 @@
                 if (!response.ok) {
 
                     throw new Error(
-                        `Publication registry returned ${response.status}`
+                        `Publications returned HTTP ${response.status}`
                     );
 
                 }
@@ -1334,20 +1284,29 @@
                         : [];
 
 
-                publicationCount.textContent =
+                if (
                     publicPublications.length === 0
-                        ? "NO PUBLIC EDITIONS"
-                        : `${publicPublications.length} PUBLIC ${
+                ) {
+
+                    publicationCount.textContent =
+                        "NO PUBLIC EDITIONS";
+
+                } else {
+
+                    publicationCount.textContent =
+                        `${publicPublications.length} PUBLIC ${
                             publicPublications.length === 1
                                 ? "EDITION"
                                 : "EDITIONS"
                         }`;
 
+                }
+
 
             } catch (error) {
 
                 console.error(
-                    "HELLBOX REGISTRY ERROR:",
+                    "HELLBOX PUBLICATION REGISTRY ERROR:",
                     error
                 );
 
@@ -1355,8 +1314,15 @@
                 publicPublications = [];
 
 
+                /*
+                 * The release registry being unavailable should
+                 * not make the entire collection terminal appear
+                 * broken. Wallet status is authoritative for the
+                 * user's archive state.
+                 */
+
                 publicationCount.textContent =
-                    "INDEX UNAVAILABLE";
+                    "ARCHIVE STANDBY";
 
             }
 
@@ -1364,7 +1330,7 @@
 
 
         // ========================================================
-        // WALLET CONNECTION
+        // CONNECT WALLET
         // ========================================================
 
         async function connectWallet() {
@@ -1378,24 +1344,27 @@
 
             if (!hasWalletProvider()) {
 
-                terminalTitle.textContent =
-                    "WALLET PROVIDER NOT FOUND.";
-
-                terminalMessage.textContent =
-                    "Install a compatible browser wallet to enter the Hellbox.";
-
-                collectionStatus.textContent =
-                    "NO WALLET PROVIDER DETECTED.";
+                renderWalletError(
+                    "WALLET NOT FOUND.",
+                    "A compatible browser wallet is required to enter the Hellbox."
+                );
 
                 return;
 
             }
 
 
-            walletBusy = true;
+            walletBusy =
+                true;
+
 
             walletButton.textContent =
                 "CONNECTING...";
+
+
+            terminalAction.hidden =
+                false;
+
 
             terminalAction.textContent =
                 "CONNECTING...";
@@ -1411,12 +1380,12 @@
 
 
                 if (
-                    !accounts ||
+                    !Array.isArray(accounts) ||
                     accounts.length === 0
                 ) {
 
                     throw new Error(
-                        "No wallet account returned."
+                        "Wallet returned no accounts."
                     );
 
                 }
@@ -1435,32 +1404,35 @@
 
                 if (!isPulseChain()) {
 
-                    await renderWrongNetwork();
+                    renderWrongNetwork();
 
-                } else {
-
-                    await loadWalletStatus();
+                    return;
 
                 }
+
+
+                await loadWalletStatus();
 
 
             } catch (error) {
 
                 console.error(
-                    "HELLBOX WALLET ERROR:",
+                    "HELLBOX WALLET CONNECTION ERROR:",
                     error
                 );
 
 
                 renderWalletError(
                     "WALLET CONNECTION REJECTED.",
-                    "The archive could not establish a wallet handshake."
+                    "Hellbox could not establish a wallet handshake."
                 );
 
 
             } finally {
 
-                walletBusy = false;
+                walletBusy =
+                    false;
+
 
                 updateHeaderWallet();
 
@@ -1470,7 +1442,7 @@
 
 
         // ========================================================
-        // RESTORE SESSION
+        // RESTORE EXISTING WALLET SESSION
         // ========================================================
 
         async function restoreWallet() {
@@ -1501,9 +1473,13 @@
 
 
                 if (
-                    !accounts ||
+                    !Array.isArray(accounts) ||
                     accounts.length === 0
                 ) {
+
+                    connectedWallet =
+                        null;
+
 
                     renderDisconnected();
 
@@ -1536,6 +1512,14 @@
                 );
 
 
+                connectedWallet =
+                    null;
+
+
+                walletStatus =
+                    null;
+
+
                 renderDisconnected();
 
             }
@@ -1544,7 +1528,7 @@
 
 
         // ========================================================
-        // SWITCH NETWORK
+        // PULSECHAIN SWITCH
         // ========================================================
 
         async function switchToPulseChain() {
@@ -1574,6 +1558,11 @@
 
 
             } catch (switchError) {
+
+                /*
+                 * 4902 means the wallet does not yet know
+                 * PulseChain, so add the network.
+                 */
 
                 if (
                     switchError &&
@@ -1612,36 +1601,70 @@
                     } catch (addError) {
 
                         console.error(
-                            "HELLBOX ADD NETWORK ERROR:",
+                            "HELLBOX ADD PULSECHAIN ERROR:",
                             addError
                         );
 
+
+                        renderWalletError(
+                            "NETWORK CHANGE REJECTED.",
+                            "Hellbox requires PulseChain to inspect this wallet."
+                        );
+
+
+                        return;
+
                     }
+
 
                 } else {
 
                     console.error(
-                        "HELLBOX SWITCH NETWORK ERROR:",
+                        "HELLBOX NETWORK SWITCH ERROR:",
                         switchError
                     );
+
+
+                    renderWalletError(
+                        "NETWORK CHANGE REJECTED.",
+                        "Hellbox requires PulseChain to inspect this wallet."
+                    );
+
+
+                    return;
 
                 }
 
             }
 
 
-            connectedChainId =
-                await window.ethereum.request({
-                    method:
-                        "eth_chainId"
-                });
+            try {
+
+                connectedChainId =
+                    await window.ethereum.request({
+                        method:
+                            "eth_chainId"
+                    });
 
 
-            if (isPulseChain()) {
+                if (isPulseChain()) {
 
-                await loadWalletStatus();
+                    await loadWalletStatus();
 
-            } else {
+                } else {
+
+                    renderWrongNetwork();
+
+                }
+
+
+            } catch (error) {
+
+                console.error(
+                    "HELLBOX NETWORK VERIFY ERROR:",
+                    error
+                );
+
 
                 renderWrongNetwork();
 
@@ -1694,31 +1717,89 @@
                     await fetch(
                         requestUrl,
                         {
+                            method:
+                                "GET",
+
                             headers: {
                                 "Accept":
                                     "application/json"
-                            }
+                            },
+
+                            cache:
+                                "no-store"
                         }
                     );
+
+
+                const responseText =
+                    await response.text();
 
 
                 if (!response.ok) {
 
                     throw new Error(
-                        `Wallet status returned ${response.status}`
+                        `Wallet status HTTP ${response.status}: ${responseText}`
                     );
 
                 }
 
 
-                const data =
-                    await response.json();
+                let data;
 
 
-                if (!data || data.ok !== true) {
+                try {
+
+                    data =
+                        JSON.parse(
+                            responseText
+                        );
+
+
+                } catch (error) {
 
                     throw new Error(
-                        "Invalid wallet status response."
+                        "Wallet status API returned invalid JSON."
+                    );
+
+                }
+
+
+                console.log(
+                    "HELLBOX WALLET STATUS:",
+                    data
+                );
+
+
+                if (
+                    !data ||
+                    data.ok !== true
+                ) {
+
+                    throw new Error(
+                        "Wallet status API did not return ok:true."
+                    );
+
+                }
+
+
+                if (
+                    !data.wallet ||
+                    !data.wallet.address
+                ) {
+
+                    throw new Error(
+                        "Wallet status API did not return wallet data."
+                    );
+
+                }
+
+
+                if (
+                    !data.collection
+                ) {
+
+                    throw new Error(
+                        "Wallet status API did not return collection data."
                     );
 
                 }
@@ -1752,7 +1833,7 @@
 
 
         // ========================================================
-        // HEADER
+        // HEADER WALLET STATE
         // ========================================================
 
         function updateHeaderWallet() {
@@ -1778,6 +1859,7 @@
                 walletButton.textContent =
                     "SWITCH NETWORK";
 
+
                 walletButton.classList.add(
                     "wrong-network"
                 );
@@ -1801,22 +1883,26 @@
 
 
         // ========================================================
-        // DISCONNECTED VIEW
+        // DISCONNECTED STATE
         // ========================================================
 
         function renderDisconnected() {
 
-            walletStatus = null;
+            walletStatus =
+                null;
 
 
             collectionWallet.textContent =
                 "CLEARANCE REQUIRED";
 
+
             collectionNetwork.textContent =
                 "PULSECHAIN // 369";
 
+
             collectionAccessState.textContent =
                 "WALLET OFFLINE";
+
 
             collectionAccessState.className =
                 "terminal-access-state";
@@ -1825,6 +1911,7 @@
             terminalTitle.textContent =
                 "CONNECT TO ENTER.";
 
+
             terminalMessage.textContent =
                 "Connect a wallet to identify your collection and inspect the editions currently in circulation.";
 
@@ -1832,8 +1919,10 @@
             terminalAction.hidden =
                 false;
 
+
             terminalAction.textContent =
                 "CONNECT WALLET";
+
 
             terminalAction.onclick =
                 connectWallet;
@@ -1859,6 +1948,7 @@
                 seriesTabs
             );
 
+
             clearElement(
                 collectionList
             );
@@ -1874,12 +1964,13 @@
 
 
         // ========================================================
-        // WRONG NETWORK VIEW
+        // WRONG NETWORK STATE
         // ========================================================
 
         function renderWrongNetwork() {
 
-            walletStatus = null;
+            walletStatus =
+                null;
 
 
             collectionWallet.textContent =
@@ -1899,12 +1990,14 @@
             collectionAccessState.textContent =
                 "WRONG NETWORK";
 
+
             collectionAccessState.className =
                 "terminal-access-state warning";
 
 
             terminalTitle.textContent =
                 "PULSECHAIN REQUIRED.";
+
 
             terminalMessage.textContent =
                 "This archive exists on PulseChain. Switch networks to inspect the collection attached to this wallet.";
@@ -1913,8 +2006,10 @@
             terminalAction.hidden =
                 false;
 
+
             terminalAction.textContent =
                 "SWITCH TO PULSECHAIN";
+
 
             terminalAction.onclick =
                 switchToPulseChain;
@@ -1940,6 +2035,7 @@
                 seriesTabs
             );
 
+
             clearElement(
                 collectionList
             );
@@ -1955,7 +2051,7 @@
 
 
         // ========================================================
-        // LOADING VIEW
+        // LOADING STATE
         // ========================================================
 
         function renderLoading() {
@@ -1973,12 +2069,14 @@
             collectionAccessState.textContent =
                 "VERIFYING";
 
+
             collectionAccessState.className =
                 "terminal-access-state pending";
 
 
             terminalTitle.textContent =
                 "READING THE CHAIN.";
+
 
             terminalMessage.textContent =
                 "Hellbox is indexing the public archive against your wallet.";
@@ -1995,7 +2093,7 @@
 
 
         // ========================================================
-        // ERROR VIEW
+        // ERROR STATE
         // ========================================================
 
         function renderWalletError(
@@ -2011,8 +2109,13 @@
                     : "CLEARANCE UNKNOWN";
 
 
+            collectionNetwork.textContent =
+                "PULSECHAIN // 369";
+
+
             collectionAccessState.textContent =
                 "INDEX ERROR";
+
 
             collectionAccessState.className =
                 "terminal-access-state warning";
@@ -2021,6 +2124,7 @@
             terminalTitle.textContent =
                 title;
 
+
             terminalMessage.textContent =
                 message;
 
@@ -2028,13 +2132,23 @@
             terminalAction.hidden =
                 false;
 
+
             terminalAction.textContent =
                 "RETRY";
+
 
             terminalAction.onclick =
                 connectedWallet
                     ? loadWalletStatus
                     : connectWallet;
+
+
+            setStats({
+                known: 0,
+                owned: 0,
+                missing: 0,
+                evolved: 0
+            });
 
 
             seriesControl.hidden =
@@ -2044,6 +2158,7 @@
             clearElement(
                 seriesTabs
             );
+
 
             clearElement(
                 collectionList
@@ -2057,12 +2172,10 @@
 
 
         // ========================================================
-        // COLLECTION VIEW
+        // COLLECTION STATE
         // ========================================================
 
-        function renderWalletCollection(
-            data
-        ) {
+        function renderWalletCollection(data) {
 
             const collection =
                 data.collection || {};
@@ -2086,9 +2199,13 @@
 
 
             collectionWallet.textContent =
-                data.wallet &&
-                data.wallet.addressDisplay
-                    ? data.wallet.addressDisplay.toUpperCase()
+                (
+                    data.wallet &&
+                    data.wallet.addressDisplay
+                )
+                    ? String(
+                        data.wallet.addressDisplay
+                    ).toUpperCase()
                     : shortAddress(
                         connectedWallet
                     ).toUpperCase();
@@ -2100,6 +2217,7 @@
 
             collectionAccessState.textContent =
                 "CLEARANCE VERIFIED";
+
 
             collectionAccessState.className =
                 "terminal-access-state verified";
@@ -2114,11 +2232,23 @@
                 "CLEARANCE VERIFIED // OPEN COLLECTION";
 
 
+            /*
+             * CURRENT EXPECTED STATE:
+             *
+             * No Hellbox releases are yet public, therefore
+             * known === 0 is legitimate and should produce
+             * an intentional dormant archive.
+             */
+
             if (
-                Number(stats.known || 0) === 0
+                Number(
+                    stats.known || 0
+                ) === 0
             ) {
 
-                renderEmptyArchive();
+                renderEmptyArchive(
+                    data
+                );
 
                 return;
 
@@ -2128,12 +2258,17 @@
             terminalTitle.textContent =
                 "COLLECTION IDENTIFIED.";
 
+
             terminalMessage.textContent =
-                "Public editions have been indexed against this wallet. Select a series to inspect what is owned and what is missing.";
+                "The public archive has been matched against this wallet. Select a series to inspect owned, missing, and evolved editions.";
 
 
             terminalAction.hidden =
                 true;
+
+
+            selectedSeries =
+                "all";
 
 
             renderSeriesTabs(
@@ -2146,10 +2281,36 @@
             );
 
 
-            collectionStatus.textContent =
-                collection.ownershipIndexed
-                    ? "WALLET INDEX COMPLETE."
-                    : "PARTIAL INDEX // SOME EDITIONS UNAVAILABLE.";
+            const indexing =
+                collection.indexing || {};
+
+
+            if (
+                collection.ownershipIndexed === true
+            ) {
+
+                if (
+                    Number(
+                        indexing.unavailable || 0
+                    ) > 0
+                ) {
+
+                    collectionStatus.textContent =
+                        `WALLET INDEX COMPLETE // ${indexing.unavailable} EDITION CHECKS UNAVAILABLE.`;
+
+                } else {
+
+                    collectionStatus.textContent =
+                        "WALLET INDEX COMPLETE.";
+
+                }
+
+            } else {
+
+                collectionStatus.textContent =
+                    "COLLECTION INDEX PARTIAL.";
+
+            }
 
         }
 
@@ -2158,13 +2319,14 @@
         // EMPTY ARCHIVE
         // ========================================================
 
-        function renderEmptyArchive() {
+        function renderEmptyArchive(data) {
 
             terminalTitle.textContent =
                 "THE ARCHIVE IS EMPTY.";
 
+
             terminalMessage.textContent =
-                "No editions have entered public circulation. When the first release is classified, this terminal will identify what you own — and what you're missing.";
+                "No Hellbox editions have entered public circulation yet. When the first edition is released, this terminal will identify what your wallet owns — and what it is missing.";
 
 
             terminalAction.hidden =
@@ -2179,19 +2341,77 @@
                 seriesTabs
             );
 
+
             clearElement(
                 collectionList
             );
 
 
-            collectionStatus.textContent =
-                "NO PUBLIC EDITIONS // ARCHIVE STANDBY.";
+            const collection =
+                data.collection || {};
+
+
+            const indexing =
+                collection.indexing || {};
+
+
+            if (
+                collection.ownershipIndexed === true
+            ) {
+
+                collectionStatus.textContent =
+                    "ARCHIVE ONLINE // ZERO PUBLIC EDITIONS.";
+
+            } else {
+
+                collectionStatus.textContent =
+                    "ARCHIVE ONLINE // INDEX STANDBY.";
+
+            }
+
+
+            /*
+             * Wallet status confirms zero public editions.
+             * This is authoritative even if /api/publications
+             * independently failed to load.
+             */
+
+            publicationCount.textContent =
+                "NO PUBLIC EDITIONS";
+
+
+            console.log(
+                "HELLBOX EMPTY ARCHIVE:",
+                {
+                    ownershipIndexed:
+                        Boolean(
+                            collection.ownershipIndexed
+                        ),
+
+                    indexing: {
+                        total:
+                            Number(
+                                indexing.total || 0
+                            ),
+
+                        indexed:
+                            Number(
+                                indexing.indexed || 0
+                            ),
+
+                        unavailable:
+                            Number(
+                                indexing.unavailable || 0
+                            )
+                    }
+                }
+            );
 
         }
 
 
         // ========================================================
-        // STATS
+        // COLLECTION COUNTS
         // ========================================================
 
         function setStats(stats) {
@@ -2223,7 +2443,7 @@
 
 
         // ========================================================
-        // SERIES TABS
+        // SERIES NAVIGATION
         // ========================================================
 
         function renderSeriesTabs(series) {
@@ -2250,15 +2470,11 @@
                 false;
 
 
-            const allButton =
+            seriesTabs.appendChild(
                 makeSeriesButton(
                     "all",
                     "ALL"
-                );
-
-
-            seriesTabs.appendChild(
-                allButton
+                )
             );
 
 
@@ -2267,15 +2483,12 @@
                 of series
             ) {
 
-                const button =
+                seriesTabs.appendChild(
                     makeSeriesButton(
                         item.slug,
-                        item.title
-                    );
-
-
-                seriesTabs.appendChild(
-                    button
+                        item.title ||
+                        item.slug
+                    )
                 );
 
             }
@@ -2300,14 +2513,19 @@
             button.type =
                 "button";
 
+
             button.className =
                 "series-tab";
+
 
             button.dataset.series =
                 slug;
 
+
             button.textContent =
-                title;
+                String(
+                    title || slug
+                ).toUpperCase();
 
 
             button.addEventListener(
@@ -2321,14 +2539,18 @@
                     syncSeriesButtons();
 
 
-                    renderSeries(
+                    const currentSeries =
                         walletStatus &&
                         walletStatus.collection &&
                         Array.isArray(
                             walletStatus.collection.series
                         )
                             ? walletStatus.collection.series
-                            : []
+                            : [];
+
+
+                    renderSeries(
+                        currentSeries
                     );
 
                 }
@@ -2364,7 +2586,7 @@
 
 
         // ========================================================
-        // SERIES / EDITIONS
+        // SERIES RENDERING
         // ========================================================
 
         function renderSeries(series) {
@@ -2378,132 +2600,137 @@
                 selectedSeries === "all"
                     ? series
                     : series.filter(
-                        item =>
-                            item.slug ===
+                        entry =>
+                            entry.slug ===
                             selectedSeries
                     );
 
 
-            for (
-                const seriesEntry
-                of visibleSeries
-            ) {
+            visibleSeries.forEach(
+                seriesEntry => {
 
-                const block =
-                    document.createElement(
-                        "section"
+                    const block =
+                        document.createElement(
+                            "section"
+                        );
+
+
+                    block.className =
+                        "series-block";
+
+
+                    const header =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    header.className =
+                        "series-block-header";
+
+
+                    const left =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    const seriesCode =
+                        document.createElement(
+                            "span"
+                        );
+
+
+                    seriesCode.textContent =
+                        `SERIES // ${
+                            String(
+                                seriesEntry.slug || ""
+                            ).toUpperCase()
+                        }`;
+
+
+                    const title =
+                        document.createElement(
+                            "h3"
+                        );
+
+
+                    title.textContent =
+                        seriesEntry.title ||
+                        seriesEntry.slug ||
+                        "UNTITLED";
+
+
+                    left.append(
+                        seriesCode,
+                        title
                     );
 
 
-                block.className =
-                    "series-block";
+                    const counts =
+                        document.createElement(
+                            "small"
+                        );
 
 
-                const header =
-                    document.createElement(
-                        "div"
+                    counts.textContent =
+                        `${formatCount(
+                            seriesEntry.owned
+                        )} OWNED // ` +
+                        `${formatCount(
+                            seriesEntry.missing
+                        )} MISSING`;
+
+
+                    header.append(
+                        left,
+                        counts
                     );
 
-
-                header.className =
-                    "series-block-header";
-
-
-                const titleWrap =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                const code =
-                    document.createElement(
-                        "span"
-                    );
-
-
-                code.textContent =
-                    "SERIES // " +
-                    String(
-                        seriesEntry.slug || ""
-                    ).toUpperCase();
-
-
-                const title =
-                    document.createElement(
-                        "h3"
-                    );
-
-
-                title.textContent =
-                    seriesEntry.title ||
-                    seriesEntry.slug ||
-                    "UNTITLED";
-
-
-                titleWrap.append(
-                    code,
-                    title
-                );
-
-
-                const counts =
-                    document.createElement(
-                        "small"
-                    );
-
-
-                counts.textContent =
-                    `${formatCount(
-                        seriesEntry.owned
-                    )} OWNED // ` +
-                    `${formatCount(
-                        seriesEntry.missing
-                    )} MISSING`;
-
-
-                header.append(
-                    titleWrap,
-                    counts
-                );
-
-
-                block.appendChild(
-                    header
-                );
-
-
-                const editions =
-                    Array.isArray(
-                        seriesEntry.editions
-                    )
-                        ? seriesEntry.editions
-                        : [];
-
-
-                for (
-                    let index = 0;
-                    index < editions.length;
-                    index++
-                ) {
 
                     block.appendChild(
-                        renderEdition(
-                            editions[index],
-                            index
+                        header
+                    );
+
+
+                    const editions =
+                        Array.isArray(
+                            seriesEntry.editions
                         )
+                            ? seriesEntry.editions
+                            : [];
+
+
+                    editions.forEach(
+                        (
+                            edition,
+                            index
+                        ) => {
+
+                            block.appendChild(
+                                renderEdition(
+                                    edition,
+                                    index
+                                )
+                            );
+
+                        }
+                    );
+
+
+                    collectionList.appendChild(
+                        block
                     );
 
                 }
-
-
-                collectionList.appendChild(
-                    block
-                );
-
-            }
+            );
 
         }
 
+
+        // ========================================================
+        // EDITION RENDERING
+        // ========================================================
 
         function renderEdition(
             edition,
@@ -2513,6 +2740,7 @@
             const ownership =
                 String(
                     edition.ownership ||
+                    edition.status ||
                     "unavailable"
                 ).toLowerCase();
 
@@ -2538,8 +2766,12 @@
 
 
             number.textContent =
-                String(index + 1)
-                    .padStart(2, "0");
+                String(
+                    index + 1
+                ).padStart(
+                    2,
+                    "0"
+                );
 
 
             const main =
@@ -2563,11 +2795,12 @@
 
 
             type.textContent =
-                edition.lifecycle
-                    ? String(
-                        edition.lifecycle
-                    ).toUpperCase()
-                    : "EDITION";
+                String(
+                    edition.lifecycle ||
+                    edition.contentType ||
+                    edition.content_type ||
+                    "EDITION"
+                ).toUpperCase();
 
 
             const title =
@@ -2578,7 +2811,9 @@
 
             title.textContent =
                 edition.title ||
-                `ISSUE ${edition.issue || ""}`;
+                `ISSUE ${
+                    edition.issue || ""
+                }`;
 
 
             const issue =
@@ -2646,16 +2881,17 @@
                 "collection-item-action";
 
 
-            const actionButton =
+            const button =
                 document.createElement(
                     "button"
                 );
 
 
-            actionButton.type =
+            button.type =
                 "button";
 
-            actionButton.className =
+
+            button.className =
                 "edition-action";
 
 
@@ -2664,41 +2900,57 @@
                 ownership === "evolved"
             ) {
 
-                actionButton.textContent =
+                button.textContent =
                     "OPEN EDITION";
 
-                actionButton.disabled =
+
+                /*
+                 * Reader routing will be activated when
+                 * the gated reader build is connected.
+                 */
+
+                button.disabled =
                     true;
 
-                actionButton.title =
-                    "Token-gated reader coming in the next build.";
 
             } else if (
                 ownership === "missing"
             ) {
 
-                actionButton.textContent =
+                if (
                     edition.mint &&
-                    edition.mint.enabled
-                        ? "MINT EDITION"
-                        : "MISSING";
+                    edition.mint.enabled === true
+                ) {
 
-                actionButton.disabled =
+                    button.textContent =
+                        "MINT EDITION";
+
+                } else {
+
+                    button.textContent =
+                        "MISSING";
+
+                }
+
+
+                button.disabled =
                     true;
+
 
             } else {
 
-                actionButton.textContent =
+                button.textContent =
                     "INDEX PENDING";
 
-                actionButton.disabled =
+
+                button.disabled =
                     true;
 
             }
 
 
             action.appendChild(
-                actionButton
+                button
             );
 
 
@@ -2716,7 +2968,7 @@
 
 
         // ========================================================
-        // EVENT LISTENERS
+        // HEADER BUTTON
         // ========================================================
 
         walletButton.addEventListener(
@@ -2747,18 +2999,27 @@
                     )
                     .scrollIntoView({
                         behavior:
-                            "smooth"
+                            "smooth",
+
+                        block:
+                            "start"
                     });
 
             }
         );
 
 
-        terminalAction.addEventListener(
-            "click",
-            connectWallet
-        );
+        // ========================================================
+        // INITIAL TERMINAL BUTTON
+        // ========================================================
 
+        terminalAction.onclick =
+            connectWallet;
+
+
+        // ========================================================
+        // WALLET EVENTS
+        // ========================================================
 
         if (hasWalletProvider()) {
 
@@ -2767,15 +3028,17 @@
                 async accounts => {
 
                     if (
-                        !accounts ||
+                        !Array.isArray(accounts) ||
                         accounts.length === 0
                     ) {
 
                         connectedWallet =
                             null;
 
+
                         walletStatus =
                             null;
+
 
                         renderDisconnected();
 
@@ -2788,11 +3051,23 @@
                         accounts[0];
 
 
-                    connectedChainId =
-                        await window.ethereum.request({
-                            method:
-                                "eth_chainId"
-                        });
+                    try {
+
+                        connectedChainId =
+                            await window.ethereum.request({
+                                method:
+                                    "eth_chainId"
+                            });
+
+
+                    } catch (error) {
+
+                        console.error(
+                            "HELLBOX CHAIN READ ERROR:",
+                            error
+                        );
+
+                    }
 
 
                     if (isPulseChain()) {
@@ -2820,22 +3095,22 @@
                         chainId;
 
 
-                    if (
-                        connectedWallet &&
-                        isPulseChain()
-                    ) {
+                    if (!connectedWallet) {
+
+                        renderDisconnected();
+
+                        return;
+
+                    }
+
+
+                    if (isPulseChain()) {
 
                         await loadWalletStatus();
 
-                    } else if (
-                        connectedWallet
-                    ) {
-
-                        renderWrongNetwork();
-
                     } else {
 
-                        renderDisconnected();
+                        renderWrongNetwork();
 
                     }
 
@@ -2849,14 +3124,23 @@
 
 
         // ========================================================
-        // INIT
+        // INITIALIZE HELLBOX
         // ========================================================
 
         async function initializeHellbox() {
 
+            /*
+             * These are intentionally independent.
+             *
+             * Failure of /api/publications must never prevent
+             * wallet collection state from loading.
+             */
+
             await loadPublications();
 
+
             await restoreWallet();
+
 
             updateHeaderWallet();
 
