@@ -45,7 +45,7 @@
 
 
     <!-- ========================================================
-         SOCIAL / LINK PREVIEW
+         SOCIAL PREVIEW
     ========================================================= -->
 
     <meta
@@ -547,8 +547,7 @@
                             </h3>
 
                             <p id="terminalMessage">
-                                Connect a wallet to identify your collection
-                                and inspect the editions currently in circulation.
+                                Connect a wallet to identify your collection and inspect the editions currently in circulation.
                             </p>
 
 
@@ -664,6 +663,7 @@
 
         <!-- ====================================================
              PRESS
+             NOW ENTIRELY API DRIVEN
         ===================================================== -->
 
         <section
@@ -674,9 +674,26 @@
             <div class="press-background"></div>
 
 
-            <div class="section-shell press-inner">
+            <div
+                class="section-shell press-inner"
+                id="pressContainer"
+            >
 
-                <div class="press-copy">
+                <!--
+                    The static empty state is deliberately retained
+                    as initial HTML.
+
+                    If /api/press returns zero publications, this
+                    remains exactly as-is.
+
+                    If an announced or mint-live publication appears,
+                    JavaScript replaces this section dynamically.
+                -->
+
+                <div
+                    class="press-copy"
+                    id="pressEmptyState"
+                >
 
                     <p class="eyebrow">
                         THE PRESS / RELEASE BAY
@@ -725,7 +742,10 @@
                 </div>
 
 
-                <div class="press-stamps">
+                <div
+                    class="press-stamps"
+                    id="pressEmptyStamps"
+                >
 
                     <span>
                         DO NOT DUPLICATE
@@ -1072,6 +1092,10 @@
         // CONFIG
         // ========================================================
 
+        const API_BASE =
+            "https://hellboxcomics.cody-samborski.workers.dev";
+
+
         const HELLBOX = {
 
             chainIdHex:
@@ -1107,10 +1131,6 @@
         };
 
 
-        const API_BASE =
-            "https://hellboxcomics.cody-samborski.workers.dev";
-
-
         const SESSION_STORAGE_KEY =
             "hellbox_reader_session";
 
@@ -1139,7 +1159,11 @@
             null;
 
 
-        let publicPublications =
+        let circulatingPublications =
+            [];
+
+
+        let pressPublications =
             [];
 
 
@@ -1152,6 +1176,10 @@
 
 
         let readerAuthBusy =
+            false;
+
+
+        let mintBusy =
             false;
 
 
@@ -1273,8 +1301,14 @@
             );
 
 
+        const pressContainer =
+            document.getElementById(
+                "pressContainer"
+            );
+
+
         // ========================================================
-        // BASIC UTILITIES
+        // UTILITIES
         // ========================================================
 
         function hasWalletProvider() {
@@ -1284,6 +1318,24 @@
                 typeof window.ethereum.request ===
                     "function"
             );
+
+        }
+
+
+        function normalizeAddressLocal(
+            address
+        ) {
+
+            if (!address) {
+
+                return null;
+
+            }
+
+
+            return String(
+                address
+            ).toLowerCase();
 
         }
 
@@ -1309,24 +1361,6 @@
                     -4
                 )
             );
-
-        }
-
-
-        function normalizeAddressLocal(
-            address
-        ) {
-
-            if (!address) {
-
-                return null;
-
-            }
-
-
-            return String(
-                address
-            ).toLowerCase();
 
         }
 
@@ -1363,26 +1397,19 @@
                 ).trim();
 
 
-            if (
-                text
-                    .toLowerCase()
-                    .startsWith(
-                        "0x"
+            return text
+                .toLowerCase()
+                .startsWith(
+                    "0x"
+                )
+                    ? parseInt(
+                        text,
+                        16
                     )
-            ) {
-
-                return parseInt(
-                    text,
-                    16
-                );
-
-            }
-
-
-            return parseInt(
-                text,
-                10
-            );
+                    : parseInt(
+                        text,
+                        10
+                    );
 
         }
 
@@ -1450,11 +1477,89 @@
                     value
                 );
 
-            } catch (error) {
+            } catch {
 
                 return null;
 
             }
+
+        }
+
+
+        function sleep(
+            milliseconds
+        ) {
+
+            return new Promise(
+                resolve =>
+                    setTimeout(
+                        resolve,
+                        milliseconds
+                    )
+            );
+
+        }
+
+
+        function formatSupply(
+            value
+        ) {
+
+            if (
+                value ===
+                    null ||
+                value ===
+                    undefined
+            ) {
+
+                return "—";
+
+            }
+
+
+            return Number(
+                value
+            ).toLocaleString();
+
+        }
+
+
+        function makeElement(
+            tag,
+            className,
+            text
+        ) {
+
+            const element =
+                document.createElement(
+                    tag
+                );
+
+
+            if (
+                className
+            ) {
+
+                element.className =
+                    className;
+
+            }
+
+
+            if (
+                text !==
+                    undefined &&
+                text !==
+                    null
+            ) {
+
+                element.textContent =
+                    text;
+
+            }
+
+
+            return element;
 
         }
 
@@ -1662,7 +1767,7 @@
 
 
         // ========================================================
-        // PUBLICATIONS
+        // API — PUBLICATIONS
         // ========================================================
 
         async function loadPublications() {
@@ -1694,48 +1799,19 @@
                     );
 
 
-                if (
-                    !response.ok
-                ) {
-
-                    throw new Error(
-                        `Publications HTTP ${response.status}`
-                    );
-
-                }
-
-
                 const data =
                     await response.json();
 
 
-                publicPublications =
-                    Array.isArray(
-                        data.publications
+                circulatingPublications =
+                    (
+                        response.ok &&
+                        Array.isArray(
+                            data.publications
+                        )
                     )
                         ? data.publications
                         : [];
-
-
-                if (
-                    publicPublications.length ===
-                    0
-                ) {
-
-                    publicationCount.textContent =
-                        "NO PUBLIC EDITIONS";
-
-                } else {
-
-                    publicationCount.textContent =
-                        `${publicPublications.length} PUBLIC ${
-                            publicPublications.length ===
-                                1
-                                ? "EDITION"
-                                : "EDITIONS"
-                        }`;
-
-                }
 
 
             } catch (error) {
@@ -1746,12 +1822,1421 @@
                 );
 
 
-                publicPublications =
+                circulatingPublications =
                     [];
 
+            }
 
-                publicationCount.textContent =
-                    "ARCHIVE STANDBY";
+
+            publicationCount.textContent =
+                circulatingPublications.length >
+                0
+                    ? `${circulatingPublications.length} PUBLIC ${
+                        circulatingPublications.length ===
+                            1
+                            ? "EDITION"
+                            : "EDITIONS"
+                    }`
+                    : "NO PUBLIC EDITIONS";
+
+        }
+
+
+        // ========================================================
+        // API — PRESS
+        // ========================================================
+
+        async function loadPress() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API_BASE}/api/press`,
+                        {
+
+                            method:
+                                "GET",
+
+                            mode:
+                                "cors",
+
+                            headers: {
+
+                                "Accept":
+                                    "application/json"
+
+                            },
+
+                            cache:
+                                "no-store"
+
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                pressPublications =
+                    (
+                        response.ok &&
+                        Array.isArray(
+                            data.publications
+                        )
+                    )
+                        ? data.publications
+                        : [];
+
+
+            } catch (error) {
+
+                console.error(
+                    "HELLBOX PRESS ERROR:",
+                    error
+                );
+
+
+                pressPublications =
+                    [];
+
+            }
+
+
+            await renderPress();
+
+        }
+
+
+        // ========================================================
+        // PRESS RENDERER
+        // ========================================================
+
+        async function renderPress() {
+
+            if (
+                !pressContainer
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                pressPublications.length ===
+                0
+            ) {
+
+                renderPressEmpty();
+
+                return;
+
+            }
+
+
+            clearElement(
+                pressContainer
+            );
+
+
+            for (
+                const publication
+                of pressPublications
+            ) {
+
+                const release =
+                    await buildPressRelease(
+                        publication
+                    );
+
+
+                pressContainer.appendChild(
+                    release
+                );
+
+            }
+
+        }
+
+
+        // ========================================================
+        // PRESS EMPTY STATE
+        // ========================================================
+
+        function renderPressEmpty() {
+
+            clearElement(
+                pressContainer
+            );
+
+
+            const copy =
+                makeElement(
+                    "div",
+                    "press-copy"
+                );
+
+
+            const eyebrow =
+                makeElement(
+                    "p",
+                    "eyebrow",
+                    "THE PRESS / RELEASE BAY"
+                );
+
+
+            const heading =
+                makeElement(
+                    "h2",
+                    "press-heading"
+                );
+
+
+            heading.appendChild(
+                document.createTextNode(
+                    "NOTHING "
+                )
+            );
+
+
+            const headingSpan =
+                makeElement(
+                    "span",
+                    null,
+                    "ON THE PRESS"
+                );
+
+
+            const headingEm =
+                makeElement(
+                    "em",
+                    null,
+                    "YET."
+                );
+
+
+            heading.append(
+                headingSpan,
+                headingEm
+            );
+
+
+            const description =
+                makeElement(
+                    "p",
+                    "press-description",
+                    "When an edition enters circulation, the press opens. Until then, the machine stays hot."
+                );
+
+
+            const statusBox =
+                makeElement(
+                    "div",
+                    "press-status-box"
+                );
+
+
+            const square =
+                makeElement(
+                    "span",
+                    "press-status-square"
+                );
+
+
+            const statusCopy =
+                document.createElement(
+                    "div"
+                );
+
+
+            const statusStrong =
+                makeElement(
+                    "strong",
+                    null,
+                    "NO CURRENT EDITION"
+                );
+
+
+            const statusSmall =
+                makeElement(
+                    "small",
+                    null,
+                    "PRESS STATUS / STANDBY"
+                );
+
+
+            statusCopy.append(
+                statusStrong,
+                statusSmall
+            );
+
+
+            statusBox.append(
+                square,
+                statusCopy
+            );
+
+
+            copy.append(
+                eyebrow,
+                heading,
+                description,
+                statusBox
+            );
+
+
+            const stamps =
+                makeElement(
+                    "div",
+                    "press-stamps"
+                );
+
+
+            stamps.append(
+                makeElement(
+                    "span",
+                    null,
+                    "DO NOT DUPLICATE"
+                ),
+
+                makeElement(
+                    "span",
+                    null,
+                    "BAY / PRESS"
+                )
+            );
+
+
+            pressContainer.append(
+                copy,
+                stamps
+            );
+
+        }
+
+
+        // ========================================================
+        // BUILD RELEASE
+        // ========================================================
+
+        async function buildPressRelease(
+            publication
+        ) {
+
+            const wrapper =
+                makeElement(
+                    "article",
+                    "press-release"
+                );
+
+
+            wrapper.dataset.publication =
+                publication.id ||
+                `${publication.slug}-${publication.issue}`;
+
+
+            const copy =
+                makeElement(
+                    "div",
+                    "press-copy"
+                );
+
+
+            const eyebrow =
+                makeElement(
+                    "p",
+                    "eyebrow",
+                    publication.lifecycle ===
+                        "mint_live"
+                        ? "THE PRESS / MINT LIVE"
+                        : "THE PRESS / INCOMING EDITION"
+                );
+
+
+            const heading =
+                makeElement(
+                    "h2",
+                    "press-heading"
+                );
+
+
+            heading.appendChild(
+                document.createTextNode(
+                    String(
+                        publication.title ||
+                        "UNTITLED"
+                    ).toUpperCase()
+                )
+            );
+
+
+            const seriesLine =
+                makeElement(
+                    "span",
+                    null,
+                    `${String(
+                        publication.seriesTitle ||
+                        publication.series ||
+                        "HELLBOX"
+                    ).toUpperCase()} // ISSUE ${
+                        publication.issue ||
+                        "—"
+                    }`
+                );
+
+
+            heading.appendChild(
+                seriesLine
+            );
+
+
+            const description =
+                makeElement(
+                    "p",
+                    "press-description"
+                );
+
+
+            if (
+                publication.lifecycle ===
+                "mint_live"
+            ) {
+
+                description.textContent =
+                    publication.mint &&
+                    publication.mint.freeMint ===
+                        true
+                        ? "The edition is live. Connect a PulseChain wallet and claim your copy while supply remains."
+                        : "The edition is live. Connect a PulseChain wallet to enter the mint.";
+
+            } else {
+
+                description.textContent =
+                    "The edition has been announced. The press is warming up, but minting has not opened yet.";
+
+            }
+
+
+            const metaBox =
+                makeElement(
+                    "div",
+                    "press-status-box"
+                );
+
+
+            const metaSquare =
+                makeElement(
+                    "span",
+                    "press-status-square"
+                );
+
+
+            const metaContent =
+                document.createElement(
+                    "div"
+                );
+
+
+            const mint =
+                publication.mint ||
+                {};
+
+
+            const mainStatus =
+                publication.lifecycle ===
+                    "mint_live"
+                    ? (
+                        mint.freeMint ===
+                            true
+                            ? "FREE MINT LIVE"
+                            : "MINT LIVE"
+                    )
+                    : "ANNOUNCED";
+
+
+            const metadata =
+                [
+                    `SUPPLY ${formatSupply(
+                        mint.maxSupply
+                    )}`,
+
+                    mint.freeMint ===
+                        true
+                        ? "PRICE FREE"
+                        : `PRICE ${
+                            mint.pricePLS ||
+                            "—"
+                        } PLS`,
+
+                    mint.royaltyPercent !==
+                        null &&
+                    mint.royaltyPercent !==
+                        undefined
+                        ? `ROYALTY ${mint.royaltyPercent}%`
+                        : "ROYALTY —"
+                ].join(
+                    " // "
+                );
+
+
+            metaContent.append(
+                makeElement(
+                    "strong",
+                    null,
+                    mainStatus
+                ),
+
+                makeElement(
+                    "small",
+                    null,
+                    metadata
+                )
+            );
+
+
+            metaBox.append(
+                metaSquare,
+                metaContent
+            );
+
+
+            copy.append(
+                eyebrow,
+                heading,
+                description,
+                metaBox
+            );
+
+
+            // ----------------------------------------------------
+            // OPTIONAL COVER / PRESS ART
+            // ----------------------------------------------------
+
+            if (
+                publication.media &&
+                (
+                    publication.media.press ||
+                    publication.media.cover
+                )
+            ) {
+
+                const artWrap =
+                    makeElement(
+                        "div",
+                        "press-release-art"
+                    );
+
+
+                const image =
+                    document.createElement(
+                        "img"
+                    );
+
+
+                image.src =
+                    publication.media.press ||
+                    publication.media.cover;
+
+
+                image.alt =
+                    publication.title ||
+                    "Hellbox edition";
+
+
+                image.loading =
+                    "lazy";
+
+
+                artWrap.appendChild(
+                    image
+                );
+
+
+                wrapper.appendChild(
+                    artWrap
+                );
+
+            }
+
+
+            wrapper.appendChild(
+                copy
+            );
+
+
+            // ----------------------------------------------------
+            // ACTION PANEL
+            // ----------------------------------------------------
+
+            const actionPanel =
+                makeElement(
+                    "div",
+                    "press-release-action"
+                );
+
+
+            const stateLabel =
+                makeElement(
+                    "span",
+                    "terminal-stage-code",
+                    publication.lifecycle ===
+                        "mint_live"
+                        ? "HBX // MINT TERMINAL"
+                        : "HBX // RELEASE STATUS"
+                );
+
+
+            const stateText =
+                makeElement(
+                    "p",
+                    "press-description"
+                );
+
+
+            const button =
+                makeElement(
+                    "button",
+                    "terminal-primary-action"
+                );
+
+
+            button.type =
+                "button";
+
+
+            if (
+                publication.lifecycle !==
+                "mint_live"
+            ) {
+
+                stateText.textContent =
+                    "Minting has not opened yet.";
+
+
+                button.textContent =
+                    "MINT NOT LIVE";
+
+
+                button.disabled =
+                    true;
+
+
+            } else if (
+                !connectedWallet
+            ) {
+
+                stateText.textContent =
+                    "Connect your wallet to inspect mint eligibility.";
+
+
+                button.textContent =
+                    "CONNECT WALLET";
+
+
+                button.addEventListener(
+                    "click",
+                    async () => {
+
+                        await connectWallet();
+
+                        await loadPress();
+
+                    }
+                );
+
+
+            } else if (
+                !isPulseChain()
+            ) {
+
+                stateText.textContent =
+                    "Switch to PulseChain to enter this mint.";
+
+
+                button.textContent =
+                    "SWITCH TO PULSECHAIN";
+
+
+                button.addEventListener(
+                    "click",
+                    async () => {
+
+                        await switchToPulseChain();
+
+                        await loadPress();
+
+                    }
+                );
+
+
+            } else {
+
+                stateText.textContent =
+                    "Checking this wallet against the edition contract...";
+
+
+                button.textContent =
+                    "CHECKING...";
+
+
+                button.disabled =
+                    true;
+
+
+                await hydrateMintAction(
+                    publication,
+                    stateText,
+                    button
+                );
+
+            }
+
+
+            actionPanel.append(
+                stateLabel,
+                stateText,
+                button
+            );
+
+
+            wrapper.appendChild(
+                actionPanel
+            );
+
+
+            return wrapper;
+
+        }
+
+
+        // ========================================================
+        // MINT STATUS FOR WALLET
+        // ========================================================
+
+        async function hydrateMintAction(
+            publication,
+            messageElement,
+            button
+        ) {
+
+            try {
+
+                const status =
+                    await getMintStatus(
+                        publication
+                    );
+
+
+                if (
+                    !status ||
+                    status.ok !==
+                        true
+                ) {
+
+                    throw new Error(
+                        "Mint status unavailable."
+                    );
+
+                }
+
+
+                const wallet =
+                    status.wallet;
+
+
+                if (
+                    !wallet
+                ) {
+
+                    messageElement.textContent =
+                        "Wallet status unavailable.";
+
+
+                    button.textContent =
+                        "RETRY";
+
+
+                    button.disabled =
+                        false;
+
+
+                    return;
+
+                }
+
+
+                if (
+                    wallet.state ===
+                    "already_owned"
+                ) {
+
+                    messageElement.textContent =
+                        "This wallet already owns the edition.";
+
+
+                    button.textContent =
+                        "EDITION OWNED";
+
+
+                    button.disabled =
+                        true;
+
+
+                    return;
+
+                }
+
+
+                if (
+                    wallet.state ===
+                    "eligible" &&
+                    wallet.eligible ===
+                        true
+                ) {
+
+                    messageElement.textContent =
+                        publication.mint &&
+                        publication.mint.freeMint ===
+                            true
+                            ? "Wallet eligible. The edition is free; only network gas is required."
+                            : "Wallet eligible to mint this edition.";
+
+
+                    button.textContent =
+                        publication.mint &&
+                        publication.mint.freeMint ===
+                            true
+                            ? "CLAIM EDITION"
+                            : "MINT EDITION";
+
+
+                    button.disabled =
+                        false;
+
+
+                    button.addEventListener(
+                        "click",
+                        () => {
+
+                            executeMint(
+                                publication,
+                                button,
+                                messageElement
+                            );
+
+                        }
+                    );
+
+
+                    return;
+
+                }
+
+
+                messageElement.textContent =
+                    wallet.reason ||
+                    "This wallet is not currently eligible.";
+
+
+                button.textContent =
+                    "NOT ELIGIBLE";
+
+
+                button.disabled =
+                    true;
+
+
+            } catch (error) {
+
+                console.error(
+                    "HELLBOX MINT STATUS ERROR:",
+                    error
+                );
+
+
+                messageElement.textContent =
+                    "Hellbox could not inspect mint eligibility.";
+
+
+                button.textContent =
+                    "RETRY";
+
+
+                button.disabled =
+                    false;
+
+
+                button.onclick =
+                    async () => {
+
+                        await loadPress();
+
+                    };
+
+            }
+
+        }
+
+
+        // ========================================================
+        // GET MINT STATUS
+        // ========================================================
+
+        async function getMintStatus(
+            publication
+        ) {
+
+            if (
+                !connectedWallet
+            ) {
+
+                return null;
+
+            }
+
+
+            const url =
+                `${API_BASE}/api/mint/` +
+                `${encodeURIComponent(
+                    publication.slug
+                )}/` +
+                `${encodeURIComponent(
+                    publication.issue
+                )}/status` +
+                `?address=${encodeURIComponent(
+                    connectedWallet
+                )}`;
+
+
+            const response =
+                await fetch(
+                    url,
+                    {
+
+                        method:
+                            "GET",
+
+                        headers: {
+
+                            "Accept":
+                                "application/json"
+
+                        },
+
+                        cache:
+                            "no-store"
+
+                    }
+                );
+
+
+            const text =
+                await response.text();
+
+
+            const data =
+                safeJsonParse(
+                    text
+                );
+
+
+            if (
+                !response.ok
+            ) {
+
+                throw new Error(
+                    data &&
+                    data.error
+                        ? data.error
+                        : `Mint status HTTP ${response.status}`
+                );
+
+            }
+
+
+            return data;
+
+        }
+
+
+        // ========================================================
+        // PREPARE MINT
+        // ========================================================
+
+        async function prepareMint(
+            publication
+        ) {
+
+            const response =
+                await fetch(
+                    `${API_BASE}/api/mint/${encodeURIComponent(
+                        publication.slug
+                    )}/${encodeURIComponent(
+                        publication.issue
+                    )}/prepare`,
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Accept":
+                                "application/json"
+
+                        },
+
+                        cache:
+                            "no-store",
+
+                        body:
+                            JSON.stringify(
+                                {
+
+                                    address:
+                                        connectedWallet
+
+                                }
+                            )
+
+                    }
+                );
+
+
+            const text =
+                await response.text();
+
+
+            const data =
+                safeJsonParse(
+                    text
+                );
+
+
+            if (
+                !response.ok ||
+                !data ||
+                data.ok !==
+                    true ||
+                data.mintReady !==
+                    true ||
+                !data.transaction
+            ) {
+
+                throw new Error(
+                    data &&
+                    (
+                        data.error ||
+                        (
+                            data.eligibility &&
+                            data.eligibility.reason
+                        )
+                    )
+                        ? (
+                            data.error ||
+                            data.eligibility.reason
+                        )
+                        : "Mint transaction is not ready."
+                );
+
+            }
+
+
+            return data;
+
+        }
+
+
+        // ========================================================
+        // SEND MINT TRANSACTION
+        // ========================================================
+
+        async function sendMintTransaction(
+            transaction
+        ) {
+
+            if (
+                !hasWalletProvider()
+            ) {
+
+                throw new Error(
+                    "Wallet provider unavailable."
+                );
+
+            }
+
+
+            return await window.ethereum.request({
+
+                method:
+                    "eth_sendTransaction",
+
+                params: [
+                    {
+
+                        from:
+                            connectedWallet,
+
+                        to:
+                            transaction.to,
+
+                        data:
+                            transaction.data,
+
+                        value:
+                            transaction.value ||
+                            "0x0"
+
+                    }
+                ]
+
+            });
+
+        }
+
+
+        // ========================================================
+        // CONFIRM MINT WITH WORKER
+        // ========================================================
+
+        async function confirmMint(
+            publication,
+            txHash
+        ) {
+
+            const response =
+                await fetch(
+                    `${API_BASE}/api/mint/${encodeURIComponent(
+                        publication.slug
+                    )}/${encodeURIComponent(
+                        publication.issue
+                    )}/confirm`,
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json",
+
+                            "Accept":
+                                "application/json"
+
+                        },
+
+                        cache:
+                            "no-store",
+
+                        body:
+                            JSON.stringify(
+                                {
+
+                                    address:
+                                        connectedWallet,
+
+                                    txHash
+
+                                }
+                            )
+
+                    }
+                );
+
+
+            const text =
+                await response.text();
+
+
+            const data =
+                safeJsonParse(
+                    text
+                );
+
+
+            return {
+
+                status:
+                    response.status,
+
+                data
+
+            };
+
+        }
+
+
+        // ========================================================
+        // FULL MINT FLOW
+        // ========================================================
+
+        async function executeMint(
+            publication,
+            button,
+            messageElement
+        ) {
+
+            if (
+                mintBusy
+            ) {
+
+                return;
+
+            }
+
+
+            mintBusy =
+                true;
+
+
+            const originalText =
+                button.textContent;
+
+
+            button.disabled =
+                true;
+
+
+            try {
+
+                if (
+                    !connectedWallet
+                ) {
+
+                    await connectWallet();
+
+                }
+
+
+                if (
+                    !connectedWallet
+                ) {
+
+                    throw new Error(
+                        "Wallet connection required."
+                    );
+
+                }
+
+
+                if (
+                    !isPulseChain()
+                ) {
+
+                    await switchToPulseChain();
+
+                }
+
+
+                if (
+                    !isPulseChain()
+                ) {
+
+                    throw new Error(
+                        "PulseChain is required."
+                    );
+
+                }
+
+
+                button.textContent =
+                    "PREPARING...";
+
+
+                messageElement.textContent =
+                    "Hellbox is preparing the approved mint transaction.";
+
+
+                const prepared =
+                    await prepareMint(
+                        publication
+                    );
+
+
+                button.textContent =
+                    "CONFIRM IN WALLET";
+
+
+                messageElement.textContent =
+                    "Confirm the mint transaction in your wallet.";
+
+
+                const txHash =
+                    await sendMintTransaction(
+                        prepared.transaction
+                    );
+
+
+                if (
+                    !txHash
+                ) {
+
+                    throw new Error(
+                        "Wallet returned no transaction hash."
+                    );
+
+                }
+
+
+                button.textContent =
+                    "MINTING...";
+
+
+                messageElement.textContent =
+                    "Transaction submitted. Waiting for PulseChain confirmation.";
+
+
+                let attempts =
+                    0;
+
+
+                const maximumAttempts =
+                    45;
+
+
+                while (
+                    attempts <
+                    maximumAttempts
+                ) {
+
+                    attempts++;
+
+
+                    const confirmation =
+                        await confirmMint(
+                            publication,
+                            txHash
+                        );
+
+
+                    const data =
+                        confirmation.data;
+
+
+                    if (
+                        confirmation.status ===
+                            200 &&
+                        data &&
+                        data.ok ===
+                            true &&
+                        data.ownershipVerified ===
+                            true
+                    ) {
+
+                        button.textContent =
+                            "EDITION OWNED";
+
+
+                        messageElement.textContent =
+                            "Mint confirmed. Hellbox independently verified the edition in your wallet.";
+
+
+                        button.disabled =
+                            true;
+
+
+                        await loadWalletStatus();
+
+
+                        await loadPress();
+
+
+                        document
+                            .getElementById(
+                                "collection"
+                            )
+                            .scrollIntoView(
+                                {
+
+                                    behavior:
+                                        "smooth",
+
+                                    block:
+                                        "start"
+
+                                }
+                            );
+
+
+                        return;
+
+                    }
+
+
+                    if (
+                        data &&
+                        data.confirmed ===
+                            true &&
+                        data.transactionSucceeded ===
+                            false
+                    ) {
+
+                        throw new Error(
+                            data.error ||
+                            "Mint transaction reverted."
+                        );
+
+                    }
+
+
+                    messageElement.textContent =
+                        data &&
+                        data.message
+                            ? data.message
+                            : "Waiting for transaction confirmation...";
+
+
+                    await sleep(
+                        3000
+                    );
+
+                }
+
+
+                button.textContent =
+                    "VERIFY LATER";
+
+
+                button.disabled =
+                    false;
+
+
+                messageElement.textContent =
+                    "The transaction was submitted, but Hellbox has not verified ownership yet. Refresh the collection shortly.";
+
+
+            } catch (error) {
+
+                console.error(
+                    "HELLBOX MINT ERROR:",
+                    error
+                );
+
+
+                button.textContent =
+                    originalText;
+
+
+                button.disabled =
+                    false;
+
+
+                messageElement.textContent =
+                    error &&
+                    error.message
+                        ? error.message
+                        : "Mint interrupted.";
+
+            } finally {
+
+                mintBusy =
+                    false;
 
             }
 
@@ -1851,12 +3336,19 @@
 
                     renderWrongNetwork();
 
+
+                    await loadPress();
+
+
                     return;
 
                 }
 
 
                 await loadWalletStatus();
+
+
+                await loadPress();
 
 
             } catch (error) {
@@ -1993,7 +3485,7 @@
 
 
         // ========================================================
-        // SWITCH TO PULSECHAIN
+        // SWITCH NETWORK
         // ========================================================
 
         async function switchToPulseChain() {
@@ -2036,61 +3528,38 @@
                         4902
                 ) {
 
-                    try {
+                    await window.ethereum.request({
 
-                        await window.ethereum.request({
+                        method:
+                            "wallet_addEthereumChain",
 
-                            method:
-                                "wallet_addEthereumChain",
+                        params: [
+                            {
 
-                            params: [
-                                {
+                                chainId:
+                                    HELLBOX.chainIdHex,
 
-                                    chainId:
-                                        HELLBOX.chainIdHex,
+                                chainName:
+                                    HELLBOX.chainName,
 
-                                    chainName:
-                                        HELLBOX.chainName,
+                                nativeCurrency:
+                                    HELLBOX.currency,
 
-                                    nativeCurrency:
-                                        HELLBOX.currency,
+                                rpcUrls:
+                                    HELLBOX.rpcUrls,
 
-                                    rpcUrls:
-                                        HELLBOX.rpcUrls,
+                                blockExplorerUrls:
+                                    HELLBOX.explorerUrls
 
-                                    blockExplorerUrls:
-                                        HELLBOX.explorerUrls
+                            }
+                        ]
 
-                                }
-                            ]
-
-                        });
-
-
-                    } catch (
-                        addError
-                    ) {
-
-                        console.error(
-                            "HELLBOX ADD NETWORK ERROR:",
-                            addError
-                        );
-
-
-                        return;
-
-                    }
+                    });
 
 
                 } else {
 
-                    console.error(
-                        "HELLBOX SWITCH NETWORK ERROR:",
-                        switchError
-                    );
-
-
-                    return;
+                    throw switchError;
 
                 }
 
@@ -2111,6 +3580,9 @@
             ) {
 
                 await loadWalletStatus();
+
+
+                await loadPress();
 
             } else {
 
@@ -2214,34 +3686,12 @@
                 if (
                     !data ||
                     data.ok !==
-                        true
-                ) {
-
-                    throw new Error(
-                        "Wallet status response did not return ok:true."
-                    );
-
-                }
-
-
-                if (
-                    !data.wallet ||
-                    !data.wallet.address
-                ) {
-
-                    throw new Error(
-                        "Wallet status response did not contain wallet data."
-                    );
-
-                }
-
-
-                if (
+                        true ||
                     !data.collection
                 ) {
 
                     throw new Error(
-                        "Wallet status response did not contain collection data."
+                        "Wallet status response is invalid."
                     );
 
                 }
@@ -2275,21 +3725,10 @@
 
 
         // ========================================================
-        // AUTH — CHALLENGE
+        // AUTH CHALLENGE
         // ========================================================
 
         async function requestReaderChallenge() {
-
-            if (
-                !connectedWallet
-            ) {
-
-                throw new Error(
-                    "Wallet is not connected."
-                );
-
-            }
-
 
             const response =
                 await fetch(
@@ -2298,9 +3737,6 @@
 
                         method:
                             "POST",
-
-                        mode:
-                            "cors",
 
                         headers: {
 
@@ -2329,29 +3765,20 @@
                 );
 
 
-            const text =
-                await response.text();
-
-
             const data =
-                safeJsonParse(
-                    text
-                );
+                await response.json();
 
 
             if (
                 !response.ok ||
-                !data ||
                 data.ok !==
                     true ||
                 !data.challenge
             ) {
 
                 throw new Error(
-                    data &&
-                    data.error
-                        ? data.error
-                        : `Challenge request failed with HTTP ${response.status}.`
+                    data.error ||
+                    "Challenge request failed."
                 );
 
             }
@@ -2363,30 +3790,12 @@
 
 
         // ========================================================
-        // AUTH — SIGN
+        // AUTH SIGN
         // ========================================================
 
         async function signReaderChallenge(
             challenge
         ) {
-
-            if (
-                !hasWalletProvider()
-            ) {
-
-                throw new Error(
-                    "Wallet provider unavailable."
-                );
-
-            }
-
-
-            /*
-             * MetaMask-compatible personal_sign.
-             *
-             * No transaction is submitted.
-             * No gas is spent.
-             */
 
             return await window.ethereum.request({
 
@@ -2407,7 +3816,7 @@
 
 
         // ========================================================
-        // AUTH — VERIFY
+        // AUTH VERIFY
         // ========================================================
 
         async function verifyReaderSignature(
@@ -2423,9 +3832,6 @@
                         method:
                             "POST",
 
-                        mode:
-                            "cors",
-
                         headers: {
 
                             "Content-Type":
@@ -2435,9 +3841,6 @@
                                 "application/json"
 
                         },
-
-                        cache:
-                            "no-store",
 
                         body:
                             JSON.stringify(
@@ -2458,19 +3861,12 @@
                 );
 
 
-            const text =
-                await response.text();
-
-
             const data =
-                safeJsonParse(
-                    text
-                );
+                await response.json();
 
 
             if (
                 !response.ok ||
-                !data ||
                 data.ok !==
                     true ||
                 !data.session ||
@@ -2478,10 +3874,8 @@
             ) {
 
                 throw new Error(
-                    data &&
-                    data.error
-                        ? data.error
-                        : `Signature verification failed with HTTP ${response.status}.`
+                    data.error ||
+                    "Signature verification failed."
                 );
 
             }
@@ -2504,7 +3898,7 @@
 
 
         // ========================================================
-        // AUTH — COMPLETE HANDSHAKE
+        // AUTHENTICATE READER
         // ========================================================
 
         async function authenticateReader() {
@@ -2524,14 +3918,14 @@
 
                 await connectWallet();
 
+            }
 
-                if (
-                    !connectedWallet
-                ) {
 
-                    return false;
+            if (
+                !connectedWallet
+            ) {
 
-                }
+                return false;
 
             }
 
@@ -2542,14 +3936,14 @@
 
                 await switchToPulseChain();
 
+            }
 
-                if (
-                    !isPulseChain()
-                ) {
 
-                    return false;
+            if (
+                !isPulseChain()
+            ) {
 
-                }
+                return false;
 
             }
 
@@ -2567,11 +3961,11 @@
                 true;
 
 
-            collectionStatus.textContent =
-                "REQUESTING READER CLEARANCE...";
-
-
             try {
+
+                collectionStatus.textContent =
+                    "REQUESTING READER CLEARANCE...";
+
 
                 const challenge =
                     await requestReaderChallenge();
@@ -2633,7 +4027,7 @@
 
 
         // ========================================================
-        // AUTH — SESSION VERIFY
+        // VALIDATE SESSION
         // ========================================================
 
         async function validateReaderSession() {
@@ -2653,12 +4047,6 @@
                     await fetch(
                         `${API_BASE}/api/auth/session`,
                         {
-
-                            method:
-                                "GET",
-
-                            mode:
-                                "cors",
 
                             headers: {
 
@@ -2707,42 +4095,19 @@
                 }
 
 
-                const returnedWallet =
-                    data.wallet &&
-                    data.wallet.address
-                        ? normalizeAddressLocal(
-                            data.wallet.address
-                        )
-                        : null;
-
-
-                if (
-                    returnedWallet !==
+                return (
+                    normalizeAddressLocal(
+                        data.wallet.address
+                    ) ===
                     normalizeAddressLocal(
                         connectedWallet
                     )
-                ) {
-
-                    clearReaderSession();
-
-                    return false;
-
-                }
-
-
-                return true;
-
-
-            } catch (error) {
-
-                console.error(
-                    "HELLBOX SESSION VALIDATION ERROR:",
-                    error
                 );
 
 
-                clearReaderSession();
+            } catch {
 
+                clearReaderSession();
 
                 return false;
 
@@ -2752,7 +4117,7 @@
 
 
         // ========================================================
-        // OPEN PROTECTED EDITION
+        // OPEN EDITION
         // ========================================================
 
         async function openEdition(
@@ -2760,33 +4125,12 @@
             button
         ) {
 
-            if (
-                !edition
-            ) {
-
-                return;
-
-            }
-
-
             const originalText =
-                button
-                    ? button.textContent
-                    : null;
+                button.textContent;
 
 
-            if (
-                button
-            ) {
-
-                button.disabled =
-                    true;
-
-
-                button.textContent =
-                    "VERIFYING...";
-
-            }
+            button.disabled =
+                true;
 
 
             try {
@@ -2816,18 +4160,8 @@
                 }
 
 
-                if (
-                    button
-                ) {
-
-                    button.textContent =
-                        "OPENING...";
-
-                }
-
-
-                collectionStatus.textContent =
-                    "VERIFYING EDITION OWNERSHIP...";
+                button.textContent =
+                    "OPENING...";
 
 
                 const response =
@@ -2838,12 +4172,6 @@
                             edition.issue
                         )}`,
                         {
-
-                            method:
-                                "GET",
-
-                            mode:
-                                "cors",
 
                             headers: {
 
@@ -2862,14 +4190,8 @@
                     );
 
 
-                const text =
-                    await response.text();
-
-
                 const data =
-                    safeJsonParse(
-                        text
-                    );
+                    await response.json();
 
 
                 if (
@@ -2879,39 +4201,23 @@
 
                     clearReaderSession();
 
-
-                    throw new Error(
-                        "Reader session expired."
-                    );
-
                 }
 
 
                 if (
                     !response.ok ||
-                    !data ||
                     data.ok !==
                         true ||
                     data.access !==
                         "granted"
                 ) {
 
-                    const message =
-                        data &&
-                        data.error
-                            ? data.error
-                            : "Reader access was denied.";
-
-
                     throw new Error(
-                        message
+                        data.error ||
+                        "Reader access denied."
                     );
 
                 }
-
-
-                collectionStatus.textContent =
-                    "ACCESS GRANTED // EDITION OPEN";
 
 
                 launchReader(
@@ -2922,33 +4228,25 @@
             } catch (error) {
 
                 console.error(
-                    "HELLBOX OPEN EDITION ERROR:",
+                    "HELLBOX READER ERROR:",
                     error
                 );
 
 
                 collectionStatus.textContent =
                     `READER LOCKED // ${
-                        error.message ||
-                        "ACCESS DENIED"
+                        error.message
                     }`;
 
 
             } finally {
 
-                if (
-                    button
-                ) {
-
-                    button.disabled =
-                        false;
+                button.disabled =
+                    false;
 
 
-                    button.textContent =
-                        originalText ||
-                        "OPEN EDITION";
-
-                }
+                button.textContent =
+                    originalText;
 
             }
 
@@ -2956,76 +4254,17 @@
 
 
         // ========================================================
-        // READER LAUNCH FOUNDATION
-        // ========================================================
-        //
-        // No live publication exists yet, so there is no final
-        // comic reader UI to render today.
-        //
-        // When SciVive is prepared, its private manifest will
-        // define pages / assets and this function will become
-        // the full-screen Hellbox reader.
-        //
+        // READER FOUNDATION
         // ========================================================
 
         function launchReader(
             readerData
         ) {
 
-            const publication =
-                readerData.publication ||
-                {};
-
-
-            const manifest =
-                readerData.reader &&
-                readerData.reader.manifest
-                    ? readerData.reader.manifest
-                    : {};
-
-
             console.log(
-                "HELLBOX READER ACCESS GRANTED:",
+                "HELLBOX READER ACCESS:",
                 readerData
             );
-
-
-            /*
-             * Foundation behavior:
-             *
-             * If the private manifest eventually supplies a
-             * reader URL, route, or entry point, we can use it.
-             *
-             * Until the first real publication is installed,
-             * we intentionally do not fabricate a reader.
-             */
-
-            if (
-                manifest.entryUrl &&
-                typeof manifest.entryUrl ===
-                    "string"
-            ) {
-
-                window.location.href =
-                    manifest.entryUrl;
-
-                return;
-
-            }
-
-
-            if (
-                manifest.entryRoute &&
-                typeof manifest.entryRoute ===
-                    "string"
-            ) {
-
-                window.location.href =
-                    manifest.entryRoute;
-
-                return;
-
-            }
 
 
             terminalTitle.textContent =
@@ -3034,30 +4273,16 @@
 
             terminalMessage.textContent =
                 `${
-                    publication.title ||
-                    "This edition"
-                } is authorized for this wallet. The protected reader manifest has been unlocked.`;
+                    readerData.publication.title
+                } has been authenticated for this wallet. Protected reader access is unlocked.`;
 
 
             terminalAction.hidden =
                 true;
 
 
-            document
-                .getElementById(
-                    "collection"
-                )
-                .scrollIntoView(
-                    {
-
-                        behavior:
-                            "smooth",
-
-                        block:
-                            "start"
-
-                    }
-                );
+            collectionStatus.textContent =
+                "PROTECTED EDITION ACCESS GRANTED.";
 
         }
 
@@ -3098,6 +4323,7 @@
                     "wrong-network"
                 );
 
+
                 return;
 
             }
@@ -3117,7 +4343,7 @@
 
 
         // ========================================================
-        // DISCONNECTED
+        // DISCONNECTED UI
         // ========================================================
 
         function renderDisconnected() {
@@ -3209,7 +4435,7 @@
 
 
         // ========================================================
-        // WRONG NETWORK
+        // WRONG NETWORK UI
         // ========================================================
 
         function renderWrongNetwork() {
@@ -3287,18 +4513,13 @@
             );
 
 
-            seriesControl.hidden =
-                true;
-
-
-            clearElement(
-                seriesTabs
-            );
-
-
             clearElement(
                 collectionList
             );
+
+
+            seriesControl.hidden =
+                true;
 
 
             collectionStatus.textContent =
@@ -3311,7 +4532,7 @@
 
 
         // ========================================================
-        // LOADING
+        // LOADING UI
         // ========================================================
 
         function renderLoading() {
@@ -3353,7 +4574,7 @@
 
 
         // ========================================================
-        // ERROR
+        // ERROR UI
         // ========================================================
 
         function renderWalletError(
@@ -3422,18 +4643,13 @@
             );
 
 
-            seriesControl.hidden =
-                true;
-
-
-            clearElement(
-                seriesTabs
-            );
-
-
             clearElement(
                 collectionList
             );
+
+
+            seriesControl.hidden =
+                true;
 
 
             collectionStatus.textContent =
@@ -3443,7 +4659,7 @@
 
 
         // ========================================================
-        // COLLECTION RENDER
+        // WALLET COLLECTION RENDERER
         // ========================================================
 
         function renderWalletCollection(
@@ -3487,9 +4703,7 @@
                     data.wallet &&
                     data.wallet.addressDisplay
                 )
-                    ? String(
-                        data.wallet.addressDisplay
-                    ).toUpperCase()
+                    ? data.wallet.addressDisplay.toUpperCase()
                     : shortAddress(
                         connectedWallet
                     ).toUpperCase();
@@ -3524,9 +4738,7 @@
                 0
             ) {
 
-                renderEmptyArchive(
-                    data
-                );
+                renderEmptyArchive();
 
                 return;
 
@@ -3559,40 +4771,11 @@
             );
 
 
-            const indexing =
-                collection.indexing ||
-                {};
-
-
-            if (
+            collectionStatus.textContent =
                 collection.ownershipIndexed ===
-                true
-            ) {
-
-                if (
-                    Number(
-                        indexing.unavailable ||
-                        0
-                    ) >
-                    0
-                ) {
-
-                    collectionStatus.textContent =
-                        `WALLET INDEX COMPLETE // ${indexing.unavailable} EDITION CHECKS UNAVAILABLE.`;
-
-                } else {
-
-                    collectionStatus.textContent =
-                        "WALLET INDEX COMPLETE.";
-
-                }
-
-            } else {
-
-                collectionStatus.textContent =
-                    "COLLECTION INDEX PARTIAL.";
-
-            }
+                    true
+                    ? "WALLET INDEX COMPLETE."
+                    : "COLLECTION INDEX PARTIAL.";
 
         }
 
@@ -3601,9 +4784,7 @@
         // EMPTY ARCHIVE
         // ========================================================
 
-        function renderEmptyArchive(
-            data
-        ) {
+        function renderEmptyArchive() {
 
             terminalTitle.textContent =
                 "THE ARCHIVE IS EMPTY.";
@@ -3631,25 +4812,8 @@
             );
 
 
-            const collection =
-                data.collection ||
-                {};
-
-
-            if (
-                collection.ownershipIndexed ===
-                true
-            ) {
-
-                collectionStatus.textContent =
-                    "ARCHIVE ONLINE // ZERO PUBLIC EDITIONS.";
-
-            } else {
-
-                collectionStatus.textContent =
-                    "ARCHIVE ONLINE // INDEX STANDBY.";
-
-            }
+            collectionStatus.textContent =
+                "ARCHIVE ONLINE // ZERO PUBLIC EDITIONS.";
 
 
             publicationCount.textContent =
@@ -3706,11 +4870,7 @@
 
 
             if (
-                !Array.isArray(
-                    series
-                ) ||
-                series.length ===
-                    0
+                !series.length
             ) {
 
                 seriesControl.hidden =
@@ -3779,8 +4939,7 @@
 
             button.textContent =
                 String(
-                    title ||
-                    slug
+                    title
                 ).toUpperCase();
 
 
@@ -3795,18 +4954,8 @@
                     syncSeriesButtons();
 
 
-                    const currentSeries =
-                        walletStatus &&
-                        walletStatus.collection &&
-                        Array.isArray(
-                            walletStatus.collection.series
-                        )
-                            ? walletStatus.collection.series
-                            : [];
-
-
                     renderSeries(
-                        currentSeries
+                        walletStatus.collection.series
                     );
 
                 }
@@ -3820,24 +4969,21 @@
 
         function syncSeriesButtons() {
 
-            const buttons =
-                seriesTabs.querySelectorAll(
+            seriesTabs
+                .querySelectorAll(
                     ".series-tab"
+                )
+                .forEach(
+                    button => {
+
+                        button.classList.toggle(
+                            "active",
+                            button.dataset.series ===
+                                selectedSeries
+                        );
+
+                    }
                 );
-
-
-            buttons.forEach(
-                button => {
-
-                    button.classList.toggle(
-                        "active",
-
-                        button.dataset.series ===
-                            selectedSeries
-                    );
-
-                }
-            );
 
         }
 
@@ -3855,136 +5001,112 @@
             );
 
 
-            const visibleSeries =
+            const visible =
                 selectedSeries ===
                     "all"
                     ? series
                     : series.filter(
-                        entry =>
-                            entry.slug ===
+                        item =>
+                            item.slug ===
                             selectedSeries
                     );
 
 
-            visibleSeries.forEach(
-                seriesEntry => {
+            for (
+                const entry
+                of visible
+            ) {
 
-                    const block =
-                        document.createElement(
-                            "section"
-                        );
-
-
-                    block.className =
-                        "series-block";
-
-
-                    const header =
-                        document.createElement(
-                            "div"
-                        );
+                const block =
+                    makeElement(
+                        "section",
+                        "series-block"
+                    );
 
 
-                    header.className =
-                        "series-block-header";
+                const header =
+                    makeElement(
+                        "div",
+                        "series-block-header"
+                    );
 
 
-                    const left =
-                        document.createElement(
-                            "div"
-                        );
+                const left =
+                    document.createElement(
+                        "div"
+                    );
 
 
-                    const seriesCode =
-                        document.createElement(
-                            "span"
-                        );
-
-
-                    seriesCode.textContent =
+                left.append(
+                    makeElement(
+                        "span",
+                        null,
                         `SERIES // ${
                             String(
-                                seriesEntry.slug ||
-                                ""
+                                entry.slug
                             ).toUpperCase()
-                        }`;
+                        }`
+                    ),
+
+                    makeElement(
+                        "h3",
+                        null,
+                        entry.title ||
+                        entry.slug
+                    )
+                );
 
 
-                    const title =
-                        document.createElement(
-                            "h3"
+                header.append(
+                    left,
+
+                    makeElement(
+                        "small",
+                        null,
+                        `${formatCount(
+                            entry.owned
+                        )} OWNED // ${formatCount(
+                            entry.missing
+                        )} MISSING`
+                    )
+                );
+
+
+                block.appendChild(
+                    header
+                );
+
+
+                const editions =
+                    Array.isArray(
+                        entry.editions
+                    )
+                        ? entry.editions
+                        : [];
+
+
+                editions.forEach(
+                    (
+                        edition,
+                        index
+                    ) => {
+
+                        block.appendChild(
+                            renderEdition(
+                                edition,
+                                index
+                            )
                         );
 
-
-                    title.textContent =
-                        seriesEntry.title ||
-                        seriesEntry.slug ||
-                        "UNTITLED";
+                    }
+                );
 
 
-                    left.append(
-                        seriesCode,
-                        title
-                    );
+                collectionList.appendChild(
+                    block
+                );
 
-
-                    const counts =
-                        document.createElement(
-                            "small"
-                        );
-
-
-                    counts.textContent =
-                        `${formatCount(
-                            seriesEntry.owned
-                        )} OWNED // ` +
-                        `${formatCount(
-                            seriesEntry.missing
-                        )} MISSING`;
-
-
-                    header.append(
-                        left,
-                        counts
-                    );
-
-
-                    block.appendChild(
-                        header
-                    );
-
-
-                    const editions =
-                        Array.isArray(
-                            seriesEntry.editions
-                        )
-                            ? seriesEntry.editions
-                            : [];
-
-
-                    editions.forEach(
-                        (
-                            edition,
-                            index
-                        ) => {
-
-                            block.appendChild(
-                                renderEdition(
-                                    edition,
-                                    index
-                                )
-                            );
-
-                        }
-                    );
-
-
-                    collectionList.appendChild(
-                        block
-                    );
-
-                }
-            );
+            }
 
         }
 
@@ -4001,153 +5123,100 @@
             const ownership =
                 String(
                     edition.ownership ||
-                    edition.status ||
                     "unavailable"
                 ).toLowerCase();
 
 
             const row =
-                document.createElement(
-                    "article"
+                makeElement(
+                    "article",
+                    `collection-item state-${ownership}`
                 );
 
 
-            row.className =
-                `collection-item state-${ownership}`;
-
-
-            const number =
-                document.createElement(
-                    "span"
-                );
-
-
-            number.className =
-                "collection-item-index";
-
-
-            number.textContent =
-                String(
-                    index +
-                    1
-                ).padStart(
-                    2,
-                    "0"
-                );
+            row.appendChild(
+                makeElement(
+                    "span",
+                    "collection-item-index",
+                    String(
+                        index +
+                        1
+                    ).padStart(
+                        2,
+                        "0"
+                    )
+                )
+            );
 
 
             const main =
-                document.createElement(
-                    "div"
+                makeElement(
+                    "div",
+                    "collection-item-main"
                 );
-
-
-            main.className =
-                "collection-item-main";
-
-
-            const type =
-                document.createElement(
-                    "span"
-                );
-
-
-            type.className =
-                "collection-item-type";
-
-
-            type.textContent =
-                String(
-                    edition.lifecycle ||
-                    edition.contentType ||
-                    edition.content_type ||
-                    "EDITION"
-                ).toUpperCase();
-
-
-            const title =
-                document.createElement(
-                    "strong"
-                );
-
-
-            title.textContent =
-                edition.title ||
-                `ISSUE ${
-                    edition.issue ||
-                    ""
-                }`;
-
-
-            const issue =
-                document.createElement(
-                    "small"
-                );
-
-
-            issue.textContent =
-                `ISSUE ${
-                    edition.issue ||
-                    "—"
-                }`;
 
 
             main.append(
-                type,
-                title,
-                issue
+                makeElement(
+                    "span",
+                    "collection-item-type",
+                    String(
+                        edition.contentType ||
+                        "EDITION"
+                    ).toUpperCase()
+                ),
+
+                makeElement(
+                    "strong",
+                    null,
+                    edition.title ||
+                    "UNTITLED"
+                ),
+
+                makeElement(
+                    "small",
+                    null,
+                    `ISSUE ${
+                        edition.issue ||
+                        "—"
+                    }`
+                )
             );
 
 
             const state =
-                document.createElement(
-                    "div"
+                makeElement(
+                    "div",
+                    "collection-item-state"
                 );
-
-
-            state.className =
-                "collection-item-state";
-
-
-            const stateLabel =
-                document.createElement(
-                    "span"
-                );
-
-
-            stateLabel.textContent =
-                "STATUS";
-
-
-            const stateValue =
-                document.createElement(
-                    "strong"
-                );
-
-
-            stateValue.textContent =
-                ownership.toUpperCase();
 
 
             state.append(
-                stateLabel,
-                stateValue
+                makeElement(
+                    "span",
+                    null,
+                    "STATUS"
+                ),
+
+                makeElement(
+                    "strong",
+                    null,
+                    ownership.toUpperCase()
+                )
             );
 
 
             const action =
-                document.createElement(
-                    "div"
+                makeElement(
+                    "div",
+                    "collection-item-action"
                 );
 
 
-            action.className =
-                "collection-item-action";
-
-
             const button =
-                document.createElement(
-                    "button"
+                makeElement(
+                    "button",
+                    "edition-action"
                 );
 
 
@@ -4155,110 +5224,57 @@
                 "button";
 
 
-            button.className =
-                "edition-action";
-
-
-            // ====================================================
-            // OWNED / EVOLVED
-            // ====================================================
-
             if (
-                ownership ===
-                    "owned" ||
-                ownership ===
-                    "evolved"
+                (
+                    ownership ===
+                        "owned" ||
+                    ownership ===
+                        "evolved"
+                ) &&
+                edition.reader &&
+                edition.reader.enabled ===
+                    true
             ) {
 
-                if (
-                    edition.reader &&
-                    edition.reader.enabled ===
-                        true
-                ) {
-
-                    button.textContent =
-                        "OPEN EDITION";
+                button.textContent =
+                    "OPEN EDITION";
 
 
-                    button.disabled =
-                        false;
+                button.addEventListener(
+                    "click",
+                    () => {
 
+                        openEdition(
+                            edition,
+                            button
+                        );
 
-                    button.addEventListener(
-                        "click",
-                        () => {
+                    }
+                );
 
-                            openEdition(
-                                edition,
-                                button
-                            );
-
-                        }
-                    );
-
-
-                } else {
-
-                    button.textContent =
-                        "READER LOCKED";
-
-
-                    button.disabled =
-                        true;
-
-                }
-
-
-            // ====================================================
-            // MISSING
-            // ====================================================
 
             } else if (
                 ownership ===
-                    "missing"
+                "missing"
             ) {
 
-                if (
-                    edition.mint &&
-                    edition.mint.enabled ===
-                        true
-                ) {
-
-                    button.textContent =
-                        edition.mint.freeMint ===
-                            true
-                            ? "CLAIM EDITION"
-                            : "MINT EDITION";
+                button.textContent =
+                    "MISSING";
 
 
-                    /*
-                     * Mint transaction flow will be wired later.
-                     */
+                button.disabled =
+                    true;
 
-                    button.disabled =
-                        true;
-
-
-                } else {
-
-                    button.textContent =
-                        "MISSING";
-
-
-                    button.disabled =
-                        true;
-
-                }
-
-
-            // ====================================================
-            // UNAVAILABLE
-            // ====================================================
 
             } else {
 
                 button.textContent =
-                    "INDEX PENDING";
+                    ownership ===
+                        "owned" ||
+                    ownership ===
+                        "evolved"
+                        ? "READER LOCKED"
+                        : "INDEX PENDING";
 
 
                 button.disabled =
@@ -4273,7 +5289,6 @@
 
 
             row.append(
-                number,
                 main,
                 state,
                 action
@@ -4351,12 +5366,6 @@
                 "accountsChanged",
                 async accounts => {
 
-                    /*
-                     * A reader session belongs to one wallet only.
-                     * Changing accounts immediately destroys the
-                     * browser-side session.
-                     */
-
                     clearReaderSession();
 
 
@@ -4377,6 +5386,10 @@
 
 
                         renderDisconnected();
+
+
+                        await loadPress();
+
 
                         return;
 
@@ -4409,6 +5422,9 @@
                     }
 
 
+                    await loadPress();
+
+
                     updateHeaderWallet();
 
                 }
@@ -4418,10 +5434,6 @@
             window.ethereum.on(
                 "chainChanged",
                 async chainId => {
-
-                    /*
-                     * Reader authentication is PulseChain-bound.
-                     */
 
                     clearReaderSession();
 
@@ -4435,6 +5447,10 @@
                     ) {
 
                         renderDisconnected();
+
+
+                        await loadPress();
+
 
                         return;
 
@@ -4452,6 +5468,9 @@
                         renderWrongNetwork();
 
                     }
+
+
+                    await loadPress();
 
 
                     updateHeaderWallet();
@@ -4475,6 +5494,9 @@
 
 
             await restoreWallet();
+
+
+            await loadPress();
 
 
             updateHeaderWallet();
