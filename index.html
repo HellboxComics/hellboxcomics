@@ -43,11 +43,6 @@
         href="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem.PNG"
     >
 
-
-    <!-- ========================================================
-         SOCIAL PREVIEW
-    ========================================================= -->
-
     <meta
         property="og:type"
         content="website"
@@ -83,7 +78,6 @@
         content="Hellbox Comics"
     >
 
-
     <meta
         name="twitter:card"
         content="summary_large_image"
@@ -104,11 +98,485 @@
         content="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-banner-original.PNG"
     >
 
-
     <link
         rel="stylesheet"
         href="/style.css"
     >
+
+
+    <!-- ========================================================
+         HELLBOX READER STYLES
+         Self-contained so style.css does not need replacement.
+    ========================================================= -->
+
+    <style>
+
+        body.reader-open {
+            overflow: hidden;
+        }
+
+        .hellbox-reader {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            display: none;
+            flex-direction: column;
+            background:
+                radial-gradient(
+                    circle at 50% 30%,
+                    rgba(82, 0, 120, 0.12),
+                    transparent 38%
+                ),
+                #020202;
+            color: #f4f1ec;
+        }
+
+        .hellbox-reader.active {
+            display: flex;
+        }
+
+        .reader-topbar {
+            position: relative;
+            z-index: 4;
+            display: grid;
+            grid-template-columns:
+                minmax(0, 1fr)
+                auto
+                minmax(0, 1fr);
+            align-items: center;
+            gap: 20px;
+            min-height: 72px;
+            padding: 12px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: rgba(2,2,2,0.94);
+            backdrop-filter: blur(16px);
+        }
+
+        .reader-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .reader-brand img {
+            width: 34px;
+            height: 34px;
+            object-fit: contain;
+        }
+
+        .reader-brand-copy {
+            min-width: 0;
+        }
+
+        .reader-kicker {
+            display: block;
+            margin-bottom: 3px;
+            font-size: 8px;
+            letter-spacing: 0.2em;
+            color: #ff321e;
+        }
+
+        .reader-title {
+            display: block;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+        }
+
+        .reader-progress-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            color: rgba(255,255,255,0.58);
+        }
+
+        .reader-progress-center strong {
+            color: #fff;
+        }
+
+        .reader-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reader-control {
+            appearance: none;
+            border: 1px solid rgba(255,255,255,0.16);
+            background: transparent;
+            color: #fff;
+            min-height: 38px;
+            padding: 0 12px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            transition:
+                border-color 160ms ease,
+                color 160ms ease,
+                background 160ms ease;
+        }
+
+        .reader-control:hover:not(:disabled) {
+            border-color: #ff321e;
+            color: #ff321e;
+        }
+
+        .reader-control.active {
+            border-color: #ff321e;
+            color: #ff321e;
+            background: rgba(255,50,30,0.06);
+        }
+
+        .reader-control:disabled {
+            opacity: 0.3;
+            cursor: default;
+        }
+
+        .reader-close {
+            min-width: 42px;
+            font-size: 15px;
+        }
+
+        .reader-stage {
+            position: relative;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .reader-paged {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding:
+                28px
+                84px
+                78px;
+            overflow: auto;
+        }
+
+        .reader-page-frame {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 100%;
+            max-height: 100%;
+            margin: auto;
+        }
+
+        .reader-page-image {
+            display: block;
+            max-width: 100%;
+            max-height: calc(100vh - 180px);
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            user-select: none;
+            -webkit-user-drag: none;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.08),
+                0 28px 90px rgba(0,0,0,0.7);
+        }
+
+        .reader-page-image.fit-width {
+            width: min(1100px, 100%);
+            max-width: none;
+            max-height: none;
+            height: auto;
+        }
+
+        .reader-page-image.fit-page {
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: calc(100vh - 180px);
+        }
+
+        .reader-nav {
+            position: absolute;
+            top: 50%;
+            z-index: 5;
+            width: 48px;
+            height: 72px;
+            transform: translateY(-50%);
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(0,0,0,0.45);
+            color: rgba(255,255,255,0.8);
+            font-size: 22px;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+        }
+
+        .reader-nav:hover:not(:disabled) {
+            border-color: #ff321e;
+            color: #ff321e;
+        }
+
+        .reader-nav:disabled {
+            opacity: 0.18;
+            cursor: default;
+        }
+
+        .reader-nav-prev {
+            left: 20px;
+        }
+
+        .reader-nav-next {
+            right: 20px;
+        }
+
+        .reader-bottom {
+            position: absolute;
+            z-index: 7;
+            left: 50%;
+            bottom: 18px;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.72);
+            backdrop-filter: blur(12px);
+        }
+
+        .reader-bottom button {
+            appearance: none;
+            border: 0;
+            background: transparent;
+            color: rgba(255,255,255,0.65);
+            cursor: pointer;
+            font: inherit;
+            font-size: 9px;
+            letter-spacing: 0.12em;
+        }
+
+        .reader-bottom button:hover {
+            color: #ff321e;
+        }
+
+        .reader-bottom-label {
+            min-width: 90px;
+            text-align: center;
+            font-size: 9px;
+            letter-spacing: 0.14em;
+            color: #fff;
+        }
+
+        .reader-loading,
+        .reader-error {
+            position: absolute;
+            inset: 0;
+            z-index: 8;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+            background: #020202;
+        }
+
+        .reader-loading.active,
+        .reader-error.active {
+            display: flex;
+        }
+
+        .reader-message {
+            max-width: 540px;
+            text-align: center;
+        }
+
+        .reader-message-code {
+            display: block;
+            margin-bottom: 18px;
+            font-size: 8px;
+            letter-spacing: 0.22em;
+            color: #ff321e;
+        }
+
+        .reader-message h3 {
+            margin: 0 0 16px;
+            font-size: clamp(34px, 5vw, 72px);
+            line-height: 0.92;
+            letter-spacing: -0.05em;
+        }
+
+        .reader-message p {
+            margin: 0 auto 24px;
+            max-width: 460px;
+            color: rgba(255,255,255,0.52);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .reader-loader-mark {
+            width: 52px;
+            height: 52px;
+            margin: 0 auto 22px;
+            border: 1px solid rgba(255,50,30,0.25);
+            border-top-color: #ff321e;
+            border-radius: 50%;
+            animation: hellboxSpin 0.9s linear infinite;
+        }
+
+        @keyframes hellboxSpin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .reader-continuous {
+            position: absolute;
+            inset: 0;
+            display: none;
+            overflow-y: auto;
+            padding: 36px 20px 100px;
+            scroll-behavior: smooth;
+        }
+
+        .reader-continuous.active {
+            display: block;
+        }
+
+        .reader-continuous-page {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin: 0 auto 30px;
+        }
+
+        .reader-continuous-page img {
+            display: block;
+            width: min(100%, 1100px);
+            height: auto;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.06),
+                0 20px 70px rgba(0,0,0,0.6);
+        }
+
+        .reader-page-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: min(100%, 900px);
+            min-height: 70vh;
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.3);
+            font-size: 10px;
+            letter-spacing: 0.16em;
+        }
+
+        .reader-session-status {
+            position: absolute;
+            z-index: 6;
+            top: 84px;
+            right: 18px;
+            padding: 7px 9px;
+            border: 1px solid rgba(139,255,0,0.18);
+            background: rgba(0,0,0,0.65);
+            color: #9cff00;
+            font-size: 7px;
+            letter-spacing: 0.16em;
+            pointer-events: none;
+        }
+
+        @media (max-width: 900px) {
+
+            .reader-topbar {
+                grid-template-columns: 1fr auto;
+                gap: 10px;
+                min-height: 62px;
+                padding: 10px 12px;
+            }
+
+            .reader-progress-center {
+                display: none;
+            }
+
+            .reader-toolbar .reader-fit-page,
+            .reader-toolbar .reader-fit-width {
+                display: none;
+            }
+
+            .reader-paged {
+                padding:
+                    18px
+                    50px
+                    70px;
+            }
+
+            .reader-nav {
+                width: 40px;
+                height: 60px;
+            }
+
+            .reader-nav-prev {
+                left: 5px;
+            }
+
+            .reader-nav-next {
+                right: 5px;
+            }
+
+            .reader-page-image {
+                max-height: calc(100vh - 145px);
+            }
+
+            .reader-title {
+                font-size: 11px;
+            }
+
+            .reader-session-status {
+                display: none;
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            .reader-paged {
+                padding:
+                    8px
+                    35px
+                    62px;
+            }
+
+            .reader-brand img {
+                width: 28px;
+                height: 28px;
+            }
+
+            .reader-control {
+                min-height: 34px;
+                padding: 0 9px;
+            }
+
+            .reader-nav {
+                width: 32px;
+                height: 52px;
+                font-size: 18px;
+            }
+
+            .reader-bottom {
+                bottom: 10px;
+            }
+
+        }
+
+    </style>
 
 </head>
 
@@ -663,7 +1131,6 @@
 
         <!-- ====================================================
              PRESS
-             NOW ENTIRELY API DRIVEN
         ===================================================== -->
 
         <section
@@ -679,21 +1146,7 @@
                 id="pressContainer"
             >
 
-                <!--
-                    The static empty state is deliberately retained
-                    as initial HTML.
-
-                    If /api/press returns zero publications, this
-                    remains exactly as-is.
-
-                    If an announced or mint-live publication appears,
-                    JavaScript replaces this section dynamically.
-                -->
-
-                <div
-                    class="press-copy"
-                    id="pressEmptyState"
-                >
+                <div class="press-copy">
 
                     <p class="eyebrow">
                         THE PRESS / RELEASE BAY
@@ -742,10 +1195,7 @@
                 </div>
 
 
-                <div
-                    class="press-stamps"
-                    id="pressEmptyStamps"
-                >
+                <div class="press-stamps">
 
                     <span>
                         DO NOT DUPLICATE
@@ -1083,6 +1533,289 @@
 
 
     <!-- ========================================================
+         PROTECTED HELLBOX READER
+    ========================================================= -->
+
+    <section
+        class="hellbox-reader"
+        id="hellboxReader"
+        aria-hidden="true"
+        aria-label="Hellbox protected reader"
+    >
+
+        <header class="reader-topbar">
+
+            <div class="reader-brand">
+
+                <img
+                    src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem.PNG"
+                    alt=""
+                >
+
+                <div class="reader-brand-copy">
+
+                    <span class="reader-kicker">
+                        HBX // PROTECTED READER
+                    </span>
+
+                    <strong
+                        class="reader-title"
+                        id="readerTitle"
+                    >
+                        HELLBOX EDITION
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="reader-progress-center">
+
+                <span>
+                    PAGE
+                </span>
+
+                <strong id="readerPageNumber">
+                    00
+                </strong>
+
+                <span>
+                    /
+                </span>
+
+                <strong id="readerPageCount">
+                    00
+                </strong>
+
+            </div>
+
+
+            <div class="reader-toolbar">
+
+                <button
+                    type="button"
+                    class="reader-control reader-fit-page active"
+                    id="readerFitPage"
+                >
+                    FIT PAGE
+                </button>
+
+                <button
+                    type="button"
+                    class="reader-control reader-fit-width"
+                    id="readerFitWidth"
+                >
+                    FIT WIDTH
+                </button>
+
+                <button
+                    type="button"
+                    class="reader-control"
+                    id="readerLayoutToggle"
+                >
+                    CONTINUOUS
+                </button>
+
+                <button
+                    type="button"
+                    class="reader-control reader-close"
+                    id="readerClose"
+                    aria-label="Close reader"
+                >
+                    ×
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <div class="reader-stage">
+
+
+            <!-- =================================================
+                 SESSION INDICATOR
+            ================================================== -->
+
+            <div
+                class="reader-session-status"
+                id="readerSessionStatus"
+            >
+                TOKEN VERIFIED // PULSECHAIN 369
+            </div>
+
+
+            <!-- =================================================
+                 PAGED MODE
+            ================================================== -->
+
+            <div
+                class="reader-paged"
+                id="readerPaged"
+            >
+
+                <div class="reader-page-frame">
+
+                    <img
+                        class="reader-page-image fit-page"
+                        id="readerPageImage"
+                        alt=""
+                    >
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="reader-nav reader-nav-prev"
+                id="readerPrevious"
+                aria-label="Previous page"
+            >
+                ‹
+            </button>
+
+
+            <button
+                type="button"
+                class="reader-nav reader-nav-next"
+                id="readerNext"
+                aria-label="Next page"
+            >
+                ›
+            </button>
+
+
+            <!-- =================================================
+                 CONTINUOUS MODE
+            ================================================== -->
+
+            <div
+                class="reader-continuous"
+                id="readerContinuous"
+            ></div>
+
+
+            <!-- =================================================
+                 BOTTOM PAGE CONTROLS
+            ================================================== -->
+
+            <div
+                class="reader-bottom"
+                id="readerBottom"
+            >
+
+                <button
+                    type="button"
+                    id="readerFirst"
+                >
+                    FIRST
+                </button>
+
+                <button
+                    type="button"
+                    id="readerPreviousBottom"
+                >
+                    ←
+                </button>
+
+                <span
+                    class="reader-bottom-label"
+                    id="readerBottomLabel"
+                >
+                    00 / 00
+                </span>
+
+                <button
+                    type="button"
+                    id="readerNextBottom"
+                >
+                    →
+                </button>
+
+                <button
+                    type="button"
+                    id="readerLast"
+                >
+                    LAST
+                </button>
+
+            </div>
+
+
+            <!-- =================================================
+                 LOADING
+            ================================================== -->
+
+            <div
+                class="reader-loading"
+                id="readerLoading"
+            >
+
+                <div class="reader-message">
+
+                    <div class="reader-loader-mark"></div>
+
+                    <span class="reader-message-code">
+                        HBX // SECURE TRANSMISSION
+                    </span>
+
+                    <h3>
+                        OPENING THE BOX.
+                    </h3>
+
+                    <p id="readerLoadingText">
+                        Verifying ownership and retrieving protected edition assets.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 ERROR
+            ================================================== -->
+
+            <div
+                class="reader-error"
+                id="readerError"
+            >
+
+                <div class="reader-message">
+
+                    <span class="reader-message-code">
+                        HBX // ACCESS INTERRUPTED
+                    </span>
+
+                    <h3>
+                        READER LOCKED.
+                    </h3>
+
+                    <p id="readerErrorText">
+                        Hellbox could not load this edition.
+                    </p>
+
+                    <button
+                        type="button"
+                        class="reader-control"
+                        id="readerErrorClose"
+                    >
+                        RETURN TO ARCHIVE
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ========================================================
          JAVASCRIPT
     ========================================================= -->
 
@@ -1144,7 +1877,7 @@
 
 
         // ========================================================
-        // STATE
+        // GLOBAL STATE
         // ========================================================
 
         let connectedWallet =
@@ -1193,6 +1926,48 @@
 
         let readerSessionExpiry =
             null;
+
+
+        // ========================================================
+        // READER STATE
+        // ========================================================
+
+        const readerState = {
+
+            open:
+                false,
+
+            publication:
+                null,
+
+            manifest:
+                null,
+
+            pages:
+                [],
+
+            currentIndex:
+                0,
+
+            mode:
+                "paged",
+
+            fit:
+                "page",
+
+            objectUrls:
+                new Map(),
+
+            loadingAssets:
+                new Map(),
+
+            touchStartX:
+                null,
+
+            touchStartY:
+                null
+
+        };
 
 
         // ========================================================
@@ -1304,6 +2079,148 @@
         const pressContainer =
             document.getElementById(
                 "pressContainer"
+            );
+
+
+        // ========================================================
+        // READER ELEMENTS
+        // ========================================================
+
+        const hellboxReader =
+            document.getElementById(
+                "hellboxReader"
+            );
+
+
+        const readerTitle =
+            document.getElementById(
+                "readerTitle"
+            );
+
+
+        const readerPageNumber =
+            document.getElementById(
+                "readerPageNumber"
+            );
+
+
+        const readerPageCount =
+            document.getElementById(
+                "readerPageCount"
+            );
+
+
+        const readerBottomLabel =
+            document.getElementById(
+                "readerBottomLabel"
+            );
+
+
+        const readerPaged =
+            document.getElementById(
+                "readerPaged"
+            );
+
+
+        const readerContinuous =
+            document.getElementById(
+                "readerContinuous"
+            );
+
+
+        const readerPageImage =
+            document.getElementById(
+                "readerPageImage"
+            );
+
+
+        const readerPrevious =
+            document.getElementById(
+                "readerPrevious"
+            );
+
+
+        const readerNext =
+            document.getElementById(
+                "readerNext"
+            );
+
+
+        const readerPreviousBottom =
+            document.getElementById(
+                "readerPreviousBottom"
+            );
+
+
+        const readerNextBottom =
+            document.getElementById(
+                "readerNextBottom"
+            );
+
+
+        const readerFirst =
+            document.getElementById(
+                "readerFirst"
+            );
+
+
+        const readerLast =
+            document.getElementById(
+                "readerLast"
+            );
+
+
+        const readerClose =
+            document.getElementById(
+                "readerClose"
+            );
+
+
+        const readerErrorClose =
+            document.getElementById(
+                "readerErrorClose"
+            );
+
+
+        const readerFitPage =
+            document.getElementById(
+                "readerFitPage"
+            );
+
+
+        const readerFitWidth =
+            document.getElementById(
+                "readerFitWidth"
+            );
+
+
+        const readerLayoutToggle =
+            document.getElementById(
+                "readerLayoutToggle"
+            );
+
+
+        const readerLoading =
+            document.getElementById(
+                "readerLoading"
+            );
+
+
+        const readerLoadingText =
+            document.getElementById(
+                "readerLoadingText"
+            );
+
+
+        const readerError =
+            document.getElementById(
+                "readerError"
+            );
+
+
+        const readerErrorText =
+            document.getElementById(
+                "readerErrorText"
             );
 
 
@@ -1767,7 +2684,7 @@
 
 
         // ========================================================
-        // API — PUBLICATIONS
+        // PUBLICATIONS
         // ========================================================
 
         async function loadPublications() {
@@ -1781,9 +2698,6 @@
 
                             method:
                                 "GET",
-
-                            mode:
-                                "cors",
 
                             headers: {
 
@@ -1843,7 +2757,7 @@
 
 
         // ========================================================
-        // API — PRESS
+        // PRESS
         // ========================================================
 
         async function loadPress() {
@@ -1857,9 +2771,6 @@
 
                             method:
                                 "GET",
-
-                            mode:
-                                "cors",
 
                             headers: {
 
@@ -1910,19 +2821,10 @@
 
 
         // ========================================================
-        // PRESS RENDERER
+        // PRESS RENDER
         // ========================================================
 
         async function renderPress() {
-
-            if (
-                !pressContainer
-            ) {
-
-                return;
-
-            }
-
 
             if (
                 pressPublications.length ===
@@ -1946,24 +2848,16 @@
                 of pressPublications
             ) {
 
-                const release =
+                pressContainer.appendChild(
                     await buildPressRelease(
                         publication
-                    );
-
-
-                pressContainer.appendChild(
-                    release
+                    )
                 );
 
             }
 
         }
 
-
-        // ========================================================
-        // PRESS EMPTY STATE
-        // ========================================================
 
         function renderPressEmpty() {
 
@@ -1979,12 +2873,13 @@
                 );
 
 
-            const eyebrow =
+            copy.appendChild(
                 makeElement(
                     "p",
                     "eyebrow",
                     "THE PRESS / RELEASE BAY"
-                );
+                )
+            );
 
 
             const heading =
@@ -2001,34 +2896,36 @@
             );
 
 
-            const headingSpan =
+            heading.appendChild(
                 makeElement(
                     "span",
                     null,
                     "ON THE PRESS"
-                );
+                )
+            );
 
 
-            const headingEm =
+            heading.appendChild(
                 makeElement(
                     "em",
                     null,
                     "YET."
-                );
-
-
-            heading.append(
-                headingSpan,
-                headingEm
+                )
             );
 
 
-            const description =
+            copy.appendChild(
+                heading
+            );
+
+
+            copy.appendChild(
                 makeElement(
                     "p",
                     "press-description",
                     "When an edition enters circulation, the press opens. Until then, the machine stays hot."
-                );
+                )
+            );
 
 
             const statusBox =
@@ -2038,11 +2935,12 @@
                 );
 
 
-            const square =
+            statusBox.appendChild(
                 makeElement(
                     "span",
                     "press-status-square"
-                );
+                )
+            );
 
 
             const statusCopy =
@@ -2051,38 +2949,27 @@
                 );
 
 
-            const statusStrong =
+            statusCopy.append(
                 makeElement(
                     "strong",
                     null,
                     "NO CURRENT EDITION"
-                );
+                ),
 
-
-            const statusSmall =
                 makeElement(
                     "small",
                     null,
                     "PRESS STATUS / STANDBY"
-                );
-
-
-            statusCopy.append(
-                statusStrong,
-                statusSmall
+                )
             );
 
 
-            statusBox.append(
-                square,
+            statusBox.appendChild(
                 statusCopy
             );
 
 
-            copy.append(
-                eyebrow,
-                heading,
-                description,
+            copy.appendChild(
                 statusBox
             );
 
@@ -2117,10 +3004,6 @@
         }
 
 
-        // ========================================================
-        // BUILD RELEASE
-        // ========================================================
-
         async function buildPressRelease(
             publication
         ) {
@@ -2132,11 +3015,6 @@
                 );
 
 
-            wrapper.dataset.publication =
-                publication.id ||
-                `${publication.slug}-${publication.issue}`;
-
-
             const copy =
                 makeElement(
                     "div",
@@ -2144,7 +3022,7 @@
                 );
 
 
-            const eyebrow =
+            copy.appendChild(
                 makeElement(
                     "p",
                     "eyebrow",
@@ -2152,7 +3030,8 @@
                         "mint_live"
                         ? "THE PRESS / MINT LIVE"
                         : "THE PRESS / INCOMING EDITION"
-                );
+                )
+            );
 
 
             const heading =
@@ -2172,7 +3051,7 @@
             );
 
 
-            const seriesLine =
+            heading.appendChild(
                 makeElement(
                     "span",
                     null,
@@ -2184,56 +3063,48 @@
                         publication.issue ||
                         "—"
                     }`
-                );
-
-
-            heading.appendChild(
-                seriesLine
+                )
             );
 
 
-            const description =
+            copy.appendChild(
+                heading
+            );
+
+
+            copy.appendChild(
                 makeElement(
                     "p",
-                    "press-description"
-                );
+                    "press-description",
+                    publication.lifecycle ===
+                        "mint_live"
+                        ? (
+                            publication.mint &&
+                            publication.mint.freeMint
+                                ? "The edition is live. Connect a PulseChain wallet and claim your copy while supply remains."
+                                : "The edition is live. Connect a PulseChain wallet to enter the mint."
+                        )
+                        : "The edition has been announced. The press is warming up, but minting has not opened yet."
+                )
+            );
 
 
-            if (
-                publication.lifecycle ===
-                "mint_live"
-            ) {
-
-                description.textContent =
-                    publication.mint &&
-                    publication.mint.freeMint ===
-                        true
-                        ? "The edition is live. Connect a PulseChain wallet and claim your copy while supply remains."
-                        : "The edition is live. Connect a PulseChain wallet to enter the mint.";
-
-            } else {
-
-                description.textContent =
-                    "The edition has been announced. The press is warming up, but minting has not opened yet.";
-
-            }
-
-
-            const metaBox =
+            const statusBox =
                 makeElement(
                     "div",
                     "press-status-box"
                 );
 
 
-            const metaSquare =
+            statusBox.appendChild(
                 makeElement(
                     "span",
                     "press-status-square"
-                );
+                )
+            );
 
 
-            const metaContent =
+            const details =
                 document.createElement(
                     "div"
                 );
@@ -2244,75 +3115,57 @@
                 {};
 
 
-            const mainStatus =
-                publication.lifecycle ===
-                    "mint_live"
-                    ? (
-                        mint.freeMint ===
-                            true
-                            ? "FREE MINT LIVE"
-                            : "MINT LIVE"
-                    )
-                    : "ANNOUNCED";
-
-
-            const metadata =
-                [
-                    `SUPPLY ${formatSupply(
-                        mint.maxSupply
-                    )}`,
-
-                    mint.freeMint ===
-                        true
-                        ? "PRICE FREE"
-                        : `PRICE ${
-                            mint.pricePLS ||
-                            "—"
-                        } PLS`,
-
-                    mint.royaltyPercent !==
-                        null &&
-                    mint.royaltyPercent !==
-                        undefined
-                        ? `ROYALTY ${mint.royaltyPercent}%`
-                        : "ROYALTY —"
-                ].join(
-                    " // "
-                );
-
-
-            metaContent.append(
+            details.append(
                 makeElement(
                     "strong",
                     null,
-                    mainStatus
+                    publication.lifecycle ===
+                        "mint_live"
+                        ? (
+                            mint.freeMint
+                                ? "FREE MINT LIVE"
+                                : "MINT LIVE"
+                        )
+                        : "ANNOUNCED"
                 ),
 
                 makeElement(
                     "small",
                     null,
-                    metadata
+                    [
+                        `SUPPLY ${formatSupply(
+                            mint.maxSupply
+                        )}`,
+
+                        mint.freeMint
+                            ? "PRICE FREE"
+                            : `PRICE ${
+                                mint.pricePLS ||
+                                "—"
+                            } PLS`,
+
+                        mint.royaltyPercent !==
+                            undefined &&
+                        mint.royaltyPercent !==
+                            null
+                            ? `ROYALTY ${mint.royaltyPercent}%`
+                            : "ROYALTY —"
+                    ].join(
+                        " // "
+                    )
                 )
             );
 
 
-            metaBox.append(
-                metaSquare,
-                metaContent
+            statusBox.appendChild(
+                details
             );
 
 
-            copy.append(
-                eyebrow,
-                heading,
-                description,
-                metaBox
+            copy.appendChild(
+                statusBox
             );
 
-
-            // ----------------------------------------------------
-            // OPTIONAL COVER / PRESS ART
-            // ----------------------------------------------------
 
             if (
                 publication.media &&
@@ -2322,7 +3175,7 @@
                 )
             ) {
 
-                const artWrap =
+                const art =
                     makeElement(
                         "div",
                         "press-release-art"
@@ -2345,17 +3198,13 @@
                     "Hellbox edition";
 
 
-                image.loading =
-                    "lazy";
-
-
-                artWrap.appendChild(
+                art.appendChild(
                     image
                 );
 
 
                 wrapper.appendChild(
-                    artWrap
+                    art
                 );
 
             }
@@ -2366,10 +3215,6 @@
             );
 
 
-            // ----------------------------------------------------
-            // ACTION PANEL
-            // ----------------------------------------------------
-
             const actionPanel =
                 makeElement(
                     "div",
@@ -2377,7 +3222,7 @@
                 );
 
 
-            const stateLabel =
+            actionPanel.appendChild(
                 makeElement(
                     "span",
                     "terminal-stage-code",
@@ -2385,10 +3230,11 @@
                         "mint_live"
                         ? "HBX // MINT TERMINAL"
                         : "HBX // RELEASE STATUS"
-                );
+                )
+            );
 
 
-            const stateText =
+            const message =
                 makeElement(
                     "p",
                     "press-description"
@@ -2411,7 +3257,7 @@
                 "mint_live"
             ) {
 
-                stateText.textContent =
+                message.textContent =
                     "Minting has not opened yet.";
 
 
@@ -2427,7 +3273,7 @@
                 !connectedWallet
             ) {
 
-                stateText.textContent =
+                message.textContent =
                     "Connect your wallet to inspect mint eligibility.";
 
 
@@ -2435,23 +3281,21 @@
                     "CONNECT WALLET";
 
 
-                button.addEventListener(
-                    "click",
+                button.onclick =
                     async () => {
 
                         await connectWallet();
 
                         await loadPress();
 
-                    }
-                );
+                    };
 
 
             } else if (
                 !isPulseChain()
             ) {
 
-                stateText.textContent =
+                message.textContent =
                     "Switch to PulseChain to enter this mint.";
 
 
@@ -2459,21 +3303,19 @@
                     "SWITCH TO PULSECHAIN";
 
 
-                button.addEventListener(
-                    "click",
+                button.onclick =
                     async () => {
 
                         await switchToPulseChain();
 
                         await loadPress();
 
-                    }
-                );
+                    };
 
 
             } else {
 
-                stateText.textContent =
+                message.textContent =
                     "Checking this wallet against the edition contract...";
 
 
@@ -2487,7 +3329,7 @@
 
                 await hydrateMintAction(
                     publication,
-                    stateText,
+                    message,
                     button
                 );
 
@@ -2495,8 +3337,7 @@
 
 
             actionPanel.append(
-                stateLabel,
-                stateText,
+                message,
                 button
             );
 
@@ -2511,13 +3352,9 @@
         }
 
 
-        // ========================================================
-        // MINT STATUS FOR WALLET
-        // ========================================================
-
         async function hydrateMintAction(
             publication,
-            messageElement,
+            message,
             button
         ) {
 
@@ -2529,20 +3366,8 @@
                     );
 
 
-                if (
-                    !status ||
-                    status.ok !==
-                        true
-                ) {
-
-                    throw new Error(
-                        "Mint status unavailable."
-                    );
-
-                }
-
-
                 const wallet =
+                    status &&
                     status.wallet;
 
 
@@ -2550,19 +3375,9 @@
                     !wallet
                 ) {
 
-                    messageElement.textContent =
-                        "Wallet status unavailable.";
-
-
-                    button.textContent =
-                        "RETRY";
-
-
-                    button.disabled =
-                        false;
-
-
-                    return;
+                    throw new Error(
+                        "Wallet mint status unavailable."
+                    );
 
                 }
 
@@ -2572,7 +3387,7 @@
                     "already_owned"
                 ) {
 
-                    messageElement.textContent =
+                    message.textContent =
                         "This wallet already owns the edition.";
 
 
@@ -2591,23 +3406,21 @@
 
                 if (
                     wallet.state ===
-                    "eligible" &&
+                        "eligible" &&
                     wallet.eligible ===
                         true
                 ) {
 
-                    messageElement.textContent =
+                    message.textContent =
                         publication.mint &&
-                        publication.mint.freeMint ===
-                            true
+                        publication.mint.freeMint
                             ? "Wallet eligible. The edition is free; only network gas is required."
                             : "Wallet eligible to mint this edition.";
 
 
                     button.textContent =
                         publication.mint &&
-                        publication.mint.freeMint ===
-                            true
+                        publication.mint.freeMint
                             ? "CLAIM EDITION"
                             : "MINT EDITION";
 
@@ -2616,18 +3429,13 @@
                         false;
 
 
-                    button.addEventListener(
-                        "click",
-                        () => {
-
+                    button.onclick =
+                        () =>
                             executeMint(
                                 publication,
                                 button,
-                                messageElement
+                                message
                             );
-
-                        }
-                    );
 
 
                     return;
@@ -2635,7 +3443,7 @@
                 }
 
 
-                messageElement.textContent =
+                message.textContent =
                     wallet.reason ||
                     "This wallet is not currently eligible.";
 
@@ -2656,7 +3464,7 @@
                 );
 
 
-                messageElement.textContent =
+                message.textContent =
                     "Hellbox could not inspect mint eligibility.";
 
 
@@ -2669,54 +3477,27 @@
 
 
                 button.onclick =
-                    async () => {
-
-                        await loadPress();
-
-                    };
+                    loadPress;
 
             }
 
         }
 
 
-        // ========================================================
-        // GET MINT STATUS
-        // ========================================================
-
         async function getMintStatus(
             publication
         ) {
 
-            if (
-                !connectedWallet
-            ) {
-
-                return null;
-
-            }
-
-
-            const url =
-                `${API_BASE}/api/mint/` +
-                `${encodeURIComponent(
-                    publication.slug
-                )}/` +
-                `${encodeURIComponent(
-                    publication.issue
-                )}/status` +
-                `?address=${encodeURIComponent(
-                    connectedWallet
-                )}`;
-
-
             const response =
                 await fetch(
-                    url,
+                    `${API_BASE}/api/mint/${encodeURIComponent(
+                        publication.slug
+                    )}/${encodeURIComponent(
+                        publication.issue
+                    )}/status?address=${encodeURIComponent(
+                        connectedWallet
+                    )}`,
                     {
-
-                        method:
-                            "GET",
 
                         headers: {
 
@@ -2732,14 +3513,8 @@
                 );
 
 
-            const text =
-                await response.text();
-
-
             const data =
-                safeJsonParse(
-                    text
-                );
+                await response.json();
 
 
             if (
@@ -2747,10 +3522,8 @@
             ) {
 
                 throw new Error(
-                    data &&
-                    data.error
-                        ? data.error
-                        : `Mint status HTTP ${response.status}`
+                    data.error ||
+                    "Mint status unavailable."
                 );
 
             }
@@ -2760,10 +3533,6 @@
 
         }
 
-
-        // ========================================================
-        // PREPARE MINT
-        // ========================================================
 
         async function prepareMint(
             publication
@@ -2791,9 +3560,6 @@
 
                         },
 
-                        cache:
-                            "no-store",
-
                         body:
                             JSON.stringify(
                                 {
@@ -2808,40 +3574,25 @@
                 );
 
 
-            const text =
-                await response.text();
-
-
             const data =
-                safeJsonParse(
-                    text
-                );
+                await response.json();
 
 
             if (
                 !response.ok ||
-                !data ||
                 data.ok !==
                     true ||
                 data.mintReady !==
-                    true ||
-                !data.transaction
+                    true
             ) {
 
                 throw new Error(
-                    data &&
+                    data.error ||
                     (
-                        data.error ||
-                        (
-                            data.eligibility &&
-                            data.eligibility.reason
-                        )
-                    )
-                        ? (
-                            data.error ||
-                            data.eligibility.reason
-                        )
-                        : "Mint transaction is not ready."
+                        data.eligibility &&
+                        data.eligibility.reason
+                    ) ||
+                    "Mint transaction unavailable."
                 );
 
             }
@@ -2852,24 +3603,9 @@
         }
 
 
-        // ========================================================
-        // SEND MINT TRANSACTION
-        // ========================================================
-
         async function sendMintTransaction(
             transaction
         ) {
-
-            if (
-                !hasWalletProvider()
-            ) {
-
-                throw new Error(
-                    "Wallet provider unavailable."
-                );
-
-            }
-
 
             return await window.ethereum.request({
 
@@ -2900,10 +3636,6 @@
         }
 
 
-        // ========================================================
-        // CONFIRM MINT WITH WORKER
-        // ========================================================
-
         async function confirmMint(
             publication,
             txHash
@@ -2931,9 +3663,6 @@
 
                         },
 
-                        cache:
-                            "no-store",
-
                         body:
                             JSON.stringify(
                                 {
@@ -2950,36 +3679,23 @@
                 );
 
 
-            const text =
-                await response.text();
-
-
-            const data =
-                safeJsonParse(
-                    text
-                );
-
-
             return {
 
                 status:
                     response.status,
 
-                data
+                data:
+                    await response.json()
 
             };
 
         }
 
 
-        // ========================================================
-        // FULL MINT FLOW
-        // ========================================================
-
         async function executeMint(
             publication,
             button,
-            messageElement
+            message
         ) {
 
             if (
@@ -3015,17 +3731,6 @@
 
 
                 if (
-                    !connectedWallet
-                ) {
-
-                    throw new Error(
-                        "Wallet connection required."
-                    );
-
-                }
-
-
-                if (
                     !isPulseChain()
                 ) {
 
@@ -3034,22 +3739,11 @@
                 }
 
 
-                if (
-                    !isPulseChain()
-                ) {
-
-                    throw new Error(
-                        "PulseChain is required."
-                    );
-
-                }
-
-
                 button.textContent =
                     "PREPARING...";
 
 
-                messageElement.textContent =
+                message.textContent =
                     "Hellbox is preparing the approved mint transaction.";
 
 
@@ -3063,7 +3757,7 @@
                     "CONFIRM IN WALLET";
 
 
-                messageElement.textContent =
+                message.textContent =
                     "Confirm the mint transaction in your wallet.";
 
 
@@ -3073,40 +3767,20 @@
                     );
 
 
-                if (
-                    !txHash
-                ) {
-
-                    throw new Error(
-                        "Wallet returned no transaction hash."
-                    );
-
-                }
-
-
                 button.textContent =
                     "MINTING...";
 
 
-                messageElement.textContent =
+                message.textContent =
                     "Transaction submitted. Waiting for PulseChain confirmation.";
 
 
-                let attempts =
-                    0;
-
-
-                const maximumAttempts =
+                for (
+                    let attempt = 0;
+                    attempt <
                     45;
-
-
-                while (
-                    attempts <
-                    maximumAttempts
+                    attempt++
                 ) {
-
-                    attempts++;
-
 
                     const confirmation =
                         await confirmMint(
@@ -3123,8 +3797,6 @@
                         confirmation.status ===
                             200 &&
                         data &&
-                        data.ok ===
-                            true &&
                         data.ownershipVerified ===
                             true
                     ) {
@@ -3133,35 +3805,14 @@
                             "EDITION OWNED";
 
 
-                        messageElement.textContent =
+                        message.textContent =
                             "Mint confirmed. Hellbox independently verified the edition in your wallet.";
-
-
-                        button.disabled =
-                            true;
 
 
                         await loadWalletStatus();
 
 
                         await loadPress();
-
-
-                        document
-                            .getElementById(
-                                "collection"
-                            )
-                            .scrollIntoView(
-                                {
-
-                                    behavior:
-                                        "smooth",
-
-                                    block:
-                                        "start"
-
-                                }
-                            );
 
 
                         return;
@@ -3171,8 +3822,6 @@
 
                     if (
                         data &&
-                        data.confirmed ===
-                            true &&
                         data.transactionSucceeded ===
                             false
                     ) {
@@ -3185,11 +3834,11 @@
                     }
 
 
-                    messageElement.textContent =
+                    message.textContent =
                         data &&
                         data.message
                             ? data.message
-                            : "Waiting for transaction confirmation...";
+                            : "Waiting for PulseChain confirmation...";
 
 
                     await sleep(
@@ -3207,8 +3856,8 @@
                     false;
 
 
-                messageElement.textContent =
-                    "The transaction was submitted, but Hellbox has not verified ownership yet. Refresh the collection shortly.";
+                message.textContent =
+                    "Transaction submitted. Ownership verification is still pending.";
 
 
             } catch (error) {
@@ -3227,11 +3876,10 @@
                     false;
 
 
-                messageElement.textContent =
-                    error &&
-                    error.message
-                        ? error.message
-                        : "Mint interrupted.";
+                message.textContent =
+                    error.message ||
+                    "Mint interrupted.";
+
 
             } finally {
 
@@ -3244,7 +3892,7 @@
 
 
         // ========================================================
-        // CONNECT WALLET
+        // WALLET
         // ========================================================
 
         async function connectWallet() {
@@ -3280,14 +3928,6 @@
                 "CONNECTING...";
 
 
-            terminalAction.hidden =
-                false;
-
-
-            terminalAction.textContent =
-                "CONNECTING...";
-
-
             try {
 
                 const accounts =
@@ -3300,11 +3940,8 @@
 
 
                 if (
-                    !Array.isArray(
-                        accounts
-                    ) ||
-                    accounts.length ===
-                        0
+                    !accounts ||
+                    !accounts.length
                 ) {
 
                     throw new Error(
@@ -3336,19 +3973,12 @@
 
                     renderWrongNetwork();
 
-
-                    await loadPress();
-
-
                     return;
 
                 }
 
 
                 await loadWalletStatus();
-
-
-                await loadPress();
 
 
             } catch (error) {
@@ -3373,14 +4003,13 @@
 
                 updateHeaderWallet();
 
+
+                await loadPress();
+
             }
 
         }
 
-
-        // ========================================================
-        // RESTORE WALLET
-        // ========================================================
 
         async function restoreWallet() {
 
@@ -3416,18 +4045,12 @@
 
 
                 if (
-                    !Array.isArray(
-                        accounts
-                    ) ||
-                    accounts.length ===
-                        0
+                    !accounts ||
+                    !accounts.length
                 ) {
 
                     connectedWallet =
                         null;
-
-
-                    clearReaderSession();
 
 
                     renderDisconnected();
@@ -3461,7 +4084,7 @@
             } catch (error) {
 
                 console.error(
-                    "HELLBOX WALLET RESTORE ERROR:",
+                    "HELLBOX RESTORE ERROR:",
                     error
                 );
 
@@ -3470,23 +4093,12 @@
                     null;
 
 
-                walletStatus =
-                    null;
-
-
-                clearReaderSession();
-
-
                 renderDisconnected();
 
             }
 
         }
 
-
-        // ========================================================
-        // SWITCH NETWORK
-        // ========================================================
 
         async function switchToPulseChain() {
 
@@ -3518,13 +4130,11 @@
                 });
 
 
-            } catch (
-                switchError
-            ) {
+            } catch (error) {
 
                 if (
-                    switchError &&
-                    switchError.code ===
+                    error &&
+                    error.code ===
                         4902
                 ) {
 
@@ -3559,7 +4169,7 @@
 
                 } else {
 
-                    throw switchError;
+                    throw error;
 
                 }
 
@@ -3581,14 +4191,10 @@
 
                 await loadWalletStatus();
 
-
-                await loadPress();
-
-            } else {
-
-                renderWrongNetwork();
-
             }
+
+
+            await loadPress();
 
 
             updateHeaderWallet();
@@ -3613,40 +4219,17 @@
             }
 
 
-            if (
-                !isPulseChain()
-            ) {
-
-                renderWrongNetwork();
-
-                return;
-
-            }
-
-
             renderLoading();
 
 
             try {
 
-                const requestUrl =
-                    `${API_BASE}/api/wallet-status` +
-                    `?address=${encodeURIComponent(
-                        connectedWallet
-                    )}` +
-                    `&chainId=${HELLBOX.chainIdDecimal}`;
-
-
                 const response =
                     await fetch(
-                        requestUrl,
+                        `${API_BASE}/api/wallet-status?address=${encodeURIComponent(
+                            connectedWallet
+                        )}&chainId=369`,
                         {
-
-                            method:
-                                "GET",
-
-                            mode:
-                                "cors",
 
                             headers: {
 
@@ -3662,36 +4245,19 @@
                     );
 
 
-                const responseText =
-                    await response.text();
-
-
-                if (
-                    !response.ok
-                ) {
-
-                    throw new Error(
-                        `Wallet status HTTP ${response.status}: ${responseText}`
-                    );
-
-                }
-
-
                 const data =
-                    safeJsonParse(
-                        responseText
-                    );
+                    await response.json();
 
 
                 if (
+                    !response.ok ||
                     !data ||
                     data.ok !==
-                        true ||
-                    !data.collection
+                        true
                 ) {
 
                     throw new Error(
-                        "Wallet status response is invalid."
+                        "Wallet index unavailable."
                     );
 
                 }
@@ -3725,7 +4291,7 @@
 
 
         // ========================================================
-        // AUTH CHALLENGE
+        // READER AUTH
         // ========================================================
 
         async function requestReaderChallenge() {
@@ -3748,9 +4314,6 @@
 
                         },
 
-                        cache:
-                            "no-store",
-
                         body:
                             JSON.stringify(
                                 {
@@ -3771,8 +4334,6 @@
 
             if (
                 !response.ok ||
-                data.ok !==
-                    true ||
                 !data.challenge
             ) {
 
@@ -3789,15 +4350,11 @@
         }
 
 
-        // ========================================================
-        // AUTH SIGN
-        // ========================================================
-
         async function signReaderChallenge(
             challenge
         ) {
 
-            return await window.ethereum.request({
+            return window.ethereum.request({
 
                 method:
                     "personal_sign",
@@ -3814,10 +4371,6 @@
 
         }
 
-
-        // ========================================================
-        // AUTH VERIFY
-        // ========================================================
 
         async function verifyReaderSignature(
             challenge,
@@ -3867,8 +4420,6 @@
 
             if (
                 !response.ok ||
-                data.ok !==
-                    true ||
                 !data.session ||
                 !data.session.token
             ) {
@@ -3882,24 +4433,13 @@
 
 
             saveReaderSession(
-
                 data.session.token,
-
                 connectedWallet,
-
                 data.session.expiresAt
-
             );
-
-
-            return data;
 
         }
 
-
-        // ========================================================
-        // AUTHENTICATE READER
-        // ========================================================
 
         async function authenticateReader() {
 
@@ -3912,56 +4452,38 @@
             }
 
 
-            if (
-                !connectedWallet
-            ) {
-
-                await connectWallet();
-
-            }
-
-
-            if (
-                !connectedWallet
-            ) {
-
-                return false;
-
-            }
-
-
-            if (
-                !isPulseChain()
-            ) {
-
-                await switchToPulseChain();
-
-            }
-
-
-            if (
-                !isPulseChain()
-            ) {
-
-                return false;
-
-            }
-
-
-            if (
-                hasValidReaderSession()
-            ) {
-
-                return true;
-
-            }
-
-
             readerAuthBusy =
                 true;
 
 
             try {
+
+                if (
+                    !connectedWallet
+                ) {
+
+                    await connectWallet();
+
+                }
+
+
+                if (
+                    !isPulseChain()
+                ) {
+
+                    await switchToPulseChain();
+
+                }
+
+
+                if (
+                    hasValidReaderSession()
+                ) {
+
+                    return true;
+
+                }
+
 
                 collectionStatus.textContent =
                     "REQUESTING READER CLEARANCE...";
@@ -3981,10 +4503,6 @@
                     );
 
 
-                collectionStatus.textContent =
-                    "VERIFYING SIGNATURE...";
-
-
                 await verifyReaderSignature(
                     challenge,
                     signature
@@ -4001,7 +4519,7 @@
             } catch (error) {
 
                 console.error(
-                    "HELLBOX READER AUTH ERROR:",
+                    "HELLBOX AUTH ERROR:",
                     error
                 );
 
@@ -4025,10 +4543,6 @@
 
         }
 
-
-        // ========================================================
-        // VALIDATE SESSION
-        // ========================================================
 
         async function validateReaderSession() {
 
@@ -4080,22 +4594,11 @@
                     await response.json();
 
 
-                if (
-                    !data ||
-                    data.ok !==
-                        true ||
-                    data.authenticated !==
-                        true
-                ) {
-
-                    clearReaderSession();
-
-                    return false;
-
-                }
-
-
                 return (
+                    data.ok ===
+                        true &&
+                    data.authenticated ===
+                        true &&
                     normalizeAddressLocal(
                         data.wallet.address
                     ) ===
@@ -4117,7 +4620,7 @@
 
 
         // ========================================================
-        // OPEN EDITION
+        // OPEN PROTECTED EDITION
         // ========================================================
 
         async function openEdition(
@@ -4220,7 +4723,7 @@
                 }
 
 
-                launchReader(
+                await launchReader(
                     data
                 );
 
@@ -4228,14 +4731,15 @@
             } catch (error) {
 
                 console.error(
-                    "HELLBOX READER ERROR:",
+                    "HELLBOX OPEN READER ERROR:",
                     error
                 );
 
 
                 collectionStatus.textContent =
                     `READER LOCKED // ${
-                        error.message
+                        error.message ||
+                        "ACCESS DENIED"
                     }`;
 
 
@@ -4254,41 +4758,1379 @@
 
 
         // ========================================================
-        // READER FOUNDATION
+        // READER LAUNCH
         // ========================================================
 
-        function launchReader(
+        async function launchReader(
             readerData
         ) {
 
-            console.log(
-                "HELLBOX READER ACCESS:",
-                readerData
+            resetReaderState();
+
+
+            const publication =
+                readerData.publication ||
+                {};
+
+
+            const manifest =
+                readerData.reader &&
+                readerData.reader.manifest
+                    ? readerData.reader.manifest
+                    : null;
+
+
+            if (
+                !manifest ||
+                !Array.isArray(
+                    manifest.pages
+                ) ||
+                manifest.pages.length ===
+                    0
+            ) {
+
+                throw new Error(
+                    "Protected reader manifest contains no pages."
+                );
+
+            }
+
+
+            readerState.publication =
+                publication;
+
+
+            readerState.manifest =
+                manifest;
+
+
+            readerState.pages =
+                manifest.pages;
+
+
+            readerState.currentIndex =
+                0;
+
+
+            readerState.mode =
+                manifest.layout ===
+                    "continuous"
+                    ? "continuous"
+                    : "paged";
+
+
+            readerTitle.textContent =
+                `${
+                    publication.title ||
+                    manifest.title ||
+                    "HELLBOX EDITION"
+                } // ISSUE ${
+                    publication.issue ||
+                    manifest.issue ||
+                    "—"
+                }`;
+
+
+            readerPageCount.textContent =
+                formatCount(
+                    readerState.pages.length
+                );
+
+
+            hellboxReader.classList.add(
+                "active"
             );
 
 
-            terminalTitle.textContent =
-                "CLEARANCE VERIFIED.";
+            hellboxReader.setAttribute(
+                "aria-hidden",
+                "false"
+            );
 
 
-            terminalMessage.textContent =
-                `${
-                    readerData.publication.title
-                } has been authenticated for this wallet. Protected reader access is unlocked.`;
+            document.body.classList.add(
+                "reader-open"
+            );
 
 
-            terminalAction.hidden =
+            readerState.open =
                 true;
 
 
-            collectionStatus.textContent =
-                "PROTECTED EDITION ACCESS GRANTED.";
+            showReaderLoading(
+                "Verifying ownership and retrieving protected edition assets."
+            );
+
+
+            syncReaderMode();
+
+
+            try {
+
+                if (
+                    readerState.mode ===
+                    "continuous"
+                ) {
+
+                    await buildContinuousReader();
+
+                } else {
+
+                    await showReaderPage(
+                        0
+                    );
+
+                }
+
+
+                hideReaderLoading();
+
+
+                preloadAdjacentPages();
+
+
+            } catch (error) {
+
+                console.error(
+                    "HELLBOX READER LOAD ERROR:",
+                    error
+                );
+
+
+                showReaderError(
+                    error.message ||
+                    "Hellbox could not load this edition."
+                );
+
+            }
 
         }
 
 
         // ========================================================
-        // HEADER
+        // PROTECTED PAGE FETCH
+        //
+        // IMPORTANT:
+        //
+        // We fetch page bytes ourselves with Authorization.
+        // We do NOT point <img src> directly at the Worker endpoint.
+        //
+        // The Worker checks the reader session and NFT ownership
+        // before streaming each private R2 object.
+        // ========================================================
+
+        async function fetchProtectedPage(
+            page
+        ) {
+
+            if (
+                readerState.objectUrls.has(
+                    page.id
+                )
+            ) {
+
+                return readerState.objectUrls.get(
+                    page.id
+                );
+
+            }
+
+
+            if (
+                readerState.loadingAssets.has(
+                    page.id
+                )
+            ) {
+
+                return readerState.loadingAssets.get(
+                    page.id
+                );
+
+            }
+
+
+            const promise =
+                (
+                    async () => {
+
+                        const endpoint =
+                            page.endpoint.startsWith(
+                                "http"
+                            )
+                                ? page.endpoint
+                                : `${API_BASE}${page.endpoint}`;
+
+
+                        const response =
+                            await fetch(
+                                endpoint,
+                                {
+
+                                    headers: {
+
+                                        "Authorization":
+                                            `Bearer ${readerSession}`,
+
+                                        "Accept":
+                                            page.mediaType ||
+                                            "image/*"
+
+                                    },
+
+                                    cache:
+                                        "no-store"
+
+                                }
+                            );
+
+
+                        if (
+                            response.status ===
+                            401
+                        ) {
+
+                            clearReaderSession();
+
+
+                            throw new Error(
+                                "Reader session expired."
+                            );
+
+                        }
+
+
+                        if (
+                            response.status ===
+                            403
+                        ) {
+
+                            throw new Error(
+                                "Edition ownership could not be verified."
+                            );
+
+                        }
+
+
+                        if (
+                            !response.ok
+                        ) {
+
+                            let message =
+                                `Protected page request failed with HTTP ${response.status}.`;
+
+
+                            try {
+
+                                const errorData =
+                                    await response.json();
+
+
+                                if (
+                                    errorData &&
+                                    errorData.error
+                                ) {
+
+                                    message =
+                                        errorData.error;
+
+                                }
+
+                            } catch {}
+
+
+                            throw new Error(
+                                message
+                            );
+
+                        }
+
+
+                        const blob =
+                            await response.blob();
+
+
+                        const objectUrl =
+                            URL.createObjectURL(
+                                blob
+                            );
+
+
+                        readerState.objectUrls.set(
+                            page.id,
+                            objectUrl
+                        );
+
+
+                        readerState.loadingAssets.delete(
+                            page.id
+                        );
+
+
+                        return objectUrl;
+
+                    }
+                )();
+
+
+            readerState.loadingAssets.set(
+                page.id,
+                promise
+            );
+
+
+            try {
+
+                return await promise;
+
+            } catch (error) {
+
+                readerState.loadingAssets.delete(
+                    page.id
+                );
+
+
+                throw error;
+
+            }
+
+        }
+
+
+        // ========================================================
+        // PAGED READER
+        // ========================================================
+
+        async function showReaderPage(
+            index
+        ) {
+
+            if (
+                !readerState.pages.length
+            ) {
+
+                return;
+
+            }
+
+
+            index =
+                Math.max(
+                    0,
+                    Math.min(
+                        index,
+                        readerState.pages.length -
+                        1
+                    )
+                );
+
+
+            readerState.currentIndex =
+                index;
+
+
+            const page =
+                readerState.pages[
+                    index
+                ];
+
+
+            showReaderLoading(
+                `Decrypting page ${
+                    index +
+                    1
+                } of ${
+                    readerState.pages.length
+                }.`
+            );
+
+
+            try {
+
+                const source =
+                    await fetchProtectedPage(
+                        page
+                    );
+
+
+                readerPageImage.src =
+                    source;
+
+
+                readerPageImage.alt =
+                    `${readerTitle.textContent} — Page ${
+                        index +
+                        1
+                    }`;
+
+
+                updateReaderNavigation();
+
+
+                hideReaderLoading();
+
+
+                preloadAdjacentPages();
+
+
+            } catch (error) {
+
+                showReaderError(
+                    error.message
+                );
+
+            }
+
+        }
+
+
+        function previousReaderPage() {
+
+            if (
+                readerState.mode !==
+                "paged"
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                readerState.currentIndex >
+                0
+            ) {
+
+                showReaderPage(
+                    readerState.currentIndex -
+                    1
+                );
+
+            }
+
+        }
+
+
+        function nextReaderPage() {
+
+            if (
+                readerState.mode !==
+                "paged"
+            ) {
+
+                return;
+
+            }
+
+
+            if (
+                readerState.currentIndex <
+                readerState.pages.length -
+                    1
+            ) {
+
+                showReaderPage(
+                    readerState.currentIndex +
+                    1
+                );
+
+            }
+
+        }
+
+
+        function updateReaderNavigation() {
+
+            const current =
+                readerState.currentIndex +
+                1;
+
+
+            const total =
+                readerState.pages.length;
+
+
+            readerPageNumber.textContent =
+                formatCount(
+                    current
+                );
+
+
+            readerPageCount.textContent =
+                formatCount(
+                    total
+                );
+
+
+            readerBottomLabel.textContent =
+                `${formatCount(
+                    current
+                )} / ${formatCount(
+                    total
+                )}`;
+
+
+            const first =
+                readerState.currentIndex ===
+                0;
+
+
+            const last =
+                readerState.currentIndex ===
+                total -
+                1;
+
+
+            readerPrevious.disabled =
+                first;
+
+
+            readerPreviousBottom.disabled =
+                first;
+
+
+            readerFirst.disabled =
+                first;
+
+
+            readerNext.disabled =
+                last;
+
+
+            readerNextBottom.disabled =
+                last;
+
+
+            readerLast.disabled =
+                last;
+
+        }
+
+
+        async function preloadAdjacentPages() {
+
+            if (
+                readerState.mode !==
+                "paged"
+            ) {
+
+                return;
+
+            }
+
+
+            const candidates =
+                [
+
+                    readerState.currentIndex +
+                        1,
+
+                    readerState.currentIndex -
+                        1,
+
+                    readerState.currentIndex +
+                        2
+
+                ];
+
+
+            for (
+                const index
+                of candidates
+            ) {
+
+                if (
+                    index <
+                        0 ||
+                    index >=
+                        readerState.pages.length
+                ) {
+
+                    continue;
+
+                }
+
+
+                fetchProtectedPage(
+                    readerState.pages[
+                        index
+                    ]
+                ).catch(
+                    () => {}
+                );
+
+            }
+
+        }
+
+
+        // ========================================================
+        // CONTINUOUS READER
+        // ========================================================
+
+        async function buildContinuousReader() {
+
+            clearElement(
+                readerContinuous
+            );
+
+
+            readerPageNumber.textContent =
+                "ALL";
+
+
+            readerBottomLabel.textContent =
+                `${formatCount(
+                    readerState.pages.length
+                )} PAGES`;
+
+
+            for (
+                let index = 0;
+                index <
+                readerState.pages.length;
+                index++
+            ) {
+
+                const page =
+                    readerState.pages[
+                        index
+                    ];
+
+
+                const wrapper =
+                    makeElement(
+                        "div",
+                        "reader-continuous-page"
+                    );
+
+
+                const placeholder =
+                    makeElement(
+                        "div",
+                        "reader-page-placeholder",
+                        `PAGE ${formatCount(
+                            index +
+                            1
+                        )} // LOADING`
+                    );
+
+
+                wrapper.appendChild(
+                    placeholder
+                );
+
+
+                readerContinuous.appendChild(
+                    wrapper
+                );
+
+
+                fetchProtectedPage(
+                    page
+                )
+                    .then(
+                        source => {
+
+                            const image =
+                                document.createElement(
+                                    "img"
+                                );
+
+
+                            image.src =
+                                source;
+
+
+                            image.alt =
+                                `${readerTitle.textContent} — Page ${
+                                    index +
+                                    1
+                                }`;
+
+
+                            wrapper.replaceChildren(
+                                image
+                            );
+
+                        }
+                    )
+                    .catch(
+                        error => {
+
+                            placeholder.textContent =
+                                `PAGE ${formatCount(
+                                    index +
+                                    1
+                                )} // ${
+                                    error.message ||
+                                    "UNAVAILABLE"
+                                }`;
+
+                        }
+                    );
+
+            }
+
+
+            readerContinuous.scrollTop =
+                0;
+
+
+            hideReaderLoading();
+
+        }
+
+
+        // ========================================================
+        // READER MODE
+        // ========================================================
+
+        function syncReaderMode() {
+
+            const continuous =
+                readerState.mode ===
+                "continuous";
+
+
+            readerPaged.style.display =
+                continuous
+                    ? "none"
+                    : "flex";
+
+
+            readerContinuous.classList.toggle(
+                "active",
+                continuous
+            );
+
+
+            readerPrevious.style.display =
+                continuous
+                    ? "none"
+                    : "";
+
+
+            readerNext.style.display =
+                continuous
+                    ? "none"
+                    : "";
+
+
+            readerBottom.style.display =
+                continuous
+                    ? "none"
+                    : "";
+
+
+            readerFitPage.style.display =
+                continuous
+                    ? "none"
+                    : "";
+
+
+            readerFitWidth.style.display =
+                continuous
+                    ? "none"
+                    : "";
+
+
+            readerLayoutToggle.textContent =
+                continuous
+                    ? "PAGED"
+                    : "CONTINUOUS";
+
+        }
+
+
+        async function toggleReaderMode() {
+
+            if (
+                readerState.mode ===
+                "paged"
+            ) {
+
+                readerState.mode =
+                    "continuous";
+
+
+                syncReaderMode();
+
+
+                showReaderLoading(
+                    "Preparing continuous edition."
+                );
+
+
+                await buildContinuousReader();
+
+
+            } else {
+
+                readerState.mode =
+                    "paged";
+
+
+                syncReaderMode();
+
+
+                await showReaderPage(
+                    readerState.currentIndex
+                );
+
+            }
+
+        }
+
+
+        // ========================================================
+        // FIT MODE
+        // ========================================================
+
+        function setReaderFit(
+            fit
+        ) {
+
+            readerState.fit =
+                fit;
+
+
+            readerPageImage.classList.toggle(
+                "fit-page",
+                fit ===
+                    "page"
+            );
+
+
+            readerPageImage.classList.toggle(
+                "fit-width",
+                fit ===
+                    "width"
+            );
+
+
+            readerFitPage.classList.toggle(
+                "active",
+                fit ===
+                    "page"
+            );
+
+
+            readerFitWidth.classList.toggle(
+                "active",
+                fit ===
+                    "width"
+            );
+
+        }
+
+
+        // ========================================================
+        // READER LOADING / ERRORS
+        // ========================================================
+
+        function showReaderLoading(
+            text
+        ) {
+
+            readerLoadingText.textContent =
+                text ||
+                "Loading protected edition.";
+
+
+            readerError.classList.remove(
+                "active"
+            );
+
+
+            readerLoading.classList.add(
+                "active"
+            );
+
+        }
+
+
+        function hideReaderLoading() {
+
+            readerLoading.classList.remove(
+                "active"
+            );
+
+        }
+
+
+        function showReaderError(
+            message
+        ) {
+
+            hideReaderLoading();
+
+
+            readerErrorText.textContent =
+                message ||
+                "Hellbox could not load this edition.";
+
+
+            readerError.classList.add(
+                "active"
+            );
+
+        }
+
+
+        // ========================================================
+        // CLOSE READER
+        // ========================================================
+
+        function closeReader() {
+
+            if (
+                !readerState.open
+            ) {
+
+                return;
+
+            }
+
+
+            hellboxReader.classList.remove(
+                "active"
+            );
+
+
+            hellboxReader.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+
+            document.body.classList.remove(
+                "reader-open"
+            );
+
+
+            readerState.open =
+                false;
+
+
+            readerPageImage.removeAttribute(
+                "src"
+            );
+
+
+            readerError.classList.remove(
+                "active"
+            );
+
+
+            readerLoading.classList.remove(
+                "active"
+            );
+
+
+            clearElement(
+                readerContinuous
+            );
+
+
+            revokeReaderObjectUrls();
+
+
+            readerState.publication =
+                null;
+
+
+            readerState.manifest =
+                null;
+
+
+            readerState.pages =
+                [];
+
+
+            readerState.currentIndex =
+                0;
+
+        }
+
+
+        function revokeReaderObjectUrls() {
+
+            for (
+                const objectUrl
+                of readerState.objectUrls.values()
+            ) {
+
+                URL.revokeObjectURL(
+                    objectUrl
+                );
+
+            }
+
+
+            readerState.objectUrls.clear();
+
+
+            readerState.loadingAssets.clear();
+
+        }
+
+
+        function resetReaderState() {
+
+            revokeReaderObjectUrls();
+
+
+            readerState.publication =
+                null;
+
+
+            readerState.manifest =
+                null;
+
+
+            readerState.pages =
+                [];
+
+
+            readerState.currentIndex =
+                0;
+
+
+            readerState.mode =
+                "paged";
+
+
+            readerState.fit =
+                "page";
+
+
+            setReaderFit(
+                "page"
+            );
+
+
+            clearElement(
+                readerContinuous
+            );
+
+
+            readerPageImage.removeAttribute(
+                "src"
+            );
+
+
+            readerError.classList.remove(
+                "active"
+            );
+
+        }
+
+
+        // ========================================================
+        // READER EVENTS
+        // ========================================================
+
+        readerPrevious.onclick =
+            previousReaderPage;
+
+
+        readerPreviousBottom.onclick =
+            previousReaderPage;
+
+
+        readerNext.onclick =
+            nextReaderPage;
+
+
+        readerNextBottom.onclick =
+            nextReaderPage;
+
+
+        readerFirst.onclick =
+            () => {
+
+                if (
+                    readerState.mode ===
+                    "paged"
+                ) {
+
+                    showReaderPage(
+                        0
+                    );
+
+                }
+
+            };
+
+
+        readerLast.onclick =
+            () => {
+
+                if (
+                    readerState.mode ===
+                    "paged"
+                ) {
+
+                    showReaderPage(
+                        readerState.pages.length -
+                            1
+                    );
+
+                }
+
+            };
+
+
+        readerClose.onclick =
+            closeReader;
+
+
+        readerErrorClose.onclick =
+            closeReader;
+
+
+        readerFitPage.onclick =
+            () =>
+                setReaderFit(
+                    "page"
+                );
+
+
+        readerFitWidth.onclick =
+            () =>
+                setReaderFit(
+                    "width"
+                );
+
+
+        readerLayoutToggle.onclick =
+            toggleReaderMode;
+
+
+        document.addEventListener(
+            "keydown",
+            event => {
+
+                if (
+                    !readerState.open
+                ) {
+
+                    return;
+
+                }
+
+
+                if (
+                    event.key ===
+                    "Escape"
+                ) {
+
+                    closeReader();
+
+                    return;
+
+                }
+
+
+                if (
+                    readerState.mode !==
+                    "paged"
+                ) {
+
+                    return;
+
+                }
+
+
+                if (
+                    event.key ===
+                        "ArrowRight" ||
+                    event.key ===
+                        "PageDown"
+                ) {
+
+                    event.preventDefault();
+
+                    nextReaderPage();
+
+                }
+
+
+                if (
+                    event.key ===
+                        "ArrowLeft" ||
+                    event.key ===
+                        "PageUp"
+                ) {
+
+                    event.preventDefault();
+
+                    previousReaderPage();
+
+                }
+
+
+                if (
+                    event.key ===
+                    "Home"
+                ) {
+
+                    event.preventDefault();
+
+                    showReaderPage(
+                        0
+                    );
+
+                }
+
+
+                if (
+                    event.key ===
+                    "End"
+                ) {
+
+                    event.preventDefault();
+
+                    showReaderPage(
+                        readerState.pages.length -
+                            1
+                    );
+
+                }
+
+            }
+        );
+
+
+        readerPaged.addEventListener(
+            "touchstart",
+            event => {
+
+                if (
+                    event.touches.length !==
+                    1
+                ) {
+
+                    return;
+
+                }
+
+
+                readerState.touchStartX =
+                    event.touches[
+                        0
+                    ].clientX;
+
+
+                readerState.touchStartY =
+                    event.touches[
+                        0
+                    ].clientY;
+
+            },
+            {
+                passive:
+                    true
+            }
+        );
+
+
+        readerPaged.addEventListener(
+            "touchend",
+            event => {
+
+                if (
+                    readerState.touchStartX ===
+                        null ||
+                    readerState.touchStartY ===
+                        null ||
+                    !event.changedTouches.length
+                ) {
+
+                    return;
+
+                }
+
+
+                const endX =
+                    event.changedTouches[
+                        0
+                    ].clientX;
+
+
+                const endY =
+                    event.changedTouches[
+                        0
+                    ].clientY;
+
+
+                const deltaX =
+                    endX -
+                    readerState.touchStartX;
+
+
+                const deltaY =
+                    endY -
+                    readerState.touchStartY;
+
+
+                readerState.touchStartX =
+                    null;
+
+
+                readerState.touchStartY =
+                    null;
+
+
+                if (
+                    Math.abs(
+                        deltaX
+                    ) <
+                    50
+                ) {
+
+                    return;
+
+                }
+
+
+                if (
+                    Math.abs(
+                        deltaX
+                    ) <
+                    Math.abs(
+                        deltaY
+                    )
+                ) {
+
+                    return;
+
+                }
+
+
+                if (
+                    deltaX <
+                    0
+                ) {
+
+                    nextReaderPage();
+
+                } else {
+
+                    previousReaderPage();
+
+                }
+
+            },
+            {
+                passive:
+                    true
+            }
+        );
+
+
+        // ========================================================
+        // COLLECTION UI
         // ========================================================
 
         function updateHeaderWallet() {
@@ -4342,10 +6184,6 @@
         }
 
 
-        // ========================================================
-        // DISCONNECTED UI
-        // ========================================================
-
         function renderDisconnected() {
 
             walletStatus =
@@ -4392,23 +6230,12 @@
                 "CONNECT WALLET // INSPECT COLLECTION";
 
 
-            setStats(
-                {
-
-                    known:
-                        0,
-
-                    owned:
-                        0,
-
-                    missing:
-                        0,
-
-                    evolved:
-                        0
-
-                }
-            );
+            setStats({
+                known: 0,
+                owned: 0,
+                missing: 0,
+                evolved: 0
+            });
 
 
             seriesControl.hidden =
@@ -4434,10 +6261,6 @@
         }
 
 
-        // ========================================================
-        // WRONG NETWORK UI
-        // ========================================================
-
         function renderWrongNetwork() {
 
             walletStatus =
@@ -4445,6 +6268,15 @@
 
 
             clearReaderSession();
+
+
+            if (
+                readerState.open
+            ) {
+
+                closeReader();
+
+            }
 
 
             collectionWallet.textContent =
@@ -4494,32 +6326,21 @@
                 "SWITCH TO PULSECHAIN";
 
 
-            setStats(
-                {
+            setStats({
+                known: 0,
+                owned: 0,
+                missing: 0,
+                evolved: 0
+            });
 
-                    known:
-                        0,
 
-                    owned:
-                        0,
-
-                    missing:
-                        0,
-
-                    evolved:
-                        0
-
-                }
-            );
+            seriesControl.hidden =
+                true;
 
 
             clearElement(
                 collectionList
             );
-
-
-            seriesControl.hidden =
-                true;
 
 
             collectionStatus.textContent =
@@ -4530,10 +6351,6 @@
 
         }
 
-
-        // ========================================================
-        // LOADING UI
-        // ========================================================
 
         function renderLoading() {
 
@@ -4572,10 +6389,6 @@
 
         }
 
-
-        // ========================================================
-        // ERROR UI
-        // ========================================================
 
         function renderWalletError(
             title,
@@ -4624,23 +6437,16 @@
                     : connectWallet;
 
 
-            setStats(
-                {
+            setStats({
+                known: 0,
+                owned: 0,
+                missing: 0,
+                evolved: 0
+            });
 
-                    known:
-                        0,
 
-                    owned:
-                        0,
-
-                    missing:
-                        0,
-
-                    evolved:
-                        0
-
-                }
-            );
+            seriesControl.hidden =
+                true;
 
 
             clearElement(
@@ -4648,19 +6454,11 @@
             );
 
 
-            seriesControl.hidden =
-                true;
-
-
             collectionStatus.textContent =
                 "ARCHIVE CONNECTION INTERRUPTED.";
 
         }
 
-
-        // ========================================================
-        // WALLET COLLECTION RENDERER
-        // ========================================================
 
         function renderWalletCollection(
             data
@@ -4675,17 +6473,10 @@
                 collection.stats ||
                 {
 
-                    known:
-                        0,
-
-                    owned:
-                        0,
-
-                    missing:
-                        0,
-
-                    evolved:
-                        0
+                    known: 0,
+                    owned: 0,
+                    missing: 0,
+                    evolved: 0
 
                 };
 
@@ -4699,10 +6490,8 @@
 
 
             collectionWallet.textContent =
-                (
-                    data.wallet &&
-                    data.wallet.addressDisplay
-                )
+                data.wallet &&
+                data.wallet.addressDisplay
                     ? data.wallet.addressDisplay.toUpperCase()
                     : shortAddress(
                         connectedWallet
@@ -4780,10 +6569,6 @@
         }
 
 
-        // ========================================================
-        // EMPTY ARCHIVE
-        // ========================================================
-
         function renderEmptyArchive() {
 
             terminalTitle.textContent =
@@ -4822,10 +6607,6 @@
         }
 
 
-        // ========================================================
-        // STATS
-        // ========================================================
-
         function setStats(
             stats
         ) {
@@ -4855,10 +6636,6 @@
 
         }
 
-
-        // ========================================================
-        // SERIES TABS
-        // ========================================================
 
         function renderSeriesTabs(
             series
@@ -4943,8 +6720,7 @@
                 ).toUpperCase();
 
 
-            button.addEventListener(
-                "click",
+            button.onclick =
                 () => {
 
                     selectedSeries =
@@ -4958,8 +6734,7 @@
                         walletStatus.collection.series
                     );
 
-                }
-            );
+                };
 
 
             return button;
@@ -4987,10 +6762,6 @@
 
         }
 
-
-        // ========================================================
-        // SERIES
-        // ========================================================
 
         function renderSeries(
             series
@@ -5110,10 +6881,6 @@
 
         }
 
-
-        // ========================================================
-        // EDITION
-        // ========================================================
 
         function renderEdition(
             edition,
@@ -5240,17 +7007,12 @@
                     "OPEN EDITION";
 
 
-                button.addEventListener(
-                    "click",
-                    () => {
-
+                button.onclick =
+                    () =>
                         openEdition(
                             edition,
                             button
                         );
-
-                    }
-                );
 
 
             } else if (
@@ -5301,11 +7063,10 @@
 
 
         // ========================================================
-        // WALLET BUTTON
+        // HEADER BUTTON
         // ========================================================
 
-        walletButton.addEventListener(
-            "click",
+        walletButton.onclick =
             async () => {
 
                 if (
@@ -5346,8 +7107,7 @@
                         }
                     );
 
-            }
-        );
+            };
 
 
         terminalAction.onclick =
@@ -5370,11 +7130,17 @@
 
 
                     if (
-                        !Array.isArray(
-                            accounts
-                        ) ||
-                        accounts.length ===
-                            0
+                        readerState.open
+                    ) {
+
+                        closeReader();
+
+                    }
+
+
+                    if (
+                        !accounts ||
+                        !accounts.length
                     ) {
 
                         connectedWallet =
@@ -5438,6 +7204,15 @@
                     clearReaderSession();
 
 
+                    if (
+                        readerState.open
+                    ) {
+
+                        closeReader();
+
+                    }
+
+
                     connectedChainId =
                         chainId;
 
@@ -5447,10 +7222,6 @@
                     ) {
 
                         renderDisconnected();
-
-
-                        await loadPress();
-
 
                         return;
 
