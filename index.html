@@ -87,7 +87,7 @@
 
 
     <!-- =========================================================
-         HARROW INTERRUPT
+         GLOBAL HARROW LAYER
     ========================================================== -->
 
     <div
@@ -96,8 +96,173 @@
         aria-live="polite"
         aria-hidden="true"
     >
-        <span>HARROW:</span>
+
+        <span>
+            HARROW:
+        </span>
+
         <strong id="harrowWhisperText"></strong>
+
+    </div>
+
+
+    <!-- =========================================================
+         DISCOVERY COUNTER
+    ========================================================== -->
+
+    <div
+        class="discovery-counter"
+        id="discoveryCounter"
+        aria-label="Unknown discovery counter"
+    >
+
+        <span>
+            ?
+        </span>
+
+        <strong id="discoveryCount">
+            00
+        </strong>
+
+    </div>
+
+
+    <!-- =========================================================
+         HARROW BUTTON
+    ========================================================== -->
+
+    <button
+        class="harrow-orb"
+        id="harrowOrb"
+        type="button"
+        aria-label="Harrow"
+    >
+
+        <img
+            src="https://cdn.hellboxcomics.com/assets/brand/harrow/emblems/improved-harrow-emblem.PNG"
+            alt=""
+        >
+
+        <span class="harrow-orb-ping"></span>
+
+    </button>
+
+
+    <!-- =========================================================
+         HARROW RESPONSE PANEL
+    ========================================================== -->
+
+    <aside
+        class="harrow-response"
+        id="harrowResponse"
+        aria-hidden="true"
+    >
+
+        <div class="harrow-response-top">
+
+            <span>
+                HARROW
+            </span>
+
+            <button
+                type="button"
+                id="harrowResponseClose"
+                aria-label="Close Harrow response"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="harrow-response-body">
+
+            <img
+                src="https://cdn.hellboxcomics.com/assets/brand/harrow/emblems/improved-harrow-pfp.PNG"
+                alt=""
+            >
+
+            <div>
+
+                <strong id="harrowResponseTitle">
+                    WHAT?
+                </strong>
+
+                <p id="harrowResponseText">
+                    You clicked me.
+                </p>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =========================================================
+         OBJECT / LORE DRAWER
+    ========================================================== -->
+
+    <div
+        class="lair-drawer"
+        id="lairDrawer"
+        aria-hidden="true"
+    >
+
+        <button
+            class="lair-drawer-backdrop"
+            id="lairDrawerBackdrop"
+            type="button"
+            aria-label="Close"
+        ></button>
+
+
+        <article class="lair-drawer-panel">
+
+            <div class="lair-drawer-header">
+
+                <span id="drawerCode">
+                    OBJECT // UNKNOWN
+                </span>
+
+                <button
+                    type="button"
+                    id="lairDrawerClose"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="lair-drawer-content">
+
+                <span
+                    class="eyebrow"
+                    id="drawerEyebrow"
+                >
+                    HARROW // NOTE
+                </span>
+
+                <h2 id="drawerTitle">
+                    DON'T TOUCH THAT.
+                </h2>
+
+                <div
+                    class="drawer-copy"
+                    id="drawerCopy"
+                ></div>
+
+                <div
+                    class="drawer-footnote"
+                    id="drawerFootnote"
+                ></div>
+
+            </div>
+
+        </article>
+
     </div>
 
 
@@ -186,6 +351,7 @@
         <section
             class="hero"
             id="top"
+            data-zone="hero"
         >
 
             <div class="hero-art" aria-hidden="true">
@@ -201,6 +367,84 @@
             <div class="hero-blackout"></div>
 
 
+            <!-- ===============================================
+                 HERO INTERACTION HOTSPOTS
+
+                 These are deliberately positioned over areas
+                 already present in hellbox-hero.PNG.
+                 CSS pass will make them subtle.
+            ================================================ -->
+
+            <button
+                class="lair-hotspot hotspot-cabal"
+                type="button"
+                data-hotspot="cabal"
+                aria-label="Inspect Harrow's Cabal board"
+            >
+
+                <span>
+                    +
+                </span>
+
+            </button>
+
+
+            <button
+                class="lair-hotspot hotspot-monitor"
+                type="button"
+                data-hotspot="monitor"
+                aria-label="Inspect PulseChain monitor"
+            >
+
+                <span>
+                    +
+                </span>
+
+            </button>
+
+
+            <button
+                class="lair-hotspot hotspot-harrow"
+                type="button"
+                data-hotspot="harrow"
+                aria-label="Bother Harrow"
+            >
+
+                <span>
+                    +
+                </span>
+
+            </button>
+
+
+            <button
+                class="lair-hotspot hotspot-pages"
+                type="button"
+                data-hotspot="pages"
+                aria-label="Inspect comic pages"
+            >
+
+                <span>
+                    +
+                </span>
+
+            </button>
+
+
+            <button
+                class="lair-hotspot hotspot-redacted"
+                type="button"
+                data-hotspot="redacted"
+                aria-label="Inspect redacted folder"
+            >
+
+                <span>
+                    +
+                </span>
+
+            </button>
+
+
             <div class="hero-meta">
 
                 <span>
@@ -211,7 +455,7 @@
                     LOCATION // NONE OF YOUR BUSINESS
                 </span>
 
-                <span>
+                <span id="heroMetaHarrow">
                     HARROW // BUSY
                 </span>
 
@@ -222,11 +466,20 @@
 
                 <div class="hero-brand">
 
-                    <img
-                        src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-banner-main.PNG"
-                        alt="Hellbox Comics"
-                        class="hero-wordmark"
+                    <button
+                        class="hero-logo-button"
+                        id="heroLogoButton"
+                        type="button"
+                        aria-label="Hellbox Comics"
                     >
+
+                        <img
+                            src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-banner-main.PNG"
+                            alt="Hellbox Comics"
+                            class="hero-wordmark"
+                        >
+
+                    </button>
 
                 </div>
 
@@ -336,6 +589,7 @@
         <section
             class="manifesto-section"
             id="box"
+            data-zone="box"
         >
 
             <div class="section-shell">
@@ -387,7 +641,11 @@
                         </p>
 
 
-                        <div class="admin-note">
+                        <button
+                            class="admin-note interactive-note"
+                            id="therapyNote"
+                            type="button"
+                        >
 
                             <div class="admin-note-top">
                                 HARROW // MEDICAL OPINION
@@ -406,7 +664,7 @@
                                 alt=""
                             >
 
-                        </div>
+                        </button>
 
                     </div>
 
@@ -434,6 +692,7 @@
         <section
             class="archive-section"
             id="archive"
+            data-zone="archive"
         >
 
             <div class="archive-radiation"></div>
@@ -523,14 +782,19 @@
                     <div class="terminal-main">
 
 
-                        <div class="terminal-emblem">
+                        <button
+                            class="terminal-emblem"
+                            id="archiveEmblem"
+                            type="button"
+                            aria-label="Hellbox archive emblem"
+                        >
 
                             <img
                                 src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem-improved.PNG"
                                 alt=""
                             >
 
-                        </div>
+                        </button>
 
 
                         <div class="terminal-copy">
@@ -558,7 +822,11 @@
                         </div>
 
 
-                        <div class="harrow-sticky-note">
+                        <button
+                            class="harrow-sticky-note"
+                            id="archiveSticky"
+                            type="button"
+                        >
 
                             <span>
                                 NOTE:
@@ -573,7 +841,7 @@
                                 alt=""
                             >
 
-                        </div>
+                        </button>
 
                     </div>
 
@@ -655,12 +923,13 @@
 
 
         <!-- =====================================================
-             04 // HOLD ON, LOOK AT THIS
+             04 // THEORY WALL
         ====================================================== -->
 
         <section
             class="evidence-section"
             id="evidence"
+            data-zone="theory"
         >
 
             <div class="section-shell">
@@ -678,12 +947,31 @@
                             I HAVE A THEORY
                         </span>
 
-                        <h2>
+                        <h2 class="theory-heading">
+
                             I HAVE
+
+                            <span
+                                class="vandalized-word"
+                                id="theorySingular"
+                            >
+                                A
+                            </span>
+
                             <em>
-                                A THEORY.
+                                THEORY.
                             </em>
+
                         </h2>
+
+
+                        <span
+                            class="vandalism vandalism-theories"
+                            id="theoryCorrection"
+                            aria-hidden="true"
+                        >
+                            47*
+                        </span>
 
                     </div>
 
@@ -706,7 +994,11 @@
                 <div class="evidence-board">
 
 
-                    <article class="case-file case-rh">
+                    <button
+                        class="case-file case-rh"
+                        type="button"
+                        data-theory="richard"
+                    >
 
                         <span>
                             RICHARD HEART
@@ -725,10 +1017,14 @@
                             I HAVE NOTES.
                         </small>
 
-                    </article>
+                    </button>
 
 
-                    <article class="case-file case-sec">
+                    <button
+                        class="case-file case-sec"
+                        type="button"
+                        data-theory="sec"
+                    >
 
                         <span>
                             THE SEC
@@ -746,10 +1042,14 @@
                             ALLEGEDLY HUMORLESS.
                         </small>
 
-                    </article>
+                    </button>
 
 
-                    <article class="case-file case-cabal">
+                    <button
+                        class="case-file case-cabal"
+                        type="button"
+                        data-theory="cabal"
+                    >
 
                         <span>
                             THE CABAL
@@ -768,10 +1068,14 @@
                             DIAGRAM INCOMPLETE.
                         </small>
 
-                    </article>
+                    </button>
 
 
-                    <article class="case-file case-interpol">
+                    <button
+                        class="case-file case-interpol"
+                        type="button"
+                        data-theory="interpol"
+                    >
 
                         <span>
                             INTERPOL
@@ -789,10 +1093,14 @@
                             MOSTLY.
                         </small>
 
-                    </article>
+                    </button>
 
 
-                    <article class="case-file case-degen">
+                    <button
+                        class="case-file case-degen"
+                        type="button"
+                        data-theory="you"
+                    >
 
                         <span>
                             YOU
@@ -810,10 +1118,14 @@
                             VERY INTERESTING.
                         </small>
 
-                    </article>
+                    </button>
 
 
-                    <article class="case-file case-harrow">
+                    <button
+                        class="case-file case-harrow"
+                        type="button"
+                        data-theory="harrow"
+                    >
 
                         <span>
                             HARROW
@@ -831,7 +1143,7 @@
                             CITATION // HARROW
                         </small>
 
-                    </article>
+                    </button>
 
 
                     <div class="evidence-string evidence-string-a"></div>
@@ -840,14 +1152,19 @@
                     <div class="evidence-string evidence-string-d"></div>
 
 
-                    <div class="evidence-center-mark">
+                    <button
+                        class="evidence-center-mark"
+                        id="theoryCenter"
+                        type="button"
+                        aria-label="Inspect Harrow's theory"
+                    >
 
                         <img
                             src="https://cdn.hellboxcomics.com/assets/brand/harrow/emblems/improved-harrow-emblem.PNG"
                             alt=""
                         >
 
-                    </div>
+                    </button>
 
 
                     <div class="evidence-handwriting">
@@ -939,12 +1256,13 @@
 
 
         <!-- =====================================================
-             05 // DON'T TOUCH THAT
+             05 // PRESS / PRODUCTION
         ====================================================== -->
 
         <section
             class="press-section"
             id="press"
+            data-zone="press"
         >
 
             <div class="press-glow"></div>
@@ -985,10 +1303,32 @@
                                 So never.
                             </p>
 
+
+                            <button
+                                class="press-object-link"
+                                id="roadmapObject"
+                                type="button"
+                            >
+                                WHAT I'M DOING NEXT →
+                            </button>
+
+
+                            <button
+                                class="press-object-link"
+                                id="manualObject"
+                                type="button"
+                            >
+                                THE MANUAL →
+                            </button>
+
                         </div>
 
 
-                        <div class="press-machine">
+                        <button
+                            class="press-machine"
+                            id="pressMachine"
+                            type="button"
+                        >
 
                             <img
                                 src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem-improved.PNG"
@@ -1007,7 +1347,7 @@
                                 STOP CHECKING.
                             </small>
 
-                        </div>
+                        </button>
 
                     </div>
 
@@ -1019,12 +1359,13 @@
 
 
         <!-- =====================================================
-             06 // FINALLY
+             06 // HARROW
         ====================================================== -->
 
         <section
             class="harrow-section"
             id="harrow"
+            data-zone="harrow"
         >
 
             <div class="harrow-background-word">
@@ -1044,7 +1385,11 @@
 
                     <div class="harrow-art-column">
 
-                        <div class="harrow-art-frame">
+                        <button
+                            class="harrow-art-frame"
+                            id="harrowPortrait"
+                            type="button"
+                        >
 
                             <img
                                 src="https://cdn.hellboxcomics.com/assets/brand/harrow/art/harrow-concept.PNG"
@@ -1065,10 +1410,14 @@
 
                             </div>
 
-                        </div>
+                        </button>
 
 
-                        <div class="harrow-profile-card">
+                        <button
+                            class="harrow-profile-card"
+                            id="harrowProfileCard"
+                            type="button"
+                        >
 
                             <img
                                 src="https://cdn.hellboxcomics.com/assets/brand/harrow/emblems/improved-harrow-pfp.PNG"
@@ -1091,7 +1440,7 @@
 
                             </div>
 
-                        </div>
+                        </button>
 
                     </div>
 
@@ -1112,11 +1461,19 @@
                         </div>
 
 
-                        <img
-                            src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-new-wordmark-white.PNG"
-                            alt="Harrow"
-                            class="harrow-wordmark"
+                        <button
+                            class="harrow-wordmark-button"
+                            id="harrowWordmark"
+                            type="button"
                         >
+
+                            <img
+                                src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-new-wordmark-white.PNG"
+                                alt="Harrow"
+                                class="harrow-wordmark"
+                            >
+
+                        </button>
 
 
                         <div class="harrow-role-list">
@@ -1211,7 +1568,11 @@
                         </div>
 
 
-                        <div class="self-review">
+                        <button
+                            class="self-review"
+                            id="selfReview"
+                            type="button"
+                        >
 
                             <span>
                                 COMPLETELY INDEPENDENT PERFORMANCE REVIEW
@@ -1226,7 +1587,7 @@
                                 REVIEWED BY // A PANEL OF HARROW
                             </small>
 
-                        </div>
+                        </button>
 
 
                         <div class="harrow-love-note">
@@ -1287,6 +1648,7 @@
         <section
             class="signals-section"
             id="signals"
+            data-zone="signals"
         >
 
             <div class="section-shell">
@@ -1398,7 +1760,11 @@
                     </a>
 
 
-                    <div class="signal-card signal-locked">
+                    <button
+                        class="signal-card signal-locked"
+                        id="lockedSignal"
+                        type="button"
+                    >
 
                         <span>
                             ███████
@@ -1412,7 +1778,7 @@
                             YOU DON'T NEED THIS YET.
                         </small>
 
-                    </div>
+                    </button>
 
                 </div>
 
@@ -1422,10 +1788,13 @@
 
 
         <!-- =====================================================
-             08 // I'M NOT TELLING YOU
+             08 // CLASSIFIED OBJECTS
         ====================================================== -->
 
-        <section class="classified-section">
+        <section
+            class="classified-section"
+            data-zone="classified"
+        >
 
             <div class="section-shell">
 
@@ -1467,10 +1836,40 @@
 
                         </div>
 
+
+                        <div class="classified-object-list">
+
+                            <button
+                                type="button"
+                                data-classified-object="fuel"
+                            >
+                                FUEL SOURCE // ███████
+                            </button>
+
+                            <button
+                                type="button"
+                                data-classified-object="relay"
+                            >
+                                REMOTE RELAY // OFFLINE
+                            </button>
+
+                            <button
+                                type="button"
+                                data-classified-object="machine"
+                            >
+                                MACHINE // NO INPUT
+                            </button>
+
+                        </div>
+
                     </div>
 
 
-                    <div class="classified-object">
+                    <button
+                        class="classified-object"
+                        id="classifiedMainObject"
+                        type="button"
+                    >
 
                         <div class="classified-orbit orbit-one"></div>
                         <div class="classified-orbit orbit-two"></div>
@@ -1488,7 +1887,7 @@
                             YET.
                         </strong>
 
-                    </div>
+                    </button>
 
                 </div>
 
@@ -1501,7 +1900,10 @@
              09 // THAT'S IT
         ====================================================== -->
 
-        <section class="exit-section">
+        <section
+            class="exit-section"
+            data-zone="exit"
+        >
 
             <div class="exit-background">
                 GO
@@ -1531,7 +1933,10 @@
                         START OVER
                     </a>
 
-                    <small class="exit-afterthought">
+                    <small
+                        class="exit-afterthought"
+                        id="exitAfterthought"
+                    >
                         you'll be back.
                     </small>
 
@@ -1548,7 +1953,10 @@
          FOOTER
     ========================================================== -->
 
-    <footer class="site-footer">
+    <footer
+        class="site-footer"
+        data-zone="footer"
+    >
 
         <div class="footer-status">
 
@@ -1925,6 +2333,9 @@
         const SESSION_EXPIRY_KEY =
             "hellbox_reader_expiry";
 
+        const LAIR_STATE_KEY =
+            "hellbox_lair_state_v1";
+
 
         let connectedWallet =
             null;
@@ -1959,6 +2370,15 @@
         let readerSessionExpiry =
             null;
 
+        let currentZone =
+            "hero";
+
+        let whisperTimer =
+            null;
+
+        let responseTimer =
+            null;
+
 
         const readerState = {
 
@@ -1990,6 +2410,41 @@
                 new Map()
 
         };
+
+
+        const defaultLairState = {
+
+            discoveries:
+                [],
+
+            clicks: {},
+
+            theoriesOpened:
+                [],
+
+            hotspotsOpened:
+                [],
+
+            walletSeen:
+                false,
+
+            orbClicks:
+                0,
+
+            logoClicks:
+                0,
+
+            pressClicks:
+                0,
+
+            classifiedClicks:
+                0
+
+        };
+
+
+        let lairState =
+            loadLairState();
 
 
         const $ =
@@ -2052,6 +2507,39 @@
 
         const harrowWhisperText =
             $("harrowWhisperText");
+
+        const harrowOrb =
+            $("harrowOrb");
+
+        const harrowResponse =
+            $("harrowResponse");
+
+        const harrowResponseTitle =
+            $("harrowResponseTitle");
+
+        const harrowResponseText =
+            $("harrowResponseText");
+
+        const discoveryCount =
+            $("discoveryCount");
+
+        const lairDrawer =
+            $("lairDrawer");
+
+        const drawerCode =
+            $("drawerCode");
+
+        const drawerEyebrow =
+            $("drawerEyebrow");
+
+        const drawerTitle =
+            $("drawerTitle");
+
+        const drawerCopy =
+            $("drawerCopy");
+
+        const drawerFootnote =
+            $("drawerFootnote");
 
 
         const hellboxReader =
@@ -2124,6 +2612,124 @@
             $("readerErrorText");
 
 
+        /* ======================================================
+           LAIR STATE
+        ====================================================== */
+
+        function loadLairState() {
+
+            try {
+
+                const stored =
+                    sessionStorage.getItem(
+                        LAIR_STATE_KEY
+                    );
+
+
+                if (!stored) {
+
+                    return structuredClone(
+                        defaultLairState
+                    );
+
+                }
+
+
+                return {
+                    ...structuredClone(
+                        defaultLairState
+                    ),
+                    ...JSON.parse(
+                        stored
+                    )
+                };
+
+
+            } catch {
+
+                return structuredClone(
+                    defaultLairState
+                );
+
+            }
+
+        }
+
+
+        function saveLairState() {
+
+            sessionStorage.setItem(
+                LAIR_STATE_KEY,
+                JSON.stringify(
+                    lairState
+                )
+            );
+
+
+            updateDiscoveryCounter();
+
+        }
+
+
+        function incrementInteraction(
+            key
+        ) {
+
+            lairState.clicks[key] =
+                Number(
+                    lairState.clicks[key] ||
+                    0
+                ) +
+                1;
+
+
+            saveLairState();
+
+
+            return lairState.clicks[key];
+
+        }
+
+
+        function discover(
+            key
+        ) {
+
+            if (
+                !lairState.discoveries.includes(
+                    key
+                )
+            ) {
+
+                lairState.discoveries.push(
+                    key
+                );
+
+
+                saveLairState();
+
+            }
+
+        }
+
+
+        function updateDiscoveryCounter() {
+
+            discoveryCount.textContent =
+                String(
+                    lairState.discoveries.length
+                ).padStart(
+                    2,
+                    "0"
+                );
+
+        }
+
+
+        /* ======================================================
+           GENERAL HELPERS
+        ====================================================== */
+
         function hasWalletProvider() {
 
             return Boolean(
@@ -2140,7 +2746,9 @@
         ) {
 
             return address
-                ? String(address).toLowerCase()
+                ? String(
+                    address
+                ).toLowerCase()
                 : null;
 
         }
@@ -2161,7 +2769,8 @@
 
 
             if (
-                typeof value === "number"
+                typeof value ===
+                    "number"
             ) {
 
                 return value;
@@ -2170,12 +2779,16 @@
 
 
             const text =
-                String(value).trim();
+                String(
+                    value
+                ).trim();
 
 
             return text
                 .toLowerCase()
-                .startsWith("0x")
+                .startsWith(
+                    "0x"
+                )
                     ? parseInt(
                         text,
                         16
@@ -2192,7 +2805,8 @@
 
             return normalizeChainId(
                 connectedChainId
-            ) === HELLBOX.chainIdDecimal;
+            ) ===
+                HELLBOX.chainIdDecimal;
 
         }
 
@@ -2309,80 +2923,12 @@
 
 
         /* ======================================================
-           HARROW INTERRUPTS
+           HARROW SPEECH
         ====================================================== */
 
-        const SCROLL_WHISPERS = [
-
-            {
-                threshold:
-                    0.16,
-
-                message:
-                    "forgot you were there."
-            },
-
-            {
-                threshold:
-                    0.31,
-
-                message:
-                    "wait. this part's good."
-            },
-
-            {
-                threshold:
-                    0.47,
-
-                message:
-                    "no, look at the red string."
-            },
-
-            {
-                threshold:
-                    0.61,
-
-                message:
-                    "I had a point."
-            },
-
-            {
-                threshold:
-                    0.73,
-
-                message:
-                    "oh right. me."
-            },
-
-            {
-                threshold:
-                    0.86,
-
-                message:
-                    "still here?"
-            },
-
-            {
-                threshold:
-                    0.94,
-
-                message:
-                    "fascinating."
-            }
-
-        ];
-
-
-        const shownWhispers =
-            new Set();
-
-
-        let whisperTimer =
-            null;
-
-
         function showHarrowWhisper(
-            message
+            message,
+            duration = 2800
         ) {
 
             if (
@@ -2430,10 +2976,433 @@
                         );
 
                     },
-                    3200
+                    duration
                 );
 
         }
+
+
+        function showHarrowResponse(
+            title,
+            text
+        ) {
+
+            harrowResponseTitle.textContent =
+                title;
+
+
+            harrowResponseText.textContent =
+                text;
+
+
+            harrowResponse.classList.add(
+                "active"
+            );
+
+
+            harrowResponse.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+
+            clearTimeout(
+                responseTimer
+            );
+
+
+            responseTimer =
+                setTimeout(
+                    closeHarrowResponse,
+                    7000
+                );
+
+        }
+
+
+        function closeHarrowResponse() {
+
+            harrowResponse.classList.remove(
+                "active"
+            );
+
+
+            harrowResponse.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+        }
+
+
+        /* ======================================================
+           DRAWER
+        ====================================================== */
+
+        function openDrawer({
+            code,
+            eyebrow,
+            title,
+            html,
+            footnote
+        }) {
+
+            drawerCode.textContent =
+                code;
+
+
+            drawerEyebrow.textContent =
+                eyebrow;
+
+
+            drawerTitle.textContent =
+                title;
+
+
+            drawerCopy.innerHTML =
+                html;
+
+
+            drawerFootnote.textContent =
+                footnote ||
+                "";
+
+
+            lairDrawer.classList.add(
+                "active"
+            );
+
+
+            lairDrawer.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+
+            document.body.classList.add(
+                "drawer-open"
+            );
+
+        }
+
+
+        function closeDrawer() {
+
+            lairDrawer.classList.remove(
+                "active"
+            );
+
+
+            lairDrawer.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+
+            document.body.classList.remove(
+                "drawer-open"
+            );
+
+        }
+
+
+        /* ======================================================
+           CONTEXTUAL HARROW
+        ====================================================== */
+
+        const HARROW_ZONE_LINES = {
+
+            hero: [
+                [
+                    "WHAT?",
+                    "You interrupted me."
+                ],
+
+                [
+                    "YES?",
+                    "The giant picture wasn't enough?"
+                ],
+
+                [
+                    "I'M BUSY.",
+                    "This comic isn't going to become offensive by itself."
+                ]
+            ],
+
+            box: [
+                [
+                    "THE PROBLEM?",
+                    "You're standing in it."
+                ],
+
+                [
+                    "DON'T WORRY.",
+                    "I've made considerably worse decisions."
+                ]
+            ],
+
+            archive: [
+                [
+                    "YOUR WALLET.",
+                    connectedWallet
+                        ? `${shortAddress(
+                            connectedWallet
+                        )}. Yes, I can see it.`
+                        : "You haven't shown me anything yet."
+                ],
+
+                [
+                    "BAGS?",
+                    "Everybody has them. Some are just heavier."
+                ]
+            ],
+
+            theory: [
+                [
+                    "I'M BUSY.",
+                    "The string isn't going to connect itself."
+                ],
+
+                [
+                    "NO.",
+                    "I will not explain the entire board."
+                ],
+
+                [
+                    "LOOK.",
+                    "If you stare long enough, eventually everything becomes evidence."
+                ]
+            ],
+
+            press: [
+                [
+                    "STOP ASKING.",
+                    "You'll get it when it's done."
+                ],
+
+                [
+                    "THE PRESS?",
+                    "Currently producing nothing at industrial scale."
+                ]
+            ],
+
+            harrow: [
+                [
+                    "YES?",
+                    "You have excellent instincts."
+                ],
+
+                [
+                    "FINALLY.",
+                    "A section with proper editorial priorities."
+                ],
+
+                [
+                    "I KNOW.",
+                    "The photo is excellent."
+                ]
+            ],
+
+            signals: [
+                [
+                    "SOCIAL MEDIA?",
+                    "A terrible invention. I use it constantly."
+                ]
+            ],
+
+            classified: [
+                [
+                    "NO.",
+                    "Absolutely not."
+                ],
+
+                [
+                    "STOP.",
+                    "You're becoming predictable."
+                ]
+            ],
+
+            exit: [
+                [
+                    "WHAT NOW?",
+                    "Didn't I tell you to leave?"
+                ]
+            ],
+
+            footer: [
+                [
+                    "YOU'RE STILL HERE?",
+                    "Fascinating."
+                ]
+            ]
+
+        };
+
+
+        function contextualHarrow() {
+
+            const options =
+                HARROW_ZONE_LINES[
+                    currentZone
+                ] ||
+                HARROW_ZONE_LINES.hero;
+
+
+            const item =
+                options[
+                    Math.floor(
+                        Math.random() *
+                        options.length
+                    )
+                ];
+
+
+            showHarrowResponse(
+                item[0],
+                item[1]
+            );
+
+        }
+
+
+        /* ======================================================
+           SCROLL OBSERVER
+        ====================================================== */
+
+        const zoneObserver =
+            new IntersectionObserver(
+                entries => {
+
+                    entries.forEach(
+                        entry => {
+
+                            if (
+                                entry.isIntersecting &&
+                                entry.intersectionRatio >=
+                                    0.34
+                            ) {
+
+                                currentZone =
+                                    entry.target.dataset.zone;
+
+                            }
+
+                        }
+                    );
+
+                },
+                {
+                    threshold: [
+                        0.34,
+                        0.55
+                    ]
+                }
+            );
+
+
+        document
+            .querySelectorAll(
+                "[data-zone]"
+            )
+            .forEach(
+                element =>
+                    zoneObserver.observe(
+                        element
+                    )
+            );
+
+
+        /* ======================================================
+           SCROLL INTERRUPTS
+        ====================================================== */
+
+        const SCROLL_WHISPERS = [
+
+            {
+                threshold:
+                    0.15,
+
+                key:
+                    "scroll-15",
+
+                message:
+                    "forgot you were there."
+            },
+
+            {
+                threshold:
+                    0.30,
+
+                key:
+                    "scroll-30",
+
+                message:
+                    "wait. this part's good."
+            },
+
+            {
+                threshold:
+                    0.46,
+
+                key:
+                    "scroll-46",
+
+                message:
+                    "no, look at the string."
+            },
+
+            {
+                threshold:
+                    0.60,
+
+                key:
+                    "scroll-60",
+
+                message:
+                    "I had a point."
+            },
+
+            {
+                threshold:
+                    0.72,
+
+                key:
+                    "scroll-72",
+
+                message:
+                    "oh right. me."
+            },
+
+            {
+                threshold:
+                    0.86,
+
+                key:
+                    "scroll-86",
+
+                message:
+                    "still here?"
+            },
+
+            {
+                threshold:
+                    0.94,
+
+                key:
+                    "scroll-94",
+
+                message:
+                    lairState.discoveries.length >=
+                        4
+                        ? "you've been touching things."
+                        : "fascinating."
+            }
+
+        ];
+
+
+        const shownWhispers =
+            new Set();
 
 
         function checkScrollWhispers() {
@@ -2445,7 +3414,7 @@
 
             if (
                 scrollable <=
-                0
+                    0
             ) {
 
                 return;
@@ -2459,21 +3428,18 @@
 
 
             SCROLL_WHISPERS.forEach(
-                (
-                    item,
-                    index
-                ) => {
+                item => {
 
                     if (
                         progress >=
                             item.threshold &&
                         !shownWhispers.has(
-                            index
+                            item.key
                         )
                     ) {
 
                         shownWhispers.add(
-                            index
+                            item.key
                         );
 
 
@@ -2486,7 +3452,1353 @@
                 }
             );
 
+
+            if (
+                progress >=
+                    0.96
+            ) {
+
+                const afterthought =
+                    $("exitAfterthought");
+
+
+                if (
+                    lairState.discoveries.length >=
+                        5
+                ) {
+
+                    afterthought.textContent =
+                        "yeah. you'll definitely be back.";
+
+
+                } else if (
+                    Object.keys(
+                        lairState.clicks
+                    ).length ===
+                        0
+                ) {
+
+                    afterthought.textContent =
+                        "you didn't touch anything. disappointing.";
+
+
+                } else {
+
+                    afterthought.textContent =
+                        "you'll be back.";
+
+                }
+
+            }
+
         }
+
+
+        /* ======================================================
+           HERO HOTSPOTS
+        ====================================================== */
+
+        function handleHeroHotspot(
+            hotspot
+        ) {
+
+            const clicks =
+                incrementInteraction(
+                    `hero-${hotspot}`
+                );
+
+
+            if (
+                !lairState.hotspotsOpened.includes(
+                    hotspot
+                )
+            ) {
+
+                lairState.hotspotsOpened.push(
+                    hotspot
+                );
+
+
+                saveLairState();
+
+            }
+
+
+            if (
+                hotspot ===
+                    "monitor"
+            ) {
+
+                discover(
+                    "369-monitor"
+                );
+
+
+                if (
+                    clicks ===
+                        1
+                ) {
+
+                    showHarrowResponse(
+                        "PULSECHAIN.",
+                        "369. Yes, I know you can read."
+                    );
+
+
+                } else if (
+                    clicks ===
+                        2
+                ) {
+
+                    showHarrowResponse(
+                        "STILL 369.",
+                        "The chain didn't change because you clicked twice."
+                    );
+
+
+                } else {
+
+                    showHarrowResponse(
+                        "FINE.",
+                        "Code is speech. Mine has poor impulse control."
+                    );
+
+                }
+
+
+                return;
+
+            }
+
+
+            if (
+                hotspot ===
+                    "cabal"
+            ) {
+
+                discover(
+                    "cabal-board"
+                );
+
+
+                if (
+                    clicks ===
+                        1
+                ) {
+
+                    showHarrowResponse(
+                        "THE CABAL.",
+                        "Either real or an extremely productive filing system."
+                    );
+
+
+                } else if (
+                    clicks ===
+                        2
+                ) {
+
+                    showHarrowResponse(
+                        "WHY'D YOU LOOK AGAIN?",
+                        "Suspicious."
+                    );
+
+
+                } else {
+
+                    openDrawer({
+                        code:
+                            "WALL // CABAL // ???",
+
+                        eyebrow:
+                            "HARROW // UNRESOLVED",
+
+                        title:
+                            "THE LIST KEEPS CHANGING.",
+
+                        html:
+                            `
+                            <p>
+                                Every time I finish the diagram,
+                                somebody does something stupid and I
+                                have to buy more string.
+                            </p>
+
+                            <p>
+                                Current methodology:
+                                vibes, screenshots, public records,
+                                spite and at least one completely
+                                decorative arrow.
+                            </p>
+                            `,
+
+                        footnote:
+                            "THIS IS SATIRE. TRY TO SURVIVE IT."
+                    });
+
+                }
+
+
+                return;
+
+            }
+
+
+            if (
+                hotspot ===
+                    "harrow"
+            ) {
+
+                if (
+                    clicks ===
+                        1
+                ) {
+
+                    showHarrowResponse(
+                        "HEY.",
+                        "I'm drawing."
+                    );
+
+
+                } else if (
+                    clicks ===
+                        2
+                ) {
+
+                    showHarrowResponse(
+                        "SERIOUSLY?",
+                        "There are five other things in this image."
+                    );
+
+
+                } else if (
+                    clicks ===
+                        3
+                ) {
+
+                    discover(
+                        "bothered-harrow"
+                    );
+
+
+                    showHarrowResponse(
+                        "FINE.",
+                        "You found the secret. The secret is that you're annoying."
+                    );
+
+
+                } else {
+
+                    showHarrowResponse(
+                        "CONGRATULATIONS.",
+                        "You have successfully clicked a man repeatedly."
+                    );
+
+                }
+
+
+                return;
+
+            }
+
+
+            if (
+                hotspot ===
+                    "pages"
+            ) {
+
+                discover(
+                    "unfinished-pages"
+                );
+
+
+                showHarrowResponse(
+                    "ROUGH PAGES.",
+                    "No. You can't read them. That's why they're called rough."
+                );
+
+
+                return;
+
+            }
+
+
+            if (
+                hotspot ===
+                    "redacted"
+            ) {
+
+                if (
+                    clicks <
+                        3
+                ) {
+
+                    showHarrowResponse(
+                        "REDACTED.",
+                        "The word wasn't subtle."
+                    );
+
+
+                } else {
+
+                    discover(
+                        "redacted-folder"
+                    );
+
+
+                    openDrawer({
+                        code:
+                            "FOLDER // █████████",
+
+                        eyebrow:
+                            "ACCESS // APPARENTLY YOU DON'T LISTEN",
+
+                        title:
+                            "THERE'S NOTHING IN HERE.",
+
+                        html:
+                            `
+                            <p>
+                                I told you it was redacted.
+                            </p>
+
+                            <p>
+                                You clicked it three times anyway.
+                            </p>
+
+                            <p>
+                                That's useful information about you.
+                            </p>
+                            `,
+
+                        footnote:
+                            "DISCOVERY LOG UPDATED."
+                    });
+
+                }
+
+            }
+
+        }
+
+
+        document
+            .querySelectorAll(
+                "[data-hotspot]"
+            )
+            .forEach(
+                hotspot => {
+
+                    hotspot.addEventListener(
+                        "click",
+                        () =>
+                            handleHeroHotspot(
+                                hotspot.dataset.hotspot
+                            )
+                    );
+
+                }
+            );
+
+
+        /* ======================================================
+           LOGO DISOBEDIENCE
+        ====================================================== */
+
+        $("heroLogoButton").addEventListener(
+            "click",
+            () => {
+
+                lairState.logoClicks +=
+                    1;
+
+
+                saveLairState();
+
+
+                if (
+                    lairState.logoClicks ===
+                        1
+                ) {
+
+                    showHarrowWhisper(
+                        "don't touch that."
+                    );
+
+
+                } else if (
+                    lairState.logoClicks ===
+                        2
+                ) {
+
+                    showHarrowWhisper(
+                        "I literally just said—"
+                    );
+
+
+                } else if (
+                    lairState.logoClicks ===
+                        3
+                ) {
+
+                    discover(
+                        "disobedient-logo"
+                    );
+
+
+                    document.body.classList.add(
+                        "logo-disobedience"
+                    );
+
+
+                    showHarrowResponse(
+                        "THERE.",
+                        "Happy? You broke reality for six seconds."
+                    );
+
+
+                    setTimeout(
+                        () => {
+
+                            document.body.classList.remove(
+                                "logo-disobedience"
+                            );
+
+                        },
+                        6000
+                    );
+
+
+                } else {
+
+                    showHarrowWhisper(
+                        "we've established that it clicks."
+                    );
+
+                }
+
+            }
+        );
+
+
+        /* ======================================================
+           THEORY WALL
+        ====================================================== */
+
+        const THEORY_CONTENT = {
+
+            richard: {
+
+                code:
+                    "THOUGHT // RH-369",
+
+                eyebrow:
+                    "RICHARD HEART",
+
+                title:
+                    "BUILT THE CHAIN.",
+
+                html:
+                    `
+                    <p>
+                        Whatever else anybody thinks about him,
+                        the man built the place this website lives.
+                    </p>
+
+                    <p>
+                        Naturally, I have questions.
+                    </p>
+
+                    <p>
+                        Too many questions.
+                    </p>
+                    `,
+
+                footnote:
+                    "I'M NOT DONE WITH THIS PAGE."
+            },
+
+            sec: {
+
+                code:
+                    "THOUGHT // GOV-404",
+
+                eyebrow:
+                    "THE SEC",
+
+                title:
+                    "VERY SERIOUS PEOPLE.",
+
+                html:
+                    `
+                    <p>
+                        Suits. Rules. Filings. Acronyms.
+                    </p>
+
+                    <p>
+                        A naturally occurring predator of internet
+                        humor.
+                    </p>
+
+                    <p>
+                        Excellent comic material.
+                    </p>
+                    `,
+
+                footnote:
+                    "SATIRE. BREATHE."
+            },
+
+            cabal: {
+
+                code:
+                    "THOUGHT // ?????",
+
+                eyebrow:
+                    "THE CABAL",
+
+                title:
+                    "I'M WORKING ON IT.",
+
+                html:
+                    `
+                    <p>
+                        Membership remains provisional.
+                    </p>
+
+                    <p>
+                        Several names were added because I was
+                        irritated at the time.
+                    </p>
+
+                    <p>
+                        Scientific rigor remains excellent.
+                    </p>
+                    `,
+
+                footnote:
+                    "DIAGRAM MAY CONTAIN DECORATIVE STRING."
+            },
+
+            interpol: {
+
+                code:
+                    "THOUGHT // INT-???",
+
+                eyebrow:
+                    "INTERPOL",
+
+                title:
+                    "RELAX.",
+
+                html:
+                    `
+                    <p>
+                        This is a comic publishing website.
+                    </p>
+
+                    <p>
+                        Mostly.
+                    </p>
+                    `,
+
+                footnote:
+                    "THAT WAS A JOKE."
+            },
+
+            you: {
+
+                code:
+                    "THOUGHT // VISITOR",
+
+                eyebrow:
+                    "YOU",
+
+                title:
+                    connectedWallet
+                        ? shortAddress(
+                            connectedWallet
+                        ).toUpperCase()
+                        : "UNKNOWN DEGEN",
+
+                html:
+                    connectedWallet
+                        ? `
+                            <p>
+                                Wallet shown.
+                            </p>
+
+                            <p>
+                                Still clicking strange things.
+                            </p>
+
+                            <p>
+                                Pattern developing.
+                            </p>
+                        `
+                        : `
+                            <p>
+                                No wallet.
+                            </p>
+
+                            <p>
+                                Still reading.
+                            </p>
+
+                            <p>
+                                Interesting.
+                            </p>
+                        `,
+
+                footnote:
+                    "OBSERVATION CONTINUES."
+            },
+
+            harrow: {
+
+                code:
+                    "THOUGHT // IMPORTANT",
+
+                eyebrow:
+                    "HARROW",
+
+                title:
+                    "FINALLY.",
+
+                html:
+                    `
+                    <p>
+                        Writer.
+                        Artist.
+                        Publisher.
+                        Operator.
+                        Occasional victim of his own ideas.
+                    </p>
+
+                    <p>
+                        Most reliable source on this entire wall.
+                    </p>
+                    `,
+
+                footnote:
+                    "PEER REVIEWED BY HARROW."
+            }
+
+        };
+
+
+        document
+            .querySelectorAll(
+                "[data-theory]"
+            )
+            .forEach(
+                card => {
+
+                    card.addEventListener(
+                        "click",
+                        () => {
+
+                            const key =
+                                card.dataset.theory;
+
+
+                            const content =
+                                THEORY_CONTENT[
+                                    key
+                                ];
+
+
+                            if (!content) {
+
+                                return;
+
+                            }
+
+
+                            if (
+                                !lairState.theoriesOpened.includes(
+                                    key
+                                )
+                            ) {
+
+                                lairState.theoriesOpened.push(
+                                    key
+                                );
+
+
+                                saveLairState();
+
+                            }
+
+
+                            discover(
+                                `theory-${key}`
+                            );
+
+
+                            openDrawer(
+                                content
+                            );
+
+
+                            if (
+                                lairState.theoriesOpened.length >=
+                                    4
+                            ) {
+
+                                $("theoryCorrection").classList.add(
+                                    "active"
+                                );
+
+
+                                $("theorySingular").classList.add(
+                                    "crossed-out"
+                                );
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+
+        $("theoryCenter").addEventListener(
+            "click",
+            () => {
+
+                const clicks =
+                    incrementInteraction(
+                        "theory-center"
+                    );
+
+
+                if (
+                    clicks ===
+                        1
+                ) {
+
+                    showHarrowWhisper(
+                        "that's me."
+                    );
+
+
+                } else if (
+                    clicks ===
+                        2
+                ) {
+
+                    showHarrowWhisper(
+                        "still me."
+                    );
+
+
+                } else if (
+                    clicks ===
+                        3
+                ) {
+
+                    discover(
+                        "center-of-everything"
+                    );
+
+
+                    showHarrowResponse(
+                        "CORRECT.",
+                        "I am at the center of the diagram. Finally somebody understands graphic design."
+                    );
+
+                }
+
+            }
+        );
+
+
+        /* ======================================================
+           PRESS OBJECTS
+        ====================================================== */
+
+        $("roadmapObject").addEventListener(
+            "click",
+            () => {
+
+                discover(
+                    "production-plan"
+                );
+
+
+                openDrawer({
+
+                    code:
+                        "PRODUCTION // PLAN",
+
+                    eyebrow:
+                        "WHAT I'M DOING NEXT",
+
+                    title:
+                        "THINGS I HAVEN'T FINISHED YET.",
+
+                    html:
+                        `
+                        <div class="roadmap-object">
+
+                            <div>
+                                <span>NOW</span>
+                                <strong>BUILD THE MACHINE</strong>
+                                <p>
+                                    Hellbox site, archive, reader,
+                                    publishing infrastructure.
+                                </p>
+                            </div>
+
+                            <div>
+                                <span>NEXT</span>
+                                <strong>MAKE THE BOOKS</strong>
+                                <p>
+                                    Publications become real objects
+                                    in the archive instead of promises
+                                    on a webpage.
+                                </p>
+                            </div>
+
+                            <div>
+                                <span>LATER</span>
+                                <strong>████████████</strong>
+                                <p>
+                                    No.
+                                </p>
+                            </div>
+
+                            <div>
+                                <span>NEVER</span>
+                                <strong>SLEEP</strong>
+                                <p>
+                                    Poorly scoped milestone.
+                                </p>
+                            </div>
+
+                        </div>
+                        `,
+
+                    footnote:
+                        "THIS IS A PRODUCTION PLAN, NOT A PROMISE FROM A MAN IN A SUIT."
+
+                });
+
+            }
+        );
+
+
+        $("manualObject").addEventListener(
+            "click",
+            () => {
+
+                discover(
+                    "manual"
+                );
+
+
+                openDrawer({
+
+                    code:
+                        "BOOK // THE MANUAL",
+
+                    eyebrow:
+                        "TECHNICAL MATERIAL",
+
+                    title:
+                        "THE BORING VERSION.",
+
+                    html:
+                        `
+                        <p>
+                            Eventually this opens the actual Hellbox
+                            technical documentation.
+                        </p>
+
+                        <p>
+                            Publishing architecture.
+                            Ownership.
+                            Networks.
+                            Reader access.
+                            Mint rules.
+                            Contracts.
+                            Security.
+                        </p>
+
+                        <p>
+                            Clear facts.
+                            No mystery where money or ownership is
+                            concerned.
+                        </p>
+
+                        <p>
+                            The jokes go around the engineering,
+                            not through it.
+                        </p>
+                        `,
+
+                    footnote:
+                        "YES, NERD. THIS IS WHERE THE WHITEPAPER WILL LIVE."
+
+                });
+
+            }
+        );
+
+
+        $("pressMachine").addEventListener(
+            "click",
+            () => {
+
+                lairState.pressClicks +=
+                    1;
+
+
+                saveLairState();
+
+
+                if (
+                    lairState.pressClicks ===
+                        1
+                ) {
+
+                    showHarrowWhisper(
+                        "stop checking."
+                    );
+
+
+                } else if (
+                    lairState.pressClicks ===
+                        2
+                ) {
+
+                    showHarrowWhisper(
+                        "still nothing."
+                    );
+
+
+                } else if (
+                    lairState.pressClicks ===
+                        3
+                ) {
+
+                    discover(
+                        "pressed-the-press"
+                    );
+
+
+                    showHarrowResponse(
+                        "AMAZING.",
+                        "You successfully operated a machine that isn't running."
+                    );
+
+                }
+
+            }
+        );
+
+
+        /* ======================================================
+           CLASSIFIED OBJECTS
+        ====================================================== */
+
+        function handleClassifiedObject(
+            key
+        ) {
+
+            incrementInteraction(
+                `classified-${key}`
+            );
+
+
+            if (
+                key ===
+                    "fuel"
+            ) {
+
+                showHarrowResponse(
+                    "FUEL SOURCE.",
+                    "Not installed."
+                );
+
+
+                return;
+
+            }
+
+
+            if (
+                key ===
+                    "relay"
+            ) {
+
+                showHarrowResponse(
+                    "REMOTE RELAY.",
+                    "Offline. That's what offline means."
+                );
+
+
+                return;
+
+            }
+
+
+            if (
+                key ===
+                    "machine"
+            ) {
+
+                showHarrowResponse(
+                    "NO INPUT.",
+                    "You'll know when it has one."
+                );
+
+            }
+
+        }
+
+
+        document
+            .querySelectorAll(
+                "[data-classified-object]"
+            )
+            .forEach(
+                button => {
+
+                    button.addEventListener(
+                        "click",
+                        () =>
+                            handleClassifiedObject(
+                                button.dataset.classifiedObject
+                            )
+                    );
+
+                }
+            );
+
+
+        $("classifiedMainObject").addEventListener(
+            "click",
+            () => {
+
+                lairState.classifiedClicks +=
+                    1;
+
+
+                saveLairState();
+
+
+                if (
+                    lairState.classifiedClicks ===
+                        1
+                ) {
+
+                    showHarrowResponse(
+                        "NO.",
+                        "The giant redacted section somehow wasn't enough."
+                    );
+
+
+                } else if (
+                    lairState.classifiedClicks ===
+                        2
+                ) {
+
+                    showHarrowResponse(
+                        "STILL NO.",
+                        "I admire the complete absence of pattern recognition."
+                    );
+
+
+                } else if (
+                    lairState.classifiedClicks ===
+                        3
+                ) {
+
+                    discover(
+                        "persistent"
+                    );
+
+
+                    showHarrowResponse(
+                        "FINE.",
+                        "You have persistence. Not access. Different thing."
+                    );
+
+
+                } else {
+
+                    showHarrowWhisper(
+                        "no."
+                    );
+
+                }
+
+            }
+        );
+
+
+        $("lockedSignal").addEventListener(
+            "click",
+            () => {
+
+                const clicks =
+                    incrementInteraction(
+                        "locked-signal"
+                    );
+
+
+                if (
+                    clicks <
+                        4
+                ) {
+
+                    showHarrowWhisper(
+                        "no."
+                    );
+
+
+                } else {
+
+                    discover(
+                        "locked-signal"
+                    );
+
+
+                    showHarrowResponse(
+                        "YOU REALLY DON'T LISTEN.",
+                        "Good."
+                    );
+
+                }
+
+            }
+        );
+
+
+        /* ======================================================
+           OTHER INTERACTIVE OBJECTS
+        ====================================================== */
+
+        $("therapyNote").addEventListener(
+            "click",
+            () => {
+
+                const clicks =
+                    incrementInteraction(
+                        "therapy"
+                    );
+
+
+                if (
+                    clicks ===
+                        1
+                ) {
+
+                    showHarrowWhisper(
+                        "not medical advice."
+                    );
+
+
+                } else if (
+                    clicks ===
+                        2
+                ) {
+
+                    showHarrowWhisper(
+                        "obviously."
+                    );
+
+
+                } else {
+
+                    discover(
+                        "therapy-disclaimer"
+                    );
+
+
+                    showHarrowResponse(
+                        "DISCLAIMER.",
+                        "There. Now everyone can relax."
+                    );
+
+                }
+
+            }
+        );
+
+
+        $("archiveEmblem").addEventListener(
+            "click",
+            () => {
+
+                showHarrowWhisper(
+                    "that's the logo."
+                );
+
+            }
+        );
+
+
+        $("archiveSticky").addEventListener(
+            "click",
+            () => {
+
+                const clicks =
+                    incrementInteraction(
+                        "archive-sticky"
+                    );
+
+
+                if (
+                    clicks ===
+                        1
+                ) {
+
+                    showHarrowWhisper(
+                        "yes. I wrote it."
+                    );
+
+
+                } else if (
+                    clicks ===
+                        2
+                ) {
+
+                    showHarrowWhisper(
+                        "my handwriting is excellent."
+                    );
+
+
+                } else {
+
+                    discover(
+                        "sticky-note"
+                    );
+
+
+                    showHarrowResponse(
+                        "STOP PEELING THE NOTE.",
+                        "It's holding the entire backend together."
+                    );
+
+                }
+
+            }
+        );
+
+
+        $("harrowPortrait").addEventListener(
+            "click",
+            () => {
+
+                const clicks =
+                    incrementInteraction(
+                        "portrait"
+                    );
+
+
+                if (
+                    clicks ===
+                        1
+                ) {
+
+                    showHarrowResponse(
+                        "GOOD PHOTO.",
+                        "I know."
+                    );
+
+
+                } else if (
+                    clicks ===
+                        2
+                ) {
+
+                    showHarrowResponse(
+                        "ZOOMING IN?",
+                        "Understandable."
+                    );
+
+
+                } else {
+
+                    discover(
+                        "harrow-portrait"
+                    );
+
+
+                    showHarrowResponse(
+                        "SAVE YOURSELF SOME TIME.",
+                        "Yes. I look fantastic."
+                    );
+
+                }
+
+            }
+        );
+
+
+        $("harrowProfileCard").addEventListener(
+            "click",
+            () => {
+
+                showHarrowWhisper(
+                    "self appointed. unanimously."
+                );
+
+            }
+        );
+
+
+        $("harrowWordmark").addEventListener(
+            "click",
+            () => {
+
+                showHarrowWhisper(
+                    "signed."
+                );
+
+            }
+        );
+
+
+        $("selfReview").addEventListener(
+            "click",
+            () => {
+
+                const clicks =
+                    incrementInteraction(
+                        "self-review"
+                    );
+
+
+                if (
+                    clicks ===
+                        1
+                ) {
+
+                    showHarrowWhisper(
+                        "five stars."
+                    );
+
+
+                } else {
+
+                    discover(
+                        "peer-review"
+                    );
+
+
+                    showHarrowResponse(
+                        "INDEPENDENT.",
+                        "I used a different pen."
+                    );
+
+                }
+
+            }
+        );
 
 
         /* ======================================================
@@ -2518,7 +4830,8 @@
 
                 if (
                     !response.ok ||
-                    data.ok !== true ||
+                    data.ok !==
+                        true ||
                     !Array.isArray(
                         data.publications
                     )
@@ -2594,7 +4907,8 @@
                 pressPublications =
                     (
                         response.ok &&
-                        data.ok === true &&
+                        data.ok ===
+                            true &&
                         Array.isArray(
                             data.publications
                         )
@@ -2626,91 +4940,18 @@
 
         function renderPress() {
 
-            clearElement(
-                pressContainer
-            );
-
-
             if (
                 !pressPublications.length
             ) {
 
-                const wrapper =
-                    makeElement(
-                        "div",
-                        "press-empty"
-                    );
-
-
-                const left =
-                    makeElement(
-                        "div"
-                    );
-
-
-                left.innerHTML =
-                    `
-                    <span class="eyebrow">
-                        HARROW // WORKING
-                    </span>
-
-                    <h2>
-                        I'M
-                        <em>WORKING.</em>
-                    </h2>
-
-                    <p>
-                        You'll see it when I decide it's finished.
-                    </p>
-
-                    <p>
-                        So never.
-                    </p>
-                    `;
-
-
-                const machine =
-                    makeElement(
-                        "div",
-                        "press-machine"
-                    );
-
-
-                machine.innerHTML =
-                    `
-                    <img
-                        src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem-improved.PNG"
-                        alt=""
-                    >
-
-                    <span>
-                        PRESS // IDLE
-                    </span>
-
-                    <strong>
-                        NOTHING FOR YOU YET
-                    </strong>
-
-                    <small>
-                        STOP CHECKING.
-                    </small>
-                    `;
-
-
-                wrapper.append(
-                    left,
-                    machine
-                );
-
-
-                pressContainer.appendChild(
-                    wrapper
-                );
-
-
                 return;
 
             }
+
+
+            clearElement(
+                pressContainer
+            );
 
 
             pressPublications.forEach(
@@ -2765,6 +5006,7 @@
 
                         action.disabled =
                             true;
+
 
                     } else {
 
@@ -2856,6 +5098,13 @@
                         method:
                             "eth_chainId"
                     });
+
+
+                lairState.walletSeen =
+                    true;
+
+
+                saveLairState();
 
 
                 loadStoredReaderSession();
@@ -2959,6 +5208,13 @@
 
                 connectedWallet =
                     accounts[0];
+
+
+                lairState.walletSeen =
+                    true;
+
+
+                saveLairState();
 
 
                 loadStoredReaderSession();
@@ -3146,7 +5402,8 @@
 
                 if (
                     !response.ok ||
-                    data.ok !== true
+                    data.ok !==
+                        true
                 ) {
 
                     throw new Error(
@@ -3498,7 +5755,8 @@
 
 
             } else if (
-                owned >= 6
+                owned >=
+                    6
             ) {
 
                 terminalTitle.textContent =
@@ -3518,7 +5776,8 @@
 
 
             } else if (
-                owned >= 2
+                owned >=
+                    2
             ) {
 
                 terminalTitle.textContent =
@@ -3604,7 +5863,7 @@
                             "collection-item-index",
                             String(
                                 index +
-                                1
+                                    1
                             ).padStart(
                                 2,
                                 "0"
@@ -3635,7 +5894,7 @@
                             "strong",
                             null,
                             edition.title ||
-                            "UNTITLED"
+                                "UNTITLED"
                         ),
 
                         makeElement(
@@ -3946,7 +6205,8 @@
 
                 if (
                     !response.ok ||
-                    prepared.mintReady !== true
+                    prepared.mintReady !==
+                        true
                 ) {
 
                     throw new Error(
@@ -4125,7 +6385,7 @@
 
 
         /* ======================================================
-           SESSION
+           READER SESSION
         ====================================================== */
 
         function loadStoredReaderSession() {
@@ -4526,8 +6786,10 @@
 
 
                 return (
-                    data.ok === true &&
-                    data.authenticated === true
+                    data.ok ===
+                        true &&
+                    data.authenticated ===
+                        true
                 );
 
 
@@ -4870,7 +7132,7 @@
                     Math.min(
                         index,
                         readerState.pages.length -
-                        1
+                            1
                     )
                 );
 
@@ -4954,32 +7216,32 @@
 
             readerPrevious.disabled =
                 current ===
-                1;
+                    1;
 
 
             readerPreviousBottom.disabled =
                 current ===
-                1;
+                    1;
 
 
             readerFirst.disabled =
                 current ===
-                1;
+                    1;
 
 
             readerNext.disabled =
                 current ===
-                total;
+                    total;
 
 
             readerNextBottom.disabled =
                 current ===
-                total;
+                    total;
 
 
             readerLast.disabled =
                 current ===
-                total;
+                    total;
 
         }
 
@@ -5009,7 +7271,7 @@
                 wrapper.textContent =
                     `PAGE ${formatCount(
                         i +
-                        1
+                            1
                     )} // LOADING`;
 
 
@@ -5055,7 +7317,7 @@
 
             const continuous =
                 readerState.mode ===
-                "continuous";
+                    "continuous";
 
 
             readerPaged.style.display =
@@ -5230,7 +7492,7 @@
 
 
         /* ======================================================
-           HERO TRANSMISSIONS
+           TRANSMISSIONS
         ====================================================== */
 
         const TRANSMISSIONS = [
@@ -5300,7 +7562,7 @@
 
 
         /* ======================================================
-           POINTER / SCROLL
+           POINTER
         ====================================================== */
 
         document.addEventListener(
@@ -5348,8 +7610,62 @@
 
 
         /* ======================================================
-           EVENTS
+           GLOBAL EVENTS
         ====================================================== */
+
+        harrowOrb.addEventListener(
+            "click",
+            () => {
+
+                lairState.orbClicks +=
+                    1;
+
+
+                saveLairState();
+
+
+                contextualHarrow();
+
+
+                if (
+                    lairState.orbClicks ===
+                        13
+                ) {
+
+                    discover(
+                        "harrow-13"
+                    );
+
+
+                    setTimeout(
+                        () => {
+
+                            showHarrowResponse(
+                                "THIRTEEN TIMES.",
+                                "You counted, didn't you?"
+                            );
+
+                        },
+                        500
+                    );
+
+                }
+
+            }
+        );
+
+
+        $("harrowResponseClose").onclick =
+            closeHarrowResponse;
+
+
+        $("lairDrawerClose").onclick =
+            closeDrawer;
+
+
+        $("lairDrawerBackdrop").onclick =
+            closeDrawer;
+
 
         walletButton.onclick =
             async () => {
@@ -5388,7 +7704,7 @@
             () =>
                 showReaderPage(
                     readerState.currentIndex -
-                    1
+                        1
                 );
 
 
@@ -5396,7 +7712,7 @@
             () =>
                 showReaderPage(
                     readerState.currentIndex +
-                    1
+                        1
                 );
 
 
@@ -5419,7 +7735,7 @@
             () =>
                 showReaderPage(
                     readerState.pages.length -
-                    1
+                        1
                 );
 
 
@@ -5484,6 +7800,21 @@
         document.addEventListener(
             "keydown",
             event => {
+
+                if (
+                    event.key ===
+                        "Escape" &&
+                    lairDrawer.classList.contains(
+                        "active"
+                    )
+                ) {
+
+                    closeDrawer();
+
+                    return;
+
+                }
+
 
                 if (
                     !readerState.open
@@ -5571,6 +7902,13 @@
                         });
 
 
+                    lairState.walletSeen =
+                        true;
+
+
+                    saveLairState();
+
+
                     if (
                         isPulseChain()
                     ) {
@@ -5642,6 +7980,9 @@
 
         async function bootHellbox() {
 
+            updateDiscoveryCounter();
+
+
             rotateTransmission();
 
 
@@ -5655,6 +7996,17 @@
 
 
             await restoreWallet();
+
+
+            if (
+                lairState.discoveries.length >=
+                    3
+            ) {
+
+                $("heroMetaHarrow").textContent =
+                    "HARROW // YOU'VE BEEN HERE BEFORE";
+
+            }
 
         }
 
