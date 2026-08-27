@@ -262,8 +262,11 @@
         heroTransmissionSub: $("#heroTransmissionSub"),
 
         therapyNote: $("#therapyNote"),
+        boxDefinitionObject: $("#boxDefinitionObject"),
 
         publicationCount: $("#publicationCount"),
+        hellionStatusObject: $("#hellionStatusObject"),
+        readerDormantObject: $("#readerDormantObject"),
 
         collectionWallet: $("#collectionWallet"),
         collectionNetwork: $("#collectionNetwork"),
@@ -328,6 +331,8 @@
 
         lockedSignal: $("#lockedSignal"),
         classifiedMainObject: $("#classifiedMainObject"),
+
+        bytesInfrastructureObject: $("#bytesInfrastructureObject"),
 
         exitAfterthought: $("#exitAfterthought"),
 
@@ -2753,6 +2758,403 @@
 
 
     /* =========================================================
+       PROJECT / WORLD OBJECTS
+       These answer the questions the front door should answer
+       without turning Hellbox into a corporate explainer page.
+       ========================================================= */
+
+    function initProjectObjects() {
+        if (dom.boxDefinitionObject) {
+            dom.boxDefinitionObject.addEventListener(
+                "click",
+                () => {
+                    discover(
+                        "object:the-box",
+                        isHellion()
+                            ? "You are literally standing in the answer."
+                            : "Fine. One useful explanation."
+                    );
+
+                    openDrawer({
+                        code:
+                            "OBJECT // HBX-01",
+
+                        eyebrow:
+                            "HARROW // THE BOX",
+
+                        title:
+                            "YOU'RE IN IT.",
+
+                        html: `
+                            <p>
+                                Hellbox is the publishing system around the work.
+                            </p>
+
+                            <p>
+                                Harrow makes the pages.
+                                The Press turns a finished publication into
+                                onchain editions.
+                                Your wallet carries the receipt.
+                                The Reader opens what belongs to you.
+                            </p>
+
+                            <div class="roadmap-object">
+
+                                <div>
+                                    <span>PAGES</span>
+
+                                    <strong>
+                                        THE REASON ANY OF THIS EXISTS.
+                                    </strong>
+
+                                    <p>
+                                        Graphic fiction first.
+                                        Everything else has to justify itself.
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <span>THE PRESS</span>
+
+                                    <strong>
+                                        PUBLICATION BECOMES EDITION.
+                                    </strong>
+
+                                    <p>
+                                        No generic mint page pretending
+                                        to be a bookstore.
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <span>THE WALLET</span>
+
+                                    <strong>
+                                        THE RECEIPT REMEMBERS.
+                                    </strong>
+
+                                    <p>
+                                        The chain can tell the Box
+                                        which publication keys are yours.
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <span>THE READER</span>
+
+                                    <strong>
+                                        THEN YOU READ THE DAMN COMIC.
+                                    </strong>
+
+                                    <p>
+                                        The collectible is the key.
+                                        The work is the point.
+                                    </p>
+                                </div>
+
+                            </div>
+
+                            <p>
+                                PulseChain keeps the receipt.
+                                Harrow keeps the blame.
+                            </p>
+                        `,
+
+                        footnote:
+                            "HELLBOX // COMICS FIRST. INFRASTRUCTURE BECAUSE IT HAS TO WORK."
+                    });
+                }
+            );
+        }
+
+        if (dom.hellionStatusObject) {
+            dom.hellionStatusObject.addEventListener(
+                "click",
+                () => {
+                    discover(
+                        "status:hellion"
+                    );
+
+                    openDrawer({
+                        code:
+                            "STATUS // HELLION",
+
+                        eyebrow:
+                            "THE BOX // MEMORY",
+
+                        title:
+                            "IT REMEMBERS YOU.",
+
+                        html: `
+                            <p>
+                                You did not apply.
+                            </p>
+
+                            <p>
+                                You kept coming back.
+                                You touched enough things.
+                                You looked behind enough labels.
+                                Eventually the Box stopped treating you
+                                like a visitor.
+                            </p>
+
+                            <p>
+                                Harrow calls that a Hellion.
+                            </p>
+
+                            <p>
+                                There are no benefits.
+                                Your judgment is simply documented now.
+                            </p>
+                        `,
+
+                        footnote:
+                            "HELLION // NOT A MEMBERSHIP TIER. MORE OF A DIAGNOSIS."
+                    });
+                }
+            );
+        }
+
+        if (dom.readerDormantObject) {
+            dom.readerDormantObject.addEventListener(
+                "click",
+                () => {
+                    discover(
+                        "object:reader"
+                    );
+
+                    openDrawer({
+                        code:
+                            "SYSTEM // READER",
+
+                        eyebrow:
+                            "HARROW // THE PART THAT MATTERS",
+
+                        title:
+                            "THE READER.",
+
+                        html: `
+                            <p>
+                                This is the part people forget
+                                when they get excited about tokens.
+                            </p>
+
+                            <p>
+                                The collectible is the key.
+                                The comic is the reason.
+                            </p>
+
+                            <p>
+                                When a publication is live,
+                                the Box checks the wallet,
+                                verifies access,
+                                and opens the protected pages here.
+                            </p>
+
+                            <p>
+                                No PDF dump.
+                                No generic storefront.
+                                You read it inside the Box.
+                            </p>
+                        `,
+
+                        footnote:
+                            state.publications.length > 0
+                                ? "READER // READY WHEN THE RIGHT KEY ARRIVES."
+                                : "READER // BUILT. WAITING FOR A PUBLIC RELEASE."
+                    });
+                }
+            );
+        }
+
+        if (dom.bytesInfrastructureObject) {
+            dom.bytesInfrastructureObject.addEventListener(
+                "click",
+                () => {
+                    discover(
+                        "infrastructure:bytes",
+                        "Yes. Even the plumbing has lore."
+                    );
+
+                    openDrawer({
+                        code:
+                            "INFRASTRUCTURE // BYTES",
+
+                        eyebrow:
+                            "HARROW // PRIVATE PLUMBING",
+
+                        title:
+                            "BACKED BY BYTES.",
+
+                        html: `
+                            <p>
+                                Harrow dislikes dependencies.
+                                Public RPCs count.
+                            </p>
+
+                            <p>
+                                Hellbox uses Pulse Bytes infrastructure
+                                as part of its private PulseChain plumbing.
+                            </p>
+
+                            <p>
+                                The point is not to make infrastructure
+                                the main character.
+                                The point is to make sure the main character
+                                still has a stage.
+                            </p>
+                        `,
+
+                        footnote:
+                            "CHAIN // 369 // INFRASTRUCTURE SHOULD BE BORING UNTIL IT BREAKS."
+                    });
+                }
+            );
+        }
+    }
+
+
+    /* =========================================================
+       PRESS ART OBJECTS
+       The machine artwork carries the explanation.
+       ========================================================= */
+
+    const PRESS_OBJECT_CONTENT = {
+        chain: {
+            code:
+                "PRESS // CHAIN 369",
+
+            eyebrow:
+                "HARROW // PULSECHAIN",
+
+            title:
+                "THE MACHINE HAS A HOME.",
+
+            html: `
+                <p>
+                    PulseChain.
+                    Chain ID 369.
+                </p>
+
+                <p>
+                    Cheap enough to publish without asking permission
+                    from the gas meter.
+                </p>
+
+                <p>
+                    Fast enough that Harrow can make another bad decision
+                    before the first one cools down.
+                </p>
+            `,
+
+            footnote:
+                "PRESS NETWORK // PULSECHAIN // 369."
+        },
+
+        qc: {
+            code:
+                "PRESS // QC",
+
+            eyebrow:
+                "HARROW // QUALITY CONTROL",
+
+            title:
+                "INDEPENDENT REVIEW.",
+
+            html: `
+                <p>
+                    Every publication passes through a rigorous
+                    independent quality-control department.
+                </p>
+
+                <p>
+                    Harrow runs it.
+                </p>
+
+                <p>
+                    The artist also happens to be Harrow.
+                    Management has reviewed the conflict
+                    and found Harrow blameless.
+                </p>
+            `,
+
+            footnote:
+                "QC // APPROVED BY THE PERSON WHO MADE IT."
+        },
+
+        output: {
+            code:
+                "PRESS // OUTPUT BAY",
+
+            eyebrow:
+                "HARROW // PUBLICATION",
+
+            title:
+                "THIS IS WHAT COMES OUT.",
+
+            html: `
+                <p>
+                    Pages become a publication.
+                </p>
+
+                <p>
+                    A publication becomes an edition.
+                    The edition becomes the key the Reader can recognize.
+                </p>
+
+                <p>
+                    The first real public release will occupy this bay
+                    when Harrow decides it is finished.
+                </p>
+
+                <p>
+                    So never.
+                    Or soon.
+                    Same thing around here.
+                </p>
+            `,
+
+            footnote:
+                "OUTPUT BAY // CURRENTLY WAITING FOR SOMETHING WORTH PUBLISHING."
+        }
+    };
+
+    function initPressArtObjects() {
+        $$("[data-press-object]").forEach(
+            (button) => {
+                button.addEventListener(
+                    "click",
+                    (event) => {
+                        event.stopPropagation();
+
+                        const key =
+                            button.dataset.pressObject;
+
+                        const content =
+                            PRESS_OBJECT_CONTENT[key];
+
+                        if (!content) {
+                            return;
+                        }
+
+                        discover(
+                            `press:${key}`,
+                            isHellion()
+                                ? "Still inspecting the machine?"
+                                : "The machine has more going on than the lever."
+                        );
+
+                        openDrawer(
+                            content
+                        );
+                    }
+                );
+            }
+        );
+    }
+
+
+    /* =========================================================
        ROADMAP / MANUAL OBJECTS
        ========================================================= */
 
@@ -4241,6 +4643,23 @@
             }
         }
 
+        if (dom.readerDormantObject) {
+            if (error) {
+                dom.readerDormantObject.textContent =
+                    "READER // OFFLINE";
+
+            } else if (
+                state.publications.length > 0
+            ) {
+                dom.readerDormantObject.textContent =
+                    "READER // READY";
+
+            } else {
+                dom.readerDormantObject.textContent =
+                    "READER // ASLEEP";
+            }
+        }
+
         if (!dom.collectionList) {
             return;
         }
@@ -5701,8 +6120,10 @@
         initTheoryWall();
         initHarrowInteractions();
         initClassified();
+        initProjectObjects();
 
         initPress();
+        initPressArtObjects();
         initWalletEvents();
         initReaderControls();
 
