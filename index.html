@@ -606,6 +606,24 @@
 
                         </button>
 
+
+                        <button
+                            class="box-definition-object"
+                            id="boxDefinitionObject"
+                            type="button"
+                            aria-label="What is Hellbox Comics?"
+                        >
+                            <span>OBJECT // HBX-01</span>
+
+                            <strong>
+                                THE BOX.
+                            </strong>
+
+                            <small>
+                                YOU'RE ALREADY INSIDE IT. →
+                            </small>
+                        </button>
+
                     </div>
 
                 </div>
@@ -704,6 +722,15 @@
                             <strong id="collectionAccessState">
                                 WAITING
                             </strong>
+
+                            <button
+                                class="hellion-status-object"
+                                id="hellionStatusObject"
+                                type="button"
+                                aria-label="Open Hellion status file"
+                            >
+                                OPEN FILE
+                            </button>
 
                         </div>
 
@@ -808,11 +835,24 @@
                     ></div>
 
 
-                    <div
-                        class="terminal-footer-status"
-                        id="collectionStatus"
-                    >
-                        SHOW ME SOMETHING INTERESTING.
+                    <div class="terminal-footer-row">
+
+                        <div
+                            class="terminal-footer-status"
+                            id="collectionStatus"
+                        >
+                            SHOW ME SOMETHING INTERESTING.
+                        </div>
+
+                        <button
+                            class="reader-dormant-object"
+                            id="readerDormantObject"
+                            type="button"
+                            aria-label="Inspect the Hellbox Reader"
+                        >
+                            READER // ASLEEP
+                        </button>
+
                     </div>
 
                 </div>
@@ -1230,6 +1270,39 @@
                                 decoding="async"
                             >
 
+                        </button>
+
+
+                        <button
+                            class="press-art-hotspot press-hotspot-chain"
+                            type="button"
+                            data-press-object="chain"
+                            aria-label="Inspect the PulseChain terminal on the Hellbox Press"
+                        >
+                            <span>+</span>
+                            <small>CHAIN</small>
+                        </button>
+
+
+                        <button
+                            class="press-art-hotspot press-hotspot-qc"
+                            type="button"
+                            data-press-object="qc"
+                            aria-label="Inspect Harrow's quality control station"
+                        >
+                            <span>+</span>
+                            <small>QC</small>
+                        </button>
+
+
+                        <button
+                            class="press-art-hotspot press-hotspot-output"
+                            type="button"
+                            data-press-object="output"
+                            aria-label="Inspect the Hellbox Press output"
+                        >
+                            <span>+</span>
+                            <small>OUTPUT</small>
                         </button>
 
 
@@ -1926,11 +1999,18 @@
                     INFRASTRUCTURE
                 </span>
 
-                <img
-                    src="https://cdn.hellboxcomics.com/assets/brand/footer/backed-by-bytes-footer.PNG"
-                    alt="Backed by Bytes"
-                    class="footer-bytes"
+                <button
+                    class="footer-object-button"
+                    id="bytesInfrastructureObject"
+                    type="button"
+                    aria-label="Inspect Hellbox infrastructure"
                 >
+                    <img
+                        src="https://cdn.hellboxcomics.com/assets/brand/footer/backed-by-bytes-footer.PNG"
+                        alt="Backed by Bytes"
+                        class="footer-bytes"
+                    >
+                </button>
 
             </div>
 
