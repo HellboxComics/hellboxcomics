@@ -11312,3 +11312,363 @@ and
     }
 
 }
+
+
+/* ================================================================
+   COMPLETENESS PASS 06
+   STORY BACKBONE — NO NEW ART ASSETS
+
+   Adds:
+   - A physical "What is the Box?" object to the origin section.
+   - Hellion status lore once the relationship system recognizes one.
+   - A visible Reader object even before the first publication exists.
+   - Press object mapping for chain / QC / output.
+   - Clickable Bytes infrastructure lore in the footer.
+   ================================================================ */
+
+
+/* ---------------------------------------------------------------
+   THE BOX — THE MISSING EXPLANATION, KEPT AS AN OBJECT
+   --------------------------------------------------------------- */
+
+.box-definition-object {
+    width: min(440px, 100%);
+    min-height: 78px;
+    margin-top: 22px;
+    padding: 13px 16px;
+
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    align-items: center;
+    column-gap: 16px;
+
+    border: 1px solid rgba(18,18,18,0.26);
+    border-left: 4px solid #151515;
+
+    background:
+        linear-gradient(
+            96deg,
+            rgba(0,0,0,0.045),
+            transparent 44%
+        ),
+        rgba(245,241,232,0.78);
+
+    color: #111;
+    text-align: left;
+
+    box-shadow:
+        7px 8px 0 rgba(0,0,0,0.045);
+
+    transform: rotate(0.35deg);
+
+    cursor: pointer;
+    transition:
+        transform 0.16s ease,
+        box-shadow 0.16s ease,
+        border-color 0.16s ease;
+}
+
+.box-definition-object:hover,
+.box-definition-object:focus-visible {
+    transform:
+        rotate(-0.2deg)
+        translateY(-2px);
+
+    border-color: rgba(198,32,32,0.38);
+
+    box-shadow:
+        9px 12px 0 rgba(0,0,0,0.065);
+}
+
+.box-definition-object > span {
+    grid-row: 1 / -1;
+
+    padding: 8px 10px;
+
+    border: 1px solid rgba(198,32,32,0.35);
+
+    color: var(--red);
+
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 1000;
+    line-height: 1;
+    letter-spacing: 0.11em;
+    white-space: nowrap;
+}
+
+.box-definition-object strong {
+    font-family: var(--font-ui);
+    font-size: 21px;
+    line-height: 1;
+    letter-spacing: 0.02em;
+}
+
+.box-definition-object small {
+    margin-top: 5px;
+
+    color: rgba(20,20,20,0.62);
+
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+}
+
+
+/* ---------------------------------------------------------------
+   ARCHIVE — HELLION FILE + DORMANT READER
+   --------------------------------------------------------------- */
+
+.hellion-status-object {
+    display: none;
+
+    margin: 4px 0 0 auto;
+    padding: 3px 7px;
+
+    border: 1px solid rgba(173,115,255,0.28);
+    background: rgba(140,66,255,0.05);
+
+    color: rgba(173,115,255,0.74);
+
+    font-family: var(--font-ui);
+    font-size: 8px;
+    font-weight: 1000;
+    line-height: 1;
+    letter-spacing: 0.12em;
+
+    cursor: pointer;
+}
+
+body[data-relationship-stage="hellion"]
+.hellion-status-object {
+    display: inline-flex;
+}
+
+.hellion-status-object:hover,
+.hellion-status-object:focus-visible {
+    border-color: rgba(173,115,255,0.7);
+    color: #fff;
+    background: rgba(140,66,255,0.13);
+}
+
+.terminal-footer-row {
+    min-height: 56px;
+
+    display: grid;
+    grid-template-columns: 1fr auto;
+
+    border-top: 1px solid var(--line);
+}
+
+.terminal-footer-row .terminal-footer-status {
+    min-height: 56px;
+}
+
+.reader-dormant-object {
+    min-width: 155px;
+    padding: 0 18px;
+
+    border: 0;
+    border-left: 1px solid var(--line);
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(140,66,255,0.025),
+            transparent
+        ),
+        rgba(255,255,255,0.008);
+
+    color: rgba(173,115,255,0.62);
+
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 1000;
+    letter-spacing: 0.1em;
+
+    cursor: pointer;
+    transition:
+        background 0.16s ease,
+        color 0.16s ease;
+}
+
+.reader-dormant-object:hover,
+.reader-dormant-object:focus-visible {
+    color: #fff;
+    background: rgba(140,66,255,0.08);
+}
+
+
+/* ---------------------------------------------------------------
+   PRESS OBJECTS — HIDDEN BY DEFAULT UNTIL A COMPOSITION IS LOCKED
+   --------------------------------------------------------------- */
+
+.press-art-hotspot {
+    display: none;
+}
+
+
+/* ---------------------------------------------------------------
+   FOOTER — INFRASTRUCTURE IS AN OBJECT TOO
+   --------------------------------------------------------------- */
+
+.footer-object-button {
+    width: fit-content;
+    max-width: 100%;
+    padding: 0;
+
+    border: 0;
+    background: transparent;
+
+    text-align: left;
+    cursor: pointer;
+
+    transition:
+        transform 0.16s ease,
+        filter 0.16s ease;
+}
+
+.footer-object-button:hover,
+.footer-object-button:focus-visible {
+    transform: translateY(-2px);
+    filter:
+        drop-shadow(0 0 15px rgba(140,66,255,0.18));
+}
+
+
+/* ---------------------------------------------------------------
+   VERTICAL DESKTOP — COMPLETE THE ENVIRONMENTAL INTERFACE
+   --------------------------------------------------------------- */
+
+@media
+(min-width: 820px)
+and
+(max-aspect-ratio: 4 / 5) {
+
+    .box-definition-object {
+        margin-top: 26px;
+    }
+
+
+    /* Press art hotspots sit on the exact supplied 1536 × 1024 art. */
+
+    .press-art-hotspot {
+        position: absolute;
+        z-index: 10;
+
+        width: 30px;
+        height: 30px;
+        padding: 0;
+
+        display: block;
+
+        transform: translate(-50%, -50%);
+
+        border: 1px solid rgba(255,255,255,0.28);
+        border-radius: 50%;
+
+        background: rgba(2,2,2,0.38);
+        color: rgba(255,255,255,0.82);
+
+        font-family: var(--font-ui);
+        font-size: 16px;
+        line-height: 1;
+
+        box-shadow:
+            0 0 0 1px rgba(0,0,0,0.38),
+            0 0 18px rgba(140,66,255,0.05);
+
+        cursor: crosshair;
+
+        transition:
+            transform 0.16s ease,
+            border-color 0.16s ease,
+            background 0.16s ease,
+            box-shadow 0.16s ease;
+    }
+
+    .press-art-hotspot > span {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+
+        transform: translate(-50%, -52%);
+    }
+
+    .press-art-hotspot > small {
+        position: absolute;
+        left: 50%;
+        top: calc(100% + 8px);
+
+        padding: 4px 6px;
+
+        opacity: 0;
+
+        transform:
+            translateX(-50%)
+            translateY(3px);
+
+        border: 1px solid rgba(173,115,255,0.2);
+        background: rgba(2,2,2,0.9);
+
+        color: rgba(255,255,255,0.82);
+
+        font-family: var(--font-ui);
+        font-size: 8px;
+        font-weight: 1000;
+        line-height: 1;
+        letter-spacing: 0.1em;
+        white-space: nowrap;
+
+        transition:
+            opacity 0.16s ease,
+            transform 0.16s ease;
+    }
+
+    .press-art-hotspot:hover,
+    .press-art-hotspot:focus-visible {
+        transform:
+            translate(-50%, -50%)
+            scale(1.13);
+
+        border-color: rgba(173,115,255,0.78);
+
+        background: rgba(80,31,140,0.62);
+
+        box-shadow:
+            0 0 24px rgba(140,66,255,0.24);
+    }
+
+    .press-art-hotspot:hover > small,
+    .press-art-hotspot:focus-visible > small {
+        opacity: 1;
+
+        transform:
+            translateX(-50%)
+            translateY(0);
+    }
+
+    .press-hotspot-chain {
+        left: 40.3%;
+        top: 13.1%;
+    }
+
+    .press-hotspot-qc {
+        left: 21.4%;
+        top: 73.4%;
+    }
+
+    .press-hotspot-output {
+        left: 63.2%;
+        top: 66.8%;
+    }
+
+
+    /* A tiny bit more room for the reader object without growing the section. */
+    .reader-dormant-object {
+        min-width: 150px;
+    }
+
+}
