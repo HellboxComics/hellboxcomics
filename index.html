@@ -97,21 +97,7 @@
 
 
     <!-- =========================================================
-         DISCOVERY COUNTER
-    ========================================================== -->
-
-    <div
-        class="discovery-counter"
-        id="discoveryCounter"
-        aria-label="Unknown discovery counter"
-    >
-        <span>?</span>
-        <strong id="discoveryCount">00</strong>
-    </div>
-
-
-    <!-- =========================================================
-         HARROW ORB
+         HARROW ORB + DISCOVERY COUNT
     ========================================================== -->
 
     <button
@@ -126,6 +112,15 @@
         >
 
         <span class="harrow-orb-ping"></span>
+
+        <span
+            class="harrow-orb-discovery"
+            id="discoveryCounter"
+            aria-label="Discovered objects"
+        >
+            <span>?</span>
+            <strong id="discoveryCount">00</strong>
+        </span>
     </button>
 
 
@@ -327,6 +322,17 @@
                     class="hero-blackout"
                     aria-hidden="true"
                 ></div>
+
+                <!--
+                    ART CORRECTION
+                    This sits on the same 1672 × 941 coordinate plane as the
+                    hero art. It turns the duplicate cigarette-shaped object
+                    in Harrow's drawing hand into a red grease pencil.
+                -->
+                <span
+                    class="hero-correction-pencil"
+                    aria-hidden="true"
+                ></span>
 
 
                 <!-- HERO HOTSPOTS -->
@@ -848,20 +854,28 @@
                                 class="vandalized-word"
                                 id="theorySingular"
                             >
-                                A
+                                <span class="theory-original-a">A</span>
+                                <span
+                                    class="theory-strike theory-strike-one"
+                                    aria-hidden="true"
+                                ></span>
+                                <span
+                                    class="theory-strike theory-strike-two"
+                                    aria-hidden="true"
+                                ></span>
+                                <span
+                                    class="theory-correction"
+                                    id="theoryCorrection"
+                                    aria-hidden="true"
+                                >47</span>
+                                <span
+                                    class="theory-correction-arrow"
+                                    aria-hidden="true"
+                                ></span>
                             </span>
 
                             <em>THEORY.</em>
                         </h2>
-
-
-                        <span
-                            class="vandalism vandalism-theories"
-                            id="theoryCorrection"
-                            aria-hidden="true"
-                        >
-                            47*
-                        </span>
 
                     </div>
 
@@ -1174,7 +1188,10 @@
 
 
                     <!-- =========================================
-                         RIGHT: PHYSICAL PRESS MACHINE
+                         PHYSICAL PRESS MACHINE
+                         The original 1536 × 1024 machine art is the
+                         coordinate plane. The real lever in the artwork
+                         is the lever the visitor pulls.
                     ========================================== -->
 
                     <div
@@ -1191,22 +1208,6 @@
                             class="machine-field machine-field-two"
                             aria-hidden="true"
                         ></div>
-
-
-                        <div
-                            class="press-machine-status"
-                            id="pressMachineStatus"
-                        >
-
-                            <span>
-                                MACHINE // BAY 01
-                            </span>
-
-                            <strong id="pressMachineState">
-                                ASLEEP
-                            </strong>
-
-                        </div>
 
 
                         <button
@@ -1229,94 +1230,42 @@
                                 decoding="async"
                             >
 
-                            <span
-                                class="press-machine-hitarea"
-                                aria-hidden="true"
-                            ></span>
-
                         </button>
 
 
                         <div
-                            class="press-machine-console"
-                            id="pressMachineConsole"
+                            class="press-machine-status"
+                            id="pressMachineStatus"
                         >
 
-                            <div class="machine-console-top">
+                            <span>
+                                MACHINE // BAY 01
+                            </span>
 
-                                <span>
-                                    HARROW // MACHINE
-                                </span>
-
-                                <span
-                                    class="machine-console-light"
-                                    id="machineConsoleLight"
-                                ></span>
-
-                            </div>
-
-
-                            <div class="machine-console-message">
-
-                                <span id="pressConsoleLabel">
-                                    STATUS
-                                </span>
-
-                                <strong id="pressConsoleTitle">
-                                    DON'T TOUCH IT.
-                                </strong>
-
-                                <p id="pressConsoleText">
-                                    I mean it.
-                                </p>
-
-                            </div>
-
-
-                            <div class="machine-console-readouts">
-
-                                <div>
-                                    <span>POWER</span>
-                                    <strong id="pressPowerValue">00</strong>
-                                </div>
-
-                                <div>
-                                    <span>INK</span>
-                                    <strong id="pressInkValue">??</strong>
-                                </div>
-
-                                <div>
-                                    <span>RPC</span>
-                                    <strong id="pressRpcValue">369</strong>
-                                </div>
-
-                                <div>
-                                    <span>BAD IDEA</span>
-                                    <strong id="pressIdeaValue">YES</strong>
-                                </div>
-
-                            </div>
+                            <strong id="pressMachineState">
+                                ASLEEP
+                            </strong>
 
                         </div>
 
 
                         <button
-                            class="press-lever"
+                            class="press-lever press-real-lever"
                             id="pressLever"
                             type="button"
-                            aria-label="Press activation lever"
+                            aria-label="Pull the real lever on the Hellbox Press"
                         >
+                            <span
+                                class="press-lever-sensor"
+                                aria-hidden="true"
+                            ></span>
 
-                            <span class="press-lever-track"></span>
-
-                            <span class="press-lever-arm">
-                                <i></i>
+                            <span
+                                class="press-lever-callout"
+                                aria-hidden="true"
+                            >
+                                PULL IT. I DARE YOU.
                             </span>
-
-                            <strong>
-                                PRESS
-                            </strong>
-
                         </button>
 
 
@@ -1325,6 +1274,69 @@
                             id="pressWarning"
                         >
                             DO NOT PULL THAT.
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="press-machine-console"
+                        id="pressMachineConsole"
+                    >
+
+                        <div class="machine-console-top">
+
+                            <span>
+                                HARROW // MACHINE
+                            </span>
+
+                            <span
+                                class="machine-console-light"
+                                id="machineConsoleLight"
+                            ></span>
+
+                        </div>
+
+
+                        <div class="machine-console-message">
+
+                            <span id="pressConsoleLabel">
+                                STATUS
+                            </span>
+
+                            <strong id="pressConsoleTitle">
+                                DON'T TOUCH IT.
+                            </strong>
+
+                            <p id="pressConsoleText">
+                                I mean it.
+                            </p>
+
+                        </div>
+
+
+                        <div class="machine-console-readouts">
+
+                            <div>
+                                <span>POWER</span>
+                                <strong id="pressPowerValue">00</strong>
+                            </div>
+
+                            <div>
+                                <span>INK</span>
+                                <strong id="pressInkValue">??</strong>
+                            </div>
+
+                            <div>
+                                <span>RPC</span>
+                                <strong id="pressRpcValue">369</strong>
+                            </div>
+
+                            <div>
+                                <span>BAD IDEA</span>
+                                <strong id="pressIdeaValue">YES</strong>
+                            </div>
+
                         </div>
 
                     </div>
