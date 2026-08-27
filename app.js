@@ -1,6828 +1,3247 @@
 /* ============================================================
    HELLBOX COMICS
-   FRONTEND APPLICATION V3
-   HARROW'S LAIR
+   FRONTEND APPLICATION V5
+   HARROW'S NERVOUS SYSTEM
    ============================================================ */
 
+(() => {
+    "use strict";
 
-"use strict";
 
+    /* =========================================================
+       CONSTANTS
+       ========================================================= */
 
-/* ============================================================
-   CONFIGURATION
-   ============================================================ */
-
-
-const API_BASE =
-    "https://hellboxcomics.harrow-harrow.workers.dev";
-
-
-const HELLBOX = {
-
-    chainIdHex:
-        "0x171",
-
-    chainIdDecimal:
-        369,
-
-    chainName:
-        "PulseChain",
-
-    currency: {
-
-        name:
-            "Pulse",
-
-        symbol:
-            "PLS",
-
-        decimals:
-            18
-
-    },
-
-    rpcUrls: [
-        "https://rpc.pulsechain.com"
-    ],
-
-    explorerUrls: [
-        "https://scan.pulsechain.com"
-    ]
-
-};
-
-
-const SESSION_STORAGE_KEY =
-    "hellbox_reader_session";
-
-const SESSION_WALLET_KEY =
-    "hellbox_reader_wallet";
-
-const SESSION_EXPIRY_KEY =
-    "hellbox_reader_expiry";
-
-const LAIR_STATE_KEY =
-    "hellbox_lair_state_v2";
-
-
-/* ============================================================
-   APPLICATION STATE
-   ============================================================ */
-
-
-let connectedWallet =
-    null;
-
-let connectedChainId =
-    null;
-
-let walletStatus =
-    null;
-
-let publicPublications =
-    [];
-
-let pressPublications =
-    [];
-
-let walletBusy =
-    false;
-
-let readerAuthBusy =
-    false;
-
-let mintBusy =
-    false;
-
-let readerSession =
-    null;
-
-let readerSessionWallet =
-    null;
-
-let readerSessionExpiry =
-    null;
-
-let currentZone =
-    "hero";
-
-let whisperTimer =
-    null;
-
-let responseTimer =
-    null;
-
-
-const readerState = {
-
-    open:
-        false,
-
-    publication:
-        null,
-
-    manifest:
-        null,
-
-    pages:
-        [],
-
-    currentIndex:
-        0,
-
-    mode:
-        "paged",
-
-    fit:
-        "page",
-
-    objectUrls:
-        new Map()
-
-};
-
-
-const defaultLairState = {
-
-    discoveries:
-        [],
-
-    clicks:
-        {},
-
-    theoriesOpened:
-        [],
-
-    hotspotsOpened:
-        [],
-
-    walletSeen:
-        false,
-
-    orbClicks:
-        0,
-
-    logoClicks:
-        0,
-
-    pressClicks:
-        0,
-
-    classifiedClicks:
-        0,
-
-    sessionStartedAt:
-        Date.now()
-
-};
-
-
-let lairState =
-    loadLairState();
-
-
-/* ============================================================
-   DOM HELPERS
-   ============================================================ */
-
-
-const $ =
-    id =>
-        document.getElementById(
-            id
-        );
-
-
-function qsa(
-    selector
-) {
-
-    return Array.from(
-        document.querySelectorAll(
-            selector
-        )
-    );
-
-}
-
-
-function clearElement(
-    element
-) {
-
-    if (!element) {
-
-        return;
-
-    }
-
-
-    while (
-        element.firstChild
-    ) {
-
-        element.removeChild(
-            element.firstChild
-        );
-
-    }
-
-}
-
-
-function makeElement(
-    tag,
-    className,
-    text
-) {
-
-    const element =
-        document.createElement(
-            tag
-        );
-
-
-    if (className) {
-
-        element.className =
-            className;
-
-    }
-
-
-    if (
-        text !== undefined &&
-        text !== null
-    ) {
-
-        element.textContent =
-            text;
-
-    }
-
-
-    return element;
-
-}
-
-
-function sleep(
-    milliseconds
-) {
-
-    return new Promise(
-        resolve =>
-            setTimeout(
-                resolve,
-                milliseconds
-            )
-    );
-
-}
-
-
-/* ============================================================
-   DOM REFERENCES
-   ============================================================ */
-
-
-const walletButton =
-    $("walletButton");
-
-const terminalAction =
-    $("terminalAction");
-
-const collectionWallet =
-    $("collectionWallet");
-
-const collectionNetwork =
-    $("collectionNetwork");
-
-const collectionAccessState =
-    $("collectionAccessState");
-
-const publicationCount =
-    $("publicationCount");
-
-const summaryKnown =
-    $("summaryKnown");
-
-const summaryOwned =
-    $("summaryOwned");
-
-const summaryMissing =
-    $("summaryMissing");
-
-const summaryEvolved =
-    $("summaryEvolved");
-
-const terminalTitle =
-    $("terminalTitle");
-
-const terminalMessage =
-    $("terminalMessage");
-
-const archiveHarrowNote =
-    $("archiveHarrowNote");
-
-const collectionList =
-    $("collectionList");
-
-const collectionStatus =
-    $("collectionStatus");
-
-const pressContainer =
-    $("pressContainer");
-
-const harrowWhisper =
-    $("harrowWhisper");
-
-const harrowWhisperText =
-    $("harrowWhisperText");
-
-const harrowOrb =
-    $("harrowOrb");
-
-const harrowResponse =
-    $("harrowResponse");
-
-const harrowResponseTitle =
-    $("harrowResponseTitle");
-
-const harrowResponseText =
-    $("harrowResponseText");
-
-const discoveryCount =
-    $("discoveryCount");
-
-const lairDrawer =
-    $("lairDrawer");
-
-const drawerCode =
-    $("drawerCode");
-
-const drawerEyebrow =
-    $("drawerEyebrow");
-
-const drawerTitle =
-    $("drawerTitle");
-
-const drawerCopy =
-    $("drawerCopy");
-
-const drawerFootnote =
-    $("drawerFootnote");
-
-
-const hellboxReader =
-    $("hellboxReader");
-
-const readerTitle =
-    $("readerTitle");
-
-const readerPageNumber =
-    $("readerPageNumber");
-
-const readerPageCount =
-    $("readerPageCount");
-
-const readerBottomLabel =
-    $("readerBottomLabel");
-
-const readerPaged =
-    $("readerPaged");
-
-const readerContinuous =
-    $("readerContinuous");
-
-const readerPageImage =
-    $("readerPageImage");
-
-const readerPrevious =
-    $("readerPrevious");
-
-const readerNext =
-    $("readerNext");
-
-const readerPreviousBottom =
-    $("readerPreviousBottom");
-
-const readerNextBottom =
-    $("readerNextBottom");
-
-const readerFirst =
-    $("readerFirst");
-
-const readerLast =
-    $("readerLast");
-
-const readerClose =
-    $("readerClose");
-
-const readerErrorClose =
-    $("readerErrorClose");
-
-const readerFitPage =
-    $("readerFitPage");
-
-const readerFitWidth =
-    $("readerFitWidth");
-
-const readerLayoutToggle =
-    $("readerLayoutToggle");
-
-const readerLoading =
-    $("readerLoading");
-
-const readerLoadingText =
-    $("readerLoadingText");
-
-const readerError =
-    $("readerError");
-
-const readerErrorText =
-    $("readerErrorText");
-
-
-/* ============================================================
-   LAIR STATE
-   ============================================================ */
-
-
-function cloneDefaultLairState() {
-
-    return {
-        ...defaultLairState,
-
-        discoveries:
-            [],
-
-        clicks:
-            {},
-
-        theoriesOpened:
-            [],
-
-        hotspotsOpened:
-            []
+    const PULSECHAIN = {
+        chainId: 369,
+        chainIdHex: "0x171",
+        name: "PulseChain"
     };
 
-}
+    const STORAGE_KEYS = {
+        discoveries: "hellbox:discoveries:v1",
+        visits: "hellbox:visits:v1",
+        pressTouches: "hellbox:press-touches:v1"
+    };
 
 
-function loadLairState() {
+    /* =========================================================
+       SMALL HELPERS
+       ========================================================= */
 
-    try {
+    const $ = (selector, root = document) => {
+        return root.querySelector(selector);
+    };
 
-        const stored =
-            sessionStorage.getItem(
-                LAIR_STATE_KEY
-            );
+    const $$ = (selector, root = document) => {
+        return Array.from(root.querySelectorAll(selector));
+    };
 
+    const sleep = (ms) => {
+        return new Promise((resolve) => {
+            window.setTimeout(resolve, ms);
+        });
+    };
 
-        if (!stored) {
+    const clamp = (value, min, max) => {
+        return Math.min(Math.max(value, min), max);
+    };
 
-            return cloneDefaultLairState();
+    const randomItem = (items) => {
+        return items[Math.floor(Math.random() * items.length)];
+    };
 
+    const truncateAddress = (address) => {
+        if (!address || typeof address !== "string") {
+            return "NOT SHOWN";
         }
 
-
-        const parsed =
-            JSON.parse(
-                stored
-            );
-
-
-        return {
-
-            ...cloneDefaultLairState(),
-
-            ...parsed,
-
-            discoveries:
-                Array.isArray(
-                    parsed.discoveries
-                )
-                    ? parsed.discoveries
-                    : [],
-
-            clicks:
-                parsed.clicks &&
-                typeof parsed.clicks ===
-                    "object"
-                    ? parsed.clicks
-                    : {},
-
-            theoriesOpened:
-                Array.isArray(
-                    parsed.theoriesOpened
-                )
-                    ? parsed.theoriesOpened
-                    : [],
-
-            hotspotsOpened:
-                Array.isArray(
-                    parsed.hotspotsOpened
-                )
-                    ? parsed.hotspotsOpened
-                    : []
-
-        };
-
-
-    } catch (
-        error
-    ) {
-
-        console.warn(
-            "HELLBOX LAIR STATE RESET:",
-            error
-        );
-
-
-        return cloneDefaultLairState();
-
-    }
-
-}
-
-
-function saveLairState() {
-
-    try {
-
-        sessionStorage.setItem(
-            LAIR_STATE_KEY,
-            JSON.stringify(
-                lairState
-            )
-        );
-
-
-    } catch (
-        error
-    ) {
-
-        console.warn(
-            "HELLBOX STATE SAVE:",
-            error
-        );
-
-    }
-
-
-    updateDiscoveryCounter();
-
-}
-
-
-function incrementInteraction(
-    key
-) {
-
-    lairState.clicks[key] =
-        Number(
-            lairState.clicks[key] ||
-            0
-        ) +
-        1;
-
-
-    saveLairState();
-
-
-    return lairState.clicks[key];
-
-}
-
-
-function discover(
-    key
-) {
-
-    if (
-        !lairState.discoveries.includes(
-            key
-        )
-    ) {
-
-        lairState.discoveries.push(
-            key
-        );
-
-
-        saveLairState();
-
-
-        document.body.classList.add(
-            "discovery-found"
-        );
-
-
-        setTimeout(
-            () => {
-
-                document.body.classList.remove(
-                    "discovery-found"
-                );
-
-            },
-            500
-        );
-
-    }
-
-}
-
-
-function updateDiscoveryCounter() {
-
-    if (!discoveryCount) {
-
-        return;
-
-    }
-
-
-    discoveryCount.textContent =
-        String(
-            lairState.discoveries.length
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    document.body.classList.toggle(
-        "has-discoveries",
-        lairState.discoveries.length >
-            0
-    );
-
-}
-
-
-/* ============================================================
-   WALLET HELPERS
-   ============================================================ */
-
-
-function hasWalletProvider() {
-
-    return Boolean(
-        window.ethereum &&
-        typeof window.ethereum.request ===
-            "function"
-    );
-
-}
-
-
-function normalizeAddressLocal(
-    address
-) {
-
-    return address
-        ? String(
-            address
-        ).toLowerCase()
-        : null;
-
-}
-
-
-function normalizeChainId(
-    value
-) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-
-        return null;
-
-    }
-
-
-    if (
-        typeof value ===
-            "number"
-    ) {
-
-        return value;
-
-    }
-
-
-    const text =
-        String(
-            value
-        ).trim();
-
-
-    return text
-        .toLowerCase()
-        .startsWith(
-            "0x"
-        )
-            ? parseInt(
-                text,
-                16
-            )
-            : parseInt(
-                text,
-                10
-            );
-
-}
-
-
-function isPulseChain() {
-
-    return normalizeChainId(
-        connectedChainId
-    ) ===
-        HELLBOX.chainIdDecimal;
-
-}
-
-
-function shortAddress(
-    address
-) {
-
-    if (!address) {
-
-        return "NOT SHOWN";
-
-    }
-
-
-    return (
-        address.slice(
-            0,
-            6
-        ) +
-        "..." +
-        address.slice(
-            -4
-        )
-    );
-
-}
-
-
-function formatCount(
-    value
-) {
-
-    return String(
-        Number(
-            value ||
-            0
-        )
-    ).padStart(
-        2,
-        "0"
-    );
-
-}
-
-
-/* ============================================================
-   HARROW SPEECH
-   ============================================================ */
-
-
-function showHarrowWhisper(
-    message,
-    duration = 2800
-) {
-
-    if (
-        !harrowWhisper ||
-        !harrowWhisperText
-    ) {
-
-        return;
-
-    }
-
-
-    harrowWhisperText.textContent =
-        message;
-
-
-    harrowWhisper.classList.add(
-        "active"
-    );
-
-
-    harrowWhisper.setAttribute(
-        "aria-hidden",
-        "false"
-    );
-
-
-    clearTimeout(
-        whisperTimer
-    );
-
-
-    whisperTimer =
-        setTimeout(
-            () => {
-
-                harrowWhisper.classList.remove(
-                    "active"
-                );
-
-
-                harrowWhisper.setAttribute(
-                    "aria-hidden",
-                    "true"
-                );
-
-            },
-            duration
-        );
-
-}
-
-
-function showHarrowResponse(
-    title,
-    text
-) {
-
-    if (
-        !harrowResponse ||
-        !harrowResponseTitle ||
-        !harrowResponseText
-    ) {
-
-        return;
-
-    }
-
-
-    harrowResponseTitle.textContent =
-        title;
-
-
-    harrowResponseText.textContent =
-        text;
-
-
-    harrowResponse.classList.add(
-        "active"
-    );
-
-
-    harrowResponse.setAttribute(
-        "aria-hidden",
-        "false"
-    );
-
-
-    clearTimeout(
-        responseTimer
-    );
-
-
-    responseTimer =
-        setTimeout(
-            closeHarrowResponse,
-            6500
-        );
-
-}
-
-
-function closeHarrowResponse() {
-
-    if (!harrowResponse) {
-
-        return;
-
-    }
-
-
-    harrowResponse.classList.remove(
-        "active"
-    );
-
-
-    harrowResponse.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-}
-
-
-/* ============================================================
-   DRAWER
-   ============================================================ */
-
-
-function openDrawer({
-    code,
-    eyebrow,
-    title,
-    html,
-    footnote
-}) {
-
-    if (!lairDrawer) {
-
-        return;
-
-    }
-
-
-    drawerCode.textContent =
-        code ||
-        "OBJECT // UNKNOWN";
-
-
-    drawerEyebrow.textContent =
-        eyebrow ||
-        "HARROW // NOTE";
-
-
-    drawerTitle.textContent =
-        title ||
-        "DON'T TOUCH THAT.";
-
-
-    drawerCopy.innerHTML =
-        html ||
-        "";
-
-
-    drawerFootnote.textContent =
-        footnote ||
-        "";
-
-
-    lairDrawer.classList.add(
-        "active"
-    );
-
-
-    lairDrawer.setAttribute(
-        "aria-hidden",
-        "false"
-    );
-
-
-    document.body.classList.add(
-        "drawer-open"
-    );
-
-}
-
-
-function closeDrawer() {
-
-    if (!lairDrawer) {
-
-        return;
-
-    }
-
-
-    lairDrawer.classList.remove(
-        "active"
-    );
-
-
-    lairDrawer.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-
-    document.body.classList.remove(
-        "drawer-open"
-    );
-
-}
-
-
-/* ============================================================
-   HARROW CONTEXT
-   ============================================================ */
-
-
-function getHarrowZoneLines(
-    zone
-) {
-
-    const address =
-        connectedWallet
-            ? shortAddress(
-                connectedWallet
-            )
-            : null;
-
-
-    const lines = {
-
-        hero: [
-
-            [
-                "WHAT?",
-                "You interrupted me."
-            ],
-
-            [
-                "YES?",
-                "The giant picture wasn't enough?"
-            ],
-
-            [
-                "I'M BUSY.",
-                "This comic isn't going to become offensive by itself."
-            ],
-
-            [
-                "CAREFUL.",
-                "Half the things in here are technically ideas."
-            ]
-
-        ],
-
-        box: [
-
-            [
-                "THE PROBLEM?",
-                "You're standing in it."
-            ],
-
-            [
-                "DON'T WORRY.",
-                "I've made considerably worse decisions."
-            ],
-
-            [
-                "YES.",
-                "I built all this instead of developing normal hobbies."
-            ]
-
-        ],
-
-        archive: [
-
-            address
-                ? [
-                    "YOU AGAIN.",
-                    `${address}. I remember enough.`
-                ]
-                : [
-                    "YOUR WALLET.",
-                    "You haven't shown me anything yet."
-                ],
-
-            [
-                "BAGS?",
-                "Everybody has them. Some are just heavier."
-            ],
-
-            [
-                "OWNERSHIP.",
-                "One of crypto's surprisingly durable concepts."
-            ]
-
-        ],
-
-        theory: [
-
-            [
-                "I'M BUSY.",
-                "The string isn't going to connect itself."
-            ],
-
-            [
-                "NO.",
-                "I will not explain the entire board."
-            ],
-
-            [
-                "LOOK.",
-                "If you stare long enough, eventually everything becomes connected."
-            ],
-
-            [
-                "WAIT.",
-                "I almost had it."
-            ]
-
-        ],
-
-        press: [
-
-            [
-                "STOP ASKING.",
-                "You'll get it when it's done."
-            ],
-
-            [
-                "THE PRESS?",
-                "Currently producing nothing at industrial scale."
-            ],
-
-            [
-                "DEADLINES.",
-                "A fascinating theory."
-            ]
-
-        ],
-
-        harrow: [
-
-            [
-                "YES?",
-                "You have excellent instincts."
-            ],
-
-            [
-                "FINALLY.",
-                "A section with proper editorial priorities."
-            ],
-
-            [
-                "I KNOW.",
-                "The photo is excellent."
-            ],
-
-            [
-                "ME AGAIN.",
-                "Recurring theme."
-            ]
-
-        ],
-
-        signals: [
-
-            [
-                "SOCIAL MEDIA?",
-                "A terrible invention. I use it constantly."
-            ],
-
-            [
-                "TELEGRAM.",
-                "The basement has Wi-Fi."
-            ]
-
-        ],
-
-        classified: [
-
-            [
-                "NO.",
-                "Absolutely not."
-            ],
-
-            [
-                "STOP.",
-                "You're becoming predictable."
-            ],
-
-            [
-                "██████.",
-                "See? Now we're communicating."
-            ]
-
-        ],
-
-        exit: [
-
-            [
-                "WHAT NOW?",
-                "Didn't I tell you to leave?"
-            ],
-
-            [
-                "STILL HERE?",
-                "Interesting."
-            ]
-
-        ],
-
-        footer: [
-
-            [
-                "YOU'RE STILL HERE?",
-                "Fascinating."
-            ]
-
-        ]
-
+        return `${address.slice(0, 6)}...${address.slice(-4)}`;
+    };
+
+    const safeText = (value, fallback = "") => {
+        if (
+            value === null ||
+            value === undefined ||
+            value === ""
+        ) {
+            return fallback;
+        }
+
+        return String(value);
+    };
+
+    const safeNumber = (value, fallback = 0) => {
+        const parsed = Number(value);
+
+        if (!Number.isFinite(parsed)) {
+            return fallback;
+        }
+
+        return parsed;
+    };
+
+    const normalizeChainId = (value) => {
+        if (typeof value === "number") {
+            return value;
+        }
+
+        if (typeof value === "string") {
+            if (value.startsWith("0x")) {
+                return parseInt(value, 16);
+            }
+
+            return parseInt(value, 10);
+        }
+
+        return 0;
+    };
+
+    const escapeHtml = (value) => {
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
     };
 
 
-    return lines[zone] ||
-        lines.hero;
+    /* =========================================================
+       APPLICATION STATE
+       ========================================================= */
 
-}
+    const state = {
+        wallet: {
+            provider: null,
+            address: null,
+            chainId: null,
+            connected: false
+        },
+
+        publications: [],
+
+        collection: {
+            known: 0,
+            owned: 0,
+            missing: 0,
+            evolved: 0
+        },
+
+        discoveries: new Set(),
+
+        press: {
+            awake: false,
+            busy: false,
+            touchCount: 0,
+            state: "idle"
+        },
+
+        reader: {
+            open: false,
+            publicationKey: null,
+            title: "",
+            pages: [],
+            pageIndex: 0,
+            mode: "paged",
+            fit: "page",
+            objectUrls: []
+        },
+
+        whisperTimer: null,
+        responseTimer: null
+    };
 
 
-function contextualHarrow() {
+    /* =========================================================
+       DOM REFERENCES
+       ========================================================= */
 
-    const options =
-        getHarrowZoneLines(
-            currentZone
-        );
+    const dom = {
+        body: document.body,
+
+        cursorBurn: $("#cursorBurn"),
+
+        whisper: $("#harrowWhisper"),
+        whisperText: $("#harrowWhisperText"),
+
+        discoveryCounter: $("#discoveryCounter"),
+        discoveryCount: $("#discoveryCount"),
+
+        harrowOrb: $("#harrowOrb"),
+
+        harrowResponse: $("#harrowResponse"),
+        harrowResponseTitle: $("#harrowResponseTitle"),
+        harrowResponseText: $("#harrowResponseText"),
+        harrowResponseClose: $("#harrowResponseClose"),
+
+        drawer: $("#lairDrawer"),
+        drawerBackdrop: $("#lairDrawerBackdrop"),
+        drawerClose: $("#lairDrawerClose"),
+        drawerCode: $("#drawerCode"),
+        drawerEyebrow: $("#drawerEyebrow"),
+        drawerTitle: $("#drawerTitle"),
+        drawerCopy: $("#drawerCopy"),
+        drawerFootnote: $("#drawerFootnote"),
+
+        walletButton: $("#walletButton"),
+
+        heroLogoButton: $("#heroLogoButton"),
+        heroTransmission: $("#heroTransmission"),
+        heroTransmissionSub: $("#heroTransmissionSub"),
+
+        therapyNote: $("#therapyNote"),
+
+        publicationCount: $("#publicationCount"),
+        collectionWallet: $("#collectionWallet"),
+        collectionNetwork: $("#collectionNetwork"),
+        collectionAccessState: $("#collectionAccessState"),
+        terminalTitle: $("#terminalTitle"),
+        terminalMessage: $("#terminalMessage"),
+        terminalAction: $("#terminalAction"),
+        archiveSticky: $("#archiveSticky"),
+        archiveHarrowNote: $("#archiveHarrowNote"),
+        collectionList: $("#collectionList"),
+        collectionStatus: $("#collectionStatus"),
+
+        summaryKnown: $("#summaryKnown"),
+        summaryOwned: $("#summaryOwned"),
+        summaryMissing: $("#summaryMissing"),
+        summaryEvolved: $("#summaryEvolved"),
+
+        archiveEmblem: $("#archiveEmblem"),
+
+        theorySingular: $("#theorySingular"),
+        theoryCorrection: $("#theoryCorrection"),
+        theoryCenter: $("#theoryCenter"),
+
+        pressSection: $("#press"),
+        pressMachineZone: $("#pressMachineZone"),
+        pressMachine: $("#pressMachine"),
+        pressMachineStatus: $("#pressMachineStatus"),
+        pressMachineState: $("#pressMachineState"),
+
+        pressMiniTerminal: $("#pressMiniTerminal"),
+        pressMiniStatus: $("#pressMiniStatus"),
+        pressPublication: $("#pressPublication"),
+        pressSupply: $("#pressSupply"),
+        pressWallet: $("#pressWallet"),
+
+        pressConsoleLabel: $("#pressConsoleLabel"),
+        pressConsoleTitle: $("#pressConsoleTitle"),
+        pressConsoleText: $("#pressConsoleText"),
+        pressPowerValue: $("#pressPowerValue"),
+        pressInkValue: $("#pressInkValue"),
+        pressRpcValue: $("#pressRpcValue"),
+        pressIdeaValue: $("#pressIdeaValue"),
+        machineConsoleLight: $("#machineConsoleLight"),
+
+        pressLever: $("#pressLever"),
+        pressWarning: $("#pressWarning"),
+        pressStateRail: $("#pressStateRail"),
+
+        roadmapObject: $("#roadmapObject"),
+        manualObject: $("#manualObject"),
+
+        harrowPortrait: $("#harrowPortrait"),
+        harrowProfileCard: $("#harrowProfileCard"),
+        harrowWordmark: $("#harrowWordmark"),
+        selfReview: $("#selfReview"),
+
+        lockedSignal: $("#lockedSignal"),
+        classifiedMainObject: $("#classifiedMainObject"),
+
+        exitAfterthought: $("#exitAfterthought"),
+
+        reader: $("#hellboxReader"),
+        readerTitle: $("#readerTitle"),
+        readerPageNumber: $("#readerPageNumber"),
+        readerPageCount: $("#readerPageCount"),
+        readerSessionStatus: $("#readerSessionStatus"),
+        readerPaged: $("#readerPaged"),
+        readerPageImage: $("#readerPageImage"),
+        readerPrevious: $("#readerPrevious"),
+        readerNext: $("#readerNext"),
+        readerPreviousBottom: $("#readerPreviousBottom"),
+        readerNextBottom: $("#readerNextBottom"),
+        readerFirst: $("#readerFirst"),
+        readerLast: $("#readerLast"),
+        readerBottomLabel: $("#readerBottomLabel"),
+        readerContinuous: $("#readerContinuous"),
+        readerLayoutToggle: $("#readerLayoutToggle"),
+        readerFitPage: $("#readerFitPage"),
+        readerFitWidth: $("#readerFitWidth"),
+        readerClose: $("#readerClose"),
+        readerLoading: $("#readerLoading"),
+        readerLoadingText: $("#readerLoadingText"),
+        readerError: $("#readerError"),
+        readerErrorText: $("#readerErrorText"),
+        readerErrorClose: $("#readerErrorClose")
+    };
 
 
-    const item =
-        options[
-            Math.floor(
-                Math.random() *
-                options.length
-            )
-        ];
+    /* =========================================================
+       HARROW VOICE
+       ========================================================= */
+
+    const HERO_THOUGHTS = [
+        {
+            title: "I HAVE EXCELLENT JUDGMENT.",
+            sub: "Everyone eventually says something embarrassing."
+        },
+        {
+            title: "DO NOT TAKE FINANCIAL ADVICE FROM ME.",
+            sub: "Take aesthetic advice exclusively."
+        },
+        {
+            title: "I HAD AN IDEA.",
+            sub: "Historically, this is where the trouble starts."
+        },
+        {
+            title: "WAIT. THAT'S ACTUALLY FUNNY.",
+            sub: "Write that down before I improve it."
+        },
+        {
+            title: "THE CHAIN REMEMBERS.",
+            sub: "Unfortunately, so do screenshots."
+        },
+        {
+            title: "I'M BUSY BEING RIGHT.",
+            sub: "It's basically a full-time position."
+        },
+        {
+            title: "SOMEBODY PUT ADULTS IN CHARGE.",
+            sub: "Terrible design decision."
+        },
+        {
+            title: "I DON'T NEED A ROADMAP.",
+            sub: "I know exactly where I'm going. Mostly."
+        },
+        {
+            title: "THIS IS FINE.",
+            sub: "The definition of fine remains under review."
+        }
+    ];
+
+    const ORB_LINES = [
+        [
+            "YES?",
+            "I was in the middle of admiring my own work."
+        ],
+        [
+            "WHAT?",
+            "You keep clicking me like this is going to improve your judgment."
+        ],
+        [
+            "STILL HERE?",
+            "Interesting. Questionable. But interesting."
+        ],
+        [
+            "GOOD.",
+            "You noticed the thing I absolutely did not put there for you to notice."
+        ],
+        [
+            "DON'T WORRY.",
+            "Everything is under control by the broadest possible definition."
+        ],
+        [
+            "HARROW.",
+            "Yes. Still me."
+        ]
+    ];
+
+    const PRESS_TOUCH_LINES = [
+        [
+            "I SAID DON'T TOUCH IT.",
+            "That's usually interpreted as an invitation around here."
+        ],
+        [
+            "OH GOOD.",
+            "You touched the expensive machine."
+        ],
+        [
+            "IT LIKES YOU.",
+            "I don't. Yet."
+        ],
+        [
+            "NOW YOU'VE WOKEN IT UP.",
+            "Congratulations on your first measurable contribution."
+        ],
+        [
+            "YOU'RE VERY HANDSY.",
+            "Fine. Look at the lights."
+        ]
+    ];
 
 
-    showHarrowResponse(
-        item[0],
-        item[1]
-    );
+    /* =========================================================
+       HARROW WHISPERS
+       ========================================================= */
 
-}
+    function whisper(message, duration = 2500) {
+        if (!dom.whisper || !dom.whisperText) {
+            return;
+        }
 
+        window.clearTimeout(state.whisperTimer);
 
-/* ============================================================
-   CURRENT SECTION OBSERVER
-   ============================================================ */
+        dom.whisperText.textContent = message;
 
+        dom.whisper.classList.add("active");
+        dom.whisper.setAttribute("aria-hidden", "false");
 
-function setupZoneObserver() {
-
-    if (
-        !("IntersectionObserver" in window)
-    ) {
-
-        return;
-
+        state.whisperTimer = window.setTimeout(() => {
+            dom.whisper.classList.remove("active");
+            dom.whisper.setAttribute("aria-hidden", "true");
+        }, duration);
     }
 
 
-    const observer =
-        new IntersectionObserver(
-            entries => {
+    /* =========================================================
+       HARROW RESPONSE PANEL
+       ========================================================= */
 
-                const visible =
-                    entries
-                        .filter(
-                            entry =>
-                                entry.isIntersecting
-                        )
-                        .sort(
-                            (
-                                a,
-                                b
-                            ) =>
-                                b.intersectionRatio -
-                                a.intersectionRatio
-                        );
+    function showHarrowResponse(title, text, duration = 5200) {
+        if (
+            !dom.harrowResponse ||
+            !dom.harrowResponseTitle ||
+            !dom.harrowResponseText
+        ) {
+            return;
+        }
+
+        window.clearTimeout(state.responseTimer);
+
+        dom.harrowResponseTitle.textContent = title;
+        dom.harrowResponseText.textContent = text;
+
+        dom.harrowResponse.classList.add("active");
+        dom.harrowResponse.setAttribute("aria-hidden", "false");
+
+        state.responseTimer = window.setTimeout(() => {
+            closeHarrowResponse();
+        }, duration);
+    }
+
+    function closeHarrowResponse() {
+        if (!dom.harrowResponse) {
+            return;
+        }
+
+        dom.harrowResponse.classList.remove("active");
+        dom.harrowResponse.setAttribute("aria-hidden", "true");
+    }
 
 
-                if (
-                    visible.length
-                ) {
+    /* =========================================================
+       DISCOVERY SYSTEM
+       ========================================================= */
 
-                    currentZone =
-                        visible[0]
-                            .target
-                            .dataset
-                            .zone ||
-                        currentZone;
+    function loadDiscoveries() {
+        try {
+            const raw = window.sessionStorage.getItem(
+                STORAGE_KEYS.discoveries
+            );
 
-                }
+            if (!raw) {
+                return;
+            }
 
+            const parsed = JSON.parse(raw);
+
+            if (!Array.isArray(parsed)) {
+                return;
+            }
+
+            state.discoveries = new Set(parsed);
+        } catch (error) {
+            state.discoveries = new Set();
+        }
+
+        renderDiscoveryCounter();
+    }
+
+    function saveDiscoveries() {
+        try {
+            window.sessionStorage.setItem(
+                STORAGE_KEYS.discoveries,
+                JSON.stringify(
+                    Array.from(state.discoveries)
+                )
+            );
+        } catch (error) {
+            // Session persistence is decorative.
+        }
+    }
+
+    function discover(key, message = null) {
+        if (!key) {
+            return false;
+        }
+
+        const alreadyFound = state.discoveries.has(key);
+
+        state.discoveries.add(key);
+
+        saveDiscoveries();
+        renderDiscoveryCounter();
+
+        if (!alreadyFound && message) {
+            whisper(message, 3000);
+        }
+
+        return !alreadyFound;
+    }
+
+    function renderDiscoveryCounter() {
+        if (!dom.discoveryCount) {
+            return;
+        }
+
+        const count = state.discoveries.size;
+
+        dom.discoveryCount.textContent = String(count).padStart(2, "0");
+
+        document.body.classList.toggle(
+            "has-discoveries",
+            count > 0
+        );
+    }
+
+
+    /* =========================================================
+       VISIT MEMORY
+       ========================================================= */
+
+    function registerVisit() {
+        try {
+            const current = safeNumber(
+                window.localStorage.getItem(
+                    STORAGE_KEYS.visits
+                ),
+                0
+            );
+
+            const next = current + 1;
+
+            window.localStorage.setItem(
+                STORAGE_KEYS.visits,
+                String(next)
+            );
+
+            if (next === 1) {
+                dom.exitAfterthought.textContent =
+                    "you'll be back.";
+            } else if (next < 5) {
+                dom.exitAfterthought.textContent =
+                    "See? Back already.";
+            } else {
+                dom.exitAfterthought.textContent =
+                    "At this point you live here.";
+            }
+        } catch (error) {
+            // Nothing important relies on this.
+        }
+    }
+
+
+    /* =========================================================
+       CURSOR ATMOSPHERE
+       ========================================================= */
+
+    function initCursorBurn() {
+        if (!dom.cursorBurn) {
+            return;
+        }
+
+        document.addEventListener(
+            "pointermove",
+            (event) => {
+                document.documentElement.style.setProperty(
+                    "--cursor-x",
+                    `${event.clientX}px`
+                );
+
+                document.documentElement.style.setProperty(
+                    "--cursor-y",
+                    `${event.clientY}px`
+                );
             },
             {
-                threshold: [
-                    0.2,
-                    0.4,
-                    0.6
-                ]
+                passive: true
             }
         );
-
-
-    qsa(
-        "[data-zone]"
-    ).forEach(
-        element =>
-            observer.observe(
-                element
-            )
-    );
-
-}
-
-
-/* ============================================================
-   SCROLL INTERRUPTS
-   ============================================================ */
-
-
-const SCROLL_WHISPERS = [
-
-    {
-        threshold:
-            0.15,
-
-        key:
-            "scroll-15",
-
-        message:
-            "forgot you were there."
-    },
-
-    {
-        threshold:
-            0.30,
-
-        key:
-            "scroll-30",
-
-        message:
-            "wait. this part's good."
-    },
-
-    {
-        threshold:
-            0.46,
-
-        key:
-            "scroll-46",
-
-        message:
-            "no, look at the string."
-    },
-
-    {
-        threshold:
-            0.60,
-
-        key:
-            "scroll-60",
-
-        message:
-            "I had a point."
-    },
-
-    {
-        threshold:
-            0.72,
-
-        key:
-            "scroll-72",
-
-        message:
-            "oh right. me."
-    },
-
-    {
-        threshold:
-            0.86,
-
-        key:
-            "scroll-86",
-
-        message:
-            "still here?"
-    },
-
-    {
-        threshold:
-            0.94,
-
-        key:
-            "scroll-94",
-
-        message:
-            null
-    }
-
-];
-
-
-const shownWhispers =
-    new Set();
-
-
-function checkScrollWhispers() {
-
-    const scrollable =
-        document.documentElement.scrollHeight -
-        window.innerHeight;
-
-
-    if (
-        scrollable <=
-            0
-    ) {
-
-        return;
-
     }
 
 
-    const progress =
-        window.scrollY /
-        scrollable;
+    /* =========================================================
+       HERO TRANSMISSION
+       ========================================================= */
 
-
-    SCROLL_WHISPERS.forEach(
-        item => {
-
-            if (
-                progress <
-                    item.threshold ||
-                shownWhispers.has(
-                    item.key
-                )
-            ) {
-
-                return;
-
-            }
-
-
-            shownWhispers.add(
-                item.key
-            );
-
-
-            let message =
-                item.message;
-
-
-            if (
-                item.key ===
-                    "scroll-94"
-            ) {
-
-                message =
-                    lairState.discoveries.length >=
-                        4
-                        ? "you've been touching things."
-                        : "fascinating.";
-
-            }
-
-
-            showHarrowWhisper(
-                message
-            );
-
-        }
-    );
-
-
-    const afterthought =
-        $("exitAfterthought");
-
-
-    if (
-        afterthought &&
-        progress >=
-            0.96
-    ) {
-
+    function rotateHeroTransmission() {
         if (
-            lairState.discoveries.length >=
-                6
+            !dom.heroTransmission ||
+            !dom.heroTransmissionSub
         ) {
-
-            afterthought.textContent =
-                "yeah. you'll definitely be back.";
-
-
-        } else if (
-            Object.keys(
-                lairState.clicks
-            ).length ===
-                0
-        ) {
-
-            afterthought.textContent =
-                "you didn't touch anything. disappointing.";
-
-
-        } else {
-
-            afterthought.textContent =
-                "you'll be back.";
-
+            return;
         }
 
+        const thought = randomItem(HERO_THOUGHTS);
+
+        dom.heroTransmission.textContent = thought.title;
+        dom.heroTransmissionSub.textContent = thought.sub;
     }
 
-}
+    function initHeroTransmission() {
+        rotateHeroTransmission();
 
-
-/* ============================================================
-   HERO HOTSPOTS
-   ============================================================ */
-
-
-function registerHotspotOpened(
-    hotspot
-) {
-
-    if (
-        !lairState.hotspotsOpened.includes(
-            hotspot
-        )
-    ) {
-
-        lairState.hotspotsOpened.push(
-            hotspot
-        );
-
-
-        saveLairState();
-
+        window.setInterval(() => {
+            rotateHeroTransmission();
+        }, 11000);
     }
 
-}
 
+    /* =========================================================
+       DRAWER
+       ========================================================= */
 
-function handleHeroHotspot(
-    hotspot
-) {
-
-    const clicks =
-        incrementInteraction(
-            `hero-${hotspot}`
-        );
-
-
-    registerHotspotOpened(
-        hotspot
-    );
-
-
-    switch (
-        hotspot
-    ) {
-
-
-        case "monitor": {
-
-            discover(
-                "369-monitor"
-            );
-
-
-            if (
-                clicks ===
-                    1
-            ) {
-
-                showHarrowResponse(
-                    "PULSECHAIN.",
-                    "369. Yes, I know you can read."
-                );
-
-
-            } else if (
-                clicks ===
-                    2
-            ) {
-
-                showHarrowResponse(
-                    "STILL 369.",
-                    "The chain didn't change because you clicked twice."
-                );
-
-
-            } else {
-
-                showHarrowResponse(
-                    "FINE.",
-                    "Code is speech. Mine has poor impulse control."
-                );
-
-            }
-
-
-            break;
-
+    function openDrawer({
+        code = "OBJECT // UNKNOWN",
+        eyebrow = "HARROW // NOTE",
+        title = "DON'T TOUCH THAT.",
+        html = "",
+        footnote = ""
+    }) {
+        if (!dom.drawer) {
+            return;
         }
 
+        dom.drawerCode.textContent = code;
+        dom.drawerEyebrow.textContent = eyebrow;
+        dom.drawerTitle.textContent = title;
+        dom.drawerCopy.innerHTML = html;
+        dom.drawerFootnote.innerHTML = footnote;
 
-        case "cabal": {
+        dom.drawer.classList.add("active");
+        dom.drawer.setAttribute("aria-hidden", "false");
 
-            discover(
-                "cabal-board"
-            );
+        document.body.classList.add("drawer-open");
+    }
 
-
-            if (
-                clicks ===
-                    1
-            ) {
-
-                showHarrowResponse(
-                    "THE CABAL.",
-                    "Either real or an extremely productive filing system."
-                );
-
-
-            } else if (
-                clicks ===
-                    2
-            ) {
-
-                showHarrowResponse(
-                    "WHY'D YOU LOOK AGAIN?",
-                    "Suspicious."
-                );
-
-
-            } else {
-
-                openDrawer({
-
-                    code:
-                        "WALL // CABAL // ???",
-
-                    eyebrow:
-                        "HARROW // UNRESOLVED",
-
-                    title:
-                        "THE LIST KEEPS CHANGING.",
-
-                    html:
-                        `
-                        <p>
-                            Every time I finish the diagram,
-                            somebody does something stupid and
-                            I have to buy more string.
-                        </p>
-
-                        <p>
-                            Current methodology:
-                            screenshots, public information,
-                            spite and at least one completely
-                            decorative arrow.
-                        </p>
-                        `,
-
-                    footnote:
-                        "THIS IS SATIRE. TRY TO SURVIVE IT."
-
-                });
-
-            }
-
-
-            break;
-
+    function closeDrawer() {
+        if (!dom.drawer) {
+            return;
         }
 
+        dom.drawer.classList.remove("active");
+        dom.drawer.setAttribute("aria-hidden", "true");
 
-        case "harrow": {
-
-            if (
-                clicks ===
-                    1
-            ) {
-
-                showHarrowResponse(
-                    "HEY.",
-                    "I'm drawing."
-                );
+        document.body.classList.remove("drawer-open");
+    }
 
 
-            } else if (
-                clicks ===
-                    2
-            ) {
+    /* =========================================================
+       HERO HOTSPOTS
+       ========================================================= */
 
-                showHarrowResponse(
-                    "SERIOUSLY?",
-                    "There are other things in this image."
-                );
+    const HOTSPOT_CONTENT = {
+        cabal: {
+            code: "WALL // THREAD 0047",
+            eyebrow: "HARROW // THEORY",
+            title: "THE CABAL.",
+            html: `
+                <p>
+                    First rule of investigative journalism:
+                    decide what happened and then buy enough red string
+                    to make it look researched.
+                </p>
 
+                <p>
+                    The board changes constantly.
+                    Mostly because I keep remembering people.
+                </p>
+            `,
+            footnote:
+                "STATUS // DEFINITELY A THEORY. DO NOT RUIN IT WITH FACT CHECKING."
+        },
 
-            } else if (
-                clicks ===
-                    3
-            ) {
+        monitor: {
+            code: "TERMINAL // 369",
+            eyebrow: "HARROW // CHAIN",
+            title: "PULSECHAIN.",
+            html: `
+                <p>
+                    Cheap enough to make bad ideas economically viable.
+                </p>
+
+                <p>
+                    Fast enough that I can make another one
+                    before anyone talks me out of the first.
+                </p>
+            `,
+            footnote:
+                "CHAIN // 369 // CODE IS SPEECH."
+        },
+
+        harrow: {
+            code: "SUBJECT // OBVIOUS",
+            eyebrow: "HARROW // HARROW",
+            title: "YES. ME.",
+            html: `
+                <p>
+                    You've found the most important object in the room.
+                </p>
+
+                <p>
+                    I placed myself here for scale.
+                </p>
+            `,
+            footnote:
+                "INDEPENDENT ASSESSMENT // HARROW REMAINS VERY IMPRESSED."
+        },
+
+        pages: {
+            code: "DESK // IN PROGRESS",
+            eyebrow: "HARROW // PANELS",
+            title: "THAT'S THE POINT.",
+            html: `
+                <p>
+                    Every bad idea eventually becomes a panel.
+                </p>
+
+                <p>
+                    Then enough panels become a comic.
+                    Then somebody mints it.
+                    Then suddenly everyone pretends the whole process
+                    was deliberate.
+                </p>
+            `,
+            footnote:
+                "WORKFLOW // THINK → DRAW → REGRET → PUBLISH."
+        },
+
+        redacted: {
+            code: "FOLDER // REDACTED",
+            eyebrow: "HARROW // NONE OF YOUR BUSINESS",
+            title: "PUT THAT BACK.",
+            html: `
+                <p>
+                    If it were ready for you,
+                    it would not be under a folder labeled REDACTED.
+                </p>
+
+                <p>
+                    Good instincts though.
+                </p>
+            `,
+            footnote:
+                "██ ███████ // NOT YET."
+        }
+    };
+
+    function initHotspots() {
+        $$(".lair-hotspot").forEach((button) => {
+            button.addEventListener("click", () => {
+                const key = button.dataset.hotspot;
+                const content = HOTSPOT_CONTENT[key];
+
+                if (!content) {
+                    return;
+                }
 
                 discover(
-                    "bothered-harrow"
+                    `hero:${key}`,
+                    "There you go. You found one."
                 );
 
-
-                showHarrowResponse(
-                    "FINE.",
-                    "You found the secret. The secret is that you're annoying."
-                );
-
-
-            } else {
-
-                showHarrowResponse(
-                    "CONGRATULATIONS.",
-                    "You have successfully clicked a man repeatedly."
-                );
-
-            }
-
-
-            break;
-
-        }
-
-
-        case "pages": {
-
-            discover(
-                "unfinished-pages"
-            );
-
-
-            showHarrowResponse(
-                "ROUGH PAGES.",
-                "No. You can't read them. That's why they're called rough."
-            );
-
-
-            break;
-
-        }
-
-
-        case "redacted": {
-
-            if (
-                clicks <
-                    3
-            ) {
-
-                showHarrowResponse(
-                    "REDACTED.",
-                    "The word wasn't subtle."
-                );
-
-
-            } else {
-
-                discover(
-                    "redacted-folder"
-                );
-
-
-                openDrawer({
-
-                    code:
-                        "FOLDER // █████████",
-
-                    eyebrow:
-                        "ACCESS // APPARENTLY YOU DON'T LISTEN",
-
-                    title:
-                        "THERE'S NOTHING IN HERE.",
-
-                    html:
-                        `
-                        <p>
-                            I told you it was redacted.
-                        </p>
-
-                        <p>
-                            You clicked it three times anyway.
-                        </p>
-
-                        <p>
-                            That's useful information about you.
-                        </p>
-                        `,
-
-                    footnote:
-                        "DISCOVERY LOG UPDATED."
-
-                });
-
-            }
-
-
-            break;
-
-        }
-
+                openDrawer(content);
+            });
+        });
     }
 
-}
 
+    /* =========================================================
+       THEORY WALL
+       ========================================================= */
 
-/* ============================================================
-   HERO LOGO DISOBEDIENCE
-   ============================================================ */
+    const THEORY_CONTENT = {
+        richard: {
+            code: "THEORY // RH-369",
+            eyebrow: "HARROW // CURRENTLY THINKING",
+            title: "RICHARD.",
+            html: `
+                <p>
+                    Build a chain.
+                    Make everybody argue about it.
+                    Disappear into the most expensive game
+                    of Where's Waldo ever attempted.
+                </p>
 
+                <p>
+                    Incredible narrative discipline.
+                </p>
+            `,
+            footnote:
+                "SATIRE // PUBLIC EVENTS REARRANGED FOR COMEDIC DAMAGE."
+        },
 
-function handleHeroLogoClick() {
+        sec: {
+            code: "THEORY // GOV-004",
+            eyebrow: "HARROW // REGULATORY FAN CLUB",
+            title: "VERY SERIOUS PEOPLE.",
+            html: `
+                <p>
+                    I respect institutions deeply.
+                </p>
 
-    lairState.logoClicks +=
-        1;
+                <p>
+                    That's why I draw them with such flattering proportions.
+                </p>
+            `,
+            footnote:
+                "THIS IS SATIRE. RELAX."
+        },
 
+        cabal: {
+            code: "THEORY // █████",
+            eyebrow: "HARROW // DIAGRAM INCOMPLETE",
+            title: "THE CABAL.",
+            html: `
+                <p>
+                    Membership remains fluid.
+                </p>
 
-    saveLairState();
+                <p>
+                    Current qualification appears to be:
+                    somebody Harrow dislikes,
+                    somebody Harrow distrusts,
+                    or somebody who used the phrase
+                    “industry best practices.”
+                </p>
+            `,
+            footnote:
+                "THE CABAL, AS DEPICTED HERE, IS A FICTIONAL SATIRICAL DEVICE."
+        },
 
+        interpol: {
+            code: "THEORY // INT-???",
+            eyebrow: "HARROW // PLEASE RELAX",
+            title: "INTERPOL.",
+            html: `
+                <p>
+                    No.
+                </p>
 
-    switch (
-        lairState.logoClicks
-    ) {
+                <p>
+                    I am not elaborating.
+                </p>
 
+                <p>
+                    I draw comic books.
+                </p>
+            `,
+            footnote:
+                "MOSTLY."
+        },
 
-        case 1:
+        you: {
+            code: "THEORY // YOU",
+            eyebrow: "HARROW // OBSERVATION",
+            title: "YOU'RE STILL HERE.",
+            html: `
+                <p>
+                    You could have closed the tab.
+                </p>
 
-            showHarrowWhisper(
-                "don't touch that."
-            );
+                <p>
+                    Instead you started clicking the red string.
+                </p>
 
-            break;
+                <p>
+                    Excellent instincts.
+                </p>
+            `,
+            footnote:
+                "DIAGNOSIS // CURIOUS ENOUGH TO BE A PROBLEM."
+        },
 
+        harrow: {
+            code: "THEORY // HARROW",
+            eyebrow: "HARROW // PRIMARY SOURCE",
+            title: "FINALLY. ME.",
+            html: `
+                <p>
+                    Reliable.
+                    Objective.
+                    Beautifully formatted.
+                </p>
 
-        case 2:
+                <p>
+                    I see no reason to seek a second source.
+                </p>
+            `,
+            footnote:
+                "PEER REVIEWED BY // HARROW."
+        }
+    };
 
-            showHarrowWhisper(
-                "I literally just said—"
-            );
+    function initTheoryWall() {
+        $$(".case-file[data-theory]").forEach((button) => {
+            button.addEventListener("click", () => {
+                const key = button.dataset.theory;
+                const content = THEORY_CONTENT[key];
 
-            break;
+                if (!content) {
+                    return;
+                }
 
+                discover(
+                    `theory:${key}`,
+                    "See? Everything touches everything."
+                );
 
-        case 3:
+                openDrawer(content);
+            });
+        });
 
-            discover(
-                "disobedient-logo"
-            );
-
-
-            document.body.classList.add(
-                "logo-disobedience"
-            );
-
-
-            showHarrowResponse(
-                "THERE.",
-                "Happy? You broke reality for six seconds."
-            );
-
-
-            setTimeout(
+        if (dom.theoryCenter) {
+            dom.theoryCenter.addEventListener(
+                "click",
                 () => {
+                    discover(
+                        "theory:center",
+                        "Wait. I had a point."
+                    );
+
+                    if (dom.theorySingular) {
+                        dom.theorySingular.classList.add(
+                            "crossed-out"
+                        );
+                    }
+
+                    if (dom.theoryCorrection) {
+                        dom.theoryCorrection.classList.add(
+                            "active"
+                        );
+                    }
+
+                    showHarrowResponse(
+                        "FORTY-SEVEN.",
+                        "A theory sounded dishonest."
+                    );
+                }
+            );
+        }
+    }
+
+
+    /* =========================================================
+       GENERAL HARROW INTERACTIONS
+       ========================================================= */
+
+    function initHarrowInteractions() {
+        if (dom.harrowOrb) {
+            dom.harrowOrb.addEventListener(
+                "click",
+                () => {
+                    const [title, text] =
+                        randomItem(ORB_LINES);
+
+                    discover("harrow:orb");
+
+                    showHarrowResponse(
+                        title,
+                        text
+                    );
+                }
+            );
+        }
+
+        if (dom.harrowResponseClose) {
+            dom.harrowResponseClose.addEventListener(
+                "click",
+                closeHarrowResponse
+            );
+        }
+
+        if (dom.heroLogoButton) {
+            let clicks = 0;
+
+            dom.heroLogoButton.addEventListener(
+                "click",
+                async () => {
+                    clicks += 1;
+
+                    discover("logo:hellbox");
+
+                    if (clicks === 1) {
+                        whisper(
+                            "Yes. I made the logo too."
+                        );
+                        return;
+                    }
+
+                    if (clicks === 2) {
+                        whisper(
+                            "You can stop touching it."
+                        );
+                        return;
+                    }
+
+                    document.body.classList.add(
+                        "logo-disobedience"
+                    );
+
+                    showHarrowResponse(
+                        "GOOD JOB.",
+                        "You broke the website aesthetically."
+                    );
+
+                    await sleep(900);
 
                     document.body.classList.remove(
                         "logo-disobedience"
                     );
 
-                },
-                6000
+                    clicks = 0;
+                }
             );
-
-            break;
-
-
-        default:
-
-            showHarrowWhisper(
-                "we've established that it clicks."
-            );
-
-    }
-
-}
-
-
-/* ============================================================
-   THEORY CONTENT
-   ============================================================ */
-
-
-function theoryContent(
-    key
-) {
-
-    const address =
-        connectedWallet
-            ? shortAddress(
-                connectedWallet
-            ).toUpperCase()
-            : null;
-
-
-    const content = {
-
-        richard: {
-
-            code:
-                "THOUGHT // RH-369",
-
-            eyebrow:
-                "RICHARD HEART",
-
-            title:
-                "BUILT THE CHAIN.",
-
-            html:
-                `
-                <p>
-                    Whatever else anybody thinks about him,
-                    the man built the chain this website lives on.
-                </p>
-
-                <p>
-                    Naturally, I have questions.
-                </p>
-
-                <p>
-                    Too many questions.
-                </p>
-                `,
-
-            footnote:
-                "I'M NOT DONE WITH THIS PAGE."
-
-        },
-
-        sec: {
-
-            code:
-                "THOUGHT // GOV-404",
-
-            eyebrow:
-                "THE SEC",
-
-            title:
-                "VERY SERIOUS PEOPLE.",
-
-            html:
-                `
-                <p>
-                    Suits. Rules. Filings. Acronyms.
-                </p>
-
-                <p>
-                    Excellent comic material.
-                </p>
-                `,
-
-            footnote:
-                "SATIRE. BREATHE."
-
-        },
-
-        cabal: {
-
-            code:
-                "THOUGHT // ?????",
-
-            eyebrow:
-                "THE CABAL",
-
-            title:
-                "I'M WORKING ON IT.",
-
-            html:
-                `
-                <p>
-                    Membership remains provisional.
-                </p>
-
-                <p>
-                    Several names were added because I was
-                    irritated at the time.
-                </p>
-
-                <p>
-                    Scientific rigor remains excellent.
-                </p>
-                `,
-
-            footnote:
-                "DIAGRAM MAY CONTAIN DECORATIVE STRING."
-
-        },
-
-        interpol: {
-
-            code:
-                "THOUGHT // INT-???",
-
-            eyebrow:
-                "INTERPOL",
-
-            title:
-                "RELAX.",
-
-            html:
-                `
-                <p>
-                    This is a comic publishing website.
-                </p>
-
-                <p>
-                    Mostly.
-                </p>
-                `,
-
-            footnote:
-                "THAT WAS A JOKE."
-
-        },
-
-        you: {
-
-            code:
-                "THOUGHT // VISITOR",
-
-            eyebrow:
-                "YOU",
-
-            title:
-                address ||
-                "UNKNOWN DEGEN",
-
-            html:
-                address
-                    ? `
-                        <p>
-                            Wallet shown.
-                        </p>
-
-                        <p>
-                            Still clicking strange things.
-                        </p>
-
-                        <p>
-                            Pattern developing.
-                        </p>
-                    `
-                    : `
-                        <p>
-                            No wallet.
-                        </p>
-
-                        <p>
-                            Still reading.
-                        </p>
-
-                        <p>
-                            Interesting.
-                        </p>
-                    `,
-
-            footnote:
-                "OBSERVATION CONTINUES."
-
-        },
-
-        harrow: {
-
-            code:
-                "THOUGHT // IMPORTANT",
-
-            eyebrow:
-                "HARROW",
-
-            title:
-                "FINALLY.",
-
-            html:
-                `
-                <p>
-                    Writer.
-                    Artist.
-                    Publisher.
-                    Operator.
-                    Occasional victim of his own ideas.
-                </p>
-
-                <p>
-                    Most reliable source on this entire wall.
-                </p>
-                `,
-
-            footnote:
-                "PEER REVIEWED BY HARROW."
-
         }
 
+        if (dom.therapyNote) {
+            dom.therapyNote.addEventListener(
+                "click",
+                () => {
+                    discover("note:therapy");
+
+                    showHarrowResponse(
+                        "MEDICAL OPINION.",
+                        "Do not ask where I went to medical school."
+                    );
+                }
+            );
+        }
+
+        if (dom.archiveSticky) {
+            dom.archiveSticky.addEventListener(
+                "click",
+                () => {
+                    discover("note:archive");
+
+                    showHarrowResponse(
+                        "I LEFT YOU A NOTE.",
+                        "Do you know how exhausting personalization is?"
+                    );
+                }
+            );
+        }
+
+        if (dom.archiveEmblem) {
+            dom.archiveEmblem.addEventListener(
+                "click",
+                () => {
+                    discover("archive:emblem");
+
+                    whisper(
+                        "The box remembers what belongs to you."
+                    );
+                }
+            );
+        }
+
+        if (dom.harrowPortrait) {
+            dom.harrowPortrait.addEventListener(
+                "click",
+                () => {
+                    discover("harrow:portrait");
+
+                    showHarrowResponse(
+                        "YES, THAT'S ME.",
+                        "I picked the picture. Obviously."
+                    );
+                }
+            );
+        }
+
+        if (dom.harrowProfileCard) {
+            dom.harrowProfileCard.addEventListener(
+                "click",
+                () => {
+                    discover("harrow:profile");
+
+                    showHarrowResponse(
+                        "SELF APPOINTED.",
+                        "Waiting for recognition is terribly inefficient."
+                    );
+                }
+            );
+        }
+
+        if (dom.harrowWordmark) {
+            dom.harrowWordmark.addEventListener(
+                "click",
+                () => {
+                    discover("harrow:wordmark");
+
+                    whisper(
+                        "Autographs usually cost more."
+                    );
+                }
+            );
+        }
+
+        if (dom.selfReview) {
+            dom.selfReview.addEventListener(
+                "click",
+                () => {
+                    discover("harrow:review");
+
+                    showHarrowResponse(
+                        "UNBIASED.",
+                        "Every reviewer agreed with me."
+                    );
+                }
+            );
+        }
+
+        if (dom.lockedSignal) {
+            dom.lockedSignal.addEventListener(
+                "click",
+                () => {
+                    discover("signal:locked");
+
+                    showHarrowResponse(
+                        "NO.",
+                        "Not every button exists for your benefit."
+                    );
+                }
+            );
+        }
+    }
+
+
+    /* =========================================================
+       CLASSIFIED AREA
+       ========================================================= */
+
+    const CLASSIFIED_OBJECTS = {
+        fuel: {
+            code: "SYSTEM // FUEL",
+            eyebrow: "HARROW // CLASSIFIED",
+            title: "WRONG DRAWER.",
+            html: `
+                <p>
+                    The machine eats something.
+                </p>
+
+                <p>
+                    You do not currently need to know what.
+                </p>
+            `,
+            footnote:
+                "FUEL SOURCE // █████████ // ACCESS DENIED BY HARROW."
+        },
+
+        relay: {
+            code: "SYSTEM // RELAY",
+            eyebrow: "HARROW // SECONDARY PATH",
+            title: "NOT CONNECTED.",
+            html: `
+                <p>
+                    Another door exists.
+                </p>
+
+                <p>
+                    That is the entire amount of information
+                    I am giving you.
+                </p>
+            `,
+            footnote:
+                "REMOTE RELAY // REDACTED."
+        },
+
+        machine: {
+            code: "SYSTEM // INPUT",
+            eyebrow: "HARROW // HARDWARE",
+            title: "NO INPUT.",
+            html: `
+                <p>
+                    The machine is waiting for something
+                    that does not exist publicly yet.
+                </p>
+            `,
+            footnote:
+                "DO NOT INVENT THE REST. HARROW HASN'T."
+        }
     };
 
-
-    return content[key] ||
-        null;
-
-}
-
-
-/* ============================================================
-   THEORY INTERACTION
-   ============================================================ */
-
-
-function openTheory(
-    key
-) {
-
-    const content =
-        theoryContent(
-            key
-        );
-
-
-    if (!content) {
-
-        return;
-
-    }
-
-
-    if (
-        !lairState.theoriesOpened.includes(
-            key
-        )
-    ) {
-
-        lairState.theoriesOpened.push(
-            key
-        );
-
-
-        saveLairState();
-
-    }
-
-
-    discover(
-        `theory-${key}`
-    );
-
-
-    openDrawer(
-        content
-    );
-
-
-    if (
-        lairState.theoriesOpened.length >=
-            4
-    ) {
-
-        const correction =
-            $("theoryCorrection");
-
-        const singular =
-            $("theorySingular");
-
-
-        if (correction) {
-
-            correction.classList.add(
-                "active"
-            );
-
-        }
-
-
-        if (singular) {
-
-            singular.classList.add(
-                "crossed-out"
-            );
-
-        }
-
-    }
-
-}
-
-
-function handleTheoryCenter() {
-
-    const clicks =
-        incrementInteraction(
-            "theory-center"
-        );
-
-
-    if (
-        clicks ===
-            1
-    ) {
-
-        showHarrowWhisper(
-            "that's me."
-        );
-
-
-    } else if (
-        clicks ===
-            2
-    ) {
-
-        showHarrowWhisper(
-            "still me."
-        );
-
-
-    } else if (
-        clicks ===
-            3
-    ) {
-
-        discover(
-            "center-of-everything"
-        );
-
-
-        showHarrowResponse(
-            "CORRECT.",
-            "I am at the center of the diagram. Finally somebody understands graphic design."
-        );
-
-
-    } else {
-
-        showHarrowWhisper(
-            "yes. still me."
-        );
-
-    }
-
-}
-
-
-/* ============================================================
-   PROJECT OBJECTS
-   ============================================================ */
-
-
-function openRoadmapObject() {
-
-    discover(
-        "production-plan"
-    );
-
-
-    openDrawer({
-
-        code:
-            "PRODUCTION // PLAN",
-
-        eyebrow:
-            "WHAT I'M DOING NEXT",
-
-        title:
-            "THINGS I HAVEN'T FINISHED YET.",
-
-        html:
-            `
-            <div class="roadmap-object">
-
-                <div>
-                    <span>NOW</span>
-
-                    <strong>
-                        BUILD THE MACHINE
-                    </strong>
-
-                    <p>
-                        Hellbox site, archive, reader and
-                        publishing infrastructure.
-                    </p>
-                </div>
-
-                <div>
-                    <span>NEXT</span>
-
-                    <strong>
-                        MAKE THE BOOKS
-                    </strong>
-
-                    <p>
-                        Publications become real objects
-                        in the archive instead of promises
-                        on a webpage.
-                    </p>
-                </div>
-
-                <div>
-                    <span>LATER</span>
-
-                    <strong>
-                        ████████████
-                    </strong>
-
-                    <p>
-                        No.
-                    </p>
-                </div>
-
-                <div>
-                    <span>NEVER</span>
-
-                    <strong>
-                        SLEEP
-                    </strong>
-
-                    <p>
-                        Poorly scoped milestone.
-                    </p>
-                </div>
-
-            </div>
-            `,
-
-        footnote:
-            "PRODUCTION PLAN. NOT A QUARTERLY CORPORATE PROPHECY."
-
-    });
-
-}
-
-
-function openManualObject() {
-
-    discover(
-        "manual"
-    );
-
-
-    openDrawer({
-
-        code:
-            "BOOK // THE MANUAL",
-
-        eyebrow:
-            "TECHNICAL MATERIAL",
-
-        title:
-            "THE BORING VERSION.",
-
-        html:
-            `
-            <p>
-                Eventually this becomes the complete Hellbox
-                technical documentation.
-            </p>
-
-            <p>
-                Publishing architecture.
-                Ownership.
-                Networks.
-                Reader access.
-                Mint rules.
-                Contracts.
-                Security.
-            </p>
-
-            <p>
-                Clear facts.
-                No mystery where money or ownership is concerned.
-            </p>
-
-            <p>
-                The jokes go around the engineering,
-                not through it.
-            </p>
-            `,
-
-        footnote:
-            "YES, NERD. THIS IS WHERE THE WHITEPAPER LIVES."
-
-    });
-
-}
-
-
-/* ============================================================
-   PRESS MACHINE
-   ============================================================ */
-
-
-function handlePressMachine() {
-
-    lairState.pressClicks +=
-        1;
-
-
-    saveLairState();
-
-
-    switch (
-        lairState.pressClicks
-    ) {
-
-
-        case 1:
-
-            showHarrowWhisper(
-                "stop checking."
-            );
-
-            break;
-
-
-        case 2:
-
-            showHarrowWhisper(
-                "still nothing."
-            );
-
-            break;
-
-
-        case 3:
-
-            discover(
-                "pressed-the-press"
-            );
-
-
-            showHarrowResponse(
-                "AMAZING.",
-                "You successfully operated a machine that isn't running."
-            );
-
-            break;
-
-
-        default:
-
-            showHarrowWhisper(
-                "you're very committed to this button."
-            );
-
-    }
-
-}
-
-
-/* ============================================================
-   CLASSIFIED OBJECTS
-   ============================================================ */
-
-
-function handleClassifiedObject(
-    key
-) {
-
-    incrementInteraction(
-        `classified-${key}`
-    );
-
-
-    switch (
-        key
-    ) {
-
-
-        case "fuel":
-
-            showHarrowResponse(
-                "FUEL SOURCE.",
-                "Not installed."
-            );
-
-            break;
-
-
-        case "relay":
-
-            showHarrowResponse(
-                "REMOTE RELAY.",
-                "Offline. That's what offline means."
-            );
-
-            break;
-
-
-        case "machine":
-
-            showHarrowResponse(
-                "NO INPUT.",
-                "You'll know when it has one."
-            );
-
-            break;
-
-    }
-
-}
-
-
-function handleClassifiedMainObject() {
-
-    lairState.classifiedClicks +=
-        1;
-
-
-    saveLairState();
-
-
-    switch (
-        lairState.classifiedClicks
-    ) {
-
-
-        case 1:
-
-            showHarrowResponse(
-                "NO.",
-                "The giant redacted section somehow wasn't enough."
-            );
-
-            break;
-
-
-        case 2:
-
-            showHarrowResponse(
-                "STILL NO.",
-                "I admire the complete absence of pattern recognition."
-            );
-
-            break;
-
-
-        case 3:
-
-            discover(
-                "persistent"
-            );
-
-
-            showHarrowResponse(
-                "FINE.",
-                "You have persistence. Not access. Different thing."
-            );
-
-            break;
-
-
-        default:
-
-            showHarrowWhisper(
-                "no."
-            );
-
-    }
-
-}
-
-
-/* ============================================================
-   MINOR OBJECTS
-   ============================================================ */
-
-
-function setupMinorInteractions() {
-
-    const therapy =
-        $("therapyNote");
-
-
-    if (therapy) {
-
-        therapy.addEventListener(
-            "click",
-            () => {
-
-                const clicks =
-                    incrementInteraction(
-                        "therapy"
-                    );
-
-
-                if (
-                    clicks ===
-                        1
-                ) {
-
-                    showHarrowWhisper(
-                        "not medical advice."
-                    );
-
-
-                } else if (
-                    clicks ===
-                        2
-                ) {
-
-                    showHarrowWhisper(
-                        "obviously."
-                    );
-
-
-                } else {
-
-                    discover(
-                        "therapy-disclaimer"
-                    );
-
-
-                    showHarrowResponse(
-                        "DISCLAIMER.",
-                        "There. Now everyone can relax."
-                    );
-
-                }
-
-            }
-        );
-
-    }
-
-
-    const archiveEmblem =
-        $("archiveEmblem");
-
-
-    if (archiveEmblem) {
-
-        archiveEmblem.addEventListener(
-            "click",
-            () => {
-
-                showHarrowWhisper(
-                    "that's the logo."
-                );
-
-            }
-        );
-
-    }
-
-
-    const archiveSticky =
-        $("archiveSticky");
-
-
-    if (archiveSticky) {
-
-        archiveSticky.addEventListener(
-            "click",
-            () => {
-
-                const clicks =
-                    incrementInteraction(
-                        "archive-sticky"
-                    );
-
-
-                if (
-                    clicks ===
-                        1
-                ) {
-
-                    showHarrowWhisper(
-                        "yes. I wrote it."
-                    );
-
-
-                } else if (
-                    clicks ===
-                        2
-                ) {
-
-                    showHarrowWhisper(
-                        "my handwriting is excellent."
-                    );
-
-
-                } else {
-
-                    discover(
-                        "sticky-note"
-                    );
-
-
-                    showHarrowResponse(
-                        "STOP PEELING THE NOTE.",
-                        "It's holding the entire backend together."
-                    );
-
-                }
-
-            }
-        );
-
-    }
-
-
-    const portrait =
-        $("harrowPortrait");
-
-
-    if (portrait) {
-
-        portrait.addEventListener(
-            "click",
-            () => {
-
-                const clicks =
-                    incrementInteraction(
-                        "portrait"
-                    );
-
-
-                if (
-                    clicks ===
-                        1
-                ) {
-
-                    showHarrowResponse(
-                        "GOOD PHOTO.",
-                        "I know."
-                    );
-
-
-                } else if (
-                    clicks ===
-                        2
-                ) {
-
-                    showHarrowResponse(
-                        "ZOOMING IN?",
-                        "Understandable."
-                    );
-
-
-                } else {
-
-                    discover(
-                        "harrow-portrait"
-                    );
-
-
-                    showHarrowResponse(
-                        "SAVE YOURSELF SOME TIME.",
-                        "Yes. I look fantastic."
-                    );
-
-                }
-
-            }
-        );
-
-    }
-
-
-    const profile =
-        $("harrowProfileCard");
-
-
-    if (profile) {
-
-        profile.addEventListener(
-            "click",
-            () => {
-
-                showHarrowWhisper(
-                    "self appointed. unanimously."
-                );
-
-            }
-        );
-
-    }
-
-
-    const wordmark =
-        $("harrowWordmark");
-
-
-    if (wordmark) {
-
-        wordmark.addEventListener(
-            "click",
-            () => {
-
-                showHarrowWhisper(
-                    "signed."
-                );
-
-            }
-        );
-
-    }
-
-
-    const review =
-        $("selfReview");
-
-
-    if (review) {
-
-        review.addEventListener(
-            "click",
-            () => {
-
-                const clicks =
-                    incrementInteraction(
-                        "self-review"
-                    );
-
-
-                if (
-                    clicks ===
-                        1
-                ) {
-
-                    showHarrowWhisper(
-                        "five stars."
-                    );
-
-
-                } else {
-
-                    discover(
-                        "peer-review"
-                    );
-
-
-                    showHarrowResponse(
-                        "INDEPENDENT.",
-                        "I used a different pen."
-                    );
-
-                }
-
-            }
-        );
-
-    }
-
-
-    const lockedSignal =
-        $("lockedSignal");
-
-
-    if (lockedSignal) {
-
-        lockedSignal.addEventListener(
-            "click",
-            () => {
-
-                const clicks =
-                    incrementInteraction(
-                        "locked-signal"
-                    );
-
-
-                if (
-                    clicks <
-                        4
-                ) {
-
-                    showHarrowWhisper(
-                        "no."
-                    );
-
-
-                } else {
-
-                    discover(
-                        "locked-signal"
-                    );
-
-
-                    showHarrowResponse(
-                        "YOU REALLY DON'T LISTEN.",
-                        "Good."
-                    );
-
-                }
-
-            }
-        );
-
-    }
-
-}
-
-
-/* ============================================================
-   PUBLICATIONS
-   ============================================================ */
-
-
-async function loadPublications() {
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_BASE}/api/publications`,
-                {
-                    headers: {
-                        "Accept":
-                            "application/json"
-                    },
-
-                    cache:
-                        "no-store"
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            !response.ok ||
-            data.ok !==
-                true ||
-            !Array.isArray(
-                data.publications
-            )
-        ) {
-
-            throw new Error(
-                data.error ||
-                "Publication index unavailable."
-            );
-
-        }
-
-
-        publicPublications =
-            data.publications;
-
-
-        if (
-            publicationCount
-        ) {
-
-            publicationCount.textContent =
-                publicPublications.length
-                    ? `${publicPublications.length} PUBLIC`
-                    : "NOTHING PUBLIC YET";
-
-        }
-
-
-    } catch (
-        error
-    ) {
-
-        console.error(
-            "HELLBOX PUBLICATIONS:",
-            error
-        );
-
-
-        publicPublications =
-            [];
-
-
-        if (
-            publicationCount
-        ) {
-
-            publicationCount.textContent =
-                "SIGNAL LOST";
-
-        }
-
-    }
-
-}
-
-
-/* ============================================================
-   PRESS
-   ============================================================ */
-
-
-async function loadPress() {
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_BASE}/api/press`,
-                {
-                    headers: {
-                        "Accept":
-                            "application/json"
-                    },
-
-                    cache:
-                        "no-store"
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        pressPublications =
-            (
-                response.ok &&
-                data.ok ===
-                    true &&
-                Array.isArray(
-                    data.publications
-                )
-            )
-                ? data.publications
-                : [];
-
-
-    } catch (
-        error
-    ) {
-
-        console.error(
-            "HELLBOX PRESS:",
-            error
-        );
-
-
-        pressPublications =
-            [];
-
-    }
-
-
-    renderPress();
-
-}
-
-
-function renderPress() {
-
-    if (
-        !pressContainer ||
-        !pressPublications.length
-    ) {
-
-        return;
-
-    }
-
-
-    clearElement(
-        pressContainer
-    );
-
-
-    pressPublications.forEach(
-        publication => {
-
-            const release =
-                makeElement(
-                    "article",
-                    "press-release"
-                );
-
-
-            const live =
-                publication.lifecycle ===
-                    "mint_live";
-
-
-            const eyebrow =
-                makeElement(
-                    "span",
-                    "eyebrow",
-                    live
-                        ? "FINE. HAVE IT."
-                        : "NOT DONE."
-                );
-
-
-            const title =
-                makeElement(
-                    "h2",
-                    null,
-                    String(
-                        publication.title ||
-                        "UNTITLED"
-                    ).toUpperCase()
-                );
-
-
-            const action =
-                makeElement(
-                    "button",
-                    "terminal-action",
-                    live
-                        ? "TAKE ONE"
-                        : "NO"
-                );
-
-
-            action.type =
-                "button";
-
-
-            if (!live) {
-
-                action.disabled =
-                    true;
-
-
-            } else {
-
-                action.addEventListener(
+    function initClassified() {
+        $$("[data-classified-object]").forEach(
+            (button) => {
+                button.addEventListener(
                     "click",
-                    () =>
-                        inspectMint(
-                            publication,
-                            action
-                        )
-                );
-
-            }
-
-
-            release.append(
-                eyebrow,
-                title,
-                action
-            );
-
-
-            pressContainer.appendChild(
-                release
-            );
-
-        }
-    );
-
-}
-
-
-/* ============================================================
-   WALLET CONNECTION
-   ============================================================ */
-
-
-async function connectWallet() {
-
-    if (
-        walletBusy
-    ) {
-
-        return;
-
-    }
-
-
-    walletBusy =
-        true;
-
-
-    try {
-
-        if (
-            !hasWalletProvider()
-        ) {
-
-            renderWalletError(
-                "NO WALLET.",
-                "Impressive. You made it to a crypto site without one."
-            );
-
-            return;
-
-        }
-
-
-        const accounts =
-            await window.ethereum.request({
-                method:
-                    "eth_requestAccounts"
-            });
-
-
-        if (
-            !accounts ||
-            !accounts.length
-        ) {
-
-            throw new Error(
-                "No wallet account returned."
-            );
-
-        }
-
-
-        connectedWallet =
-            accounts[0];
-
-
-        connectedChainId =
-            await window.ethereum.request({
-                method:
-                    "eth_chainId"
-            });
-
-
-        lairState.walletSeen =
-            true;
-
-
-        saveLairState();
-
-
-        loadStoredReaderSession();
-
-
-        if (
-            !isPulseChain()
-        ) {
-
-            renderWrongNetwork();
-
-            return;
-
-        }
-
-
-        showHarrowWhisper(
-            "there."
-        );
-
-
-        await loadWalletStatus();
-
-
-    } catch (
-        error
-    ) {
-
-        console.error(
-            "HELLBOX WALLET:",
-            error
-        );
-
-
-        renderWalletError(
-            "THAT DIDN'T WORK.",
-            "Try again. Computers remain disappointing."
-        );
-
-
-    } finally {
-
-        walletBusy =
-            false;
-
-
-        updateHeaderWallet();
-
-
-        await loadPress();
-
-    }
-
-}
-
-
-async function restoreWallet() {
-
-    if (
-        !hasWalletProvider()
-    ) {
-
-        renderDisconnected();
-
-        return;
-
-    }
-
-
-    try {
-
-        const accounts =
-            await window.ethereum.request({
-                method:
-                    "eth_accounts"
-            });
-
-
-        connectedChainId =
-            await window.ethereum.request({
-                method:
-                    "eth_chainId"
-            });
-
-
-        if (
-            !accounts ||
-            !accounts.length
-        ) {
-
-            connectedWallet =
-                null;
-
-
-            renderDisconnected();
-
-            return;
-
-        }
-
-
-        connectedWallet =
-            accounts[0];
-
-
-        lairState.walletSeen =
-            true;
-
-
-        saveLairState();
-
-
-        loadStoredReaderSession();
-
-
-        if (
-            !isPulseChain()
-        ) {
-
-            renderWrongNetwork();
-
-            return;
-
-        }
-
-
-        await loadWalletStatus();
-
-
-    } catch (
-        error
-    ) {
-
-        console.error(
-            "HELLBOX RESTORE:",
-            error
-        );
-
-
-        connectedWallet =
-            null;
-
-
-        renderDisconnected();
-
-    }
-
-
-    updateHeaderWallet();
-
-}
-
-
-async function switchToPulseChain() {
-
-    if (
-        !hasWalletProvider()
-    ) {
-
-        return;
-
-    }
-
-
-    try {
-
-        await window.ethereum.request({
-
-            method:
-                "wallet_switchEthereumChain",
-
-            params: [
-                {
-                    chainId:
-                        HELLBOX.chainIdHex
-                }
-            ]
-
-        });
-
-
-    } catch (
-        error
-    ) {
-
-        if (
-            error &&
-            error.code ===
-                4902
-        ) {
-
-            await window.ethereum.request({
-
-                method:
-                    "wallet_addEthereumChain",
-
-                params: [
-                    {
-                        chainId:
-                            HELLBOX.chainIdHex,
-
-                        chainName:
-                            HELLBOX.chainName,
-
-                        nativeCurrency:
-                            HELLBOX.currency,
-
-                        rpcUrls:
-                            HELLBOX.rpcUrls,
-
-                        blockExplorerUrls:
-                            HELLBOX.explorerUrls
-                    }
-                ]
-
-            });
-
-
-        } else {
-
-            throw error;
-
-        }
-
-    }
-
-
-    connectedChainId =
-        await window.ethereum.request({
-            method:
-                "eth_chainId"
-        });
-
-
-    if (
-        isPulseChain()
-    ) {
-
-        showHarrowWhisper(
-            "better."
-        );
-
-
-        await loadWalletStatus();
-
-    }
-
-
-    await loadPress();
-
-
-    updateHeaderWallet();
-
-}
-
-
-/* ============================================================
-   WALLET STATUS
-   ============================================================ */
-
-
-async function loadWalletStatus() {
-
-    if (
-        !connectedWallet
-    ) {
-
-        renderDisconnected();
-
-        return;
-
-    }
-
-
-    renderLoading();
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_BASE}/api/wallet-status?address=${encodeURIComponent(
-                    connectedWallet
-                )}&chainId=369`,
-                {
-                    headers: {
-                        "Accept":
-                            "application/json"
-                    },
-
-                    cache:
-                        "no-store"
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            !response.ok ||
-            data.ok !==
-                true
-        ) {
-
-            throw new Error(
-                data.error ||
-                "Collection unavailable."
-            );
-
-        }
-
-
-        walletStatus =
-            data;
-
-
-        renderWalletStatus(
-            data
-        );
-
-
-    } catch (
-        error
-    ) {
-
-        console.error(
-            "HELLBOX WALLET STATUS:",
-            error
-        );
-
-
-        renderWalletError(
-            "CAN'T SEE IT.",
-            "The chain is being dramatic."
-        );
-
-    }
-
-}
-
-
-function renderDisconnected() {
-
-    walletStatus =
-        null;
-
-
-    if (collectionWallet) {
-
-        collectionWallet.textContent =
-            "NOT SHOWN";
-
-    }
-
-
-    if (collectionNetwork) {
-
-        collectionNetwork.textContent =
-            "PULSECHAIN // 369";
-
-    }
-
-
-    if (collectionAccessState) {
-
-        collectionAccessState.textContent =
-            "WAITING";
-
-    }
-
-
-    if (terminalTitle) {
-
-        terminalTitle.textContent =
-            "DON'T BE SHY.";
-
-    }
-
-
-    if (terminalMessage) {
-
-        terminalMessage.textContent =
-            "Show me the wallet.";
-
-    }
-
-
-    if (archiveHarrowNote) {
-
-        archiveHarrowNote.textContent =
-            "let's see the damage.";
-
-    }
-
-
-    if (terminalAction) {
-
-        terminalAction.textContent =
-            "SHOW HARROW";
-
-
-        terminalAction.disabled =
-            false;
-
-
-        terminalAction.onclick =
-            connectWallet;
-
-    }
-
-
-    if (summaryKnown) {
-
-        summaryKnown.textContent =
-            formatCount(
-                publicPublications.length
-            );
-
-    }
-
-
-    if (summaryOwned) {
-
-        summaryOwned.textContent =
-            "00";
-
-    }
-
-
-    if (summaryMissing) {
-
-        summaryMissing.textContent =
-            "00";
-
-    }
-
-
-    if (summaryEvolved) {
-
-        summaryEvolved.textContent =
-            "00";
-
-    }
-
-
-    if (collectionStatus) {
-
-        collectionStatus.textContent =
-            "SHOW ME SOMETHING INTERESTING.";
-
-    }
-
-
-    clearElement(
-        collectionList
-    );
-
-
-    updateHeaderWallet();
-
-}
-
-
-function renderWrongNetwork() {
-
-    collectionWallet.textContent =
-        shortAddress(
-            connectedWallet
-        );
-
-
-    collectionNetwork.textContent =
-        "NOT 369";
-
-
-    collectionAccessState.textContent =
-        "WRONG CHAIN";
-
-
-    terminalTitle.textContent =
-        "WRONG NEIGHBORHOOD.";
-
-
-    terminalMessage.textContent =
-        "PulseChain. Try to keep up.";
-
-
-    archiveHarrowNote.textContent =
-        "you had one job.";
-
-
-    terminalAction.textContent =
-        "SWITCH TO 369";
-
-
-    terminalAction.disabled =
-        false;
-
-
-    terminalAction.onclick =
-        switchToPulseChain;
-
-
-    collectionStatus.textContent =
-        "THIS ISN'T PULSECHAIN.";
-
-}
-
-
-function renderLoading() {
-
-    collectionWallet.textContent =
-        shortAddress(
-            connectedWallet
-        );
-
-
-    collectionNetwork.textContent =
-        "PULSECHAIN // 369";
-
-
-    collectionAccessState.textContent =
-        "LOOKING";
-
-
-    terminalTitle.textContent =
-        "I'M LOOKING.";
-
-
-    terminalMessage.textContent =
-        "Stop hovering.";
-
-
-    archiveHarrowNote.textContent =
-        "one second.";
-
-
-    terminalAction.textContent =
-        "LOOKING...";
-
-
-    terminalAction.disabled =
-        true;
-
-
-    collectionStatus.textContent =
-        "READING THE CHAIN.";
-
-}
-
-
-function renderWalletError(
-    title,
-    message
-) {
-
-    terminalTitle.textContent =
-        title;
-
-
-    terminalMessage.textContent =
-        message;
-
-
-    collectionAccessState.textContent =
-        "FAILED";
-
-
-    archiveHarrowNote.textContent =
-        "technology.";
-
-
-    terminalAction.textContent =
-        connectedWallet
-            ? "AGAIN"
-            : "SHOW HARROW";
-
-
-    terminalAction.disabled =
-        false;
-
-
-    terminalAction.onclick =
-        connectedWallet
-            ? loadWalletStatus
-            : connectWallet;
-
-
-    collectionStatus.textContent =
-        "TRY AGAIN.";
-
-}
-
-
-function renderWalletStatus(
-    data
-) {
-
-    const summary =
-        data.summary ||
-        {};
-
-
-    const editions =
-        Array.isArray(
-            data.editions
-        )
-            ? data.editions
-            : [];
-
-
-    collectionWallet.textContent =
-        shortAddress(
-            connectedWallet
-        );
-
-
-    collectionNetwork.textContent =
-        "PULSECHAIN // 369";
-
-
-    collectionAccessState.textContent =
-        "SEEN";
-
-
-    summaryKnown.textContent =
-        formatCount(
-            summary.known
-        );
-
-
-    summaryOwned.textContent =
-        formatCount(
-            summary.owned
-        );
-
-
-    summaryMissing.textContent =
-        formatCount(
-            summary.missing
-        );
-
-
-    summaryEvolved.textContent =
-        formatCount(
-            summary.evolved
-        );
-
-
-    const owned =
-        Number(
-            summary.owned ||
-            0
-        ) +
-        Number(
-            summary.evolved ||
-            0
-        );
-
-
-    if (
-        !editions.length
-    ) {
-
-        terminalTitle.textContent =
-            "NOTHING?";
-
-
-        terminalMessage.textContent =
-            "Huh. That's actually impressive.";
-
-
-        archiveHarrowNote.textContent =
-            "we'll fix this.";
-
-
-        collectionStatus.textContent =
-            "NOTHING PUBLIC YET.";
-
-
-    } else if (
-        !owned
-    ) {
-
-        terminalTitle.textContent =
-            "EMPTY-HANDED.";
-
-
-        terminalMessage.textContent =
-            "Bold strategy.";
-
-
-        archiveHarrowNote.textContent =
-            "interesting choice.";
-
-
-        collectionStatus.textContent =
-            "YOU OWN NONE OF THESE.";
-
-
-    } else if (
-        owned >=
-            6
-    ) {
-
-        terminalTitle.textContent =
-            "JESUS CHRIST.";
-
-
-        terminalMessage.textContent =
-            "Okay. Maybe you should have the website.";
-
-
-        archiveHarrowNote.textContent =
-            "respect.";
-
-
-        collectionStatus.textContent =
-            "THIS IS GETTING UNHEALTHY.";
-
-
-    } else if (
-        owned >=
-            2
-    ) {
-
-        terminalTitle.textContent =
-            "OH. YOU'RE ONE OF THOSE.";
-
-
-        terminalMessage.textContent =
-            `${owned} Hellbox artifacts. Noted.`;
-
-
-        archiveHarrowNote.textContent =
-            "respect.";
-
-
-        collectionStatus.textContent =
-            "ACCEPTABLE.";
-
-
-    } else {
-
-        terminalTitle.textContent =
-            "THERE IT IS.";
-
-
-        terminalMessage.textContent =
-            "Knew you had one somewhere.";
-
-
-        archiveHarrowNote.textContent =
-            "good.";
-
-
-        collectionStatus.textContent =
-            "FOUND IT.";
-
-    }
-
-
-    terminalAction.textContent =
-        "LOOK AGAIN";
-
-
-    terminalAction.disabled =
-        false;
-
-
-    terminalAction.onclick =
-        loadWalletStatus;
-
-
-    renderCollection(
-        editions
-    );
-
-}
-
-
-/* ============================================================
-   COLLECTION
-   ============================================================ */
-
-
-function renderCollection(
-    editions
-) {
-
-    clearElement(
-        collectionList
-    );
-
-
-    editions.forEach(
-        (
-            edition,
-            index
-        ) => {
-
-            const row =
-                makeElement(
-                    "article",
-                    `collection-item state-${edition.ownership || "unknown"}`
-                );
-
-
-            row.appendChild(
-                makeElement(
-                    "span",
-                    "collection-item-index",
-                    String(
-                        index +
-                        1
-                    ).padStart(
-                        2,
-                        "0"
-                    )
-                )
-            );
-
-
-            const main =
-                makeElement(
-                    "div",
-                    "collection-item-main"
-                );
-
-
-            main.append(
-                makeElement(
-                    "span",
-                    "collection-item-type",
-                    String(
-                        edition.publicationType ||
-                        edition.contentType ||
-                        "PUBLICATION"
-                    ).toUpperCase()
-                ),
-
-                makeElement(
-                    "strong",
-                    null,
-                    edition.title ||
-                    "UNTITLED"
-                ),
-
-                makeElement(
-                    "small",
-                    null,
-                    edition.tokenId
-                        ? `TOKEN ${edition.tokenId}`
-                        : `HELLBOX // ${edition.publicationKey || "UNKNOWN"}`
-                )
-            );
-
-
-            const state =
-                makeElement(
-                    "div",
-                    "collection-item-state"
-                );
-
-
-            const ownershipLabel =
-                edition.ownership ===
-                    "owned"
-                    ? "YOURS"
-                    : edition.ownership ===
-                        "evolved"
-                        ? "WEIRD"
-                        : edition.ownership ===
-                            "missing"
-                            ? "NOPE"
-                            : "UNKNOWN";
-
-
-            state.append(
-                makeElement(
-                    "span",
-                    null,
-                    "STATUS"
-                ),
-
-                makeElement(
-                    "strong",
-                    null,
-                    ownershipLabel
-                )
-            );
-
-
-            const action =
-                makeElement(
-                    "button",
-                    "collection-item-action"
-                );
-
-
-            action.type =
-                "button";
-
-
-            if (
-                (
-                    edition.ownership ===
-                        "owned" ||
-                    edition.ownership ===
-                        "evolved"
-                ) &&
-                edition.reader &&
-                edition.reader.enabled ===
-                    true
-            ) {
-
-                action.textContent =
-                    "READ IT";
-
-
-                action.onclick =
-                    () =>
-                        openPublication(
-                            edition,
-                            action
+                    () => {
+                        const key =
+                            button.dataset.classifiedObject;
+
+                        const content =
+                            CLASSIFIED_OBJECTS[key];
+
+                        if (!content) {
+                            return;
+                        }
+
+                        discover(
+                            `classified:${key}`,
+                            "You really don't listen."
                         );
 
-
-            } else {
-
-                action.textContent =
-                    edition.ownership ===
-                        "missing"
-                        ? "NOT YOURS"
-                        : "NOT READY";
-
-
-                action.disabled =
-                    true;
-
+                        openDrawer(content);
+                    }
+                );
             }
+        );
 
+        if (dom.classifiedMainObject) {
+            let taps = 0;
 
-            row.append(
-                main,
-                state,
-                action
-            );
+            dom.classifiedMainObject.addEventListener(
+                "click",
+                () => {
+                    taps += 1;
 
+                    discover("classified:main");
 
-            collectionList.appendChild(
-                row
-            );
+                    if (taps === 1) {
+                        whisper("No.");
+                    } else if (taps === 2) {
+                        whisper("Still no.");
+                    } else if (taps === 3) {
+                        whisper(
+                            "Persistence is not clearance."
+                        );
+                    } else {
+                        showHarrowResponse(
+                            "YOU'RE ANNOYING.",
+                            "I respect it."
+                        );
 
-        }
-    );
-
-}
-
-
-/* ============================================================
-   MINT
-   ============================================================ */
-
-
-async function inspectMint(
-    publication,
-    button
-) {
-
-    if (
-        !connectedWallet
-    ) {
-
-        await connectWallet();
-
-        return;
-
-    }
-
-
-    if (
-        !isPulseChain()
-    ) {
-
-        await switchToPulseChain();
-
-        return;
-
-    }
-
-
-    button.disabled =
-        true;
-
-
-    button.textContent =
-        "CHECKING...";
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_BASE}/api/mint/${encodeURIComponent(
-                    publication.publicationKey
-                )}/status?address=${encodeURIComponent(
-                    connectedWallet
-                )}`,
-                {
-                    headers: {
-                        "Accept":
-                            "application/json"
-                    },
-
-                    cache:
-                        "no-store"
+                        taps = 0;
+                    }
                 }
             );
+        }
+    }
 
 
-        const data =
-            await response.json();
+    /* =========================================================
+       ROADMAP OBJECT
+       ========================================================= */
+
+    function openRoadmapObject() {
+        discover(
+            "object:roadmap",
+            "Fine. Here's the part you're allowed to see."
+        );
+
+        openDrawer({
+            code: "OBJECT // WHAT NEXT",
+            eyebrow: "HARROW // CURRENT OBSESSIONS",
+            title: "THE PLAN*",
+            html: `
+                <p>
+                    I hate roadmaps.
+                    They make unfinished ideas look like appointments.
+                </p>
+
+                <div class="roadmap-object">
+                    <div>
+                        <span>NOW</span>
+                        <strong>BUILD THE BOX.</strong>
+                        <p>
+                            Publishing system. Archive.
+                            Wallet identity. The Press.
+                            Reader. Make the place feel alive.
+                        </p>
+                    </div>
+
+                    <div>
+                        <span>NEXT</span>
+                        <strong>MAKE THE COMICS HIT HARDER.</strong>
+                        <p>
+                            The reader becomes part theater,
+                            part comic engine,
+                            part terrible decision.
+                        </p>
+                    </div>
+
+                    <div>
+                        <span>AFTER THAT</span>
+                        <strong>PUT THINGS ONCHAIN.</strong>
+                        <p>
+                            Native collectible editions.
+                            Ownership-gated reading.
+                            Supply that means something.
+                        </p>
+                    </div>
+
+                    <div>
+                        <span>LATER</span>
+                        <strong>THE PART I'M NOT SHOWING YOU.</strong>
+                        <p>
+                            No.
+                        </p>
+                    </div>
+                </div>
+
+                <p>
+                    *This is not a promise.
+                    It's a glimpse at what I was thinking
+                    before you interrupted me.
+                </p>
+            `,
+            footnote:
+                "ROADMAP STATUS // SUBJECT TO HARROW HAVING ANOTHER IDEA."
+        });
+    }
 
 
-        if (
-            !response.ok
-        ) {
+    /* =========================================================
+       MANUAL / WHITEPAPER OBJECT
+       ========================================================= */
 
-            throw new Error(
-                data.error ||
-                "Mint status unavailable."
+    function openManualObject() {
+        discover(
+            "object:manual",
+            "I call it a manual because whitepaper sounds like homework."
+        );
+
+        openDrawer({
+            code: "OBJECT // MANUAL",
+            eyebrow: "HARROW // HOW THE BOX WORKS",
+            title: "THE MANUAL.",
+            html: `
+                <p>
+                    Eventually this is where the boring questions
+                    get answers without making the rest of the site boring.
+                </p>
+
+                <div class="roadmap-object">
+                    <div>
+                        <span>PUBLICATIONS</span>
+                        <strong>THE THING YOU ACTUALLY WANT.</strong>
+                        <p>
+                            Comics and graphic novels exist as publications
+                            inside Hellbox.
+                        </p>
+                    </div>
+
+                    <div>
+                        <span>OWNERSHIP</span>
+                        <strong>YOUR WALLET IS THE RECEIPT.</strong>
+                        <p>
+                            The box can recognize which onchain artifacts
+                            belong to an address.
+                        </p>
+                    </div>
+
+                    <div>
+                        <span>THE PRESS</span>
+                        <strong>THIS MAKES THEM.</strong>
+                        <p>
+                            Minting eventually happens here.
+                            Not in a generic ecommerce widget
+                            wearing a crypto costume.
+                        </p>
+                    </div>
+
+                    <div>
+                        <span>THE READER</span>
+                        <strong>THIS IS WHY ANY OF IT MATTERS.</strong>
+                        <p>
+                            Ownership gets you into the work.
+                            The reading experience does the rest.
+                        </p>
+                    </div>
+                </div>
+
+                <p>
+                    Token mechanics, economics and deeper system documentation
+                    belong in objects like this.
+                    They do not get to hijack the front door.
+                </p>
+            `,
+            footnote:
+                "DOCUMENT STATUS // STILL BEING WRITTEN BY SOMEONE WHO HATES DOCUMENTATION."
+        });
+    }
+
+
+    /* =========================================================
+       PRESS MACHINE
+       ========================================================= */
+
+    function readStoredPressTouches() {
+        try {
+            state.press.touchCount = safeNumber(
+                window.sessionStorage.getItem(
+                    STORAGE_KEYS.pressTouches
+                ),
+                0
             );
+        } catch (error) {
+            state.press.touchCount = 0;
+        }
+    }
 
+    function storePressTouches() {
+        try {
+            window.sessionStorage.setItem(
+                STORAGE_KEYS.pressTouches,
+                String(state.press.touchCount)
+            );
+        } catch (error) {
+            // Decorative state only.
+        }
+    }
+
+    function setPressRail(activeState) {
+        $$(".press-state").forEach((item) => {
+            item.classList.toggle(
+                "active",
+                item.dataset.state === activeState
+            );
+        });
+    }
+
+    function setPressState(nextState) {
+        state.press.state = nextState;
+
+        if (!dom.pressSection) {
+            return;
         }
 
+        dom.pressSection.classList.remove(
+            "machine-awake",
+            "machine-alert",
+            "machine-pulling"
+        );
 
-        if (
-            data.wallet &&
-            data.wallet.eligible
-        ) {
+        let miniStatus = "IDLE";
+        let machineState = "ASLEEP";
+        let consoleLabel = "STATUS";
+        let consoleTitle = "DON'T TOUCH IT.";
+        let consoleText = "I mean it.";
+        let power = "00";
+        let ink = "??";
 
-            button.textContent =
-                "TAKE ONE";
+        switch (nextState) {
+            case "awake":
+                dom.pressSection.classList.add(
+                    "machine-awake"
+                );
 
+                miniStatus = "AWAKE";
+                machineState = "AWAKE";
+                consoleLabel = "HARROW // YOU DID THIS";
+                consoleTitle = "NOW IT'S AWAKE.";
+                consoleText =
+                    "Try pretending this wasn't exactly what you wanted.";
+                power = "37";
+                ink = "??";
+                break;
 
-            button.disabled =
-                false;
+            case "wallet":
+                dom.pressSection.classList.add(
+                    "machine-awake"
+                );
 
+                miniStatus = "IDENTIFY";
+                machineState = "WAITING";
+                consoleLabel = "IDENTIFICATION";
+                consoleTitle = "SHOW ME THE WALLET.";
+                consoleText =
+                    "I can't make something yours if you refuse to tell me who you are.";
+                power = "62";
+                ink = "??";
+                break;
 
-            button.onclick =
-                () =>
-                    executeMint(
-                        publication,
-                        button
-                    );
+            case "ready":
+                dom.pressSection.classList.add(
+                    "machine-awake"
+                );
 
+                miniStatus = "READY";
+                machineState = "READY";
+                consoleLabel = "PRESS // READY";
+                consoleTitle = "DON'T GET EXCITED.";
+                consoleText =
+                    "The machine is ready. The publication isn't.";
+                power = "91";
+                ink = "OK";
+                break;
 
+            case "pressing":
+                dom.pressSection.classList.add(
+                    "machine-awake",
+                    "machine-pulling",
+                    "machine-alert"
+                );
+
+                miniStatus = "WORKING";
+                machineState = "WORKING";
+                consoleLabel = "PRESS // ACTIVE";
+                consoleTitle = "SEE WHAT YOU DID?";
+                consoleText =
+                    "Now the machine thinks it has a job.";
+                power = "99";
+                ink = "RUN";
+                break;
+
+            case "confirmed":
+                dom.pressSection.classList.add(
+                    "machine-awake"
+                );
+
+                miniStatus = "YOURS";
+                machineState = "DONE";
+                consoleLabel = "PRESS // COMPLETE";
+                consoleTitle = "THERE. HAPPY?";
+                consoleText =
+                    "This state is reserved for a real confirmed mint.";
+                power = "44";
+                ink = "OK";
+                break;
+
+            case "error":
+                dom.pressSection.classList.add(
+                    "machine-awake",
+                    "machine-alert"
+                );
+
+                miniStatus = "NO";
+                machineState = "NO";
+                consoleLabel = "HARROW // NO";
+                consoleTitle = "THERE'S NOTHING TO MINT.";
+                consoleText =
+                    "I'm building it. Stop standing over my shoulder.";
+                power = "13";
+                ink = "--";
+                break;
+
+            case "idle":
+            default:
+                miniStatus = "IDLE";
+                machineState = "ASLEEP";
+                consoleLabel = "STATUS";
+                consoleTitle = "DON'T TOUCH IT.";
+                consoleText = "I mean it.";
+                power = "00";
+                ink = "??";
+                break;
+        }
+
+        if (dom.pressMiniStatus) {
+            dom.pressMiniStatus.textContent = miniStatus;
+        }
+
+        if (dom.pressMachineState) {
+            dom.pressMachineState.textContent = machineState;
+        }
+
+        if (dom.pressConsoleLabel) {
+            dom.pressConsoleLabel.textContent = consoleLabel;
+        }
+
+        if (dom.pressConsoleTitle) {
+            dom.pressConsoleTitle.textContent = consoleTitle;
+        }
+
+        if (dom.pressConsoleText) {
+            dom.pressConsoleText.textContent = consoleText;
+        }
+
+        if (dom.pressPowerValue) {
+            dom.pressPowerValue.textContent = power;
+        }
+
+        if (dom.pressInkValue) {
+            dom.pressInkValue.textContent = ink;
+        }
+
+        if (dom.pressRpcValue) {
+            dom.pressRpcValue.textContent = "369";
+        }
+
+        setPressRail(
+            nextState === "awake"
+                ? "idle"
+                : nextState
+        );
+    }
+
+    function wakePress() {
+        if (state.press.awake) {
+            state.press.touchCount += 1;
+
+            storePressTouches();
+
+            const [title, text] =
+                PRESS_TOUCH_LINES[
+                    state.press.touchCount %
+                    PRESS_TOUCH_LINES.length
+                ];
+
+            showHarrowResponse(title, text);
+
+            return;
+        }
+
+        state.press.awake = true;
+        state.press.touchCount += 1;
+
+        storePressTouches();
+
+        setPressState("awake");
+
+        discover(
+            "press:wake",
+            "You woke it up."
+        );
+
+        showHarrowResponse(
+            "OH GOOD.",
+            "You touched the expensive machine."
+        );
+    }
+
+    async function pullPressLever() {
+        if (state.press.busy) {
+            showHarrowResponse(
+                "WAIT.",
+                "You pull elevator buttons twice too, don't you?"
+            );
+
+            return;
+        }
+
+        state.press.busy = true;
+
+        if (!state.press.awake) {
+            wakePress();
+
+            await sleep(650);
+        }
+
+        if (!state.wallet.connected) {
+            setPressState("wallet");
+
+            showHarrowResponse(
+                "SHOW ME THE WALLET.",
+                "The machine needs an address before it can eventually make bad decisions in your name."
+            );
+
+            state.press.busy = false;
+
+            return;
+        }
+
+        setPressState("ready");
+
+        await sleep(500);
+
+        setPressState("pressing");
+
+        whisper(
+            "This would be the dramatic part."
+        );
+
+        await sleep(1300);
+
+        /*
+         * IMPORTANT:
+         *
+         * There is deliberately NO fake transaction here.
+         *
+         * When a publication has a deployed contract and the backend
+         * can prepare a verified transaction, this is where the real
+         * mint flow will connect.
+         *
+         * Until then, the machine tells the truth.
+         */
+
+        setPressState("error");
+
+        showHarrowResponse(
+            "NOTHING FOR YOU YET.",
+            "There is no public release loaded into the Press. I refuse to fake one just because the lever is satisfying."
+        );
+
+        await sleep(2200);
+
+        if (state.wallet.connected) {
+            setPressState("ready");
         } else {
-
-            button.textContent =
-                "NO";
-
-
-            button.disabled =
-                true;
-
+            setPressState("wallet");
         }
 
-
-    } catch (
-        error
-    ) {
-
-        console.error(
-            "HELLBOX MINT STATUS:",
-            error
-        );
-
-
-        button.textContent =
-            "AGAIN";
-
-
-        button.disabled =
-            false;
-
-
-        button.onclick =
-            () =>
-                inspectMint(
-                    publication,
-                    button
-                );
-
+        state.press.busy = false;
     }
 
-}
+    function updatePressFromWallet() {
+        if (dom.pressWallet) {
+            dom.pressWallet.textContent =
+                state.wallet.connected
+                    ? truncateAddress(
+                        state.wallet.address
+                    )
+                    : "NOT SHOWN";
+        }
 
+        if (!state.press.awake) {
+            return;
+        }
 
-async function executeMint(
-    publication,
-    button
-) {
-
-    if (
-        mintBusy
-    ) {
-
-        return;
-
+        if (state.wallet.connected) {
+            setPressState("ready");
+        } else {
+            setPressState("wallet");
+        }
     }
 
+    function updatePressPublication() {
+        const publicPublication =
+            state.publications[0] || null;
 
-    mintBusy =
-        true;
+        if (!dom.pressPublication || !dom.pressSupply) {
+            return;
+        }
 
+        if (!publicPublication) {
+            dom.pressPublication.textContent = "NONE";
+            dom.pressSupply.textContent = "-- / --";
+            return;
+        }
 
-    try {
-
-        button.disabled =
-            true;
-
-
-        button.textContent =
-            "PREPARING...";
-
-
-        const response =
-            await fetch(
-                `${API_BASE}/api/mint/${encodeURIComponent(
-                    publication.publicationKey
-                )}/prepare`,
-                {
-                    method:
-                        "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json",
-
-                        "Accept":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify({
-                            address:
-                                connectedWallet,
-
-                            quantity:
-                                1
-                        })
-                }
+        dom.pressPublication.textContent =
+            safeText(
+                publicPublication.title,
+                safeText(
+                    publicPublication.publicationKey,
+                    "UNKNOWN"
+                )
             );
 
+        const minted =
+            publicPublication.minted ??
+            publicPublication.mintedSupply ??
+            null;
 
-        const prepared =
-            await response.json();
-
+        const maxSupply =
+            publicPublication.maxSupply ??
+            publicPublication.supply ??
+            null;
 
         if (
-            !response.ok ||
-            prepared.mintReady !==
-                true
+            minted !== null &&
+            maxSupply !== null
         ) {
+            dom.pressSupply.textContent =
+                `${minted} / ${maxSupply}`;
+        } else if (maxSupply !== null) {
+            dom.pressSupply.textContent =
+                `-- / ${maxSupply}`;
+        } else {
+            dom.pressSupply.textContent =
+                "-- / --";
+        }
+    }
 
-            throw new Error(
-                prepared.error ||
-                "Mint unavailable."
+    function initPress() {
+        readStoredPressTouches();
+
+        setPressState("idle");
+
+        if (dom.pressMachine) {
+            dom.pressMachine.addEventListener(
+                "click",
+                wakePress
             );
-
         }
 
-
-        const transaction =
-            prepared.transaction;
-
-
-        button.textContent =
-            "YOUR TURN";
-
-
-        showHarrowWhisper(
-            "click the thing."
-        );
-
-
-        const txHash =
-            await window.ethereum.request({
-
-                method:
-                    "eth_sendTransaction",
-
-                params: [
-                    {
-                        from:
-                            connectedWallet,
-
-                        to:
-                            transaction.to,
-
-                        data:
-                            transaction.data,
-
-                        value:
-                            transaction.value ||
-                            "0x0"
-                    }
-                ]
-
-            });
-
-
-        button.textContent =
-            "WAITING...";
-
-
-        showHarrowWhisper(
-            "the chain is thinking. dangerous hobby."
-        );
-
-
-        for (
-            let attempt =
-                0;
-            attempt <
-                45;
-            attempt++
-        ) {
-
-            const confirmationResponse =
-                await fetch(
-                    `${API_BASE}/api/mint/${encodeURIComponent(
-                        publication.publicationKey
-                    )}/confirm`,
-                    {
-                        method:
-                            "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body:
-                            JSON.stringify({
-                                address:
-                                    connectedWallet,
-
-                                txHash:
-                                    txHash
-                            })
-                    }
-                );
-
-
-            const confirmation =
-                await confirmationResponse.json();
-
-
-            if (
-                confirmationResponse.status ===
-                    200 &&
-                confirmation.ownershipVerified ===
-                    true
-            ) {
-
-                button.textContent =
-                    "THERE.";
-
-
-                showHarrowWhisper(
-                    "don't say I never gave you anything."
-                );
-
-
-                await loadWalletStatus();
-
-                await loadPress();
-
-                return;
-
-            }
-
-
-            if (
-                confirmation.transactionSucceeded ===
-                    false
-            ) {
-
-                throw new Error(
-                    "Transaction failed."
-                );
-
-            }
-
-
-            await sleep(
-                2500
+        if (dom.pressLever) {
+            dom.pressLever.addEventListener(
+                "click",
+                pullPressLever
             );
-
         }
 
+        if (dom.roadmapObject) {
+            dom.roadmapObject.addEventListener(
+                "click",
+                openRoadmapObject
+            );
+        }
 
-        throw new Error(
-            "Confirmation timed out."
-        );
-
-
-    } catch (
-        error
-    ) {
-
-        console.error(
-            "HELLBOX MINT:",
-            error
-        );
-
-
-        button.textContent =
-            "AGAIN";
-
-
-        button.disabled =
-            false;
-
-
-        showHarrowWhisper(
-            "well that was embarrassing."
-        );
-
-
-    } finally {
-
-        mintBusy =
-            false;
-
-    }
-
-}
-
-
-/* ============================================================
-   READER SESSION
-   ============================================================ */
-
-
-function loadStoredReaderSession() {
-
-    const token =
-        sessionStorage.getItem(
-            SESSION_STORAGE_KEY
-        );
-
-
-    const wallet =
-        sessionStorage.getItem(
-            SESSION_WALLET_KEY
-        );
-
-
-    const expiry =
-        Number(
-            sessionStorage.getItem(
-                SESSION_EXPIRY_KEY
-            ) ||
-            0
-        );
-
-
-    if (
-        !token ||
-        !wallet ||
-        expiry <=
-            Math.floor(
-                Date.now() /
-                1000
-            )
-    ) {
-
-        clearReaderSession();
-
-        return;
-
+        if (dom.manualObject) {
+            dom.manualObject.addEventListener(
+                "click",
+                openManualObject
+            );
+        }
     }
 
 
-    readerSession =
-        token;
+    /* =========================================================
+       WALLET
+       ========================================================= */
 
-
-    readerSessionWallet =
-        normalizeAddressLocal(
-            wallet
-        );
-
-
-    readerSessionExpiry =
-        expiry;
-
-}
-
-
-function saveReaderSession(
-    token,
-    wallet,
-    expiry
-) {
-
-    readerSession =
-        token;
-
-
-    readerSessionWallet =
-        normalizeAddressLocal(
-            wallet
-        );
-
-
-    readerSessionExpiry =
-        Number(
-            expiry
-        );
-
-
-    sessionStorage.setItem(
-        SESSION_STORAGE_KEY,
-        token
-    );
-
-
-    sessionStorage.setItem(
-        SESSION_WALLET_KEY,
-        readerSessionWallet
-    );
-
-
-    sessionStorage.setItem(
-        SESSION_EXPIRY_KEY,
-        String(
-            readerSessionExpiry
-        )
-    );
-
-}
-
-
-function clearReaderSession() {
-
-    readerSession =
-        null;
-
-
-    readerSessionWallet =
-        null;
-
-
-    readerSessionExpiry =
-        null;
-
-
-    sessionStorage.removeItem(
-        SESSION_STORAGE_KEY
-    );
-
-
-    sessionStorage.removeItem(
-        SESSION_WALLET_KEY
-    );
-
-
-    sessionStorage.removeItem(
-        SESSION_EXPIRY_KEY
-    );
-
-}
-
-
-function hasValidReaderSession() {
-
-    return Boolean(
-        readerSession &&
-        readerSessionWallet ===
-            normalizeAddressLocal(
-                connectedWallet
-            ) &&
-        readerSessionExpiry >
-            Math.floor(
-                Date.now() /
-                1000
-            )
-    );
-
-}
-
-
-/* ============================================================
-   READER AUTHENTICATION
-   ============================================================ */
-
-
-async function authenticateReader() {
-
-    if (
-        readerAuthBusy
-    ) {
-
-        return false;
-
-    }
-
-
-    readerAuthBusy =
-        true;
-
-
-    try {
-
+    function getEthereumProvider() {
         if (
-            !connectedWallet
+            typeof window.ethereum !== "undefined"
         ) {
-
-            await connectWallet();
-
+            return window.ethereum;
         }
 
+        return null;
+    }
 
-        if (
-            !connectedWallet
-        ) {
+    async function readWalletState() {
+        const provider = getEthereumProvider();
 
-            return false;
+        state.wallet.provider = provider;
 
+        if (!provider) {
+            renderWalletState();
+            return;
         }
-
-
-        if (
-            !isPulseChain()
-        ) {
-
-            await switchToPulseChain();
-
-        }
-
-
-        if (
-            hasValidReaderSession()
-        ) {
-
-            const valid =
-                await validateReaderSession();
-
-
-            if (valid) {
-
-                return true;
-
-            }
-
-        }
-
-
-        showHarrowWhisper(
-            "sign it. no gas. don't be dramatic."
-        );
-
-
-        const challengeResponse =
-            await fetch(
-                `${API_BASE}/api/auth/challenge`,
-                {
-                    method:
-                        "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify({
-                            address:
-                                connectedWallet
-                        })
-                }
-            );
-
-
-        const challengeData =
-            await challengeResponse.json();
-
-
-        if (
-            !challengeResponse.ok ||
-            !challengeData.challenge
-        ) {
-
-            throw new Error(
-                challengeData.error ||
-                "Challenge failed."
-            );
-
-        }
-
-
-        const signature =
-            await window.ethereum.request({
-
-                method:
-                    "personal_sign",
-
-                params: [
-                    challengeData.challenge.message,
-                    connectedWallet
-                ]
-
-            });
-
-
-        const verifyResponse =
-            await fetch(
-                `${API_BASE}/api/auth/verify`,
-                {
-                    method:
-                        "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify({
-                            address:
-                                connectedWallet,
-
-                            challengeId:
-                                challengeData.challenge.id,
-
-                            signature:
-                                signature
-                        })
-                }
-            );
-
-
-        const verified =
-            await verifyResponse.json();
-
-
-        if (
-            !verifyResponse.ok ||
-            !verified.session ||
-            !verified.session.token
-        ) {
-
-            throw new Error(
-                verified.error ||
-                "Verification failed."
-            );
-
-        }
-
-
-        saveReaderSession(
-            verified.session.token,
-            connectedWallet,
-            verified.session.expiresAt
-        );
-
-
-        showHarrowWhisper(
-            "fine. it's you."
-        );
-
-
-        return true;
-
-
-    } catch (
-        error
-    ) {
-
-        console.error(
-            "HELLBOX AUTH:",
-            error
-        );
-
-
-        clearReaderSession();
-
-
-        showHarrowWhisper(
-            "apparently you're difficult to verify."
-        );
-
-
-        return false;
-
-
-    } finally {
-
-        readerAuthBusy =
-            false;
-
-    }
-
-}
-
-
-async function validateReaderSession() {
-
-    if (
-        !hasValidReaderSession()
-    ) {
-
-        return false;
-
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_BASE}/api/auth/session`,
-                {
-                    headers: {
-                        "Authorization":
-                            `Bearer ${readerSession}`
-                    },
-
-                    cache:
-                        "no-store"
-                }
-            );
-
-
-        if (
-            !response.ok
-        ) {
-
-            clearReaderSession();
-
-            return false;
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        return (
-            data.ok ===
-                true &&
-            data.authenticated ===
-                true
-        );
-
-
-    } catch (
-        error
-    ) {
-
-        console.error(
-            "HELLBOX SESSION:",
-            error
-        );
-
-
-        clearReaderSession();
-
-        return false;
-
-    }
-
-}
-
-
-/* ============================================================
-   READER OPEN
-   ============================================================ */
-
-
-async function openPublication(
-    publication,
-    button
-) {
-
-    const original =
-        button.textContent;
-
-
-    button.disabled =
-        true;
-
-
-    button.textContent =
-        "OPENING...";
-
-
-    try {
-
-        let authenticated =
-            await validateReaderSession();
-
-
-        if (
-            !authenticated
-        ) {
-
-            authenticated =
-                await authenticateReader();
-
-        }
-
-
-        if (
-            !authenticated
-        ) {
-
-            throw new Error(
-                "Verification failed."
-            );
-
-        }
-
-
-        const response =
-            await fetch(
-                `${API_BASE}/api/reader/${encodeURIComponent(
-                    publication.publicationKey
-                )}`,
-                {
-                    headers: {
-                        "Authorization":
-                            `Bearer ${readerSession}`,
-
-                        "Accept":
-                            "application/json"
-                    },
-
-                    cache:
-                        "no-store"
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            !response.ok ||
-            data.access !==
-                "granted"
-        ) {
-
-            throw new Error(
-                data.error ||
-                "You don't own this one."
-            );
-
-        }
-
-
-        await launchReader(
-            data
-        );
-
-
-    } catch (
-        error
-    ) {
-
-        console.error(
-            "HELLBOX READER OPEN:",
-            error
-        );
-
-
-        collectionStatus.textContent =
-            `NO // ${error.message}`;
-
-
-        showHarrowWhisper(
-            "not yours. inconvenient."
-        );
-
-
-    } finally {
-
-        button.disabled =
-            false;
-
-
-        button.textContent =
-            original;
-
-    }
-
-}
-
-
-/* ============================================================
-   READER RENDERING
-   ============================================================ */
-
-
-async function launchReader(
-    data
-) {
-
-    resetReaderState();
-
-
-    const publication =
-        data.publication ||
-        {};
-
-
-    const manifest =
-        data.reader &&
-        data.reader.manifest;
-
-
-    if (
-        !manifest ||
-        !Array.isArray(
-            manifest.pages
-        ) ||
-        !manifest.pages.length
-    ) {
-
-        throw new Error(
-            "Reader manifest contains no pages."
-        );
-
-    }
-
-
-    readerState.publication =
-        publication;
-
-
-    readerState.manifest =
-        manifest;
-
-
-    readerState.pages =
-        manifest.pages;
-
-
-    readerState.mode =
-        manifest.layout ===
-            "continuous"
-            ? "continuous"
-            : "paged";
-
-
-    readerTitle.textContent =
-        publication.title ||
-        manifest.title ||
-        "HELLBOX PUBLICATION";
-
-
-    readerPageCount.textContent =
-        formatCount(
-            readerState.pages.length
-        );
-
-
-    hellboxReader.classList.add(
-        "active"
-    );
-
-
-    hellboxReader.setAttribute(
-        "aria-hidden",
-        "false"
-    );
-
-
-    document.body.classList.add(
-        "reader-open"
-    );
-
-
-    readerState.open =
-        true;
-
-
-    syncReaderMode();
-
-
-    if (
-        readerState.mode ===
-            "continuous"
-    ) {
-
-        await buildContinuousReader();
-
-
-    } else {
-
-        await showReaderPage(
-            0
-        );
-
-    }
-
-}
-
-
-async function fetchProtectedPage(
-    page
-) {
-
-    if (
-        readerState.objectUrls.has(
-            page.id
-        )
-    ) {
-
-        return readerState.objectUrls.get(
-            page.id
-        );
-
-    }
-
-
-    const endpoint =
-        page.endpoint.startsWith(
-            "http"
-        )
-            ? page.endpoint
-            : `${API_BASE}${page.endpoint}`;
-
-
-    const response =
-        await fetch(
-            endpoint,
-            {
-                headers: {
-                    "Authorization":
-                        `Bearer ${readerSession}`,
-
-                    "Accept":
-                        page.mediaType ||
-                        "image/*"
-                },
-
-                cache:
-                    "no-store"
-            }
-        );
-
-
-    if (
-        response.status ===
-            401
-    ) {
-
-        clearReaderSession();
-
-    }
-
-
-    if (
-        !response.ok
-    ) {
-
-        throw new Error(
-            `Protected page HTTP ${response.status}`
-        );
-
-    }
-
-
-    const blob =
-        await response.blob();
-
-
-    const objectUrl =
-        URL.createObjectURL(
-            blob
-        );
-
-
-    readerState.objectUrls.set(
-        page.id,
-        objectUrl
-    );
-
-
-    return objectUrl;
-
-}
-
-
-async function showReaderPage(
-    index
-) {
-
-    if (
-        !readerState.pages.length
-    ) {
-
-        return;
-
-    }
-
-
-    index =
-        Math.max(
-            0,
-            Math.min(
-                index,
-                readerState.pages.length -
-                    1
-            )
-        );
-
-
-    readerState.currentIndex =
-        index;
-
-
-    showReaderLoading(
-        `PAGE ${index + 1} / ${readerState.pages.length}`
-    );
-
-
-    try {
-
-        const source =
-            await fetchProtectedPage(
-                readerState.pages[
-                    index
-                ]
-            );
-
-
-        readerPageImage.src =
-            source;
-
-
-        readerPageImage.alt =
-            `${readerTitle.textContent} — Page ${index + 1}`;
-
-
-        updateReaderNavigation();
-
-
-        hideReaderLoading();
-
-
-    } catch (
-        error
-    ) {
-
-        showReaderError(
-            error.message
-        );
-
-    }
-
-}
-
-
-function updateReaderNavigation() {
-
-    const current =
-        readerState.currentIndex +
-        1;
-
-
-    const total =
-        readerState.pages.length;
-
-
-    readerPageNumber.textContent =
-        formatCount(
-            current
-        );
-
-
-    readerPageCount.textContent =
-        formatCount(
-            total
-        );
-
-
-    readerBottomLabel.textContent =
-        `${formatCount(
-            current
-        )} / ${formatCount(
-            total
-        )}`;
-
-
-    readerPrevious.disabled =
-        current ===
-            1;
-
-
-    readerPreviousBottom.disabled =
-        current ===
-            1;
-
-
-    readerFirst.disabled =
-        current ===
-            1;
-
-
-    readerNext.disabled =
-        current ===
-            total;
-
-
-    readerNextBottom.disabled =
-        current ===
-            total;
-
-
-    readerLast.disabled =
-        current ===
-            total;
-
-}
-
-
-async function buildContinuousReader() {
-
-    clearElement(
-        readerContinuous
-    );
-
-
-    showReaderLoading(
-        "BUILDING THE WHOLE THING."
-    );
-
-
-    for (
-        let i =
-            0;
-        i <
-            readerState.pages.length;
-        i++
-    ) {
-
-        const wrapper =
-            makeElement(
-                "div",
-                "reader-continuous-page",
-                `PAGE ${formatCount(
-                    i +
-                    1
-                )} // LOADING`
-            );
-
-
-        readerContinuous.appendChild(
-            wrapper
-        );
-
 
         try {
-
-            const source =
-                await fetchProtectedPage(
-                    readerState.pages[
-                        i
-                    ]
-                );
-
-
-            const image =
-                document.createElement(
-                    "img"
-                );
-
-
-            image.src =
-                source;
-
-
-            image.alt =
-                `${readerTitle.textContent} — Page ${i + 1}`;
-
-
-            wrapper.replaceChildren(
-                image
-            );
-
-
-        } catch (
-            error
-        ) {
-
-            wrapper.textContent =
-                `PAGE ${i + 1} // FAILED`;
-
-        }
-
-    }
-
-
-    hideReaderLoading();
-
-}
-
-
-function syncReaderMode() {
-
-    const continuous =
-        readerState.mode ===
-            "continuous";
-
-
-    readerPaged.style.display =
-        continuous
-            ? "none"
-            : "flex";
-
-
-    readerContinuous.classList.toggle(
-        "active",
-        continuous
-    );
-
-
-    readerBottom.style.display =
-        continuous
-            ? "none"
-            : "";
-
-
-    readerPrevious.style.display =
-        continuous
-            ? "none"
-            : "";
-
-
-    readerNext.style.display =
-        continuous
-            ? "none"
-            : "";
-
-
-    readerLayoutToggle.textContent =
-        continuous
-            ? "PAGED"
-            : "CONTINUOUS";
-
-}
-
-
-function showReaderLoading(
-    message
-) {
-
-    readerLoadingText.textContent =
-        message;
-
-
-    readerLoading.classList.add(
-        "active"
-    );
-
-
-    readerError.classList.remove(
-        "active"
-    );
-
-}
-
-
-function hideReaderLoading() {
-
-    readerLoading.classList.remove(
-        "active"
-    );
-
-}
-
-
-function showReaderError(
-    message
-) {
-
-    hideReaderLoading();
-
-
-    readerErrorText.textContent =
-        message;
-
-
-    readerError.classList.add(
-        "active"
-    );
-
-}
-
-
-function resetReaderState() {
-
-    readerState.objectUrls.forEach(
-        url =>
-            URL.revokeObjectURL(
-                url
-            )
-    );
-
-
-    readerState.objectUrls.clear();
-
-
-    readerState.open =
-        false;
-
-
-    readerState.publication =
-        null;
-
-
-    readerState.manifest =
-        null;
-
-
-    readerState.pages =
-        [];
-
-
-    readerState.currentIndex =
-        0;
-
-
-    readerState.mode =
-        "paged";
-
-}
-
-
-function closeReader() {
-
-    resetReaderState();
-
-
-    hellboxReader.classList.remove(
-        "active"
-    );
-
-
-    hellboxReader.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-
-    document.body.classList.remove(
-        "reader-open"
-    );
-
-
-    readerPageImage.removeAttribute(
-        "src"
-    );
-
-}
-
-
-/* ============================================================
-   HEADER WALLET
-   ============================================================ */
-
-
-function updateHeaderWallet() {
-
-    if (
-        !walletButton
-    ) {
-
-        return;
-
-    }
-
-
-    walletButton.textContent =
-        !connectedWallet
-            ? "SHOW HARROW"
-            : !isPulseChain()
-                ? "WRONG CHAIN"
-                : shortAddress(
-                    connectedWallet
-                ).toUpperCase();
-
-}
-
-
-/* ============================================================
-   TRANSMISSIONS
-   ============================================================ */
-
-
-const TRANSMISSIONS = [
-
-    [
-        "I HAD AN IDEA.",
-        "This has historically been expensive."
-    ],
-
-    [
-        "EVERYTHING IS UNDER CONTROL.",
-        "I am the control."
-    ],
-
-    [
-        "THE WEBSITE WORKS.",
-        "Already outperforming several crypto protocols."
-    ],
-
-    [
-        "DO NOT TAKE FINANCIAL ADVICE FROM ME.",
-        "Take aesthetic advice exclusively."
-    ],
-
-    [
-        "I HAVE EXCELLENT JUDGMENT.",
-        "Evidence currently unavailable."
-    ],
-
-    [
-        "THIS IS DEFINITELY A GOOD IDEA.",
-        "I checked with myself."
-    ],
-
-    [
-        "CODE IS SPEECH.",
-        "Mine has poor impulse control."
-    ],
-
-    [
-        "I'M VERY EASY TO WORK WITH.",
-        "No witnesses could be reached for comment."
-    ],
-
-    [
-        "DECENTRALIZATION IS BEAUTIFUL.",
-        "Until somebody asks who's responsible."
-    ],
-
-    [
-        "I'M NOT OBSESSED.",
-        "I simply maintain unusually detailed notes."
-    ]
-
-];
-
-
-function rotateTransmission() {
-
-    const title =
-        $("heroTransmission");
-
-
-    const subtitle =
-        $("heroTransmissionSub");
-
-
-    if (
-        !title ||
-        !subtitle
-    ) {
-
-        return;
-
-    }
-
-
-    const item =
-        TRANSMISSIONS[
-            Math.floor(
-                Math.random() *
-                TRANSMISSIONS.length
-            )
-        ];
-
-
-    title.textContent =
-        item[0];
-
-
-    subtitle.textContent =
-        item[1];
-
-}
-
-
-/* ============================================================
-   POINTER ATMOSPHERE
-   ============================================================ */
-
-
-function setupPointerAtmosphere() {
-
-    document.addEventListener(
-        "pointermove",
-        event => {
-
-            const burn =
-                $("cursorBurn");
-
-
-            if (!burn) {
-
-                return;
-
+            const accounts = await provider.request({
+                method: "eth_accounts"
+            });
+
+            const chainId = await provider.request({
+                method: "eth_chainId"
+            });
+
+            if (
+                Array.isArray(accounts) &&
+                accounts.length > 0
+            ) {
+                state.wallet.address =
+                    accounts[0];
+
+                state.wallet.connected = true;
+            } else {
+                state.wallet.address = null;
+                state.wallet.connected = false;
             }
 
-
-            burn.style.setProperty(
-                "--cursor-x",
-                `${event.clientX}px`
-            );
-
-
-            burn.style.setProperty(
-                "--cursor-y",
-                `${event.clientY}px`
-            );
-
-        },
-        {
-            passive:
-                true
+            state.wallet.chainId =
+                normalizeChainId(chainId);
+        } catch (error) {
+            state.wallet.address = null;
+            state.wallet.chainId = null;
+            state.wallet.connected = false;
         }
-    );
 
-}
+        renderWalletState();
+    }
 
+    async function connectWallet() {
+        const provider = getEthereumProvider();
 
-/* ============================================================
-   REGISTER PAGE INTERACTIONS
-   ============================================================ */
+        if (!provider) {
+            showHarrowResponse(
+                "NO WALLET.",
+                "Install an EVM wallet first. I'm talented, not supernatural."
+            );
 
+            return;
+        }
 
-function setupHeroInteractions() {
+        try {
+            if (dom.walletButton) {
+                dom.walletButton.disabled = true;
+                dom.walletButton.textContent =
+                    "LOOKING...";
+            }
 
-    qsa(
-        "[data-hotspot]"
-    ).forEach(
-        hotspot => {
+            const accounts =
+                await provider.request({
+                    method: "eth_requestAccounts"
+                });
 
-            hotspot.addEventListener(
+            if (
+                !Array.isArray(accounts) ||
+                accounts.length === 0
+            ) {
+                throw new Error(
+                    "No account returned"
+                );
+            }
+
+            const chainId =
+                await provider.request({
+                    method: "eth_chainId"
+                });
+
+            state.wallet.provider = provider;
+            state.wallet.address = accounts[0];
+            state.wallet.chainId =
+                normalizeChainId(chainId);
+
+            state.wallet.connected = true;
+
+            renderWalletState();
+
+            discover(
+                "wallet:connected",
+                "There you are."
+            );
+
+            if (
+                state.wallet.chainId !==
+                PULSECHAIN.chainId
+            ) {
+                showHarrowResponse(
+                    "WRONG CHAIN.",
+                    "I can see you. You're just standing in the wrong neighborhood."
+                );
+            } else {
+                showHarrowResponse(
+                    "THERE YOU ARE.",
+                    "Public blockchain. Very private moment."
+                );
+            }
+
+            await loadPublications();
+
+        } catch (error) {
+            showHarrowResponse(
+                "NEVER MIND.",
+                "You either rejected it or your wallet decided today was its day to become art."
+            );
+        } finally {
+            if (dom.walletButton) {
+                dom.walletButton.disabled = false;
+            }
+
+            renderWalletState();
+        }
+    }
+
+    function renderWalletState() {
+        const connected =
+            state.wallet.connected &&
+            Boolean(state.wallet.address);
+
+        const onPulseChain =
+            state.wallet.chainId ===
+            PULSECHAIN.chainId;
+
+        if (dom.walletButton) {
+            dom.walletButton.textContent =
+                connected
+                    ? truncateAddress(
+                        state.wallet.address
+                    )
+                    : "SHOW HARROW";
+        }
+
+        if (dom.collectionWallet) {
+            dom.collectionWallet.textContent =
+                connected
+                    ? truncateAddress(
+                        state.wallet.address
+                    )
+                    : "NOT SHOWN";
+        }
+
+        if (dom.collectionNetwork) {
+            if (!connected) {
+                dom.collectionNetwork.textContent =
+                    "PULSECHAIN // 369";
+            } else if (onPulseChain) {
+                dom.collectionNetwork.textContent =
+                    "PULSECHAIN // 369";
+            } else {
+                dom.collectionNetwork.textContent =
+                    `CHAIN // ${
+                        state.wallet.chainId ??
+                        "UNKNOWN"
+                    }`;
+            }
+        }
+
+        if (dom.collectionAccessState) {
+            dom.collectionAccessState.textContent =
+                connected
+                    ? (
+                        onPulseChain
+                            ? "SEEN"
+                            : "WRONG CHAIN"
+                    )
+                    : "WAITING";
+        }
+
+        if (dom.terminalAction) {
+            dom.terminalAction.textContent =
+                connected
+                    ? "LOOK AGAIN"
+                    : "SHOW HARROW";
+        }
+
+        if (!connected) {
+            if (dom.terminalTitle) {
+                dom.terminalTitle.textContent =
+                    "DON'T BE SHY.";
+            }
+
+            if (dom.terminalMessage) {
+                dom.terminalMessage.textContent =
+                    "Show me the wallet.";
+            }
+
+            if (dom.archiveHarrowNote) {
+                dom.archiveHarrowNote.textContent =
+                    "let's see the damage.";
+            }
+        }
+
+        updatePressFromWallet();
+    }
+
+    function initWalletEvents() {
+        if (dom.walletButton) {
+            dom.walletButton.addEventListener(
                 "click",
-                () => {
+                connectWallet
+            );
+        }
 
-                    handleHeroHotspot(
-                        hotspot.dataset.hotspot
+        if (dom.terminalAction) {
+            dom.terminalAction.addEventListener(
+                "click",
+                async () => {
+                    if (!state.wallet.connected) {
+                        await connectWallet();
+                        return;
+                    }
+
+                    await loadPublications();
+
+                    showHarrowResponse(
+                        "I LOOKED AGAIN.",
+                        "The chain did not become more interesting because you refreshed it."
                     );
+                }
+            );
+        }
 
+        const provider = getEthereumProvider();
+
+        if (
+            provider &&
+            typeof provider.on === "function"
+        ) {
+            provider.on(
+                "accountsChanged",
+                async (accounts) => {
+                    if (
+                        !Array.isArray(accounts) ||
+                        accounts.length === 0
+                    ) {
+                        state.wallet.address = null;
+                        state.wallet.connected = false;
+
+                        renderWalletState();
+                        renderCollection();
+                        return;
+                    }
+
+                    state.wallet.address =
+                        accounts[0];
+
+                    state.wallet.connected = true;
+
+                    renderWalletState();
+
+                    await loadPublications();
                 }
             );
 
-        }
-    );
+            provider.on(
+                "chainChanged",
+                async (chainId) => {
+                    state.wallet.chainId =
+                        normalizeChainId(chainId);
 
+                    renderWalletState();
 
-    const logo =
-        $("heroLogoButton");
-
-
-    if (logo) {
-
-        logo.addEventListener(
-            "click",
-            handleHeroLogoClick
-        );
-
-    }
-
-}
-
-
-function setupTheoryInteractions() {
-
-    qsa(
-        "[data-theory]"
-    ).forEach(
-        card => {
-
-            card.addEventListener(
-                "click",
-                () => {
-
-                    openTheory(
-                        card.dataset.theory
-                    );
-
+                    await loadPublications();
                 }
             );
-
         }
-    );
-
-
-    const center =
-        $("theoryCenter");
-
-
-    if (center) {
-
-        center.addEventListener(
-            "click",
-            handleTheoryCenter
-        );
-
-    }
-
-}
-
-
-function setupPressInteractions() {
-
-    const roadmap =
-        $("roadmapObject");
-
-
-    if (roadmap) {
-
-        roadmap.addEventListener(
-            "click",
-            openRoadmapObject
-        );
-
     }
 
 
-    const manual =
-        $("manualObject");
+    /* =========================================================
+       PUBLICATIONS API
+       ========================================================= */
 
-
-    if (manual) {
-
-        manual.addEventListener(
-            "click",
-            openManualObject
+    async function apiJson(
+        url,
+        options = {}
+    ) {
+        const response = await fetch(
+            url,
+            {
+                ...options,
+                headers: {
+                    Accept: "application/json",
+                    ...(options.headers || {})
+                }
+            }
         );
 
+        let body = null;
+
+        try {
+            body = await response.json();
+        } catch (error) {
+            body = null;
+        }
+
+        if (!response.ok) {
+            const message =
+                body?.error ||
+                body?.message ||
+                `Request failed: ${response.status}`;
+
+            const apiError = new Error(message);
+
+            apiError.status = response.status;
+            apiError.body = body;
+
+            throw apiError;
+        }
+
+        return body;
+    }
+
+    function normalizePublicationList(payload) {
+        if (Array.isArray(payload)) {
+            return payload;
+        }
+
+        if (Array.isArray(payload?.publications)) {
+            return payload.publications;
+        }
+
+        if (Array.isArray(payload?.items)) {
+            return payload.items;
+        }
+
+        if (Array.isArray(payload?.comics)) {
+            return payload.comics;
+        }
+
+        return [];
+    }
+
+    async function loadPublications() {
+        if (dom.publicationCount) {
+            dom.publicationCount.textContent =
+                "CHECKING";
+        }
+
+        if (dom.collectionStatus) {
+            dom.collectionStatus.textContent =
+                "LOOKING AT THE PUBLIC LEDGER...";
+        }
+
+        try {
+            const payload =
+                await apiJson(
+                    "/api/publications"
+                );
+
+            state.publications =
+                normalizePublicationList(
+                    payload
+                );
+
+            renderCollection();
+            updatePressPublication();
+
+        } catch (error) {
+            state.publications = [];
+
+            renderCollection({
+                error: true
+            });
+
+            updatePressPublication();
+
+            if (dom.publicationCount) {
+                dom.publicationCount.textContent =
+                    "ARCHIVE UNAVAILABLE";
+            }
+
+            if (dom.collectionStatus) {
+                dom.collectionStatus.textContent =
+                    "THE ARCHIVE INDEX DID NOT ANSWER.";
+            }
+        }
     }
 
 
-    const machine =
-        $("pressMachine");
+    /* =========================================================
+       COLLECTION RENDERING
+       ========================================================= */
 
-
-    if (machine) {
-
-        machine.addEventListener(
-            "click",
-            handlePressMachine
+    function publicationIdentity(publication) {
+        return (
+            publication.publicationKey ||
+            publication.key ||
+            publication.slug ||
+            publication.id ||
+            "unknown"
         );
-
     }
 
-}
+    function publicationTitle(publication) {
+        return (
+            publication.title ||
+            publication.name ||
+            publicationIdentity(publication)
+        );
+    }
 
+    function publicationLifecycle(publication) {
+        return (
+            publication.lifecycle ||
+            publication.status ||
+            "circulating"
+        );
+    }
 
-function setupClassifiedInteractions() {
+    function publicationReaderEnabled(publication) {
+        if (
+            publication.reader === true ||
+            publication.readerEnabled === true
+        ) {
+            return true;
+        }
 
-    qsa(
-        "[data-classified-object]"
-    ).forEach(
-        button => {
+        if (
+            publication.reader &&
+            typeof publication.reader === "object"
+        ) {
+            return publication.reader.enabled !== false;
+        }
 
+        return false;
+    }
+
+    function calculateCollectionSummary() {
+        const known =
+            state.publications.length;
+
+        /*
+         * We do NOT pretend to know wallet ownership merely because
+         * a wallet is connected.
+         *
+         * Ownership must eventually come from verified backend /
+         * contract state.
+         */
+        const owned = 0;
+        const evolved = 0;
+
+        const missing =
+            state.wallet.connected
+                ? known
+                : 0;
+
+        state.collection = {
+            known,
+            owned,
+            missing,
+            evolved
+        };
+    }
+
+    function renderCollection(options = {}) {
+        calculateCollectionSummary();
+
+        const {
+            error = false
+        } = options;
+
+        if (dom.summaryKnown) {
+            dom.summaryKnown.textContent =
+                String(
+                    state.collection.known
+                ).padStart(2, "0");
+        }
+
+        if (dom.summaryOwned) {
+            dom.summaryOwned.textContent =
+                String(
+                    state.collection.owned
+                ).padStart(2, "0");
+        }
+
+        if (dom.summaryMissing) {
+            dom.summaryMissing.textContent =
+                String(
+                    state.collection.missing
+                ).padStart(2, "0");
+        }
+
+        if (dom.summaryEvolved) {
+            dom.summaryEvolved.textContent =
+                String(
+                    state.collection.evolved
+                ).padStart(2, "0");
+        }
+
+        if (dom.publicationCount) {
+            if (error) {
+                dom.publicationCount.textContent =
+                    "ARCHIVE UNAVAILABLE";
+            } else if (
+                state.publications.length === 0
+            ) {
+                dom.publicationCount.textContent =
+                    "NOTHING PUBLIC YET";
+            } else {
+                dom.publicationCount.textContent =
+                    `${state.publications.length} PUBLIC`;
+            }
+        }
+
+        if (!dom.collectionList) {
+            return;
+        }
+
+        dom.collectionList.innerHTML = "";
+
+        if (error) {
+            if (dom.terminalTitle) {
+                dom.terminalTitle.textContent =
+                    "THE ARCHIVE ISN'T ANSWERING.";
+            }
+
+            if (dom.terminalMessage) {
+                dom.terminalMessage.textContent =
+                    "This is a technical problem, not mysterious lore.";
+            }
+
+            if (dom.archiveHarrowNote) {
+                dom.archiveHarrowNote.textContent =
+                    "fine. i'll fix it.";
+            }
+
+            return;
+        }
+
+        if (
+            state.publications.length === 0
+        ) {
+            if (dom.terminalTitle) {
+                dom.terminalTitle.textContent =
+                    state.wallet.connected
+                        ? "NOTHING?"
+                        : "DON'T BE SHY.";
+            }
+
+            if (dom.terminalMessage) {
+                dom.terminalMessage.textContent =
+                    state.wallet.connected
+                        ? "Huh. That's actually impressive."
+                        : "Show me the wallet.";
+            }
+
+            if (dom.archiveHarrowNote) {
+                dom.archiveHarrowNote.textContent =
+                    state.wallet.connected
+                        ? "we'll fix this."
+                        : "let's see the damage.";
+            }
+
+            if (dom.collectionStatus) {
+                dom.collectionStatus.textContent =
+                    state.wallet.connected
+                        ? "NOTHING PUBLIC TO BRING HOME YET."
+                        : "SHOW ME SOMETHING INTERESTING.";
+            }
+
+            return;
+        }
+
+        if (dom.terminalTitle) {
+            dom.terminalTitle.textContent =
+                state.wallet.connected
+                    ? "THERE'S SOMETHING HERE."
+                    : "THE BOX HAS THINGS.";
+        }
+
+        if (dom.terminalMessage) {
+            dom.terminalMessage.textContent =
+                state.wallet.connected
+                    ? "Ownership verification comes next."
+                    : "Connect a wallet and I'll tell you which ones followed you home.";
+        }
+
+        state.publications.forEach(
+            (publication, index) => {
+                const key =
+                    publicationIdentity(
+                        publication
+                    );
+
+                const title =
+                    publicationTitle(
+                        publication
+                    );
+
+                const lifecycle =
+                    publicationLifecycle(
+                        publication
+                    );
+
+                const readerEnabled =
+                    publicationReaderEnabled(
+                        publication
+                    );
+
+                const item =
+                    document.createElement("div");
+
+                item.className =
+                    "collection-item";
+
+                item.innerHTML = `
+                    <span class="collection-item-index">
+                        ${String(index + 1).padStart(2, "0")}
+                    </span>
+
+                    <div class="collection-item-main">
+                        <span class="collection-item-type">
+                            PUBLICATION // ${escapeHtml(lifecycle)}
+                        </span>
+
+                        <strong>
+                            ${escapeHtml(title)}
+                        </strong>
+
+                        <small>
+                            ${escapeHtml(key)}
+                        </small>
+                    </div>
+
+                    <div class="collection-item-state">
+                        <span>WALLET</span>
+                        <strong>
+                            ${
+                                state.wallet.connected
+                                    ? "UNVERIFIED"
+                                    : "NOT SHOWN"
+                            }
+                        </strong>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="collection-item-action"
+                        data-publication-key="${escapeHtml(key)}"
+                        ${
+                            readerEnabled
+                                ? ""
+                                : "disabled"
+                        }
+                    >
+                        ${
+                            readerEnabled
+                                ? "TRY READER"
+                                : "NOT READY"
+                        }
+                    </button>
+                `;
+
+                dom.collectionList.appendChild(
+                    item
+                );
+            }
+        );
+
+        $$(
+            ".collection-item-action[data-publication-key]",
+            dom.collectionList
+        ).forEach((button) => {
             button.addEventListener(
                 "click",
                 () => {
-
-                    handleClassifiedObject(
-                        button.dataset.classifiedObject
+                    openPublicationReader(
+                        button.dataset.publicationKey
                     );
+                }
+            );
+        });
 
+        if (dom.collectionStatus) {
+            dom.collectionStatus.textContent =
+                "PUBLIC INDEX LOADED.";
+        }
+    }
+
+
+    /* =========================================================
+       READER
+       ========================================================= */
+
+    function clearReaderObjectUrls() {
+        state.reader.objectUrls.forEach(
+            (url) => {
+                try {
+                    URL.revokeObjectURL(url);
+                } catch (error) {
+                    // Ignore.
+                }
+            }
+        );
+
+        state.reader.objectUrls = [];
+    }
+
+    function showReaderLoading(
+        message = "The machine is doing something expensive."
+    ) {
+        if (!dom.readerLoading) {
+            return;
+        }
+
+        dom.readerLoading.classList.add(
+            "active"
+        );
+
+        if (dom.readerLoadingText) {
+            dom.readerLoadingText.textContent =
+                message;
+        }
+    }
+
+    function hideReaderLoading() {
+        if (!dom.readerLoading) {
+            return;
+        }
+
+        dom.readerLoading.classList.remove(
+            "active"
+        );
+    }
+
+    function showReaderError(message) {
+        hideReaderLoading();
+
+        if (!dom.readerError) {
+            return;
+        }
+
+        if (dom.readerErrorText) {
+            dom.readerErrorText.textContent =
+                message;
+        }
+
+        dom.readerError.classList.add(
+            "active"
+        );
+    }
+
+    function hideReaderError() {
+        if (!dom.readerError) {
+            return;
+        }
+
+        dom.readerError.classList.remove(
+            "active"
+        );
+    }
+
+    function normalizeReaderPages(payload) {
+        if (Array.isArray(payload?.pages)) {
+            return payload.pages;
+        }
+
+        if (
+            Array.isArray(
+                payload?.reader?.pages
+            )
+        ) {
+            return payload.reader.pages;
+        }
+
+        if (
+            Array.isArray(
+                payload?.manifest?.pages
+            )
+        ) {
+            return payload.manifest.pages;
+        }
+
+        return [];
+    }
+
+    function pageUrlFromEntry(page) {
+        if (typeof page === "string") {
+            return page;
+        }
+
+        if (!page || typeof page !== "object") {
+            return null;
+        }
+
+        return (
+            page.url ||
+            page.src ||
+            page.assetUrl ||
+            page.asset ||
+            null
+        );
+    }
+
+    async function openPublicationReader(
+        publicationKey
+    ) {
+        if (!publicationKey) {
+            return;
+        }
+
+        const publication =
+            state.publications.find(
+                (item) => {
+                    return (
+                        publicationIdentity(item) ===
+                        publicationKey
+                    );
                 }
             );
 
+        state.reader.publicationKey =
+            publicationKey;
+
+        state.reader.title =
+            publication
+                ? publicationTitle(publication)
+                : publicationKey;
+
+        state.reader.pageIndex = 0;
+        state.reader.pages = [];
+
+        clearReaderObjectUrls();
+
+        if (dom.readerTitle) {
+            dom.readerTitle.textContent =
+                state.reader.title;
         }
-    );
 
-
-    const main =
-        $("classifiedMainObject");
-
-
-    if (main) {
-
-        main.addEventListener(
-            "click",
-            handleClassifiedMainObject
-        );
-
-    }
-
-}
-
-
-/* ============================================================
-   GLOBAL CONTROLS
-   ============================================================ */
-
-
-function setupGlobalControls() {
-
-    if (
-        harrowOrb
-    ) {
-
-        harrowOrb.addEventListener(
-            "click",
-            () => {
-
-                lairState.orbClicks +=
-                    1;
-
-
-                saveLairState();
-
-
-                contextualHarrow();
-
-
-                if (
-                    lairState.orbClicks ===
-                        13
-                ) {
-
-                    discover(
-                        "harrow-13"
-                    );
-
-
-                    setTimeout(
-                        () => {
-
-                            showHarrowResponse(
-                                "THIRTEEN TIMES.",
-                                "You counted, didn't you?"
-                            );
-
-                        },
-                        350
-                    );
-
-                }
-
-            }
-        );
-
-    }
-
-
-    const responseClose =
-        $("harrowResponseClose");
-
-
-    if (
-        responseClose
-    ) {
-
-        responseClose.addEventListener(
-            "click",
-            closeHarrowResponse
-        );
-
-    }
-
-
-    const drawerClose =
-        $("lairDrawerClose");
-
-
-    if (
-        drawerClose
-    ) {
-
-        drawerClose.addEventListener(
-            "click",
-            closeDrawer
-        );
-
-    }
-
-
-    const drawerBackdrop =
-        $("lairDrawerBackdrop");
-
-
-    if (
-        drawerBackdrop
-    ) {
-
-        drawerBackdrop.addEventListener(
-            "click",
-            closeDrawer
-        );
-
-    }
-
-
-    if (
-        walletButton
-    ) {
-
-        walletButton.addEventListener(
-            "click",
-            async () => {
-
-                if (
-                    !connectedWallet
-                ) {
-
-                    await connectWallet();
-
-
-                } else if (
-                    !isPulseChain()
-                ) {
-
-                    await switchToPulseChain();
-
-
-                } else {
-
-                    const archive =
-                        $("archive");
-
-
-                    if (archive) {
-
-                        archive.scrollIntoView({
-                            behavior:
-                                "smooth"
-                        });
-
-                    }
-
-                }
-
-            }
-        );
-
-    }
-
-
-    if (
-        terminalAction
-    ) {
-
-        terminalAction.onclick =
-            connectWallet;
-
-    }
-
-}
-
-
-/* ============================================================
-   READER CONTROLS
-   ============================================================ */
-
-
-function setupReaderControls() {
-
-    if (
-        readerPrevious
-    ) {
-
-        readerPrevious.onclick =
-            () =>
-                showReaderPage(
-                    readerState.currentIndex -
-                        1
-                );
-
-    }
-
-
-    if (
-        readerNext
-    ) {
-
-        readerNext.onclick =
-            () =>
-                showReaderPage(
-                    readerState.currentIndex +
-                        1
-                );
-
-    }
-
-
-    if (
-        readerPreviousBottom
-    ) {
-
-        readerPreviousBottom.onclick =
-            () =>
-                showReaderPage(
-                    readerState.currentIndex -
-                        1
-                );
-
-    }
-
-
-    if (
-        readerNextBottom
-    ) {
-
-        readerNextBottom.onclick =
-            () =>
-                showReaderPage(
-                    readerState.currentIndex +
-                        1
-                );
-
-    }
-
-
-    if (
-        readerFirst
-    ) {
-
-        readerFirst.onclick =
-            () =>
-                showReaderPage(
-                    0
-                );
-
-    }
-
-
-    if (
-        readerLast
-    ) {
-
-        readerLast.onclick =
-            () =>
-                showReaderPage(
-                    readerState.pages.length -
-                        1
-                );
-
-    }
-
-
-    if (
-        readerClose
-    ) {
-
-        readerClose.onclick =
-            closeReader;
-
-    }
-
-
-    if (
-        readerErrorClose
-    ) {
-
-        readerErrorClose.onclick =
-            closeReader;
-
-    }
-
-
-    if (
-        readerFitPage
-    ) {
-
-        readerFitPage.onclick =
-            () => {
-
-                readerState.fit =
-                    "page";
-
-
-                readerPageImage.className =
-                    "reader-page-image fit-page";
-
-            };
-
-    }
-
-
-    if (
-        readerFitWidth
-    ) {
-
-        readerFitWidth.onclick =
-            () => {
-
-                readerState.fit =
-                    "width";
-
-
-                readerPageImage.className =
-                    "reader-page-image fit-width";
-
-            };
-
-    }
-
-
-    if (
-        readerLayoutToggle
-    ) {
-
-        readerLayoutToggle.onclick =
-            async () => {
-
-                readerState.mode =
-                    readerState.mode ===
-                        "paged"
-                        ? "continuous"
-                        : "paged";
-
-
-                syncReaderMode();
-
-
-                if (
-                    readerState.mode ===
-                        "continuous"
-                ) {
-
-                    await buildContinuousReader();
-
-
-                } else {
-
-                    await showReaderPage(
-                        readerState.currentIndex
-                    );
-
-                }
-
-            };
-
-    }
-
-}
-
-
-/* ============================================================
-   KEYBOARD
-   ============================================================ */
-
-
-function setupKeyboardControls() {
-
-    document.addEventListener(
-        "keydown",
-        event => {
-
-            if (
-                event.key ===
-                    "Escape"
-            ) {
-
-                if (
-                    lairDrawer &&
-                    lairDrawer.classList.contains(
-                        "active"
-                    )
-                ) {
-
-                    closeDrawer();
-
-                    return;
-
-                }
-
-
-                if (
-                    harrowResponse &&
-                    harrowResponse.classList.contains(
-                        "active"
-                    )
-                ) {
-
-                    closeHarrowResponse();
-
-                    return;
-
-                }
-
-
-                if (
-                    readerState.open
-                ) {
-
-                    closeReader();
-
-                    return;
-
-                }
-
-            }
-
-
-            if (
-                !readerState.open ||
-                readerState.mode !==
-                    "paged"
-            ) {
-
-                return;
-
-            }
-
-
-            if (
-                event.key ===
-                    "ArrowLeft"
-            ) {
-
-                showReaderPage(
-                    readerState.currentIndex -
-                        1
-                );
-
-
-            } else if (
-                event.key ===
-                    "ArrowRight"
-            ) {
-
-                showReaderPage(
-                    readerState.currentIndex +
-                        1
-                );
-
-            }
-
+        if (dom.reader) {
+            dom.reader.classList.add("active");
+            dom.reader.setAttribute(
+                "aria-hidden",
+                "false"
+            );
         }
-    );
 
-}
+        document.body.classList.add(
+            "reader-open"
+        );
 
+        hideReaderError();
 
-/* ============================================================
-   WALLET PROVIDER EVENTS
-   ============================================================ */
+        showReaderLoading(
+            "Checking whether the box is going to let you in."
+        );
 
+        try {
+            const payload =
+                await apiJson(
+                    `/api/reader/${encodeURIComponent(publicationKey)}`
+                );
 
-function setupWalletEvents() {
+            const pages =
+                normalizeReaderPages(payload)
+                    .map(pageUrlFromEntry)
+                    .filter(Boolean);
 
-    if (
-        !hasWalletProvider() ||
-        typeof window.ethereum.on !==
-            "function"
-    ) {
-
-        return;
-
-    }
-
-
-    window.ethereum.on(
-        "accountsChanged",
-        async accounts => {
-
-            clearReaderSession();
-
-
-            if (
-                readerState.open
-            ) {
-
-                closeReader();
-
+            if (pages.length === 0) {
+                throw new Error(
+                    "The reader returned no pages."
+                );
             }
 
+            state.reader.pages = pages;
+
+            renderReader();
+            hideReaderLoading();
+
+            discover(
+                `reader:${publicationKey}`,
+                "There. Now read it."
+            );
+
+        } catch (error) {
+            const status =
+                error?.status || 0;
 
             if (
-                !accounts ||
-                !accounts.length
+                status === 401 ||
+                status === 403
             ) {
-
-                connectedWallet =
-                    null;
-
-
-                renderDisconnected();
-
-
-                return;
-
-            }
-
-
-            connectedWallet =
-                accounts[0];
-
-
-            connectedChainId =
-                await window.ethereum.request({
-                    method:
-                        "eth_chainId"
-                });
-
-
-            lairState.walletSeen =
-                true;
-
-
-            saveLairState();
-
-
-            if (
-                isPulseChain()
-            ) {
-
-                await loadWalletStatus();
-
-
+                showReaderError(
+                    "The box doesn't recognize this wallet as an owner yet."
+                );
             } else {
-
-                renderWrongNetwork();
-
+                showReaderError(
+                    error?.message ||
+                    "The reader refused to cooperate."
+                );
             }
-
-
-            updateHeaderWallet();
-
         }
-    );
+    }
 
-
-    window.ethereum.on(
-        "chainChanged",
-        async chainId => {
-
-            connectedChainId =
-                chainId;
-
-
-            clearReaderSession();
-
-
-            if (
-                readerState.open
-            ) {
-
-                closeReader();
-
-            }
-
-
-            if (
-                connectedWallet &&
-                isPulseChain()
-            ) {
-
-                await loadWalletStatus();
-
-
-            } else if (
-                connectedWallet
-            ) {
-
-                renderWrongNetwork();
-
-            }
-
-
-            updateHeaderWallet();
-
+    function closeReader() {
+        if (!dom.reader) {
+            return;
         }
-    );
 
-}
+        dom.reader.classList.remove("active");
+        dom.reader.setAttribute(
+            "aria-hidden",
+            "true"
+        );
 
+        document.body.classList.remove(
+            "reader-open"
+        );
 
-/* ============================================================
-   SCROLL
-   ============================================================ */
+        state.reader.open = false;
 
+        clearReaderObjectUrls();
+        hideReaderError();
+        hideReaderLoading();
+    }
 
-function setupScrollEvents() {
+    function renderReader() {
+        const pageCount =
+            state.reader.pages.length;
 
-    let ticking =
-        false;
+        if (pageCount === 0) {
+            return;
+        }
 
-
-    window.addEventListener(
-        "scroll",
-        () => {
-
-            if (ticking) {
-
-                return;
-
-            }
-
-
-            ticking =
-                true;
-
-
-            requestAnimationFrame(
-                () => {
-
-                    checkScrollWhispers();
-
-
-                    ticking =
-                        false;
-
-                }
+        state.reader.pageIndex =
+            clamp(
+                state.reader.pageIndex,
+                0,
+                pageCount - 1
             );
 
-        },
-        {
-            passive:
-                true
+        const humanPage =
+            state.reader.pageIndex + 1;
+
+        if (dom.readerPageNumber) {
+            dom.readerPageNumber.textContent =
+                String(humanPage).padStart(
+                    2,
+                    "0"
+                );
         }
-    );
 
-}
+        if (dom.readerPageCount) {
+            dom.readerPageCount.textContent =
+                String(pageCount).padStart(
+                    2,
+                    "0"
+                );
+        }
 
+        if (dom.readerBottomLabel) {
+            dom.readerBottomLabel.textContent =
+                `${String(humanPage).padStart(
+                    2,
+                    "0"
+                )} / ${String(pageCount).padStart(
+                    2,
+                    "0"
+                )}`;
+        }
 
-/* ============================================================
-   RESTORE VISUAL LAIR STATE
-   ============================================================ */
+        if (
+            state.reader.mode === "paged"
+        ) {
+            renderPagedReader();
+        } else {
+            renderContinuousReader();
+        }
+    }
 
+    function renderPagedReader() {
+        if (
+            !dom.readerPageImage ||
+            state.reader.pages.length === 0
+        ) {
+            return;
+        }
 
-function restoreVisualLairState() {
+        const pageUrl =
+            state.reader.pages[
+                state.reader.pageIndex
+            ];
 
-    updateDiscoveryCounter();
+        dom.readerPageImage.src = pageUrl;
 
+        dom.readerPageImage.classList.toggle(
+            "fit-page",
+            state.reader.fit === "page"
+        );
 
-    if (
-        lairState.theoriesOpened.length >=
-            4
-    ) {
+        dom.readerPageImage.classList.toggle(
+            "fit-width",
+            state.reader.fit === "width"
+        );
 
-        const correction =
-            $("theoryCorrection");
+        if (dom.readerPaged) {
+            dom.readerPaged.style.display =
+                "flex";
+        }
 
-        const singular =
-            $("theorySingular");
-
-
-        if (correction) {
-
-            correction.classList.add(
+        if (dom.readerContinuous) {
+            dom.readerContinuous.classList.remove(
                 "active"
             );
+        }
+    }
 
+    function renderContinuousReader() {
+        if (!dom.readerContinuous) {
+            return;
         }
 
+        dom.readerContinuous.innerHTML = "";
 
-        if (singular) {
+        state.reader.pages.forEach(
+            (url, index) => {
+                const wrapper =
+                    document.createElement(
+                        "div"
+                    );
 
-            singular.classList.add(
-                "crossed-out"
+                wrapper.className =
+                    "reader-continuous-page";
+
+                const label =
+                    document.createElement(
+                        "div"
+                    );
+
+                label.textContent =
+                    `PAGE ${String(
+                        index + 1
+                    ).padStart(2, "0")}`;
+
+                const image =
+                    document.createElement(
+                        "img"
+                    );
+
+                image.src = url;
+                image.alt =
+                    `${state.reader.title} page ${
+                        index + 1
+                    }`;
+
+                wrapper.appendChild(label);
+                wrapper.appendChild(image);
+
+                dom.readerContinuous.appendChild(
+                    wrapper
+                );
+            }
+        );
+
+        if (dom.readerPaged) {
+            dom.readerPaged.style.display =
+                "none";
+        }
+
+        dom.readerContinuous.classList.add(
+            "active"
+        );
+    }
+
+    function readerPrevious() {
+        if (state.reader.pageIndex <= 0) {
+            return;
+        }
+
+        state.reader.pageIndex -= 1;
+        renderReader();
+    }
+
+    function readerNext() {
+        if (
+            state.reader.pageIndex >=
+            state.reader.pages.length - 1
+        ) {
+            return;
+        }
+
+        state.reader.pageIndex += 1;
+        renderReader();
+    }
+
+    function initReaderControls() {
+        if (dom.readerPrevious) {
+            dom.readerPrevious.addEventListener(
+                "click",
+                readerPrevious
+            );
+        }
+
+        if (dom.readerPreviousBottom) {
+            dom.readerPreviousBottom.addEventListener(
+                "click",
+                readerPrevious
+            );
+        }
+
+        if (dom.readerNext) {
+            dom.readerNext.addEventListener(
+                "click",
+                readerNext
+            );
+        }
+
+        if (dom.readerNextBottom) {
+            dom.readerNextBottom.addEventListener(
+                "click",
+                readerNext
+            );
+        }
+
+        if (dom.readerFirst) {
+            dom.readerFirst.addEventListener(
+                "click",
+                () => {
+                    state.reader.pageIndex = 0;
+                    renderReader();
+                }
+            );
+        }
+
+        if (dom.readerLast) {
+            dom.readerLast.addEventListener(
+                "click",
+                () => {
+                    state.reader.pageIndex =
+                        Math.max(
+                            state.reader.pages.length -
+                            1,
+                            0
+                        );
+
+                    renderReader();
+                }
+            );
+        }
+
+        if (dom.readerFitPage) {
+            dom.readerFitPage.addEventListener(
+                "click",
+                () => {
+                    state.reader.fit = "page";
+                    renderReader();
+                }
+            );
+        }
+
+        if (dom.readerFitWidth) {
+            dom.readerFitWidth.addEventListener(
+                "click",
+                () => {
+                    state.reader.fit = "width";
+                    renderReader();
+                }
+            );
+        }
+
+        if (dom.readerLayoutToggle) {
+            dom.readerLayoutToggle.addEventListener(
+                "click",
+                () => {
+                    state.reader.mode =
+                        state.reader.mode ===
+                        "paged"
+                            ? "continuous"
+                            : "paged";
+
+                    dom.readerLayoutToggle.textContent =
+                        state.reader.mode ===
+                        "paged"
+                            ? "CONTINUOUS"
+                            : "PAGED";
+
+                    renderReader();
+                }
+            );
+        }
+
+        if (dom.readerClose) {
+            dom.readerClose.addEventListener(
+                "click",
+                closeReader
+            );
+        }
+
+        if (dom.readerErrorClose) {
+            dom.readerErrorClose.addEventListener(
+                "click",
+                closeReader
+            );
+        }
+
+        document.addEventListener(
+            "keydown",
+            (event) => {
+                if (
+                    dom.drawer?.classList.contains(
+                        "active"
+                    )
+                ) {
+                    if (event.key === "Escape") {
+                        closeDrawer();
+                    }
+
+                    return;
+                }
+
+                if (
+                    !dom.reader?.classList.contains(
+                        "active"
+                    )
+                ) {
+                    return;
+                }
+
+                if (event.key === "Escape") {
+                    closeReader();
+                    return;
+                }
+
+                if (
+                    state.reader.mode !== "paged"
+                ) {
+                    return;
+                }
+
+                if (
+                    event.key === "ArrowLeft"
+                ) {
+                    readerPrevious();
+                }
+
+                if (
+                    event.key === "ArrowRight"
+                ) {
+                    readerNext();
+                }
+            }
+        );
+    }
+
+
+    /* =========================================================
+       DRAWER EVENTS
+       ========================================================= */
+
+    function initDrawerEvents() {
+        if (dom.drawerClose) {
+            dom.drawerClose.addEventListener(
+                "click",
+                closeDrawer
+            );
+        }
+
+        if (dom.drawerBackdrop) {
+            dom.drawerBackdrop.addEventListener(
+                "click",
+                closeDrawer
+            );
+        }
+    }
+
+
+    /* =========================================================
+       SCROLL BEHAVIOR
+       ========================================================= */
+
+    function initScrollObservers() {
+        if (
+            !("IntersectionObserver" in window)
+        ) {
+            return;
+        }
+
+        const seenZones = new Set();
+
+        const observer =
+            new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (
+                            !entry.isIntersecting ||
+                            entry.intersectionRatio <
+                                0.45
+                        ) {
+                            return;
+                        }
+
+                        const zone =
+                            entry.target.dataset.zone;
+
+                        if (
+                            !zone ||
+                            seenZones.has(zone)
+                        ) {
+                            return;
+                        }
+
+                        seenZones.add(zone);
+
+                        switch (zone) {
+                            case "box":
+                                whisper(
+                                    "This is where the problem starts."
+                                );
+                                break;
+
+                            case "archive":
+                                if (
+                                    !state.wallet.connected
+                                ) {
+                                    whisper(
+                                        "Show me what you brought."
+                                    );
+                                }
+                                break;
+
+                            case "theory":
+                                whisper(
+                                    "I can explain all of this. Probably."
+                                );
+                                break;
+
+                            case "press":
+                                whisper(
+                                    "Don't touch the machine."
+                                );
+                                break;
+
+                            case "harrow":
+                                whisper(
+                                    "Finally. The important section."
+                                );
+                                break;
+
+                            case "classified":
+                                whisper(
+                                    "Keep scrolling. It still says no."
+                                );
+                                break;
+
+                            case "exit":
+                                whisper(
+                                    "Good. Go do something irresponsible."
+                                );
+                                break;
+
+                            default:
+                                break;
+                        }
+                    });
+                },
+                {
+                    threshold: [
+                        0.45,
+                        0.6
+                    ]
+                }
             );
 
-        }
-
+        $$("[data-zone]").forEach(
+            (section) => {
+                observer.observe(section);
+            }
+        );
     }
 
+
+    /* =========================================================
+       INITIALIZE
+       ========================================================= */
+
+    async function init() {
+        loadDiscoveries();
+        registerVisit();
+
+        initCursorBurn();
+        initHeroTransmission();
+
+        initDrawerEvents();
+        initHotspots();
+        initTheoryWall();
+        initHarrowInteractions();
+        initClassified();
+
+        initPress();
+        initWalletEvents();
+        initReaderControls();
+
+        initScrollObservers();
+
+        await readWalletState();
+        await loadPublications();
+
+        updatePressPublication();
+
+        window.setTimeout(() => {
+            whisper(
+                "Try not to make this weird."
+            );
+        }, 1800);
+    }
+
+
+    /* =========================================================
+       START
+       ========================================================= */
 
     if (
-        lairState.discoveries.length >=
-            3
+        document.readyState === "loading"
     ) {
-
-        const heroMeta =
-            $("heroMetaHarrow");
-
-
-        if (heroMeta) {
-
-            heroMeta.textContent =
-                "HARROW // YOU'VE BEEN TOUCHING THINGS";
-
-        }
-
+        document.addEventListener(
+            "DOMContentLoaded",
+            init,
+            {
+                once: true
+            }
+        );
+    } else {
+        init();
     }
 
-}
-
-
-/* ============================================================
-   BOOT
-   ============================================================ */
-
-
-async function bootHellbox() {
-
-    restoreVisualLairState();
-
-
-    rotateTransmission();
-
-
-    setupPointerAtmosphere();
-
-    setupZoneObserver();
-
-    setupScrollEvents();
-
-    setupHeroInteractions();
-
-    setupTheoryInteractions();
-
-    setupPressInteractions();
-
-    setupClassifiedInteractions();
-
-    setupMinorInteractions();
-
-    setupGlobalControls();
-
-    setupReaderControls();
-
-    setupKeyboardControls();
-
-    setupWalletEvents();
-
-
-    renderDisconnected();
-
-
-    await Promise.all([
-        loadPublications(),
-        loadPress()
-    ]);
-
-
-    await restoreWallet();
-
-
-    checkScrollWhispers();
-
-}
-
-
-/* ============================================================
-   START
-   ============================================================ */
-
-
-if (
-    document.readyState ===
-        "loading"
-) {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        bootHellbox,
-        {
-            once:
-                true
-        }
-    );
-
-
-} else {
-
-    bootHellbox();
-
-}
+})();
