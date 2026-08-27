@@ -2142,44 +2142,21 @@
 
             html: `
                 <p>
-                    I respect institutions deeply.
+                    They really like rules.
                 </p>
 
                 <p>
-                    That's why I draw them with such flattering proportions.
+                    I read the document.
+                    Most of it.
+                </p>
+
+                <p>
+                    The red string remains unconvinced.
                 </p>
             `,
 
             footnote:
                 "THIS IS SATIRE. RELAX."
-        },
-
-        cabal: {
-            code:
-                "THEORY // █████",
-
-            eyebrow:
-                "HARROW // DIAGRAM INCOMPLETE",
-
-            title:
-                "THE CABAL.",
-
-            html: `
-                <p>
-                    Membership remains fluid.
-                </p>
-
-                <p>
-                    Current qualification appears to be:
-                    somebody Harrow dislikes,
-                    somebody Harrow distrusts,
-                    or somebody who used the phrase
-                    “industry best practices.”
-                </p>
-            `,
-
-            footnote:
-                "THE CABAL, AS DEPICTED HERE, IS A FICTIONAL SATIRICAL DEVICE."
         },
 
         interpol: {
@@ -2203,39 +2180,129 @@
 
                 <p>
                     I draw comic books.
+                    Mostly.
                 </p>
             `,
 
             footnote:
-                "MOSTLY."
+                "DIAGRAM STATUS // ENTIRELY TOO MUCH STRING."
         },
 
-        you: {
+        cabal: {
             code:
-                "THEORY // YOU",
+                "THEORY // █████",
 
             eyebrow:
-                "HARROW // OBSERVATION",
+                "HARROW // DIAGRAM INCOMPLETE",
 
             title:
-                "YOU'RE STILL HERE.",
+                "THE CABAL.",
 
             html: `
                 <p>
-                    You could have closed the tab.
+                    Always.
+                    Everywhere.
+                    All ways.
                 </p>
 
                 <p>
-                    Instead you started clicking red string.
+                    What does that even mean?
                 </p>
 
                 <p>
-                    Excellent instincts.
+                    Excellent question.
+                    Stop touching the board.
                 </p>
             `,
 
             footnote:
-                "DIAGNOSIS // CURIOUS ENOUGH TO BE A PROBLEM."
+                "THE CABAL, AS DEPICTED HERE, IS A FICTIONAL SATIRICAL DEVICE."
+        },
+
+        nft: {
+            code:
+                "THEORY // JPG-404",
+
+            eyebrow:
+                "HARROW // CULTURE DEPARTMENT",
+
+            title:
+                "WHO TOLD THEM NFTS WERE DEAD?",
+
+            html: `
+                <p>
+                    Bad NFTs died.
+                    Actually most of them.
+                </p>
+
+                <p>
+                    Community.
+                    Art.
+                    Utility.
+                    Vibes.
+                </p>
+
+                <p>
+                    Yes.
+                    All of it.
+                </p>
+            `,
+
+            footnote:
+                "HARROW // FINE. I'LL DO IT."
+        },
+
+        sacrifice: {
+            code:
+                "THEORY // SAC-369",
+
+            eyebrow:
+                "HARROW // OLD RECEIPTS",
+
+            title:
+                "THE SACRIFICE.",
+
+            html: `
+                <p>
+                    We were so young.
+                </p>
+
+                <p>
+                    We were idiots.
+                </p>
+
+                <p>
+                    Both can be true.
+                </p>
+            `,
+
+            footnote:
+                "MEMORY // EXPENSIVE. TIMING // WORSE."
+        },
+
+        influencers: {
+            code:
+                "THEORY // FEED-∞",
+
+            eyebrow:
+                "HARROW // EXPERT DETECTOR",
+
+            title:
+                "INFLUENCERS.",
+
+            html: `
+                <p>
+                    Everyone is an expert during a green candle.
+                </p>
+
+                <p>
+                    The fascinating part is how quickly the biographies
+                    rewrite themselves during a red one.
+                </p>
+            `,
+
+            footnote:
+                "SIGNAL QUALITY // CONFIDENT. ACCURACY // PENDING."
         },
 
         harrow: {
@@ -2246,9 +2313,13 @@
                 "HARROW // PRIMARY SOURCE",
 
             title:
-                "FINALLY. ME.",
+                "FINALLY. A RELIABLE SOURCE.",
 
             html: `
+                <p>
+                    Harrow.
+                </p>
+
                 <p>
                     Reliable.
                     Objective.
@@ -2288,45 +2359,20 @@
                                 : "See? Everything touches everything."
                         );
 
+                        if (
+                            key === "harrow" &&
+                            dom.theoryCorrection
+                        ) {
+                            dom.theoryCorrection.classList.add(
+                                "active"
+                            );
+                        }
+
                         openDrawer(content);
                     }
                 );
             }
         );
-
-        if (dom.theoryCenter) {
-            dom.theoryCenter.addEventListener(
-                "click",
-                () => {
-                    recordInteraction();
-
-                    discover(
-                        "theory:center",
-                        "Wait. I had a point."
-                    );
-
-                    if (dom.theorySingular) {
-                        dom.theorySingular.classList.add(
-                            "crossed-out"
-                        );
-                    }
-
-                    if (dom.theoryCorrection) {
-                        dom.theoryCorrection.classList.add(
-                            "active"
-                        );
-                    }
-
-                    showHarrowResponse(
-                        "FORTY-SEVEN.",
-                        "Calling it one theory sounded dishonest.",
-                        {
-                            importance: "important"
-                        }
-                    );
-                }
-            );
-        }
     }
 
 
@@ -3273,6 +3319,18 @@
                 press: true
             }
         );
+
+        if (dom.pressLever) {
+            dom.pressLever.classList.add(
+                "pulled"
+            );
+
+            window.setTimeout(() => {
+                dom.pressLever?.classList.remove(
+                    "pulled"
+                );
+            }, 620);
+        }
 
         state.press.leverPulls +=
             1;
