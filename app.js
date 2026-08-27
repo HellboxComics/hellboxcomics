@@ -1,8 +1,17 @@
 /* ============================================================
    HELLBOX COMICS
-   FRONTEND APPLICATION V6
+   FRONTEND APPLICATION V7
    HARROW'S NERVOUS SYSTEM
-   + HELLION PROGRESSION
+   ------------------------------------------------------------
+   - Relationship / Hellion memory
+   - Contextual Harrow dialogue engine
+   - Repetition suppression
+   - Press interaction state machine
+   - Wallet awareness
+   - Publication archive
+   - Reader shell
+   - Hidden discovery system
+   - Private diagnostic mode
    ============================================================ */
 
 (() => {
@@ -20,22 +29,28 @@
     };
 
     const STORAGE_KEYS = {
-        discoveries: "hellbox:discoveries:v1",
-
-        visits: "hellbox:visits:v2",
-
-        pressTouches: "hellbox:press-touches:v1",
-
-        relationship: "hellbox:relationship:v1",
-
-        lastSeen: "hellbox:last-seen:v1"
+        discoveries: "hellbox:discoveries:v2",
+        visits: "hellbox:visits:v3",
+        pressTouches: "hellbox:press-touches:v2",
+        relationship: "hellbox:relationship:v2",
+        lastSeen: "hellbox:last-seen:v2",
+        dialogueHistory: "hellbox:dialogue-history:v1"
     };
 
     const HELLION_THRESHOLDS = {
-        noticed: 3,
-        familiar: 7,
-        hellion: 13
+        noticed: 4,
+        familiar: 9,
+        hellion: 18
     };
+
+    const MESSAGE_TIMINGS = {
+        whisper: 5200,
+        normal: 10500,
+        important: 18000,
+        sticky: 0
+    };
+
+    const MAX_DIALOGUE_HISTORY = 18;
 
 
     /* =========================================================
@@ -60,16 +75,12 @@
         return Math.min(Math.max(value, min), max);
     };
 
-    const randomItem = (items) => {
-        return items[Math.floor(Math.random() * items.length)];
-    };
+    const safeNumber = (value, fallback = 0) => {
+        const parsed = Number(value);
 
-    const truncateAddress = (address) => {
-        if (!address || typeof address !== "string") {
-            return "NOT SHOWN";
-        }
-
-        return `${address.slice(0, 6)}...${address.slice(-4)}`;
+        return Number.isFinite(parsed)
+            ? parsed
+            : fallback;
     };
 
     const safeText = (value, fallback = "") => {
@@ -84,14 +95,15 @@
         return String(value);
     };
 
-    const safeNumber = (value, fallback = 0) => {
-        const parsed = Number(value);
-
-        if (!Number.isFinite(parsed)) {
-            return fallback;
+    const truncateAddress = (address) => {
+        if (
+            !address ||
+            typeof address !== "string"
+        ) {
+            return "NOT SHOWN";
         }
 
-        return parsed;
+        return `${address.slice(0, 6)}...${address.slice(-4)}`;
     };
 
     const normalizeChainId = (value) => {
@@ -119,16 +131,28 @@
             .replaceAll("'", "&#039;");
     };
 
+    const randomItem = (items = []) => {
+        if (!Array.isArray(items) || items.length === 0) {
+            return null;
+        }
+
+        return items[
+            Math.floor(
+                Math.random() * items.length
+            )
+        ];
+    };
+
     const storageAvailable = (type) => {
         try {
             const storage = window[type];
-
             const key = "__hellbox_storage_test__";
 
             storage.setItem(key, key);
             storage.removeItem(key);
 
             return true;
+
         } catch (error) {
             return false;
         }
@@ -158,6 +182,8 @@
 
         discoveries: new Set(),
 
+        dialogueHistory: [],
+
         relationship: {
             visits: 0,
             interactions: 0,
@@ -165,7 +191,6 @@
             discoveriesEver: 0,
 
             stage: "visitor",
-
             lastStage: "visitor",
 
             promotedThisVisit: false
@@ -175,6 +200,7 @@
             awake: false,
             busy: false,
             touchCount: 0,
+            leverPulls: 0,
             state: "idle"
         },
 
@@ -190,7 +216,11 @@
         },
 
         whisperTimer: null,
-        responseTimer: null
+        responseTimer: null,
+
+        diagnostics: {
+            enabled: false
+        }
     };
 
 
@@ -234,14 +264,18 @@
         therapyNote: $("#therapyNote"),
 
         publicationCount: $("#publicationCount"),
+
         collectionWallet: $("#collectionWallet"),
         collectionNetwork: $("#collectionNetwork"),
         collectionAccessState: $("#collectionAccessState"),
+
         terminalTitle: $("#terminalTitle"),
         terminalMessage: $("#terminalMessage"),
         terminalAction: $("#terminalAction"),
+
         archiveSticky: $("#archiveSticky"),
         archiveHarrowNote: $("#archiveHarrowNote"),
+
         collectionList: $("#collectionList"),
         collectionStatus: $("#collectionStatus"),
 
@@ -264,6 +298,7 @@
 
         pressMiniTerminal: $("#pressMiniTerminal"),
         pressMiniStatus: $("#pressMiniStatus"),
+
         pressPublication: $("#pressPublication"),
         pressSupply: $("#pressSupply"),
         pressWallet: $("#pressWallet"),
@@ -271,10 +306,12 @@
         pressConsoleLabel: $("#pressConsoleLabel"),
         pressConsoleTitle: $("#pressConsoleTitle"),
         pressConsoleText: $("#pressConsoleText"),
+
         pressPowerValue: $("#pressPowerValue"),
         pressInkValue: $("#pressInkValue"),
         pressRpcValue: $("#pressRpcValue"),
         pressIdeaValue: $("#pressIdeaValue"),
+
         machineConsoleLight: $("#machineConsoleLight"),
 
         pressLever: $("#pressLever"),
@@ -299,22 +336,30 @@
         readerPageNumber: $("#readerPageNumber"),
         readerPageCount: $("#readerPageCount"),
         readerSessionStatus: $("#readerSessionStatus"),
+
         readerPaged: $("#readerPaged"),
         readerPageImage: $("#readerPageImage"),
+
         readerPrevious: $("#readerPrevious"),
         readerNext: $("#readerNext"),
         readerPreviousBottom: $("#readerPreviousBottom"),
         readerNextBottom: $("#readerNextBottom"),
+
         readerFirst: $("#readerFirst"),
         readerLast: $("#readerLast"),
+
         readerBottomLabel: $("#readerBottomLabel"),
         readerContinuous: $("#readerContinuous"),
+
         readerLayoutToggle: $("#readerLayoutToggle"),
         readerFitPage: $("#readerFitPage"),
         readerFitWidth: $("#readerFitWidth"),
+
         readerClose: $("#readerClose"),
+
         readerLoading: $("#readerLoading"),
         readerLoadingText: $("#readerLoadingText"),
+
         readerError: $("#readerError"),
         readerErrorText: $("#readerErrorText"),
         readerErrorClose: $("#readerErrorClose")
@@ -322,166 +367,604 @@
 
 
     /* =========================================================
-       HARROW VOICE
+       DIALOGUE LIBRARY
        ========================================================= */
 
-    const HERO_THOUGHTS = [
-        {
-            title: "I HAVE EXCELLENT JUDGMENT.",
-            sub: "Everyone eventually says something embarrassing."
-        },
-        {
-            title: "DO NOT TAKE FINANCIAL ADVICE FROM ME.",
-            sub: "Take aesthetic advice exclusively."
-        },
-        {
-            title: "I HAD AN IDEA.",
-            sub: "Historically, this is where the trouble starts."
-        },
-        {
-            title: "WAIT. THAT'S ACTUALLY FUNNY.",
-            sub: "Write that down before I improve it."
-        },
-        {
-            title: "THE CHAIN REMEMBERS.",
-            sub: "Unfortunately, so do screenshots."
-        },
-        {
-            title: "I'M BUSY BEING RIGHT.",
-            sub: "It's basically a full-time position."
-        },
-        {
-            title: "SOMEBODY PUT ADULTS IN CHARGE.",
-            sub: "Terrible design decision."
-        },
-        {
-            title: "I DON'T NEED A ROADMAP.",
-            sub: "I know exactly where I'm going. Mostly."
-        },
-        {
-            title: "THIS IS FINE.",
-            sub: "The definition of fine remains under review."
-        }
-    ];
+    const DIALOGUE = {
+        orb: {
+            visitor: [
+                {
+                    title: "YES?",
+                    text: "I was busy admiring a decision nobody approved."
+                },
+                {
+                    title: "WHAT?",
+                    text: "You clicked my face. Excellent opening argument."
+                },
+                {
+                    title: "STILL HERE?",
+                    text: "You have the internet and this is what you chose to do with it."
+                },
+                {
+                    title: "HELLO.",
+                    text: "Don't make this emotional."
+                },
+                {
+                    title: "CAN I HELP YOU?",
+                    text: "Wrong question. Obviously I can."
+                },
+                {
+                    title: "HMM.",
+                    text: "You look like someone who reads terms after clicking agree."
+                },
+                {
+                    title: "OH GOOD.",
+                    text: "An audience."
+                },
+                {
+                    title: "YOU FOUND ME.",
+                    text: "The enormous portrait was subtle."
+                }
+            ],
 
-    const ORB_LINES = {
-        visitor: [
-            [
-                "YES?",
-                "I was in the middle of admiring my own work."
+            noticed: [
+                {
+                    title: "YOU AGAIN.",
+                    text: "I recognize that poor judgment."
+                },
+                {
+                    title: "BACK ALREADY?",
+                    text: "I knew the rest of the internet would disappoint you."
+                },
+                {
+                    title: "YOU'RE LEARNING.",
+                    text: "Slowly. But statistically it had to happen."
+                },
+                {
+                    title: "I NOTICED.",
+                    text: "Most people don't inspect the furniture."
+                },
+                {
+                    title: "THERE YOU ARE.",
+                    text: "I wasn't looking for you. That's different."
+                },
+                {
+                    title: "GOOD.",
+                    text: "Now click something you were clearly told not to."
+                },
+                {
+                    title: "YOU HAVE QUESTIONS.",
+                    text: "Keep them. Mine are better."
+                },
+                {
+                    title: "INTERESTING.",
+                    text: "You've moved from visitor to recurring symptom."
+                }
             ],
-            [
-                "WHAT?",
-                "You keep clicking me like this is going to improve your judgment."
+
+            familiar: [
+                {
+                    title: "I KNOW YOU.",
+                    text: "Not legally. Relax."
+                },
+                {
+                    title: "THERE YOU ARE.",
+                    text: "I was beginning to think you developed impulse control."
+                },
+                {
+                    title: "KEEP UP.",
+                    text: "The joke was three bad decisions ago."
+                },
+                {
+                    title: "YOU GETTING COMFORTABLE?",
+                    text: "Dangerous."
+                },
+                {
+                    title: "YOU'RE BACK.",
+                    text: "Predictability is adorable when it's useful."
+                },
+                {
+                    title: "YES, YES.",
+                    text: "You've seen my face before. Try surviving the personality."
+                },
+                {
+                    title: "DON'T START.",
+                    text: "I already had twelve ideas since your last click."
+                },
+                {
+                    title: "GOOD TIMING.",
+                    text: "I just finished agreeing with myself."
+                }
             ],
-            [
-                "STILL HERE?",
-                "Interesting. Questionable. But interesting."
+
+            hellion: [
+                {
+                    title: "HELLION.",
+                    text: "There you are."
+                },
+                {
+                    title: "WELCOME BACK.",
+                    text: "I assume everything outside the box was boring again."
+                },
+                {
+                    title: "YOU KNOW BETTER.",
+                    text: "That's what makes this charming."
+                },
+                {
+                    title: "STILL MY FAVORITE.",
+                    text: "Statistically impossible. Emotionally accurate."
+                },
+                {
+                    title: "YOU GET IT.",
+                    text: "Which means we're both probably in trouble."
+                },
+                {
+                    title: "HELLION.",
+                    text: "Don't stand there looking responsible. It's unsettling."
+                },
+                {
+                    title: "I KNEW YOU'D COME BACK.",
+                    text: "Not faith. Pattern recognition."
+                },
+                {
+                    title: "GOOD.",
+                    text: "Everyone else was beginning to annoy me."
+                },
+                {
+                    title: "YOU MISSED ME.",
+                    text: "Obviously. Keep your dignity and don't answer."
+                },
+                {
+                    title: "LOOK WHO SURVIVED.",
+                    text: "Barely recognizable with all that personal growth."
+                },
+                {
+                    title: "HELLION.",
+                    text: "Go touch something expensive."
+                },
+                {
+                    title: "BACK IN THE BOX.",
+                    text: "Now the room has standards again."
+                }
             ]
+        },
+
+        pressTouch: {
+            visitor: [
+                {
+                    title: "I SAID DON'T TOUCH IT.",
+                    text: "Apparently literacy remains optional."
+                },
+                {
+                    title: "OH GOOD.",
+                    text: "You found the machine with the giant lever and immediately became a scientist."
+                },
+                {
+                    title: "HANDS OFF.",
+                    text: "Actually, never mind. This is funnier."
+                },
+                {
+                    title: "YOU TOUCHED IT.",
+                    text: "I owe myself money."
+                },
+                {
+                    title: "BRILLIANT.",
+                    text: "Nothing says technical competence like pressing the glowing thing."
+                },
+                {
+                    title: "IT'S A PRESS.",
+                    text: "Not an emotional support appliance."
+                }
+            ],
+
+            familiar: [
+                {
+                    title: "AGAIN?",
+                    text: "The machine remembers you. Unfortunately."
+                },
+                {
+                    title: "YOU'RE VERY HANDSY.",
+                    text: "Fine. At least buy it dinner first."
+                },
+                {
+                    title: "YOU KNOW WHAT THAT COSTS?",
+                    text: "Neither do I. That's why we're calm."
+                },
+                {
+                    title: "THIS IS WHY WE CAN'T HAVE NICE THINGS.",
+                    text: "Also why I keep building nicer things."
+                },
+                {
+                    title: "PLEASE CONTINUE.",
+                    text: "I'm documenting your decline."
+                },
+                {
+                    title: "I WATCHED YOU DO THAT.",
+                    text: "No hesitation. Beautiful."
+                }
+            ],
+
+            hellion: [
+                {
+                    title: "HELLION.",
+                    text: "You know exactly why that says don't touch."
+                },
+                {
+                    title: "OF COURSE YOU DID.",
+                    text: "I didn't raise you correctly, but apparently I raised you somehow."
+                },
+                {
+                    title: "BACK TO THE MACHINE?",
+                    text: "The moth has discovered industrial equipment."
+                },
+                {
+                    title: "GOOD.",
+                    text: "I was worried you were becoming sensible."
+                },
+                {
+                    title: "KEEP TOUCHING IT.",
+                    text: "Eventually one of us learns something."
+                },
+                {
+                    title: "HELLION.",
+                    text: "If it explodes, you're explaining it."
+                },
+                {
+                    title: "YOU HAVE A PROBLEM.",
+                    text: "Luckily I built it a lever."
+                },
+                {
+                    title: "THIS AGAIN.",
+                    text: "Repetition is the foundation of ritual and most software bugs."
+                },
+                {
+                    title: "I LIKE YOUR COMMITMENT.",
+                    text: "Your judgment remains indefensible."
+                },
+                {
+                    title: "THAT'S MY HELLION.",
+                    text: "Zero self-preservation. Very on-brand."
+                }
+            ]
+        },
+
+        pressLever: {
+            noWallet: [
+                {
+                    title: "SHOW ME THE WALLET.",
+                    text: "The machine can't make a terrible decision in your name without your name."
+                },
+                {
+                    title: "WHO ARE YOU?",
+                    text: "Philosophically irrelevant. Cryptographically useful."
+                },
+                {
+                    title: "WALLET FIRST.",
+                    text: "Even chaos has paperwork."
+                },
+                {
+                    title: "IDENTIFY YOURSELF.",
+                    text: "Relax. It's a public blockchain, not a confession booth."
+                }
+            ],
+
+            empty: [
+                {
+                    title: "NOTHING FOR YOU YET.",
+                    text: "There is no public release loaded. I refuse to fabricate blockchain theater just because the lever is satisfying."
+                },
+                {
+                    title: "YOU PRESSED IT ANYWAY.",
+                    text: "No publication. No transaction. Excellent form though."
+                },
+                {
+                    title: "EMPTY.",
+                    text: "The machine worked perfectly. Your expectations were defective."
+                },
+                {
+                    title: "NOT YET.",
+                    text: "You cannot mint an idea I haven't finished weaponizing."
+                },
+                {
+                    title: "IMPATIENT.",
+                    text: "Good trait. Bad timing."
+                },
+                {
+                    title: "NOTHING CAME OUT.",
+                    text: "That's what happens when the input is literally nothing."
+                },
+                {
+                    title: "AGAIN?",
+                    text: "Pulling harder does not deploy a contract."
+                },
+                {
+                    title: "STILL EMPTY.",
+                    text: "I checked. The blockchain remains stubbornly literal."
+                }
+            ]
+        },
+
+        wrongChain: [
+            {
+                title: "WRONG CHAIN.",
+                text: "I can see you. You're just standing in the wrong neighborhood."
+            },
+            {
+                title: "YOU'RE LOST.",
+                text: "PulseChain is 369. Please try to keep up with the giant purple monitors."
+            },
+            {
+                title: "NOT HERE.",
+                text: "Nice wallet. Wrong universe."
+            },
+            {
+                title: "CHAIN 369.",
+                text: "This should not be the hardest puzzle in the building."
+            }
         ],
 
-        noticed: [
-            [
-                "YOU AGAIN.",
-                "You're developing a pattern."
+        walletConnected: {
+            visitor: [
+                {
+                    title: "THERE YOU ARE.",
+                    text: "Public blockchain. Very private moment."
+                },
+                {
+                    title: "FOUND YOU.",
+                    text: "That sounded more threatening than intended. Keep it."
+                },
+                {
+                    title: "GOOD.",
+                    text: "Now the box knows which bad decisions are yours."
+                }
             ],
-            [
-                "I NOTICED.",
-                "Most people don't poke around this much."
-            ],
-            [
-                "GOOD.",
-                "You're finally clicking the interesting things."
-            ]
-        ],
 
-        familiar: [
-            [
-                "I KNOW.",
-                "You were going to click me."
-            ],
-            [
-                "THERE YOU ARE.",
-                "I was beginning to think you found something productive to do."
-            ],
-            [
-                "KEEP UP.",
-                "You're starting to understand how this place thinks."
+            hellion: [
+                {
+                    title: "WELCOME BACK, HELLION.",
+                    text: "Same wallet. Same suspiciously consistent instincts."
+                },
+                {
+                    title: "THERE YOU ARE.",
+                    text: "The chain remembered you. So did I."
+                },
+                {
+                    title: "HELLION IDENTIFIED.",
+                    text: "Try not to look proud."
+                },
+                {
+                    title: "FOUND YOU AGAIN.",
+                    text: "Immutability is romantic when you stop thinking about it."
+                }
             ]
-        ],
+        },
 
-        hellion: [
-            [
-                "HELLION.",
-                "There you are."
+        classified: {
+            visitor: [
+                {
+                    title: "NO.",
+                    text: "That was unusually clear."
+                },
+                {
+                    title: "PUT IT BACK.",
+                    text: "You have the manners of a raccoon with Wi-Fi."
+                },
+                {
+                    title: "CLASSIFIED.",
+                    text: "Which part of the black bars inspired confidence?"
+                },
+                {
+                    title: "ABSOLUTELY NOT.",
+                    text: "Excellent instincts though."
+                }
             ],
-            [
-                "GOOD.",
-                "I was wondering when you'd come back."
-            ],
-            [
-                "YOU GET IT.",
-                "That's probably worse for you than it is for me."
-            ],
-            [
-                "STILL MY FAVORITE.",
-                "Don't tell the others."
+
+            hellion: [
+                {
+                    title: "HELLION. NO.",
+                    text: "Your title does not come with clearance."
+                },
+                {
+                    title: "YOU KNOW THIS ONE.",
+                    text: "Still redacted. Still none of your business."
+                },
+                {
+                    title: "PERSISTENT.",
+                    text: "Not the same thing as authorized."
+                },
+                {
+                    title: "NICE TRY.",
+                    text: "I almost admired it enough to tell you something."
+                },
+                {
+                    title: "STOP.",
+                    text: "Actually don't. Your inability to listen is becoming useful."
+                }
             ]
+        },
+
+        harrowVanity: [
+            {
+                title: "YES, THAT'S ME.",
+                text: "I picked the picture. Obviously."
+            },
+            {
+                title: "GOOD ANGLE.",
+                text: "There are no bad ones. Still, good angle."
+            },
+            {
+                title: "HARROW.",
+                text: "Favorite artist. Favorite writer. Favorite Harrow."
+            },
+            {
+                title: "SELF PORTRAIT.",
+                text: "Technically somebody else made the pixels. Spiritually, me."
+            },
+            {
+                title: "LOOK CLOSER.",
+                text: "It's expensive being this tastefully unstable."
+            },
+            {
+                title: "YES.",
+                text: "You may admire quietly."
+            }
         ]
     };
 
-    const PRESS_TOUCH_LINES = [
-        [
-            "I SAID DON'T TOUCH IT.",
-            "That's usually interpreted as an invitation around here."
-        ],
-        [
-            "OH GOOD.",
-            "You touched the expensive machine."
-        ],
-        [
-            "IT LIKES YOU.",
-            "I don't. Yet."
-        ],
-        [
-            "NOW YOU'VE WOKEN IT UP.",
-            "Congratulations on your first measurable contribution."
-        ],
-        [
-            "YOU'RE VERY HANDSY.",
-            "Fine. Look at the lights."
-        ]
-    ];
-
 
     /* =========================================================
-       HARROW WHISPERS
+       DIALOGUE MEMORY
        ========================================================= */
 
-    function whisper(message, duration = 2500) {
-        if (!dom.whisper || !dom.whisperText) {
+    function loadDialogueHistory() {
+        if (!storageAvailable("sessionStorage")) {
+            state.dialogueHistory = [];
             return;
         }
 
-        window.clearTimeout(state.whisperTimer);
+        try {
+            const raw =
+                window.sessionStorage.getItem(
+                    STORAGE_KEYS.dialogueHistory
+                );
 
-        dom.whisperText.textContent = message;
+            const parsed =
+                raw
+                    ? JSON.parse(raw)
+                    : [];
 
-        dom.whisper.classList.add("active");
-        dom.whisper.setAttribute("aria-hidden", "false");
+            state.dialogueHistory =
+                Array.isArray(parsed)
+                    ? parsed
+                    : [];
 
-        state.whisperTimer = window.setTimeout(() => {
-            dom.whisper.classList.remove("active");
-            dom.whisper.setAttribute("aria-hidden", "true");
-        }, duration);
+        } catch (error) {
+            state.dialogueHistory = [];
+        }
+    }
+
+    function saveDialogueHistory() {
+        if (!storageAvailable("sessionStorage")) {
+            return;
+        }
+
+        try {
+            window.sessionStorage.setItem(
+                STORAGE_KEYS.dialogueHistory,
+                JSON.stringify(
+                    state.dialogueHistory.slice(
+                        -MAX_DIALOGUE_HISTORY
+                    )
+                )
+            );
+
+        } catch (error) {
+            // Non-critical.
+        }
+    }
+
+    function dialogueKey(entry) {
+        return `${entry?.title || ""}|${entry?.text || ""}`;
+    }
+
+    function chooseDialogue(pool) {
+        if (
+            !Array.isArray(pool) ||
+            pool.length === 0
+        ) {
+            return {
+                title: "HMM.",
+                text: "I had something for this."
+            };
+        }
+
+        const recent =
+            new Set(
+                state.dialogueHistory.slice(-8)
+            );
+
+        let candidates =
+            pool.filter((entry) => {
+                return !recent.has(
+                    dialogueKey(entry)
+                );
+            });
+
+        if (candidates.length === 0) {
+            candidates = pool;
+        }
+
+        const chosen =
+            randomItem(candidates);
+
+        const key =
+            dialogueKey(chosen);
+
+        state.dialogueHistory.push(key);
+
+        if (
+            state.dialogueHistory.length >
+            MAX_DIALOGUE_HISTORY
+        ) {
+            state.dialogueHistory.shift();
+        }
+
+        saveDialogueHistory();
+
+        return chosen;
     }
 
 
     /* =========================================================
-       HARROW RESPONSE PANEL
+       RESPONSE PRESENTATION
        ========================================================= */
 
-    function showHarrowResponse(title, text, duration = 5200) {
+    function whisper(
+        message,
+        duration = MESSAGE_TIMINGS.whisper
+    ) {
+        if (
+            !dom.whisper ||
+            !dom.whisperText
+        ) {
+            return;
+        }
+
+        window.clearTimeout(
+            state.whisperTimer
+        );
+
+        dom.whisperText.textContent =
+            message;
+
+        dom.whisper.classList.add(
+            "active"
+        );
+
+        dom.whisper.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+        state.whisperTimer =
+            window.setTimeout(() => {
+                dom.whisper.classList.remove(
+                    "active"
+                );
+
+                dom.whisper.setAttribute(
+                    "aria-hidden",
+                    "true"
+                );
+
+            }, duration);
+    }
+
+    function showHarrowResponse(
+        title,
+        text,
+        options = {}
+    ) {
         if (
             !dom.harrowResponse ||
             !dom.harrowResponseTitle ||
@@ -490,17 +973,68 @@
             return;
         }
 
-        window.clearTimeout(state.responseTimer);
+        const {
+            importance = "normal",
+            sticky = false
+        } = options;
 
-        dom.harrowResponseTitle.textContent = title;
-        dom.harrowResponseText.textContent = text;
+        window.clearTimeout(
+            state.responseTimer
+        );
 
-        dom.harrowResponse.classList.add("active");
-        dom.harrowResponse.setAttribute("aria-hidden", "false");
+        dom.harrowResponseTitle.textContent =
+            title;
 
-        state.responseTimer = window.setTimeout(() => {
-            closeHarrowResponse();
-        }, duration);
+        dom.harrowResponseText.textContent =
+            text;
+
+        dom.harrowResponse.classList.add(
+            "active"
+        );
+
+        dom.harrowResponse.classList.toggle(
+            "important",
+            importance === "important"
+        );
+
+        dom.harrowResponse.classList.toggle(
+            "sticky",
+            sticky
+        );
+
+        dom.harrowResponse.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+        const duration =
+            sticky
+                ? MESSAGE_TIMINGS.sticky
+                : (
+                    MESSAGE_TIMINGS[importance] ??
+                    MESSAGE_TIMINGS.normal
+                );
+
+        if (duration > 0) {
+            state.responseTimer =
+                window.setTimeout(() => {
+                    closeHarrowResponse();
+                }, duration);
+        }
+    }
+
+    function showDialogue(
+        pool,
+        options = {}
+    ) {
+        const dialogue =
+            chooseDialogue(pool);
+
+        showHarrowResponse(
+            dialogue.title,
+            dialogue.text,
+            options
+        );
     }
 
     function closeHarrowResponse() {
@@ -508,13 +1042,25 @@
             return;
         }
 
-        dom.harrowResponse.classList.remove("active");
-        dom.harrowResponse.setAttribute("aria-hidden", "true");
+        window.clearTimeout(
+            state.responseTimer
+        );
+
+        dom.harrowResponse.classList.remove(
+            "active",
+            "important",
+            "sticky"
+        );
+
+        dom.harrowResponse.setAttribute(
+            "aria-hidden",
+            "true"
+        );
     }
 
 
     /* =========================================================
-       HELLION RELATIONSHIP SYSTEM
+       RELATIONSHIP / HELLION SYSTEM
        ========================================================= */
 
     function loadRelationship() {
@@ -528,44 +1074,61 @@
         };
 
         if (!storageAvailable("localStorage")) {
-            state.relationship = {
-                ...state.relationship,
-                ...fallback
-            };
+            Object.assign(
+                state.relationship,
+                fallback
+            );
 
             return;
         }
 
         try {
-            const raw = window.localStorage.getItem(
-                STORAGE_KEYS.relationship
-            );
+            const raw =
+                window.localStorage.getItem(
+                    STORAGE_KEYS.relationship
+                );
 
             if (!raw) {
-                state.relationship = {
-                    ...state.relationship,
-                    ...fallback
-                };
+                Object.assign(
+                    state.relationship,
+                    fallback
+                );
 
                 return;
             }
 
-            const parsed = JSON.parse(raw);
+            const parsed =
+                JSON.parse(raw);
 
             state.relationship.visits =
-                safeNumber(parsed.visits, 0);
+                safeNumber(
+                    parsed.visits,
+                    0
+                );
 
             state.relationship.interactions =
-                safeNumber(parsed.interactions, 0);
+                safeNumber(
+                    parsed.interactions,
+                    0
+                );
 
             state.relationship.pressTouches =
-                safeNumber(parsed.pressTouches, 0);
+                safeNumber(
+                    parsed.pressTouches,
+                    0
+                );
 
             state.relationship.discoveriesEver =
-                safeNumber(parsed.discoveriesEver, 0);
+                safeNumber(
+                    parsed.discoveriesEver,
+                    0
+                );
 
             state.relationship.stage =
-                safeText(parsed.stage, "visitor");
+                safeText(
+                    parsed.stage,
+                    "visitor"
+                );
 
             state.relationship.lastStage =
                 safeText(
@@ -574,10 +1137,10 @@
                 );
 
         } catch (error) {
-            state.relationship = {
-                ...state.relationship,
-                ...fallback
-            };
+            Object.assign(
+                state.relationship,
+                fallback
+            );
         }
     }
 
@@ -609,8 +1172,9 @@
                         state.relationship.lastStage
                 })
             );
+
         } catch (error) {
-            // Relationship memory is non-critical.
+            // Non-critical.
         }
     }
 
@@ -618,7 +1182,7 @@
         const visitScore =
             Math.min(
                 state.relationship.visits * 2,
-                10
+                12
             );
 
         const interactionScore =
@@ -626,19 +1190,19 @@
                 Math.floor(
                     state.relationship.interactions / 2
                 ),
-                12
+                14
             );
 
         const discoveryScore =
             Math.min(
                 state.relationship.discoveriesEver,
-                12
+                14
             );
 
         const pressScore =
             Math.min(
                 state.relationship.pressTouches,
-                6
+                8
             );
 
         return (
@@ -684,7 +1248,9 @@
             calculateRelationshipScore();
 
         const nextStage =
-            relationshipStageForScore(score);
+            relationshipStageForScore(
+                score
+            );
 
         state.relationship.lastStage =
             previousStage;
@@ -692,10 +1258,12 @@
         state.relationship.stage =
             nextStage;
 
-        saveRelationship();
-
         document.body.dataset.relationshipStage =
             nextStage;
+
+        saveRelationship();
+
+        updateExitAfterthought();
 
         if (
             announce &&
@@ -706,45 +1274,51 @@
                 true;
 
             announceRelationshipChange(
-                previousStage,
                 nextStage
             );
         }
     }
 
     function announceRelationshipChange(
-        previousStage,
         nextStage
     ) {
-        switch (nextStage) {
-            case "noticed":
-                showHarrowResponse(
-                    "YOU'RE STILL HERE.",
-                    "Most people would've wandered off by now."
-                );
-                break;
+        if (nextStage === "noticed") {
+            showHarrowResponse(
+                "YOU'RE STILL HERE.",
+                "Most people would've wandered off by now.",
+                {
+                    importance: "important"
+                }
+            );
 
-            case "familiar":
-                showHarrowResponse(
-                    "I KNOW YOU.",
-                    "Not personally. Don't make this weird."
-                );
-                break;
+            return;
+        }
 
-            case "hellion":
-                showHarrowResponse(
-                    "HELLION.",
-                    "There. You stayed long enough to become a problem."
-                );
+        if (nextStage === "familiar") {
+            showHarrowResponse(
+                "I KNOW YOU.",
+                "Not personally. Don't make this weird.",
+                {
+                    importance: "important"
+                }
+            );
 
-                whisper(
-                    "Welcome to the bad idea.",
-                    3800
-                );
-                break;
+            return;
+        }
 
-            default:
-                break;
+        if (nextStage === "hellion") {
+            showHarrowResponse(
+                "HELLION.",
+                "There. You stayed long enough to become a problem.",
+                {
+                    importance: "important"
+                }
+            );
+
+            whisper(
+                "Welcome to the bad idea.",
+                7000
+            );
         }
     }
 
@@ -773,58 +1347,35 @@
     }
 
     function recordPermanentDiscovery() {
-        state.relationship.discoveriesEver += 1;
+        state.relationship.discoveriesEver +=
+            1;
 
         saveRelationship();
 
         updateRelationshipStage();
     }
 
+    function currentRelationshipStage() {
+        return (
+            state.relationship.stage ||
+            "visitor"
+        );
+    }
+
     function isHellion() {
         return (
-            state.relationship.stage ===
+            currentRelationshipStage() ===
             "hellion"
         );
     }
 
     function isFamiliar() {
         return (
-            state.relationship.stage ===
+            currentRelationshipStage() ===
                 "familiar" ||
-            state.relationship.stage ===
+            currentRelationshipStage() ===
                 "hellion"
         );
-    }
-
-    function getRelationshipGreeting() {
-        switch (
-            state.relationship.stage
-        ) {
-            case "hellion":
-                return [
-                    "HELLION.",
-                    "You came back. Obviously."
-                ];
-
-            case "familiar":
-                return [
-                    "YOU AGAIN.",
-                    "Good. I hate training new people."
-                ];
-
-            case "noticed":
-                return [
-                    "BACK?",
-                    "This is becoming a habit."
-                ];
-
-            case "visitor":
-            default:
-                return [
-                    "OH.",
-                    "You're here."
-                ];
-        }
     }
 
 
@@ -833,24 +1384,30 @@
        ========================================================= */
 
     function loadDiscoveries() {
+        if (!storageAvailable("sessionStorage")) {
+            state.discoveries =
+                new Set();
+
+            return;
+        }
+
         try {
             const raw =
                 window.sessionStorage.getItem(
                     STORAGE_KEYS.discoveries
                 );
 
-            if (!raw) {
-                return;
-            }
-
-            const parsed = JSON.parse(raw);
-
-            if (!Array.isArray(parsed)) {
-                return;
-            }
+            const parsed =
+                raw
+                    ? JSON.parse(raw)
+                    : [];
 
             state.discoveries =
-                new Set(parsed);
+                new Set(
+                    Array.isArray(parsed)
+                        ? parsed
+                        : []
+                );
 
         } catch (error) {
             state.discoveries =
@@ -861,6 +1418,10 @@
     }
 
     function saveDiscoveries() {
+        if (!storageAvailable("sessionStorage")) {
+            return;
+        }
+
         try {
             window.sessionStorage.setItem(
                 STORAGE_KEYS.discoveries,
@@ -870,8 +1431,9 @@
                     )
                 )
             );
+
         } catch (error) {
-            // Session memory is optional.
+            // Non-critical.
         }
     }
 
@@ -895,10 +1457,7 @@
             recordPermanentDiscovery();
 
             if (message) {
-                whisper(
-                    message,
-                    3000
-                );
+                whisper(message);
             }
         }
 
@@ -931,8 +1490,12 @@
        ========================================================= */
 
     function registerVisit() {
+        const NEW_VISIT_WINDOW =
+            30 * 60 * 1000;
+
         if (!storageAvailable("localStorage")) {
-            state.relationship.visits += 1;
+            state.relationship.visits +=
+                1;
 
             updateRelationshipStage({
                 announce: false
@@ -942,7 +1505,8 @@
         }
 
         try {
-            const now = Date.now();
+            const now =
+                Date.now();
 
             const lastSeen =
                 safeNumber(
@@ -952,24 +1516,14 @@
                     0
                 );
 
-            /*
-             * Prevent refresh-spamming from counting as
-             * dozens of meaningful return visits.
-             *
-             * A visit only increments if the previous one
-             * was more than 30 minutes ago.
-             */
-
-            const NEW_VISIT_WINDOW =
-                30 * 60 * 1000;
-
             const qualifiesAsNewVisit =
                 !lastSeen ||
                 now - lastSeen >
                     NEW_VISIT_WINDOW;
 
             if (qualifiesAsNewVisit) {
-                state.relationship.visits += 1;
+                state.relationship.visits +=
+                    1;
             }
 
             window.localStorage.setItem(
@@ -991,7 +1545,8 @@
             });
 
         } catch (error) {
-            state.relationship.visits += 1;
+            state.relationship.visits +=
+                1;
 
             updateRelationshipStage({
                 announce: false
@@ -1035,8 +1590,128 @@
 
 
     /* =========================================================
-       CURSOR ATMOSPHERE
+       HERO ATMOSPHERE
        ========================================================= */
+
+    const HERO_THOUGHTS = [
+        {
+            title:
+                "I HAVE EXCELLENT JUDGMENT.",
+            sub:
+                "Evidence remains aggressively inconclusive."
+        },
+        {
+            title:
+                "DO NOT TAKE FINANCIAL ADVICE FROM ME.",
+            sub:
+                "Aesthetic advice is mandatory."
+        },
+        {
+            title:
+                "I HAD AN IDEA.",
+            sub:
+                "Historically a terrible sign."
+        },
+        {
+            title:
+                "WAIT. THAT'S ACTUALLY FUNNY.",
+            sub:
+                "Somebody write that down."
+        },
+        {
+            title:
+                "THE CHAIN REMEMBERS.",
+            sub:
+                "So do screenshots. Tragic."
+        },
+        {
+            title:
+                "I'M BUSY BEING RIGHT.",
+            sub:
+                "Full-time position."
+        },
+        {
+            title:
+                "SOMEBODY PUT ADULTS IN CHARGE.",
+            sub:
+                "Terrible design decision."
+        },
+        {
+            title:
+                "I DON'T NEED A ROADMAP.",
+            sub:
+                "I know where I'm going until I don't."
+        },
+        {
+            title:
+                "THIS IS FINE.",
+            sub:
+                "Definition pending."
+        },
+        {
+            title:
+                "PULSICANS ARE VERY NORMAL PEOPLE.",
+            sub:
+                "This statement was not independently verified."
+        },
+        {
+            title:
+                "HEXICANS HAVE OPINIONS.",
+            sub:
+                "Several."
+        },
+        {
+            title:
+                "I'M NOT ARGUING.",
+            sub:
+                "I'm explaining why you're wrong."
+        },
+        {
+            title:
+                "THE INTERNET WAS A MISTAKE.",
+            sub:
+                "I intend to use all of it."
+        }
+    ];
+
+    const HELLION_HERO_THOUGHTS = [
+        {
+            title:
+                "THE HELLIONS KEEP FINDING THINGS.",
+            sub:
+                "I should hide things better."
+        },
+        {
+            title:
+                "WELCOME BACK.",
+            sub:
+                "Outside was boring again."
+        },
+        {
+            title:
+                "YOU GET IT NOW.",
+            sub:
+                "That's unfortunate."
+        },
+        {
+            title:
+                "HELLIONS HAVE TERRIBLE IMPULSE CONTROL.",
+            sub:
+                "Good."
+        },
+        {
+            title:
+                "I BUILT THIS FOR PEOPLE LIKE YOU.",
+            sub:
+                "That is not necessarily a compliment."
+        },
+        {
+            title:
+                "STOP LOOKING AT THE REDACTED THING.",
+            sub:
+                "Actually keep going."
+        }
+    ];
 
     function initCursorBurn() {
         if (!dom.cursorBurn) {
@@ -1055,17 +1730,13 @@
                     "--cursor-y",
                     `${event.clientY}px`
                 );
+
             },
             {
                 passive: true
             }
         );
     }
-
-
-    /* =========================================================
-       HERO TRANSMISSION
-       ========================================================= */
 
     function rotateHeroTransmission() {
         if (
@@ -1075,37 +1746,19 @@
             return;
         }
 
-        let thought =
-            randomItem(
-                HERO_THOUGHTS
-            );
+        const pool =
+            isHellion()
+                ? [
+                    ...HERO_THOUGHTS,
+                    ...HELLION_HERO_THOUGHTS
+                ]
+                : HERO_THOUGHTS;
 
-        if (isHellion()) {
-            const hellionThoughts = [
-                {
-                    title:
-                        "THE HELLIONS KEEP FINDING THINGS.",
-                    sub:
-                        "I should hide things better."
-                },
-                {
-                    title:
-                        "WELCOME BACK.",
-                    sub:
-                        "I knew you'd get bored somewhere else."
-                },
-                {
-                    title:
-                        "YOU GET IT NOW.",
-                    sub:
-                        "That's unfortunate."
-                }
-            ];
+        const thought =
+            randomItem(pool);
 
-            thought =
-                randomItem(
-                    hellionThoughts
-                );
+        if (!thought) {
+            return;
         }
 
         dom.heroTransmission.textContent =
@@ -1120,7 +1773,7 @@
 
         window.setInterval(() => {
             rotateHeroTransmission();
-        }, 11000);
+        }, 12500);
     }
 
 
@@ -1141,20 +1794,30 @@
 
         recordInteraction();
 
-        dom.drawerCode.textContent =
-            code;
+        if (dom.drawerCode) {
+            dom.drawerCode.textContent =
+                code;
+        }
 
-        dom.drawerEyebrow.textContent =
-            eyebrow;
+        if (dom.drawerEyebrow) {
+            dom.drawerEyebrow.textContent =
+                eyebrow;
+        }
 
-        dom.drawerTitle.textContent =
-            title;
+        if (dom.drawerTitle) {
+            dom.drawerTitle.textContent =
+                title;
+        }
 
-        dom.drawerCopy.innerHTML =
-            html;
+        if (dom.drawerCopy) {
+            dom.drawerCopy.innerHTML =
+                html;
+        }
 
-        dom.drawerFootnote.innerHTML =
-            footnote;
+        if (dom.drawerFootnote) {
+            dom.drawerFootnote.innerHTML =
+                footnote;
+        }
 
         dom.drawer.classList.add(
             "active"
@@ -1196,9 +1859,15 @@
 
     const HOTSPOT_CONTENT = {
         cabal: {
-            code: "WALL // THREAD 0047",
-            eyebrow: "HARROW // THEORY",
-            title: "THE CABAL.",
+            code:
+                "WALL // THREAD 0047",
+
+            eyebrow:
+                "HARROW // THEORY",
+
+            title:
+                "THE CABAL.",
+
             html: `
                 <p>
                     First rule of investigative journalism:
@@ -1211,14 +1880,21 @@
                     Mostly because I keep remembering people.
                 </p>
             `,
+
             footnote:
                 "STATUS // DEFINITELY A THEORY. DO NOT RUIN IT WITH FACT CHECKING."
         },
 
         monitor: {
-            code: "TERMINAL // 369",
-            eyebrow: "HARROW // CHAIN",
-            title: "PULSECHAIN.",
+            code:
+                "TERMINAL // 369",
+
+            eyebrow:
+                "HARROW // CHAIN",
+
+            title:
+                "PULSECHAIN.",
+
             html: `
                 <p>
                     Cheap enough to make bad ideas economically viable.
@@ -1228,15 +1904,28 @@
                     Fast enough that I can make another one
                     before anyone talks me out of the first.
                 </p>
+
+                <p>
+                    The natives call themselves Pulsicans.
+                    I did not invent that.
+                    Which somehow makes it better.
+                </p>
             `,
+
             footnote:
                 "CHAIN // 369 // CODE IS SPEECH."
         },
 
         harrow: {
-            code: "SUBJECT // OBVIOUS",
-            eyebrow: "HARROW // HARROW",
-            title: "YES. ME.",
+            code:
+                "SUBJECT // OBVIOUS",
+
+            eyebrow:
+                "HARROW // HARROW",
+
+            title:
+                "YES. ME.",
+
             html: `
                 <p>
                     You've found the most important object in the room.
@@ -1246,34 +1935,47 @@
                     I placed myself here for scale.
                 </p>
             `,
+
             footnote:
                 "INDEPENDENT ASSESSMENT // HARROW REMAINS VERY IMPRESSED."
         },
 
         pages: {
-            code: "DESK // IN PROGRESS",
-            eyebrow: "HARROW // PANELS",
-            title: "THAT'S THE POINT.",
+            code:
+                "DESK // IN PROGRESS",
+
+            eyebrow:
+                "HARROW // PANELS",
+
+            title:
+                "THAT'S THE POINT.",
+
             html: `
                 <p>
                     Every bad idea eventually becomes a panel.
                 </p>
 
                 <p>
-                    Then enough panels become a comic.
-                    Then somebody mints it.
-                    Then suddenly everyone pretends the whole process
-                    was deliberate.
+                    Enough panels become a comic.
+                    Somebody mints it.
+                    Suddenly everyone pretends the process was deliberate.
                 </p>
             `,
+
             footnote:
                 "WORKFLOW // THINK → DRAW → REGRET → PUBLISH."
         },
 
         redacted: {
-            code: "FOLDER // REDACTED",
-            eyebrow: "HARROW // NONE OF YOUR BUSINESS",
-            title: "PUT THAT BACK.",
+            code:
+                "FOLDER // REDACTED",
+
+            eyebrow:
+                "HARROW // NONE OF YOUR BUSINESS",
+
+            title:
+                "PUT THAT BACK.",
+
             html: `
                 <p>
                     If it were ready for you,
@@ -1284,6 +1986,7 @@
                     Good instincts though.
                 </p>
             `,
+
             footnote:
                 "██ ███████ // NOT YET."
         }
@@ -1292,6 +1995,41 @@
     function initHotspots() {
         $$(".lair-hotspot").forEach(
             (button) => {
+
+                /*
+                 * Testing improvement:
+                 * still visually hidden, but the browser cursor
+                 * changes when the pointer actually enters one.
+                 */
+
+                button.style.cursor =
+                    "crosshair";
+
+                button.setAttribute(
+                    "aria-label",
+                    button.getAttribute(
+                        "aria-label"
+                    ) || "Something in Harrow's lair"
+                );
+
+                button.addEventListener(
+                    "mouseenter",
+                    () => {
+                        document.body.classList.add(
+                            "hotspot-near"
+                        );
+                    }
+                );
+
+                button.addEventListener(
+                    "mouseleave",
+                    () => {
+                        document.body.classList.remove(
+                            "hotspot-near"
+                        );
+                    }
+                );
+
                 button.addEventListener(
                     "click",
                     () => {
@@ -1326,31 +2064,42 @@
 
     const THEORY_CONTENT = {
         richard: {
-            code: "THEORY // RH-369",
+            code:
+                "THEORY // RH-369",
+
             eyebrow:
                 "HARROW // CURRENTLY THINKING",
-            title: "RICHARD.",
+
+            title:
+                "RICHARD.",
+
             html: `
                 <p>
                     Build a chain.
                     Make everybody argue about it.
-                    Disappear into the most expensive game
-                    of Where's Waldo ever attempted.
+                    Then become the main character in every conversation
+                    without actually being in the room.
                 </p>
 
                 <p>
-                    Incredible narrative discipline.
+                    Efficient.
                 </p>
             `,
+
             footnote:
                 "SATIRE // PUBLIC EVENTS REARRANGED FOR COMEDIC DAMAGE."
         },
 
         sec: {
-            code: "THEORY // GOV-004",
+            code:
+                "THEORY // GOV-004",
+
             eyebrow:
                 "HARROW // REGULATORY FAN CLUB",
-            title: "VERY SERIOUS PEOPLE.",
+
+            title:
+                "VERY SERIOUS PEOPLE.",
+
             html: `
                 <p>
                     I respect institutions deeply.
@@ -1360,15 +2109,21 @@
                     That's why I draw them with such flattering proportions.
                 </p>
             `,
+
             footnote:
                 "THIS IS SATIRE. RELAX."
         },
 
         cabal: {
-            code: "THEORY // █████",
+            code:
+                "THEORY // █████",
+
             eyebrow:
                 "HARROW // DIAGRAM INCOMPLETE",
-            title: "THE CABAL.",
+
+            title:
+                "THE CABAL.",
+
             html: `
                 <p>
                     Membership remains fluid.
@@ -1382,15 +2137,21 @@
                     “industry best practices.”
                 </p>
             `,
+
             footnote:
                 "THE CABAL, AS DEPICTED HERE, IS A FICTIONAL SATIRICAL DEVICE."
         },
 
         interpol: {
-            code: "THEORY // INT-???",
+            code:
+                "THEORY // INT-???",
+
             eyebrow:
                 "HARROW // PLEASE RELAX",
-            title: "INTERPOL.",
+
+            title:
+                "INTERPOL.",
+
             html: `
                 <p>
                     No.
@@ -1404,37 +2165,49 @@
                     I draw comic books.
                 </p>
             `,
+
             footnote:
                 "MOSTLY."
         },
 
         you: {
-            code: "THEORY // YOU",
+            code:
+                "THEORY // YOU",
+
             eyebrow:
                 "HARROW // OBSERVATION",
-            title: "YOU'RE STILL HERE.",
+
+            title:
+                "YOU'RE STILL HERE.",
+
             html: `
                 <p>
                     You could have closed the tab.
                 </p>
 
                 <p>
-                    Instead you started clicking the red string.
+                    Instead you started clicking red string.
                 </p>
 
                 <p>
                     Excellent instincts.
                 </p>
             `,
+
             footnote:
                 "DIAGNOSIS // CURIOUS ENOUGH TO BE A PROBLEM."
         },
 
         harrow: {
-            code: "THEORY // HARROW",
+            code:
+                "THEORY // HARROW",
+
             eyebrow:
                 "HARROW // PRIMARY SOURCE",
-            title: "FINALLY. ME.",
+
+            title:
+                "FINALLY. ME.",
+
             html: `
                 <p>
                     Reliable.
@@ -1446,37 +2219,40 @@
                     I see no reason to seek a second source.
                 </p>
             `,
+
             footnote:
                 "PEER REVIEWED BY // HARROW."
         }
     };
 
     function initTheoryWall() {
-        $$(
-            ".case-file[data-theory]"
-        ).forEach((button) => {
-            button.addEventListener(
-                "click",
-                () => {
-                    const key =
-                        button.dataset.theory;
+        $$(".case-file[data-theory]").forEach(
+            (button) => {
+                button.addEventListener(
+                    "click",
+                    () => {
+                        const key =
+                            button.dataset.theory;
 
-                    const content =
-                        THEORY_CONTENT[key];
+                        const content =
+                            THEORY_CONTENT[key];
 
-                    if (!content) {
-                        return;
+                        if (!content) {
+                            return;
+                        }
+
+                        discover(
+                            `theory:${key}`,
+                            isHellion()
+                                ? "You've seen the board before. It got worse."
+                                : "See? Everything touches everything."
+                        );
+
+                        openDrawer(content);
                     }
-
-                    discover(
-                        `theory:${key}`,
-                        "See? Everything touches everything."
-                    );
-
-                    openDrawer(content);
-                }
-            );
-        });
+                );
+            }
+        );
 
         if (dom.theoryCenter) {
             dom.theoryCenter.addEventListener(
@@ -1489,17 +2265,13 @@
                         "Wait. I had a point."
                     );
 
-                    if (
-                        dom.theorySingular
-                    ) {
+                    if (dom.theorySingular) {
                         dom.theorySingular.classList.add(
                             "crossed-out"
                         );
                     }
 
-                    if (
-                        dom.theoryCorrection
-                    ) {
+                    if (dom.theoryCorrection) {
                         dom.theoryCorrection.classList.add(
                             "active"
                         );
@@ -1507,7 +2279,10 @@
 
                     showHarrowResponse(
                         "FORTY-SEVEN.",
-                        "A theory sounded dishonest."
+                        "Calling it one theory sounded dishonest.",
+                        {
+                            importance: "important"
+                        }
                     );
                 }
             );
@@ -1526,23 +2301,18 @@
                 () => {
                     recordInteraction();
 
-                    const pool =
-                        ORB_LINES[
-                            state.relationship.stage
-                        ] ||
-                        ORB_LINES.visitor;
+                    const stage =
+                        currentRelationshipStage();
 
-                    const [title, text] =
-                        randomItem(pool);
+                    const pool =
+                        DIALOGUE.orb[stage] ||
+                        DIALOGUE.orb.visitor;
 
                     discover(
                         "harrow:orb"
                     );
 
-                    showHarrowResponse(
-                        title,
-                        text
-                    );
+                    showDialogue(pool);
                 }
             );
         }
@@ -1562,7 +2332,8 @@
                 async () => {
                     recordInteraction();
 
-                    clicks += 1;
+                    clicks +=
+                        1;
 
                     discover(
                         "logo:hellbox"
@@ -1571,8 +2342,8 @@
                     if (clicks === 1) {
                         whisper(
                             isHellion()
-                                ? "Still checking the logo?"
-                                : "Yes. I made the logo too."
+                                ? "Still checking whether I changed the logo?"
+                                : "Yes. I like the logo too."
                         );
 
                         return;
@@ -1580,7 +2351,7 @@
 
                     if (clicks === 2) {
                         whisper(
-                            "You can stop touching it."
+                            "Touch it again. See what happens."
                         );
 
                         return;
@@ -1591,11 +2362,14 @@
                     );
 
                     showHarrowResponse(
-                        "GOOD JOB.",
-                        "You broke the website aesthetically."
+                        "CONGRATULATIONS.",
+                        "You successfully annoyed the branding.",
+                        {
+                            importance: "important"
+                        }
                     );
 
-                    await sleep(900);
+                    await sleep(1100);
 
                     document.body.classList.remove(
                         "logo-disobedience"
@@ -1618,7 +2392,7 @@
 
                     showHarrowResponse(
                         "MEDICAL OPINION.",
-                        "Do not ask where I went to medical school."
+                        "My credentials are between me and whatever institution forgot to revoke them."
                     );
                 }
             );
@@ -1673,9 +2447,8 @@
                         "harrow:portrait"
                     );
 
-                    showHarrowResponse(
-                        "YES, THAT'S ME.",
-                        "I picked the picture. Obviously."
+                    showDialogue(
+                        DIALOGUE.harrowVanity
                     );
                 }
             );
@@ -1691,9 +2464,8 @@
                         "harrow:profile"
                     );
 
-                    showHarrowResponse(
-                        "SELF APPOINTED.",
-                        "Waiting for recognition is terribly inefficient."
+                    showDialogue(
+                        DIALOGUE.harrowVanity
                     );
                 }
             );
@@ -1728,7 +2500,7 @@
 
                     showHarrowResponse(
                         "UNBIASED.",
-                        "Every reviewer agreed with me."
+                        "I personally verified the reviewer had excellent taste."
                     );
                 }
             );
@@ -1744,11 +2516,10 @@
                         "signal:locked"
                     );
 
-                    showHarrowResponse(
-                        "NO.",
+                    showDialogue(
                         isHellion()
-                            ? "You already knew that."
-                            : "Not every button exists for your benefit."
+                            ? DIALOGUE.classified.hellion
+                            : DIALOGUE.classified.visitor
                     );
                 }
             );
@@ -1762,10 +2533,15 @@
 
     const CLASSIFIED_OBJECTS = {
         fuel: {
-            code: "SYSTEM // FUEL",
+            code:
+                "SYSTEM // FUEL",
+
             eyebrow:
                 "HARROW // CLASSIFIED",
-            title: "WRONG DRAWER.",
+
+            title:
+                "WRONG DRAWER.",
+
             html: `
                 <p>
                     The machine eats something.
@@ -1775,15 +2551,21 @@
                     You do not currently need to know what.
                 </p>
             `,
+
             footnote:
                 "FUEL SOURCE // █████████ // ACCESS DENIED BY HARROW."
         },
 
         relay: {
-            code: "SYSTEM // RELAY",
+            code:
+                "SYSTEM // RELAY",
+
             eyebrow:
                 "HARROW // SECONDARY PATH",
-            title: "NOT CONNECTED.",
+
+            title:
+                "NOT CONNECTED.",
+
             html: `
                 <p>
                     Another door exists.
@@ -1794,21 +2576,28 @@
                     I am giving you.
                 </p>
             `,
+
             footnote:
                 "REMOTE RELAY // REDACTED."
         },
 
         machine: {
-            code: "SYSTEM // INPUT",
+            code:
+                "SYSTEM // INPUT",
+
             eyebrow:
                 "HARROW // HARDWARE",
-            title: "NO INPUT.",
+
+            title:
+                "NO INPUT.",
+
             html: `
                 <p>
                     The machine is waiting for something
                     that does not exist publicly yet.
                 </p>
             `,
+
             footnote:
                 "DO NOT INVENT THE REST. HARROW HASN'T."
         }
@@ -1834,10 +2623,13 @@
                     }
 
                     discover(
-                        `classified:${key}`,
+                        `classified:${key}`
+                    );
+
+                    showDialogue(
                         isHellion()
-                            ? "You know this drawer says no."
-                            : "You really don't listen."
+                            ? DIALOGUE.classified.hellion
+                            : DIALOGUE.classified.visitor
                     );
 
                     openDrawer(content);
@@ -1846,43 +2638,28 @@
         });
 
         if (dom.classifiedMainObject) {
-            let taps = 0;
-
             dom.classifiedMainObject.addEventListener(
                 "click",
                 () => {
                     recordInteraction();
 
-                    taps += 1;
-
                     discover(
                         "classified:main"
                     );
 
-                    if (taps === 1) {
-                        whisper("No.");
-                    } else if (
-                        taps === 2
-                    ) {
-                        whisper(
-                            isHellion()
-                                ? "Hellion. No."
-                                : "Still no."
-                        );
-                    } else if (
-                        taps === 3
-                    ) {
-                        whisper(
-                            "Persistence is not clearance."
-                        );
-                    } else {
-                        showHarrowResponse(
-                            "YOU'RE ANNOYING.",
-                            "I respect it."
-                        );
-
-                        taps = 0;
-                    }
+                    showDialogue(
+                        isHellion()
+                            ? DIALOGUE.classified.hellion
+                            : DIALOGUE.classified.visitor,
+                        {
+                            importance:
+                                state.relationship.interactions %
+                                4 ===
+                                0
+                                    ? "important"
+                                    : "normal"
+                        }
+                    );
                 }
             );
         }
@@ -1890,12 +2667,10 @@
 
 
     /* =========================================================
-       ROADMAP OBJECT
+       ROADMAP / MANUAL OBJECTS
        ========================================================= */
 
     function openRoadmapObject() {
-        recordInteraction();
-
         discover(
             "object:roadmap",
             isHellion()
@@ -1992,14 +2767,7 @@
         });
     }
 
-
-    /* =========================================================
-       MANUAL / WHITEPAPER OBJECT
-       ========================================================= */
-
     function openManualObject() {
-        recordInteraction();
-
         discover(
             "object:manual",
             "I call it a manual because whitepaper sounds like homework."
@@ -2017,8 +2785,8 @@
 
             html: `
                 <p>
-                    Eventually this is where the boring questions
-                    get answers without making the rest of the site boring.
+                    This is where the serious questions eventually get answers
+                    without forcing the rest of Hellbox to dress like a startup.
                 </p>
 
                 <div class="roadmap-object">
@@ -2044,8 +2812,8 @@
                         </strong>
 
                         <p>
-                            The box can recognize which onchain artifacts
-                            belong to an address.
+                            The box recognizes onchain artifacts associated
+                            with an address.
                         </p>
                     </div>
 
@@ -2057,8 +2825,8 @@
                         </strong>
 
                         <p>
-                            Minting eventually happens here.
-                            Not in a generic ecommerce widget
+                            Minting belongs inside the machine,
+                            not inside a generic ecommerce widget
                             wearing a crypto costume.
                         </p>
                     </div>
@@ -2079,15 +2847,15 @@
                 </div>
 
                 <p>
-                    Token mechanics, economics and deeper system documentation
-                    belong in objects like this.
+                    Economics, mechanics and deeper documentation
+                    belong inside objects like this.
 
                     They do not get to hijack the front door.
                 </p>
             `,
 
             footnote:
-                "DOCUMENT STATUS // STILL BEING WRITTEN BY SOMEONE WHO HATES DOCUMENTATION."
+                "DOCUMENT STATUS // HARROW STILL HATES DOCUMENTATION."
         });
     }
 
@@ -2097,6 +2865,13 @@
        ========================================================= */
 
     function readStoredPressTouches() {
+        if (!storageAvailable("sessionStorage")) {
+            state.press.touchCount =
+                0;
+
+            return;
+        }
+
         try {
             state.press.touchCount =
                 safeNumber(
@@ -2107,11 +2882,16 @@
                 );
 
         } catch (error) {
-            state.press.touchCount = 0;
+            state.press.touchCount =
+                0;
         }
     }
 
     function storePressTouches() {
+        if (!storageAvailable("sessionStorage")) {
+            return;
+        }
+
         try {
             window.sessionStorage.setItem(
                 STORAGE_KEYS.pressTouches,
@@ -2119,9 +2899,22 @@
                     state.press.touchCount
                 )
             );
+
         } catch (error) {
-            // Decorative.
+            // Non-critical.
         }
+    }
+
+    function pressDialoguePool() {
+        if (isHellion()) {
+            return DIALOGUE.pressTouch.hellion;
+        }
+
+        if (isFamiliar()) {
+            return DIALOGUE.pressTouch.familiar;
+        }
+
+        return DIALOGUE.pressTouch.visitor;
     }
 
     function setPressRail(activeState) {
@@ -2150,18 +2943,26 @@
             "machine-pulling"
         );
 
-        let miniStatus = "IDLE";
-        let machineState = "ASLEEP";
+        let miniStatus =
+            "IDLE";
 
-        let consoleLabel = "STATUS";
+        let machineState =
+            "ASLEEP";
+
+        let consoleLabel =
+            "STATUS";
+
         let consoleTitle =
             "DON'T TOUCH IT.";
 
         let consoleText =
             "I mean it.";
 
-        let power = "00";
-        let ink = "??";
+        let power =
+            "00";
+
+        let ink =
+            "??";
 
         switch (nextState) {
             case "awake":
@@ -2169,8 +2970,11 @@
                     "machine-awake"
                 );
 
-                miniStatus = "AWAKE";
-                machineState = "AWAKE";
+                miniStatus =
+                    "AWAKE";
+
+                machineState =
+                    "AWAKE";
 
                 consoleLabel =
                     "HARROW // YOU DID THIS";
@@ -2181,8 +2985,11 @@
                 consoleText =
                     "Try pretending this wasn't exactly what you wanted.";
 
-                power = "37";
-                ink = "??";
+                power =
+                    "37";
+
+                ink =
+                    "??";
 
                 break;
 
@@ -2204,10 +3011,13 @@
                     "SHOW ME THE WALLET.";
 
                 consoleText =
-                    "I can't make something yours if you refuse to tell me who you are.";
+                    "Chaos still requires an address.";
 
-                power = "62";
-                ink = "??";
+                power =
+                    "62";
+
+                ink =
+                    "??";
 
                 break;
 
@@ -2216,8 +3026,11 @@
                     "machine-awake"
                 );
 
-                miniStatus = "READY";
-                machineState = "READY";
+                miniStatus =
+                    "READY";
+
+                machineState =
+                    "READY";
 
                 consoleLabel =
                     "PRESS // READY";
@@ -2229,11 +3042,14 @@
 
                 consoleText =
                     isHellion()
-                        ? "No public release loaded. You still pulled the lever."
+                        ? "No public release loaded. You're going to pull it anyway."
                         : "The machine is ready. The publication isn't.";
 
-                power = "91";
-                ink = "OK";
+                power =
+                    "91";
+
+                ink =
+                    "OK";
 
                 break;
 
@@ -2259,8 +3075,11 @@
                 consoleText =
                     "Now the machine thinks it has a job.";
 
-                power = "99";
-                ink = "RUN";
+                power =
+                    "99";
+
+                ink =
+                    "RUN";
 
                 break;
 
@@ -2282,10 +3101,13 @@
                     "THERE. HAPPY?";
 
                 consoleText =
-                    "This state is reserved for a real confirmed mint.";
+                    "Reserved for an actual confirmed mint.";
 
-                power = "44";
-                ink = "OK";
+                power =
+                    "44";
+
+                ink =
+                    "OK";
 
                 break;
 
@@ -2295,8 +3117,11 @@
                     "machine-alert"
                 );
 
-                miniStatus = "NO";
-                machineState = "NO";
+                miniStatus =
+                    "NO";
+
+                machineState =
+                    "NO";
 
                 consoleLabel =
                     "HARROW // NO";
@@ -2305,32 +3130,18 @@
                     "THERE'S NOTHING TO MINT.";
 
                 consoleText =
-                    "I'm building it. Stop standing over my shoulder.";
+                    "Stop trying to brute-force unfinished art.";
 
-                power = "13";
-                ink = "--";
+                power =
+                    "13";
+
+                ink =
+                    "--";
 
                 break;
 
             case "idle":
             default:
-                miniStatus = "IDLE";
-
-                machineState =
-                    "ASLEEP";
-
-                consoleLabel =
-                    "STATUS";
-
-                consoleTitle =
-                    "DON'T TOUCH IT.";
-
-                consoleText =
-                    "I mean it.";
-
-                power = "00";
-                ink = "??";
-
                 break;
         }
 
@@ -2379,6 +3190,8 @@
                 ? "idle"
                 : nextState
         );
+
+        updateDiagnostics();
     }
 
     function wakePress() {
@@ -2389,50 +3202,27 @@
             }
         );
 
-        if (state.press.awake) {
-            state.press.touchCount +=
-                1;
-
-            storePressTouches();
-
-            const [title, text] =
-                PRESS_TOUCH_LINES[
-                    state.press.touchCount %
-                    PRESS_TOUCH_LINES.length
-                ];
-
-            showHarrowResponse(
-                isHellion()
-                    ? "HELLION."
-                    : title,
-
-                isHellion()
-                    ? "You know better. That's why I like you."
-                    : text
-            );
-
-            return;
-        }
-
-        state.press.awake = true;
-
         state.press.touchCount +=
             1;
 
         storePressTouches();
 
-        setPressState("awake");
+        if (!state.press.awake) {
+            state.press.awake =
+                true;
 
-        discover(
-            "press:wake",
-            "You woke it up."
-        );
+            setPressState(
+                "awake"
+            );
 
-        showHarrowResponse(
-            "OH GOOD.",
-            isHellion()
-                ? "Back to touching the machine."
-                : "You touched the expensive machine."
+            discover(
+                "press:wake",
+                "You woke it up."
+            );
+        }
+
+        showDialogue(
+            pressDialoguePool()
         );
     }
 
@@ -2444,21 +3234,32 @@
             }
         );
 
+        state.press.leverPulls +=
+            1;
+
         if (state.press.busy) {
             showHarrowResponse(
                 "WAIT.",
-                "You pull elevator buttons twice too, don't you?"
+                state.press.leverPulls % 2 === 0
+                    ? "You press elevator buttons repeatedly too, don't you?"
+                    : "It's already doing the thing. Have some dignity."
             );
 
             return;
         }
 
-        state.press.busy = true;
+        state.press.busy =
+            true;
 
         if (!state.press.awake) {
-            wakePress();
+            state.press.awake =
+                true;
 
-            await sleep(650);
+            setPressState(
+                "awake"
+            );
+
+            await sleep(500);
         }
 
         if (!state.wallet.connected) {
@@ -2466,13 +3267,18 @@
                 "wallet"
             );
 
-            showHarrowResponse(
-                "SHOW ME THE WALLET.",
-                "The machine needs an address before it can eventually make bad decisions in your name."
+            showDialogue(
+                DIALOGUE.pressLever.noWallet,
+                {
+                    importance:
+                        "important"
+                }
             );
 
             state.press.busy =
                 false;
+
+            updateDiagnostics();
 
             return;
         }
@@ -2481,55 +3287,55 @@
             "ready"
         );
 
-        await sleep(500);
+        await sleep(450);
 
         setPressState(
             "pressing"
         );
 
         whisper(
-            isHellion()
-                ? "You know this isn't loaded."
+            state.press.leverPulls > 2
+                ? "You know this is still empty."
                 : "This would be the dramatic part."
         );
 
-        await sleep(1300);
+        await sleep(1450);
 
         /*
-         * NO FAKE TRANSACTION.
+         * IMPORTANT:
          *
-         * When a publication has a deployed contract
-         * and backend transaction preparation exists,
-         * the real mint pipeline plugs in here.
+         * There is intentionally NO fake transaction here.
+         *
+         * Real mint flow plugs into this location after:
+         * - publication is public
+         * - contract is deployed
+         * - backend can prepare a verified transaction
          */
 
         setPressState(
             "error"
         );
 
-        showHarrowResponse(
-            "NOTHING FOR YOU YET.",
-            isHellion()
-                ? "Still nothing public. Still satisfying though."
-                : "There is no public release loaded into the Press. I refuse to fake one just because the lever is satisfying."
+        showDialogue(
+            DIALOGUE.pressLever.empty,
+            {
+                importance:
+                    "important"
+            }
         );
 
-        await sleep(2200);
+        await sleep(2600);
 
-        if (
+        setPressState(
             state.wallet.connected
-        ) {
-            setPressState(
-                "ready"
-            );
-        } else {
-            setPressState(
-                "wallet"
-            );
-        }
+                ? "ready"
+                : "wallet"
+        );
 
         state.press.busy =
             false;
+
+        updateDiagnostics();
     }
 
     function updatePressFromWallet() {
@@ -2546,21 +3352,15 @@
             return;
         }
 
-        if (
+        setPressState(
             state.wallet.connected
-        ) {
-            setPressState(
-                "ready"
-            );
-        } else {
-            setPressState(
-                "wallet"
-            );
-        }
+                ? "ready"
+                : "wallet"
+        );
     }
 
     function updatePressPublication() {
-        const publicPublication =
+        const publication =
             state.publications[0] ||
             null;
 
@@ -2571,7 +3371,7 @@
             return;
         }
 
-        if (!publicPublication) {
+        if (!publication) {
             dom.pressPublication.textContent =
                 "NONE";
 
@@ -2583,21 +3383,21 @@
 
         dom.pressPublication.textContent =
             safeText(
-                publicPublication.title,
+                publication.title,
                 safeText(
-                    publicPublication.publicationKey,
+                    publication.publicationKey,
                     "UNKNOWN"
                 )
             );
 
         const minted =
-            publicPublication.minted ??
-            publicPublication.mintedSupply ??
+            publication.minted ??
+            publication.mintedSupply ??
             null;
 
         const maxSupply =
-            publicPublication.maxSupply ??
-            publicPublication.supply ??
+            publication.maxSupply ??
+            publication.supply ??
             null;
 
         if (
@@ -2622,7 +3422,9 @@
     function initPress() {
         readStoredPressTouches();
 
-        setPressState("idle");
+        setPressState(
+            "idle"
+        );
 
         if (dom.pressMachine) {
             dom.pressMachine.addEventListener(
@@ -2659,14 +3461,12 @@
        ========================================================= */
 
     function getEthereumProvider() {
-        if (
+        return (
             typeof window.ethereum !==
             "undefined"
-        ) {
-            return window.ethereum;
-        }
-
-        return null;
+        )
+            ? window.ethereum
+            : null;
     }
 
     async function readWalletState() {
@@ -2684,30 +3484,24 @@
         try {
             const accounts =
                 await provider.request({
-                    method: "eth_accounts"
+                    method:
+                        "eth_accounts"
                 });
 
             const chainId =
                 await provider.request({
-                    method: "eth_chainId"
+                    method:
+                        "eth_chainId"
                 });
 
-            if (
+            state.wallet.connected =
                 Array.isArray(accounts) &&
-                accounts.length > 0
-            ) {
-                state.wallet.address =
-                    accounts[0];
+                accounts.length > 0;
 
-                state.wallet.connected =
-                    true;
-            } else {
-                state.wallet.address =
-                    null;
-
-                state.wallet.connected =
-                    false;
-            }
+            state.wallet.address =
+                state.wallet.connected
+                    ? accounts[0]
+                    : null;
 
             state.wallet.chainId =
                 normalizeChainId(
@@ -2735,7 +3529,11 @@
         if (!provider) {
             showHarrowResponse(
                 "NO WALLET.",
-                "Install an EVM wallet first. I'm talented, not supernatural."
+                "Install an EVM wallet first. I'm talented, not supernatural.",
+                {
+                    importance:
+                        "important"
+                }
             );
 
             return;
@@ -2763,7 +3561,7 @@
                 accounts.length === 0
             ) {
                 throw new Error(
-                    "No account returned"
+                    "No wallet account returned"
                 );
             }
 
@@ -2790,30 +3588,33 @@
             renderWalletState();
 
             discover(
-                "wallet:connected",
-                isHellion()
-                    ? "There you are again."
-                    : "There you are."
+                "wallet:connected"
             );
 
             if (
                 state.wallet.chainId !==
                 PULSECHAIN.chainId
             ) {
-                showHarrowResponse(
-                    "WRONG CHAIN.",
-                    "I can see you. You're just standing in the wrong neighborhood."
+                showDialogue(
+                    DIALOGUE.wrongChain,
+                    {
+                        importance:
+                            "important",
+
+                        sticky:
+                            true
+                    }
                 );
 
             } else {
-                showHarrowResponse(
+                showDialogue(
                     isHellion()
-                        ? "WELCOME BACK, HELLION."
-                        : "THERE YOU ARE.",
-
-                    isHellion()
-                        ? "Same wallet. Same bad instincts."
-                        : "Public blockchain. Very private moment."
+                        ? DIALOGUE.walletConnected.hellion
+                        : DIALOGUE.walletConnected.visitor,
+                    {
+                        importance:
+                            "important"
+                    }
                 );
             }
 
@@ -2822,7 +3623,11 @@
         } catch (error) {
             showHarrowResponse(
                 "NEVER MIND.",
-                "You either rejected it or your wallet decided today was its day to become art."
+                "You either rejected it or your wallet decided today was its day to become performance art.",
+                {
+                    importance:
+                        "important"
+                }
             );
 
         } finally {
@@ -2935,7 +3740,14 @@
             }
         }
 
+        document.body.classList.toggle(
+            "wrong-chain",
+            connected &&
+            !onPulseChain
+        );
+
         updatePressFromWallet();
+        updateDiagnostics();
     }
 
     function initWalletEvents() {
@@ -2952,9 +3764,7 @@
                 async () => {
                     recordInteraction();
 
-                    if (
-                        !state.wallet.connected
-                    ) {
+                    if (!state.wallet.connected) {
                         await connectWallet();
                         return;
                     }
@@ -2981,9 +3791,7 @@
                 "accountsChanged",
                 async (accounts) => {
                     if (
-                        !Array.isArray(
-                            accounts
-                        ) ||
+                        !Array.isArray(accounts) ||
                         accounts.length === 0
                     ) {
                         state.wallet.address =
@@ -3020,6 +3828,22 @@
 
                     renderWalletState();
 
+                    if (
+                        state.wallet.chainId !==
+                        PULSECHAIN.chainId
+                    ) {
+                        showDialogue(
+                            DIALOGUE.wrongChain,
+                            {
+                                importance:
+                                    "important",
+
+                                sticky:
+                                    true
+                            }
+                        );
+                    }
+
                     await loadPublications();
                 }
             );
@@ -3028,7 +3852,7 @@
 
 
     /* =========================================================
-       PUBLICATIONS API
+       API
        ========================================================= */
 
     async function apiJson(
@@ -3051,13 +3875,16 @@
                 }
             );
 
-        let body = null;
+        let body =
+            null;
 
         try {
             body =
                 await response.json();
+
         } catch (error) {
-            body = null;
+            body =
+                null;
         }
 
         if (!response.ok) {
@@ -3084,9 +3911,7 @@
     function normalizePublicationList(
         payload
     ) {
-        if (
-            Array.isArray(payload)
-        ) {
+        if (Array.isArray(payload)) {
             return payload;
         }
 
@@ -3143,7 +3968,8 @@
             updatePressPublication();
 
         } catch (error) {
-            state.publications = [];
+            state.publications =
+                [];
 
             renderCollection({
                 error: true
@@ -3161,11 +3987,13 @@
                     "THE ARCHIVE INDEX DID NOT ANSWER.";
             }
         }
+
+        updateDiagnostics();
     }
 
 
     /* =========================================================
-       COLLECTION RENDERING
+       COLLECTION
        ========================================================= */
 
     function publicationIdentity(
@@ -3228,22 +4056,23 @@
     }
 
     function calculateCollectionSummary() {
+        /*
+         * Ownership remains deliberately conservative.
+         * We do NOT infer ownership just because a wallet
+         * is connected.
+         */
+
         const known =
             state.publications.length;
 
-        const owned = 0;
-        const evolved = 0;
-
-        const missing =
-            state.wallet.connected
-                ? known
-                : 0;
-
         state.collection = {
             known,
-            owned,
-            missing,
-            evolved
+            owned: 0,
+            missing:
+                state.wallet.connected
+                    ? known
+                    : 0,
+            evolved: 0
         };
     }
 
@@ -3332,9 +4161,7 @@
                     "This is a technical problem, not mysterious lore.";
             }
 
-            if (
-                dom.archiveHarrowNote
-            ) {
+            if (dom.archiveHarrowNote) {
                 dom.archiveHarrowNote.textContent =
                     "fine. i'll fix it.";
             }
@@ -3343,8 +4170,7 @@
         }
 
         if (
-            state.publications.length ===
-            0
+            state.publications.length === 0
         ) {
             if (dom.terminalTitle) {
                 dom.terminalTitle.textContent =
@@ -3372,9 +4198,7 @@
                         : "Show me the wallet.";
             }
 
-            if (
-                dom.archiveHarrowNote
-            ) {
+            if (dom.archiveHarrowNote) {
                 dom.archiveHarrowNote.textContent =
                     state.wallet.connected
                         ? (
@@ -3385,9 +4209,7 @@
                         : "let's see the damage.";
             }
 
-            if (
-                dom.collectionStatus
-            ) {
+            if (dom.collectionStatus) {
                 dom.collectionStatus.textContent =
                     state.wallet.connected
                         ? "NOTHING PUBLIC TO BRING HOME YET."
@@ -3539,6 +4361,7 @@
                     URL.revokeObjectURL(
                         url
                     );
+
                 } catch (error) {
                     // Ignore.
                 }
@@ -3561,9 +4384,7 @@
             "active"
         );
 
-        if (
-            dom.readerLoadingText
-        ) {
+        if (dom.readerLoadingText) {
             dom.readerLoadingText.textContent =
                 message;
         }
@@ -3579,9 +4400,7 @@
         );
     }
 
-    function showReaderError(
-        message
-    ) {
+    function showReaderError(message) {
         hideReaderLoading();
 
         if (!dom.readerError) {
@@ -3638,9 +4457,7 @@
         return [];
     }
 
-    function pageUrlFromEntry(
-        page
-    ) {
+    function pageUrlFromEntry(page) {
         if (
             typeof page === "string"
         ) {
@@ -3674,9 +4491,7 @@
             state.publications.find(
                 (item) => {
                     return (
-                        publicationIdentity(
-                            item
-                        ) ===
+                        publicationIdentity(item) ===
                         publicationKey
                     );
                 }
@@ -3719,6 +4534,9 @@
         document.body.classList.add(
             "reader-open"
         );
+
+        state.reader.open =
+            true;
 
         hideReaderError();
 
@@ -3811,15 +4629,15 @@
         clearReaderObjectUrls();
         hideReaderError();
         hideReaderLoading();
+
+        updateDiagnostics();
     }
 
     function renderReader() {
         const pageCount =
             state.reader.pages.length;
 
-        if (
-            pageCount === 0
-        ) {
+        if (pageCount === 0) {
             return;
         }
 
@@ -3834,9 +4652,7 @@
             state.reader.pageIndex +
             1;
 
-        if (
-            dom.readerPageNumber
-        ) {
+        if (dom.readerPageNumber) {
             dom.readerPageNumber.textContent =
                 String(
                     humanPage
@@ -3846,9 +4662,7 @@
                 );
         }
 
-        if (
-            dom.readerPageCount
-        ) {
+        if (dom.readerPageCount) {
             dom.readerPageCount.textContent =
                 String(
                     pageCount
@@ -3858,9 +4672,7 @@
                 );
         }
 
-        if (
-            dom.readerBottomLabel
-        ) {
+        if (dom.readerBottomLabel) {
             dom.readerBottomLabel.textContent =
                 `${String(humanPage).padStart(2, "0")} / ${String(pageCount).padStart(2, "0")}`;
         }
@@ -3870,9 +4682,12 @@
             "paged"
         ) {
             renderPagedReader();
+
         } else {
             renderContinuousReader();
         }
+
+        updateDiagnostics();
     }
 
     function renderPagedReader() {
@@ -3909,9 +4724,7 @@
                 "flex";
         }
 
-        if (
-            dom.readerContinuous
-        ) {
+        if (dom.readerContinuous) {
             dom.readerContinuous.classList.remove(
                 "active"
             );
@@ -3919,9 +4732,7 @@
     }
 
     function renderContinuousReader() {
-        if (
-            !dom.readerContinuous
-        ) {
+        if (!dom.readerContinuous) {
             return;
         }
 
@@ -4023,9 +4834,7 @@
             );
         }
 
-        if (
-            dom.readerPreviousBottom
-        ) {
+        if (dom.readerPreviousBottom) {
             dom.readerPreviousBottom.addEventListener(
                 "click",
                 readerPrevious
@@ -4039,9 +4848,7 @@
             );
         }
 
-        if (
-            dom.readerNextBottom
-        ) {
+        if (dom.readerNextBottom) {
             dom.readerNextBottom.addEventListener(
                 "click",
                 readerNext
@@ -4076,9 +4883,7 @@
             );
         }
 
-        if (
-            dom.readerFitPage
-        ) {
+        if (dom.readerFitPage) {
             dom.readerFitPage.addEventListener(
                 "click",
                 () => {
@@ -4090,9 +4895,7 @@
             );
         }
 
-        if (
-            dom.readerFitWidth
-        ) {
+        if (dom.readerFitWidth) {
             dom.readerFitWidth.addEventListener(
                 "click",
                 () => {
@@ -4104,9 +4907,7 @@
             );
         }
 
-        if (
-            dom.readerLayoutToggle
-        ) {
+        if (dom.readerLayoutToggle) {
             dom.readerLayoutToggle.addEventListener(
                 "click",
                 () => {
@@ -4134,18 +4935,45 @@
             );
         }
 
-        if (
-            dom.readerErrorClose
-        ) {
+        if (dom.readerErrorClose) {
             dom.readerErrorClose.addEventListener(
                 "click",
                 closeReader
             );
         }
+    }
 
+
+    /* =========================================================
+       GLOBAL KEYBOARD
+       ========================================================= */
+
+    function initKeyboardControls() {
         document.addEventListener(
             "keydown",
             (event) => {
+                /*
+                 * PRIVATE TESTING SHORTCUT:
+                 *
+                 * Ctrl + Shift + H
+                 *
+                 * Opens our diagnostic panel.
+                 * Nothing visible on normal site usage.
+                 */
+
+                if (
+                    event.ctrlKey &&
+                    event.shiftKey &&
+                    event.key.toLowerCase() ===
+                        "h"
+                ) {
+                    event.preventDefault();
+
+                    toggleDiagnostics();
+
+                    return;
+                }
+
                 if (
                     dom.drawer?.classList.contains(
                         "active"
@@ -4157,6 +4985,18 @@
                     ) {
                         closeDrawer();
                     }
+
+                    return;
+                }
+
+                if (
+                    dom.harrowResponse?.classList.contains(
+                        "active"
+                    ) &&
+                    event.key ===
+                        "Escape"
+                ) {
+                    closeHarrowResponse();
 
                     return;
                 }
@@ -4174,6 +5014,7 @@
                     "Escape"
                 ) {
                     closeReader();
+
                     return;
                 }
 
@@ -4214,9 +5055,7 @@
             );
         }
 
-        if (
-            dom.drawerBackdrop
-        ) {
+        if (dom.drawerBackdrop) {
             dom.drawerBackdrop.addEventListener(
                 "click",
                 closeDrawer
@@ -4295,7 +5134,7 @@
                                 case "theory":
                                     whisper(
                                         isHellion()
-                                            ? "You still think I only have one theory?"
+                                            ? "You still think that's the whole board?"
                                             : "I can explain all of this. Probably."
                                     );
                                     break;
@@ -4303,7 +5142,7 @@
                                 case "press":
                                     whisper(
                                         isHellion()
-                                            ? "Don't touch it. Yes, I know you're going to."
+                                            ? "Don't touch it. Yes, I know."
                                             : "Don't touch the machine."
                                     );
                                     break;
@@ -4357,27 +5196,14 @@
 
 
     /* =========================================================
-       RETURN-VISITOR GREETING
+       RETURN VISITOR GREETING
        ========================================================= */
 
     function greetVisitor() {
-        const [
-            title,
-            text
-        ] =
-            getRelationshipGreeting();
-
-        /*
-         * Don't hit a first-time visitor immediately
-         * with a giant response panel.
-         *
-         * Returning visitors get recognized.
-         */
-
         if (
             state.relationship.visits <=
                 1 &&
-            state.relationship.stage ===
+            currentRelationshipStage() ===
                 "visitor"
         ) {
             window.setTimeout(
@@ -4386,10 +5212,74 @@
                         "Try not to make this weird."
                     );
                 },
-                1800
+                2200
             );
 
             return;
+        }
+
+        let title =
+            "YOU AGAIN.";
+
+        let text =
+            "This is becoming a habit.";
+
+        if (isHellion()) {
+            const options = [
+                {
+                    title:
+                        "HELLION.",
+                    text:
+                        "There you are."
+                },
+                {
+                    title:
+                        "WELCOME BACK.",
+                    text:
+                        "Outside still disappointing?"
+                },
+                {
+                    title:
+                        "BACK AGAIN.",
+                    text:
+                        "Predictable. Useful. I approve."
+                },
+                {
+                    title:
+                        "YOU RETURNED.",
+                    text:
+                        "I assume this means everything else failed to hold your attention."
+                }
+            ];
+
+            const choice =
+                chooseDialogue(options);
+
+            title =
+                choice.title;
+
+            text =
+                choice.text;
+
+        } else if (
+            currentRelationshipStage() ===
+            "familiar"
+        ) {
+            title =
+                "THERE YOU ARE.";
+
+            text =
+                "I was wondering how long you'd pretend to have other things to do.";
+
+        } else if (
+            currentRelationshipStage() ===
+            "noticed"
+        ) {
+            title =
+                "BACK?";
+
+            text =
+                "Interesting.";
         }
 
         window.setTimeout(
@@ -4397,28 +5287,303 @@
                 showHarrowResponse(
                     title,
                     text,
-                    4600
+                    {
+                        importance:
+                            "important"
+                    }
                 );
             },
-            1700
+            2200
         );
     }
 
 
     /* =========================================================
-       INITIALIZE
+       PRIVATE DIAGNOSTIC MODE
+       ========================================================= */
+
+    function ensureDiagnosticPanel() {
+        let panel =
+            $("#hellboxDiagnosticPanel");
+
+        if (panel) {
+            return panel;
+        }
+
+        panel =
+            document.createElement(
+                "div"
+            );
+
+        panel.id =
+            "hellboxDiagnosticPanel";
+
+        panel.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        panel.style.position =
+            "fixed";
+
+        panel.style.right =
+            "16px";
+
+        panel.style.bottom =
+            "16px";
+
+        panel.style.zIndex =
+            "999999";
+
+        panel.style.width =
+            "320px";
+
+        panel.style.maxWidth =
+            "calc(100vw - 32px)";
+
+        panel.style.padding =
+            "16px";
+
+        panel.style.background =
+            "rgba(5, 5, 6, 0.96)";
+
+        panel.style.border =
+            "1px solid rgba(255, 58, 32, 0.6)";
+
+        panel.style.boxShadow =
+            "0 0 40px rgba(0,0,0,0.8)";
+
+        panel.style.fontFamily =
+            "monospace";
+
+        panel.style.fontSize =
+            "12px";
+
+        panel.style.lineHeight =
+            "1.6";
+
+        panel.style.color =
+            "#f2efe8";
+
+        panel.style.display =
+            "none";
+
+        panel.innerHTML = `
+            <div style="
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                gap:12px;
+                margin-bottom:12px;
+            ">
+                <strong style="
+                    color:#ff3b24;
+                    letter-spacing:.1em;
+                ">
+                    HELLBOX // DIAGNOSTIC
+                </strong>
+
+                <button
+                    type="button"
+                    id="hellboxDiagnosticClose"
+                    style="
+                        background:none;
+                        border:1px solid #444;
+                        color:#fff;
+                        cursor:pointer;
+                        padding:4px 8px;
+                    "
+                >
+                    X
+                </button>
+            </div>
+
+            <pre
+                id="hellboxDiagnosticBody"
+                style="
+                    margin:0;
+                    white-space:pre-wrap;
+                    word-break:break-word;
+                "
+            ></pre>
+
+            <div style="
+                margin-top:12px;
+                opacity:.45;
+            ">
+                CTRL + SHIFT + H
+            </div>
+        `;
+
+        document.body.appendChild(
+            panel
+        );
+
+        $("#hellboxDiagnosticClose")
+            ?.addEventListener(
+                "click",
+                () => {
+                    toggleDiagnostics(
+                        false
+                    );
+                }
+            );
+
+        return panel;
+    }
+
+    function toggleDiagnostics(
+        force = null
+    ) {
+        const panel =
+            ensureDiagnosticPanel();
+
+        state.diagnostics.enabled =
+            force === null
+                ? !state.diagnostics.enabled
+                : Boolean(force);
+
+        panel.style.display =
+            state.diagnostics.enabled
+                ? "block"
+                : "none";
+
+        panel.setAttribute(
+            "aria-hidden",
+            state.diagnostics.enabled
+                ? "false"
+                : "true"
+        );
+
+        updateDiagnostics();
+    }
+
+    function updateDiagnostics() {
+        if (
+            !state.diagnostics.enabled
+        ) {
+            return;
+        }
+
+        const panel =
+            ensureDiagnosticPanel();
+
+        const body =
+            $("#hellboxDiagnosticBody");
+
+        if (!body) {
+            return;
+        }
+
+        const score =
+            calculateRelationshipScore();
+
+        const data = {
+            relationship: {
+                stage:
+                    currentRelationshipStage(),
+
+                score,
+
+                visits:
+                    state.relationship.visits,
+
+                interactions:
+                    state.relationship.interactions,
+
+                discoveriesEver:
+                    state.relationship.discoveriesEver,
+
+                pressTouches:
+                    state.relationship.pressTouches
+            },
+
+            currentSession: {
+                discoveries:
+                    Array.from(
+                        state.discoveries
+                    )
+            },
+
+            wallet: {
+                connected:
+                    state.wallet.connected,
+
+                address:
+                    state.wallet.address
+                        ? truncateAddress(
+                            state.wallet.address
+                        )
+                        : null,
+
+                chainId:
+                    state.wallet.chainId,
+
+                correctChain:
+                    state.wallet.chainId ===
+                    PULSECHAIN.chainId
+            },
+
+            archive: {
+                publicPublications:
+                    state.publications.length
+            },
+
+            press: {
+                awake:
+                    state.press.awake,
+
+                state:
+                    state.press.state,
+
+                touchCount:
+                    state.press.touchCount,
+
+                leverPulls:
+                    state.press.leverPulls,
+
+                busy:
+                    state.press.busy
+            },
+
+            reader: {
+                open:
+                    state.reader.open,
+
+                publicationKey:
+                    state.reader.publicationKey,
+
+                page:
+                    state.reader.pageIndex +
+                    1,
+
+                pages:
+                    state.reader.pages.length
+            }
+        };
+
+        body.textContent =
+            JSON.stringify(
+                data,
+                null,
+                2
+            );
+
+        panel.style.display =
+            state.diagnostics.enabled
+                ? "block"
+                : "none";
+    }
+
+
+    /* =========================================================
+       INITIALIZATION
        ========================================================= */
 
     async function init() {
-        /*
-         * Load persistent relationship before registering
-         * current visit so the progression system can calculate
-         * from actual prior state.
-         */
-
         loadRelationship();
-
         loadDiscoveries();
+        loadDialogueHistory();
 
         registerVisit();
 
@@ -4429,32 +5594,27 @@
         updateExitAfterthought();
 
         initCursorBurn();
-
         initHeroTransmission();
 
         initDrawerEvents();
+        initKeyboardControls();
 
         initHotspots();
-
         initTheoryWall();
-
         initHarrowInteractions();
-
         initClassified();
 
         initPress();
-
         initWalletEvents();
-
         initReaderControls();
 
         initScrollObservers();
 
         await readWalletState();
-
         await loadPublications();
 
         updatePressPublication();
+        updateDiagnostics();
 
         greetVisitor();
     }
