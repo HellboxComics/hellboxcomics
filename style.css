@@ -9219,3 +9219,1050 @@ and
 
 }
 
+
+/* ================================================================
+   PRODUCTION PRECISION PASS 04
+   TALL-DESKTOP FULL-SITE ART DIRECTION
+
+   Scope:
+   - Vertical / rotated widescreen desktop only.
+   - No landscape, tablet or mobile tuning yet.
+   - Preserve functionality; elevate composition and authorship.
+   ================================================================ */
+
+@media
+(min-width: 820px)
+and
+(max-aspect-ratio: 4 / 5) {
+
+    :root {
+        --vertical-shell: calc(100vw - 38px);
+        --harrow-grid: rgba(173,115,255,0.055);
+        --harrow-paper: #eee9df;
+        --harrow-ink: #111112;
+    }
+
+    /* ------------------------------------------------------------
+       GLOBAL VERTICAL RHYTHM
+       ------------------------------------------------------------ */
+
+    .section-shell {
+        width: var(--vertical-shell);
+    }
+
+    .section-number {
+        position: relative;
+        min-height: 32px;
+        margin-bottom: 34px;
+        padding: 6px 10px 5px;
+        border-color: rgba(255,255,255,0.16);
+        background: rgba(255,255,255,0.028);
+        box-shadow: inset 3px 0 0 rgba(173,115,255,0.42);
+    }
+
+    .section-number::after {
+        content: "HARROW // FILE";
+        margin-left: 18px;
+        color: rgba(255,255,255,0.25);
+        font-size: 10px;
+        letter-spacing: 0.14em;
+    }
+
+    .eyebrow {
+        letter-spacing: 0.12em;
+    }
+
+    /* ------------------------------------------------------------
+       HEADER — MAKE AUTHORSHIP IMPOSSIBLE TO MISS
+       ------------------------------------------------------------ */
+
+    .site-header {
+        height: var(--header-h);
+        border-bottom-color: rgba(173,115,255,0.18);
+        background:
+            linear-gradient(90deg, rgba(140,66,255,0.035), transparent 26%),
+            rgba(2,2,2,0.94);
+        box-shadow: 0 10px 32px rgba(0,0,0,0.34);
+    }
+
+    .header-brand span {
+        position: relative;
+        color: rgba(255,255,255,0.92);
+        letter-spacing: 0.105em;
+    }
+
+    .header-brand span::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -7px;
+        height: 1px;
+        background: linear-gradient(90deg, var(--purple), transparent 72%);
+        opacity: 0.7;
+    }
+
+    /* ------------------------------------------------------------
+       HERO — REMOVE DEAD AIR, MAKE THE CONTROL DECK FEEL INTENTIONAL
+       ------------------------------------------------------------ */
+
+    .hero {
+        min-height: 0;
+        height: auto;
+        overflow: hidden;
+        background:
+            radial-gradient(circle at 78% 80%, rgba(140,66,255,0.08), transparent 24%),
+            radial-gradient(circle at 15% 85%, rgba(198,32,32,0.035), transparent 20%),
+            #020202;
+    }
+
+    .hero-scene {
+        margin-top: var(--header-h);
+        box-shadow:
+            0 28px 80px rgba(0,0,0,0.72),
+            inset 0 -1px 0 rgba(255,255,255,0.08);
+    }
+
+    .hero-scene::after {
+        height: 12%;
+        background: linear-gradient(180deg, transparent, rgba(2,2,2,0.85));
+    }
+
+    .hero-inner {
+        min-height: 0;
+        width: var(--vertical-shell);
+        margin: 0 auto;
+        padding: 0 0 94px;
+        display: block;
+    }
+
+    .hero-brand {
+        position: relative;
+        z-index: 6;
+        width: min(330px, 38vw);
+        margin-top: -34px;
+        margin-bottom: 28px;
+        padding: 10px 12px 8px 0;
+        filter: drop-shadow(0 18px 26px rgba(0,0,0,0.65));
+    }
+
+    .hero-brand::before {
+        content: "HARROW // LEFT THIS HERE";
+        position: absolute;
+        left: 5px;
+        top: calc(100% - 1px);
+        color: rgba(255,255,255,0.33);
+        font-family: var(--font-ui);
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+    }
+
+    .hero-content {
+        display: grid;
+        grid-template-columns: minmax(0, 1.12fr) minmax(320px, 0.68fr);
+        gap: 34px;
+        align-items: end;
+    }
+
+    .hero-copy {
+        position: relative;
+        max-width: 700px;
+        padding-left: 4px;
+    }
+
+    .hero-copy::before {
+        content: "";
+        position: absolute;
+        left: -15px;
+        top: 4px;
+        bottom: 2px;
+        width: 2px;
+        background: linear-gradient(180deg, var(--purple-hot), rgba(173,115,255,0.06));
+        box-shadow: 0 0 18px rgba(140,66,255,0.2);
+    }
+
+    .hero-copy h1 {
+        margin: 13px 0 22px;
+        font-size: clamp(80px, 9.6vw, 112px);
+        text-shadow: 0 18px 50px rgba(0,0,0,0.55);
+    }
+
+    .hero-transmission {
+        max-width: 455px;
+        border-color: rgba(173,115,255,0.28);
+        background:
+            linear-gradient(135deg, rgba(140,66,255,0.07), transparent 40%),
+            rgba(4,4,5,0.9);
+        box-shadow:
+            0 28px 72px rgba(0,0,0,0.55),
+            0 0 36px rgba(140,66,255,0.07);
+    }
+
+    .hero-meta {
+        bottom: 23px;
+        width: var(--vertical-shell);
+        color: rgba(255,255,255,0.46);
+    }
+
+    /* ------------------------------------------------------------
+       02 // THE PROBLEM — HARROW'S ORIGIN FILE, NOT A CORPORATE PANEL
+       ------------------------------------------------------------ */
+
+    .manifesto-section {
+        position: relative;
+        isolation: isolate;
+        padding: 92px 0 96px;
+        overflow: hidden;
+        color: var(--harrow-ink);
+        background:
+            linear-gradient(90deg, rgba(198,32,32,0.055) 0 2px, transparent 2px) 54px 0 / 100% 100%,
+            repeating-linear-gradient(0deg, transparent 0 31px, rgba(0,0,0,0.025) 31px 32px),
+            radial-gradient(circle at 86% 76%, rgba(140,66,255,0.1), transparent 22%),
+            var(--harrow-paper);
+    }
+
+    .manifesto-section::before {
+        content: "CASE FILE // WHY THIS EXISTS";
+        position: absolute;
+        z-index: -1;
+        right: -42px;
+        top: 138px;
+        color: rgba(0,0,0,0.035);
+        font-family: var(--font-ui);
+        font-size: 108px;
+        font-weight: 1000;
+        line-height: 0.82;
+        letter-spacing: -0.055em;
+        transform: rotate(90deg);
+        transform-origin: top right;
+        white-space: nowrap;
+    }
+
+    .manifesto-section::after {
+        content: "HARROW // SOURCE MATERIAL";
+        position: absolute;
+        right: 34px;
+        bottom: 24px;
+        padding: 5px 9px;
+        border: 2px solid rgba(198,32,32,0.36);
+        color: rgba(198,32,32,0.52);
+        font-family: var(--font-ui);
+        font-size: 12px;
+        font-weight: 1000;
+        letter-spacing: 0.12em;
+        transform: rotate(-3deg);
+    }
+
+    .manifesto-section .section-number {
+        color: rgba(17,17,18,0.52);
+        border-color: rgba(17,17,18,0.12);
+        background: rgba(255,255,255,0.16);
+        box-shadow: inset 3px 0 0 rgba(198,32,32,0.48);
+    }
+
+    .manifesto-section .section-number::after {
+        color: rgba(17,17,18,0.24);
+    }
+
+    .manifesto-layout {
+        grid-template-columns: minmax(0, 0.88fr) minmax(390px, 1.12fr);
+        gap: 58px;
+        align-items: start;
+    }
+
+    .manifesto-title {
+        position: relative;
+        padding: 8px 0 18px;
+    }
+
+    .manifesto-title::after {
+        content: "PULSECHAIN DID THIS.";
+        display: inline-block;
+        margin-top: 28px;
+        padding: 7px 11px 6px;
+        border: 2px solid rgba(198,32,32,0.62);
+        color: rgba(198,32,32,0.82);
+        font-family: var(--font-ui);
+        font-size: 13px;
+        font-weight: 1000;
+        letter-spacing: 0.12em;
+        transform: rotate(-1.8deg);
+    }
+
+    .manifesto-title h2 {
+        max-width: 600px;
+        font-size: clamp(68px, 9.8vw, 108px);
+        line-height: 0.78;
+        letter-spacing: -0.065em;
+    }
+
+    .manifesto-body {
+        position: relative;
+        margin-top: 8px;
+        padding: 30px 34px 34px;
+        border: 1px solid rgba(17,17,18,0.13);
+        border-left: 5px solid rgba(17,17,18,0.88);
+        background: rgba(255,255,255,0.23);
+        box-shadow: 14px 18px 30px rgba(0,0,0,0.07);
+        transform: rotate(0.25deg);
+    }
+
+    .manifesto-body::before {
+        content: "HARROW // PERSONAL NOTES";
+        position: absolute;
+        top: -13px;
+        right: 22px;
+        padding: 5px 8px;
+        background: var(--harrow-ink);
+        color: #fff;
+        font-family: var(--font-ui);
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.11em;
+    }
+
+    .manifesto-lead {
+        font-size: 23px;
+        line-height: 1.38;
+    }
+
+    .admin-note {
+        margin-top: 34px;
+        transform: rotate(-2.1deg);
+        box-shadow: 12px 18px 30px rgba(0,0,0,0.2);
+    }
+
+    .admin-note::before {
+        content: "";
+        position: absolute;
+        width: 13px;
+        height: 13px;
+        left: 50%;
+        top: 8px;
+        border-radius: 50%;
+        background: #5d1616;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.45);
+        transform: translateX(-50%);
+    }
+
+    .manifesto-brand-ghost {
+        display: none;
+    }
+
+    /* ------------------------------------------------------------
+       03 // YOUR STUFF — HARROW'S CHAIN TERMINAL
+       ------------------------------------------------------------ */
+
+    .archive-section {
+        position: relative;
+        isolation: isolate;
+        padding: 96px 0 104px;
+        background:
+            linear-gradient(var(--harrow-grid) 1px, transparent 1px),
+            linear-gradient(90deg, var(--harrow-grid) 1px, transparent 1px),
+            radial-gradient(circle at 8% 18%, rgba(140,66,255,0.15), transparent 25%),
+            radial-gradient(circle at 90% 75%, rgba(198,32,32,0.06), transparent 22%),
+            #040405;
+        background-size: 42px 42px, 42px 42px, auto, auto, auto;
+    }
+
+    .archive-section::before {
+        content: "HARROW // WALLET FORENSICS";
+        position: absolute;
+        top: 42px;
+        right: 24px;
+        color: rgba(173,115,255,0.18);
+        font-family: var(--font-ui);
+        font-size: 18px;
+        font-weight: 1000;
+        letter-spacing: 0.18em;
+        transform: rotate(-1deg);
+    }
+
+    .archive-heading {
+        align-items: end;
+        margin-bottom: 44px;
+    }
+
+    .archive-heading h2 {
+        text-shadow: 0 0 44px rgba(140,66,255,0.18);
+    }
+
+    .archive-terminal {
+        position: relative;
+        border-color: rgba(173,115,255,0.28);
+        background:
+            linear-gradient(135deg, rgba(140,66,255,0.045), transparent 32%),
+            linear-gradient(315deg, rgba(198,32,32,0.025), transparent 28%),
+            #070708;
+        box-shadow:
+            0 34px 90px rgba(0,0,0,0.72),
+            0 0 55px rgba(140,66,255,0.1);
+    }
+
+    .archive-terminal::before {
+        content: "PRIVATE NODE // HARROW ACCESS";
+        position: absolute;
+        z-index: 8;
+        left: 26px;
+        top: -15px;
+        padding: 6px 10px;
+        border: 1px solid rgba(173,115,255,0.35);
+        background: #050506;
+        color: var(--purple-hot);
+        font-family: var(--font-ui);
+        font-size: 10px;
+        font-weight: 1000;
+        letter-spacing: 0.12em;
+    }
+
+    .terminal-top {
+        background: rgba(255,255,255,0.018);
+    }
+
+    .terminal-main {
+        min-height: 300px;
+        grid-template-columns: 126px 1fr 218px;
+        gap: 30px;
+        padding: 42px 36px 38px;
+    }
+
+    .terminal-emblem {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        border-color: rgba(173,115,255,0.3);
+        box-shadow: inset 0 0 24px rgba(140,66,255,0.06);
+    }
+
+    .terminal-copy > span {
+        color: var(--purple-hot);
+    }
+
+    .terminal-copy h3 {
+        font-size: 44px;
+        line-height: 0.92;
+    }
+
+    .harrow-sticky-note {
+        width: 215px;
+        min-height: 152px;
+        transform: rotate(2.4deg);
+        box-shadow: 14px 18px 32px rgba(0,0,0,0.34);
+    }
+
+    .collection-summary > div {
+        min-height: 112px;
+        background: rgba(255,255,255,0.008);
+    }
+
+    .collection-summary strong {
+        font-size: 38px;
+    }
+
+    /* ------------------------------------------------------------
+       04 // OBSESSION WALL — TURN THE SECTION INTO THE WALL'S ROOM
+       ------------------------------------------------------------ */
+
+    .evidence-section {
+        position: relative;
+        isolation: isolate;
+        padding: 96px 0 94px;
+        background:
+            linear-gradient(31deg, transparent 0 49.7%, rgba(198,32,32,0.07) 49.8% 50.2%, transparent 50.3%),
+            linear-gradient(-19deg, transparent 0 56.7%, rgba(198,32,32,0.055) 56.8% 57.1%, transparent 57.2%),
+            radial-gradient(circle at 50% 55%, rgba(140,66,255,0.055), transparent 34%),
+            #030303;
+    }
+
+    .evidence-section::after {
+        content: "DO NOT CLEAN THIS UP.";
+        position: absolute;
+        right: 30px;
+        top: 42px;
+        color: rgba(255,59,47,0.3);
+        font-family: var(--font-serif);
+        font-size: 18px;
+        font-weight: 700;
+        transform: rotate(-4deg);
+    }
+
+    .evidence-heading {
+        margin-bottom: 34px;
+    }
+
+    .theory-heading {
+        text-shadow: 0 0 48px rgba(140,66,255,0.09);
+    }
+
+    .obsession-wall {
+        width: calc(100% + 20px);
+        margin-left: -10px;
+        border-color: rgba(198,32,32,0.24);
+        box-shadow:
+            0 38px 100px rgba(0,0,0,0.78),
+            0 0 52px rgba(198,32,32,0.055);
+    }
+
+    .obsession-wall-hint {
+        border: 1px solid rgba(255,255,255,0.09);
+        background: rgba(0,0,0,0.78);
+    }
+
+    .obsession-strip {
+        box-shadow: 0 0 26px rgba(140,66,255,0.22);
+    }
+
+    /* ------------------------------------------------------------
+       05 // THE PRESS — KEEP THE ASSET, FRAME IT LIKE A WEAPON
+       ------------------------------------------------------------ */
+
+    .press-section {
+        position: relative;
+        isolation: isolate;
+        padding: 100px 0 108px;
+        background:
+            radial-gradient(circle at 71% 44%, rgba(140,66,255,0.12), transparent 28%),
+            radial-gradient(circle at 73% 66%, rgba(255,92,24,0.075), transparent 24%),
+            linear-gradient(120deg, rgba(255,255,255,0.015), transparent 28%),
+            #020202;
+    }
+
+    .press-section::before {
+        content: "PRESS";
+        position: absolute;
+        z-index: -1;
+        right: -40px;
+        top: 92px;
+        color: transparent;
+        -webkit-text-stroke: 1px rgba(173,115,255,0.055);
+        font-family: var(--font-ui);
+        font-size: 255px;
+        font-weight: 1000;
+        line-height: 0.8;
+        letter-spacing: -0.08em;
+    }
+
+    .press-stage {
+        grid-template-columns: minmax(280px, 0.5fr) minmax(530px, 1.5fr);
+        gap: 24px;
+        align-items: center;
+    }
+
+    .press-copy {
+        padding-left: 18px;
+        border-left: 2px solid rgba(255,106,26,0.52);
+    }
+
+    .press-copy::before {
+        content: "HARROW // PUBLISHING ENGINE";
+        display: block;
+        margin-bottom: 18px;
+        color: rgba(255,106,26,0.58);
+        font-family: var(--font-ui);
+        font-size: 10px;
+        font-weight: 1000;
+        letter-spacing: 0.14em;
+    }
+
+    .press-copy h2 {
+        font-size: clamp(66px, 9.6vw, 98px);
+        text-shadow: 0 0 42px rgba(255,106,26,0.08);
+    }
+
+    .press-machine-zone {
+        min-height: 660px;
+    }
+
+    .press-machine {
+        width: 120%;
+        filter: drop-shadow(0 28px 34px rgba(0,0,0,0.56));
+    }
+
+    .press-machine-console {
+        width: 50%;
+        background: rgba(3,3,4,0.91);
+        border-color: rgba(173,115,255,0.24);
+        box-shadow: 0 18px 48px rgba(0,0,0,0.56);
+    }
+
+    .press-state-rail {
+        margin-top: 34px;
+        border-color: rgba(255,255,255,0.13);
+        box-shadow: 0 18px 46px rgba(0,0,0,0.32);
+    }
+
+    .press-state.active {
+        background: linear-gradient(180deg, rgba(140,66,255,0.08), rgba(140,66,255,0.015));
+    }
+
+    /* ------------------------------------------------------------
+       06 // HARROW — THIS IS THE CREATOR'S CASE FILE
+       ------------------------------------------------------------ */
+
+    .harrow-section {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        padding: 102px 0 112px;
+        background:
+            linear-gradient(var(--harrow-grid) 1px, transparent 1px),
+            linear-gradient(90deg, var(--harrow-grid) 1px, transparent 1px),
+            radial-gradient(circle at 15% 24%, rgba(140,66,255,0.13), transparent 25%),
+            radial-gradient(circle at 81% 66%, rgba(198,32,32,0.055), transparent 23%),
+            #040405;
+        background-size: 48px 48px, 48px 48px, auto, auto, auto;
+    }
+
+    .harrow-section::before {
+        content: "CREATOR // PRIMARY SUSPECT";
+        position: absolute;
+        right: 22px;
+        top: 44px;
+        color: rgba(173,115,255,0.2);
+        font-family: var(--font-ui);
+        font-size: 15px;
+        font-weight: 1000;
+        letter-spacing: 0.16em;
+    }
+
+    .harrow-background-word {
+        opacity: 0.045;
+        font-size: 31vw;
+        right: -5vw;
+        bottom: -7vw;
+        letter-spacing: -0.08em;
+    }
+
+    .harrow-layout {
+        grid-template-columns: minmax(330px, 0.7fr) minmax(470px, 1.3fr);
+        gap: 42px;
+        align-items: start;
+    }
+
+    .harrow-art-column {
+        position: sticky;
+        top: calc(var(--header-h) + 26px);
+    }
+
+    .harrow-art-frame {
+        position: relative;
+        transform: rotate(-0.8deg);
+        border-color: rgba(173,115,255,0.28);
+        box-shadow:
+            0 30px 78px rgba(0,0,0,0.62),
+            0 0 42px rgba(140,66,255,0.09);
+    }
+
+    .harrow-art-frame::before {
+        content: "APPROVED BY HARROW";
+        position: absolute;
+        z-index: 5;
+        right: 14px;
+        top: 14px;
+        padding: 5px 7px;
+        border: 1px solid rgba(255,59,47,0.5);
+        background: rgba(0,0,0,0.62);
+        color: rgba(255,59,47,0.82);
+        font-family: var(--font-ui);
+        font-size: 9px;
+        font-weight: 1000;
+        letter-spacing: 0.11em;
+        transform: rotate(2deg);
+    }
+
+    .harrow-profile-card {
+        position: relative;
+        width: 92%;
+        margin: -2px 0 0 5%;
+        transform: rotate(0.7deg);
+        border-color: rgba(255,255,255,0.14);
+        box-shadow: 12px 18px 35px rgba(0,0,0,0.3);
+    }
+
+    .harrow-file {
+        position: relative;
+        overflow: hidden;
+        padding: 0 0 4px;
+    }
+
+    .harrow-file::before {
+        content: "100% HARROW";
+        position: absolute;
+        z-index: 0;
+        right: -20px;
+        top: 170px;
+        color: rgba(255,255,255,0.025);
+        font-family: var(--font-ui);
+        font-size: 140px;
+        font-weight: 1000;
+        line-height: 0.8;
+        letter-spacing: -0.07em;
+        transform: rotate(-7deg);
+        pointer-events: none;
+    }
+
+    .harrow-file > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .harrow-file-top {
+        border-color: rgba(173,115,255,0.2);
+    }
+
+    .harrow-wordmark-button {
+        width: min(470px, 94%);
+        margin-top: 18px;
+        filter: drop-shadow(0 0 18px rgba(255,255,255,0.06));
+    }
+
+    .harrow-role-list {
+        margin-top: 18px;
+    }
+
+    .harrow-role-list strong {
+        border-color: rgba(173,115,255,0.22);
+        background: rgba(140,66,255,0.035);
+    }
+
+    .harrow-authorship-declaration {
+        margin: 22px 0 28px;
+        padding: 17px 19px 18px;
+        border-left: 3px solid var(--purple-hot);
+        border-top: 1px solid rgba(173,115,255,0.15);
+        border-bottom: 1px solid rgba(173,115,255,0.15);
+        background: linear-gradient(90deg, rgba(140,66,255,0.09), transparent 68%);
+        transform: rotate(-0.25deg);
+    }
+
+    .harrow-authorship-declaration span {
+        display: block;
+        margin-bottom: 7px;
+        color: rgba(255,255,255,0.48);
+        font-family: var(--font-ui);
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+    }
+
+    .harrow-authorship-declaration strong {
+        display: block;
+        color: #fff;
+        font-family: var(--font-ui);
+        font-size: 18px;
+        font-weight: 1000;
+        line-height: 1.2;
+        letter-spacing: 0.035em;
+    }
+
+    .harrow-intro {
+        max-width: 720px;
+        font-size: 19px;
+        line-height: 1.52;
+    }
+
+    .harrow-data {
+        border-color: rgba(173,115,255,0.16);
+        background: rgba(255,255,255,0.012);
+    }
+
+    .harrow-data > div {
+        min-height: 94px;
+        background: linear-gradient(135deg, rgba(140,66,255,0.025), transparent 54%);
+    }
+
+    .self-review {
+        border-color: rgba(255,255,255,0.14);
+        background: rgba(255,255,255,0.018);
+    }
+
+    .harrow-love-note {
+        border-left-width: 4px;
+        background: linear-gradient(90deg, rgba(140,66,255,0.1), rgba(140,66,255,0.028));
+    }
+
+    /* ------------------------------------------------------------
+       07 // KEEP UP — OUTGOING SIGNALS, NOT A SOCIAL-LINK GRID
+       ------------------------------------------------------------ */
+
+    .signals-section {
+        position: relative;
+        isolation: isolate;
+        padding: 98px 0 106px;
+        background:
+            radial-gradient(circle at 82% 18%, rgba(140,66,255,0.1), transparent 22%),
+            linear-gradient(90deg, rgba(140,66,255,0.026) 1px, transparent 1px),
+            #020202;
+        background-size: auto, 58px 100%, auto;
+    }
+
+    .signals-section::before {
+        content: "OUTGOING // HARROW";
+        position: absolute;
+        top: 44px;
+        right: 26px;
+        color: rgba(173,115,255,0.2);
+        font-family: var(--font-ui);
+        font-size: 15px;
+        font-weight: 1000;
+        letter-spacing: 0.15em;
+    }
+
+    .signal-heading {
+        margin-bottom: 40px;
+    }
+
+    .signals-grid {
+        gap: 12px;
+        border: 0;
+        background: transparent;
+    }
+
+    .signal-card {
+        position: relative;
+        min-height: 188px;
+        overflow: hidden;
+        padding: 28px 30px;
+        border: 1px solid rgba(255,255,255,0.12) !important;
+        background:
+            linear-gradient(135deg, rgba(140,66,255,0.05), transparent 42%),
+            rgba(255,255,255,0.008);
+        box-shadow: 0 18px 46px rgba(0,0,0,0.2);
+    }
+
+    .signal-card::before {
+        position: absolute;
+        right: 16px;
+        top: 12px;
+        color: rgba(173,115,255,0.18);
+        font-family: var(--font-ui);
+        font-size: 44px;
+        font-weight: 1000;
+        line-height: 1;
+    }
+
+    .signal-card:nth-child(1)::before { content: "01"; }
+    .signal-card:nth-child(2)::before { content: "02"; }
+    .signal-card:nth-child(3)::before { content: "03"; }
+    .signal-card:nth-child(4)::before { content: "██"; color: rgba(198,32,32,0.18); }
+
+    .signal-card::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 32%;
+        height: 2px;
+        background: linear-gradient(90deg, var(--purple), transparent);
+        opacity: 0.55;
+        transition: width 0.2s ease;
+    }
+
+    .signal-card:hover::after {
+        width: 100%;
+    }
+
+    .signal-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(173,115,255,0.42) !important;
+        background:
+            linear-gradient(135deg, rgba(140,66,255,0.09), transparent 52%),
+            rgba(255,255,255,0.014);
+        box-shadow: 0 24px 55px rgba(0,0,0,0.28), 0 0 28px rgba(140,66,255,0.06);
+    }
+
+    /* ------------------------------------------------------------
+       08 // CLASSIFIED — MAKE IT FEEL ACTUALLY OFF-LIMITS
+       ------------------------------------------------------------ */
+
+    .classified-section {
+        position: relative;
+        isolation: isolate;
+        padding: 102px 0 110px;
+        background:
+            linear-gradient(28deg, transparent 0 63%, rgba(198,32,32,0.025) 63.2% 63.5%, transparent 63.7%),
+            radial-gradient(circle at 70% 52%, rgba(140,66,255,0.07), transparent 30%),
+            #030303;
+    }
+
+    .classified-section::before {
+        content: "CLEARANCE // NO";
+        position: absolute;
+        top: 43px;
+        right: 26px;
+        color: rgba(255,59,47,0.26);
+        font-family: var(--font-ui);
+        font-size: 15px;
+        font-weight: 1000;
+        letter-spacing: 0.16em;
+    }
+
+    .classified-layout {
+        grid-template-columns: minmax(300px, 0.62fr) minmax(500px, 1.38fr);
+        gap: 42px;
+        align-items: center;
+    }
+
+    .classified-copy {
+        padding-left: 18px;
+        border-left: 2px solid rgba(255,59,47,0.42);
+    }
+
+    .classified-copy h2 {
+        font-size: clamp(66px, 9.8vw, 102px);
+    }
+
+    .redaction-lines span {
+        height: 11px;
+        background: linear-gradient(90deg, #0d0d0e, #19191a);
+        box-shadow: inset 0 -1px 0 rgba(255,255,255,0.025);
+    }
+
+    .classified-object-list button {
+        border-color: rgba(255,255,255,0.13);
+        background: rgba(255,255,255,0.012);
+    }
+
+    .classified-object {
+        position: relative;
+        min-height: 510px;
+        overflow: hidden;
+        border-color: rgba(173,115,255,0.19);
+        background:
+            radial-gradient(circle at center, rgba(140,66,255,0.055), transparent 48%),
+            rgba(255,255,255,0.006);
+        box-shadow: 0 30px 72px rgba(0,0,0,0.42);
+    }
+
+    .classified-object::after {
+        content: "REDACTED // HARROW";
+        position: absolute;
+        z-index: 6;
+        left: -10%;
+        right: -10%;
+        top: 47%;
+        padding: 10px 0 9px;
+        background: rgba(3,3,3,0.88);
+        border-top: 1px solid rgba(255,59,47,0.18);
+        border-bottom: 1px solid rgba(255,59,47,0.18);
+        color: rgba(255,59,47,0.36);
+        font-family: var(--font-ui);
+        font-size: 16px;
+        font-weight: 1000;
+        letter-spacing: 0.22em;
+        text-align: center;
+        transform: rotate(-7deg);
+        pointer-events: none;
+    }
+
+    .classified-object img {
+        width: 195px;
+        filter: drop-shadow(0 0 26px rgba(140,66,255,0.2));
+    }
+
+    /* ------------------------------------------------------------
+       09 // EXIT — A PAGE TORN OUT OF HARROW'S NOTEBOOK
+       ------------------------------------------------------------ */
+
+    .exit-section {
+        position: relative;
+        isolation: isolate;
+        min-height: 630px;
+        overflow: hidden;
+        color: #0b0b0c;
+        background:
+            repeating-linear-gradient(0deg, transparent 0 38px, rgba(0,0,0,0.022) 38px 39px),
+            radial-gradient(circle at 78% 26%, rgba(198,32,32,0.07), transparent 24%),
+            #ebe7de;
+        border-top: 7px solid #020202;
+    }
+
+    .exit-section::before {
+        content: "HARROW // DONE TALKING";
+        position: absolute;
+        top: 30px;
+        right: 34px;
+        color: rgba(0,0,0,0.16);
+        font-family: var(--font-ui);
+        font-size: 14px;
+        font-weight: 1000;
+        letter-spacing: 0.15em;
+        transform: rotate(-2deg);
+    }
+
+    .exit-section::after {
+        content: "— H";
+        position: absolute;
+        right: 8%;
+        bottom: 9%;
+        color: rgba(198,32,32,0.16);
+        font-family: var(--font-serif);
+        font-size: 112px;
+        font-weight: 700;
+        transform: rotate(-9deg);
+    }
+
+    .exit-content {
+        position: relative;
+        z-index: 2;
+        max-width: 760px;
+    }
+
+    .exit-content h2 {
+        text-shadow: 8px 10px 0 rgba(0,0,0,0.035);
+    }
+
+    .exit-content a {
+        max-width: 330px;
+        min-height: 52px;
+        padding: 0 18px;
+        border: 1px solid rgba(0,0,0,0.64);
+        background: rgba(255,255,255,0.14);
+        font-size: 12px;
+        letter-spacing: 0.07em;
+    }
+
+    .exit-content a:hover {
+        background: #0b0b0c;
+        color: #fff;
+    }
+
+    /* ------------------------------------------------------------
+       FOOTER — CREDIT THE CORRECT PERSON
+       ------------------------------------------------------------ */
+
+    .site-footer {
+        background:
+            linear-gradient(90deg, rgba(140,66,255,0.025), transparent 28%),
+            #020202;
+        border-top: 1px solid rgba(173,115,255,0.18);
+    }
+
+    .footer-status {
+        color: rgba(255,255,255,0.48);
+        background: rgba(255,255,255,0.012);
+    }
+
+    .footer-block {
+        min-height: 205px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.014), transparent 60%);
+    }
+
+    .footer-block:first-child {
+        box-shadow: inset 3px 0 0 rgba(173,115,255,0.28);
+    }
+
+    .footer-harrow {
+        width: 190px;
+        filter: drop-shadow(0 0 15px rgba(255,255,255,0.045));
+    }
+
+    .footer-bottom {
+        min-height: 58px;
+        color: rgba(255,255,255,0.34);
+        background: rgba(0,0,0,0.24);
+    }
+
+}
