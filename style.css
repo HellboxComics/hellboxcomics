@@ -8782,3 +8782,440 @@ and
     }
 }
 
+/* ================================================================
+   PRODUCTION PRECISION PASS 04
+   HERO SCENE COORDINATE SYSTEM + TALL-DESKTOP COMPOSITION
+
+   The hero artwork is now the master coordinate plane.
+   Hotspots live inside .hero-scene and use percentages measured
+   directly from the 1672 × 941 production artwork.
+
+   Current production priority:
+   - Tall / rotated desktop displays first.
+   - Landscape desktop, tablet and mobile will receive their own
+     framing passes after this composition is approved.
+   ================================================================ */
+
+
+/* ---------------------------------------------------------------
+   HERO SCENE WRAPPER
+   --------------------------------------------------------------- */
+
+.hero-scene {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.hero-scene .hero-art {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.hero-scene .hero-blackout {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+
+/* ---------------------------------------------------------------
+   HOTSPOT PRECISION SYSTEM
+   Coordinates below are measured against the original hero art.
+   --------------------------------------------------------------- */
+
+.lair-hotspot {
+    display: grid;
+    place-items: center;
+    transform: translate(-50%, -50%);
+    isolation: isolate;
+}
+
+.lair-hotspot:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+.hotspot-mark {
+    position: relative;
+    z-index: 2;
+    display: block;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.hotspot-label {
+    position: absolute;
+    z-index: 4;
+    left: 50%;
+    top: calc(100% + 13px);
+    min-width: max-content;
+    padding: 7px 10px 6px;
+    opacity: 0;
+    transform: translate(-50%, 5px);
+    pointer-events: none;
+    white-space: nowrap;
+
+    border: 1px solid rgba(173,115,255,0.42);
+    background:
+        linear-gradient(
+            90deg,
+            rgba(140,66,255,0.13),
+            rgba(0,0,0,0) 55%
+        ),
+        rgba(2,2,2,0.94);
+
+    color: rgba(255,255,255,0.94);
+
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+
+    box-shadow:
+        0 12px 34px rgba(0,0,0,0.5),
+        0 0 24px rgba(140,66,255,0.08);
+
+    transition:
+        opacity 0.16s ease,
+        transform 0.16s ease;
+}
+
+.lair-hotspot:hover .hotspot-label,
+.lair-hotspot:focus-visible .hotspot-label {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+.hotspot-pages .hotspot-label,
+.hotspot-redacted .hotspot-label {
+    top: auto;
+    bottom: calc(100% + 13px);
+    transform: translate(-50%, -5px);
+}
+
+.hotspot-pages:hover .hotspot-label,
+.hotspot-pages:focus-visible .hotspot-label,
+.hotspot-redacted:hover .hotspot-label,
+.hotspot-redacted:focus-visible .hotspot-label {
+    transform: translate(-50%, 0);
+}
+
+
+/*
+   MASTER ART COORDINATES
+   1672 × 941 source image
+*/
+
+.hotspot-cabal {
+    left: 79%;
+    top: 8%;
+}
+
+.hotspot-monitor {
+    left: 33.2%;
+    top: 13.5%;
+}
+
+.hotspot-harrow {
+    left: 72.5%;
+    top: 41%;
+}
+
+.hotspot-pages {
+    left: 62.5%;
+    top: 63.5%;
+}
+
+.hotspot-bike {
+    left: 12.5%;
+    top: 42%;
+}
+
+.hotspot-redacted {
+    left: 28.5%;
+    top: 91.5%;
+}
+
+
+/* ---------------------------------------------------------------
+   TALL DESKTOP / ROTATED WIDESCREEN
+   --------------------------------------------------------------- */
+
+@media
+(min-width: 820px)
+and
+(max-aspect-ratio: 4 / 5) {
+
+    .hero {
+        min-height: 100svh;
+        height: auto;
+        padding-bottom: 0;
+        overflow: hidden;
+
+        background:
+            radial-gradient(
+                circle at 50% 76%,
+                rgba(140,66,255,0.055),
+                transparent 32%
+            ),
+            #020202;
+    }
+
+
+    /*
+       The scene gets its natural 16:9 shape.
+       Nothing is cropped on this display class.
+    */
+
+    .hero-scene {
+        position: relative;
+        inset: auto;
+
+        width: 100%;
+        aspect-ratio: 1672 / 941;
+
+        margin-top: var(--header-h);
+
+        border-bottom:
+            1px solid rgba(255,255,255,0.09);
+
+        box-shadow:
+            0 38px 90px rgba(0,0,0,0.52);
+    }
+
+    .hero-scene::after {
+        content: "";
+
+        position: absolute;
+        z-index: 2;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        height: 18%;
+
+        pointer-events: none;
+
+        background:
+            linear-gradient(
+                180deg,
+                transparent,
+                rgba(2,2,2,0.22) 44%,
+                rgba(2,2,2,0.92) 100%
+            );
+    }
+
+    .hero-art img {
+        width: 100%;
+        height: 100%;
+
+        object-fit: contain;
+        object-position: center center;
+    }
+
+
+    /*
+       The source art is already dark and detailed.
+       Vertical displays no longer bury it under the heavy
+       desktop-left blackout.
+    */
+
+    .hero-blackout {
+        background:
+            linear-gradient(
+                180deg,
+                rgba(0,0,0,0.12) 0%,
+                rgba(0,0,0,0.01) 48%,
+                rgba(0,0,0,0.26) 100%
+            );
+    }
+
+
+    /*
+       Lower control deck.
+       It deliberately occupies the remaining vertical screen
+       instead of forcing the 16:9 art to impersonate a portrait.
+    */
+
+    .hero-inner {
+        position: relative;
+        z-index: 3;
+
+        width: var(--shell);
+        height: auto;
+        min-height:
+            calc(100svh - var(--header-h) - 56.28vw);
+
+        margin: 0 auto;
+        padding:
+            clamp(58px, 5.5vw, 88px)
+            0
+            118px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        gap: 28px;
+    }
+
+    .hero-brand {
+        width: min(360px, 42vw);
+        margin: 0;
+    }
+
+    .hero-wordmark {
+        width: 100%;
+        max-height: 118px;
+
+        object-fit: contain;
+        object-position: left center;
+    }
+
+    .hero-content {
+        width: 100%;
+
+        display: grid;
+        grid-template-columns:
+            minmax(0, 1.08fr)
+            minmax(320px, 0.72fr);
+
+        gap: clamp(34px, 4vw, 58px);
+        align-items: end;
+    }
+
+    .hero-copy {
+        max-width: 680px;
+    }
+
+    .hero-copy h1 {
+        margin: 16px 0 24px;
+
+        font-size:
+            clamp(82px, 10vw, 116px);
+
+        line-height: 0.79;
+    }
+
+    .hero-description {
+        font-size: 18px;
+    }
+
+    .hero-actions {
+        margin-top: 27px;
+    }
+
+    .hero-transmission {
+        width: 100%;
+        max-width: 440px;
+        justify-self: end;
+        align-self: end;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(140,66,255,0.035),
+                transparent 42%
+            ),
+            rgba(4,4,5,0.84);
+    }
+
+    .transmission-body strong {
+        font-size:
+            clamp(25px, 2.8vw, 34px);
+    }
+
+    .hero-harrow-signature {
+        width: 150px;
+    }
+
+
+    /*
+       Metadata remains at the true bottom of the hero.
+    */
+
+    .hero-meta {
+        left: 50%;
+        bottom: 27px;
+
+        width: var(--shell);
+
+        transform: translateX(-50%);
+
+        font-size: 12px;
+    }
+
+    .hero-scroll-note {
+        display: none;
+    }
+
+
+    /*
+       Hotspots stay quiet until approached.
+       They are centered directly over their source objects.
+    */
+
+    .lair-hotspot {
+        width: 34px;
+        height: 34px;
+
+        border-color:
+            rgba(255,255,255,0.46);
+
+        background:
+            rgba(0,0,0,0.52);
+
+        box-shadow:
+            0 0 0 1px rgba(0,0,0,0.35),
+            0 0 22px rgba(140,66,255,0.07);
+    }
+
+    .lair-hotspot::after {
+        inset: -9px;
+
+        border-color:
+            rgba(173,115,255,0.19);
+    }
+
+    .lair-hotspot:hover,
+    .lair-hotspot:focus-visible {
+        border-color:
+            var(--purple-hot);
+
+        background:
+            rgba(111,44,214,0.9);
+
+        box-shadow:
+            0 0 34px rgba(140,66,255,0.42);
+    }
+
+}
+
+
+/* ---------------------------------------------------------------
+   SAFETY FOR SHORTER TALL-DESKTOP WINDOWS
+   --------------------------------------------------------------- */
+
+@media
+(min-width: 820px)
+and
+(max-aspect-ratio: 4 / 5)
+and
+(max-height: 1250px) {
+
+    .hero-inner {
+        min-height: 520px;
+        padding-top: 52px;
+    }
+
+    .hero-copy h1 {
+        font-size:
+            clamp(72px, 9vw, 98px);
+    }
+
+}
+
