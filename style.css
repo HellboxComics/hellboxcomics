@@ -8728,7 +8728,7 @@ and
    ================================================================ */
 
 #theoryCorrection {
-    display: none !important;
+    display: block !important;
 }
 
 .vandalized-word {
@@ -10263,6 +10263,1052 @@ and
         min-height: 58px;
         color: rgba(255,255,255,0.34);
         background: rgba(0,0,0,0.24);
+    }
+
+}
+
+
+/* ================================================================
+   PRODUCTION PRECISION PASS 05
+   VERTICAL DESKTOP — ENVIRONMENT AS INTERFACE
+
+   Locked target:
+   - min-width: 820px
+   - max-aspect-ratio: 4 / 5
+
+   Goals:
+   - Cover the hero duplicate-cigarette artifact without new artwork.
+   - Make the "47" correction look physically scribbled.
+   - Map theory hotspots directly to the 1672 × 941 wall artwork.
+   - Rebuild the Press around the original 1536 × 1024 machine art.
+   - The real lever in the artwork is now the interactive lever.
+   - Merge discovery count into Harrow's orb.
+   - Tighten section transitions and remove accidental dead space.
+   ================================================================ */
+
+
+/* ---------------------------------------------------------------
+   HARROW ORB — ONE OBJECT, NOT TWO FLOATING WIDGETS
+   --------------------------------------------------------------- */
+
+.harrow-orb {
+    overflow: visible;
+}
+
+.harrow-orb-discovery {
+    position: absolute;
+    z-index: 4;
+    right: -8px;
+    top: -9px;
+
+    min-width: 38px;
+    height: 24px;
+    padding: 0 7px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+
+    border: 1px solid rgba(173,115,255,0.45);
+    border-radius: 999px;
+
+    background: rgba(2,2,2,0.94);
+    color: rgba(255,255,255,0.66);
+
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 1000;
+    line-height: 1;
+    letter-spacing: 0.06em;
+
+    box-shadow:
+        0 7px 20px rgba(0,0,0,0.6),
+        0 0 18px rgba(140,66,255,0.12);
+
+    pointer-events: none;
+}
+
+.harrow-orb-discovery strong {
+    color: var(--purple-hot);
+    font-size: 11px;
+}
+
+
+/* ---------------------------------------------------------------
+   HERO — TURN THE SECOND CIGARETTE-SHAPED OBJECT INTO A
+   RED GREASE PENCIL. THIS IS A CSS OVERLAY ON THE SOURCE ART.
+   --------------------------------------------------------------- */
+
+.hero-correction-pencil {
+    position: absolute;
+    z-index: 3;
+
+    left: 67.35%;
+    top: 59.05%;
+
+    width: 5.35%;
+    height: 0.82%;
+
+    min-height: 4px;
+
+    transform:
+        translate(-50%, -50%)
+        rotate(-27deg);
+
+    transform-origin: center;
+
+    border-radius: 999px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #171313 0 8%,
+            #8d1718 9% 70%,
+            #c92320 71% 86%,
+            #e8d7bb 87% 94%,
+            #242020 95% 100%
+        );
+
+    box-shadow:
+        0 1px 1px rgba(0,0,0,0.7),
+        0 0 5px rgba(143,23,24,0.18);
+
+    pointer-events: none;
+}
+
+.hero-correction-pencil::before {
+    content: "";
+    position: absolute;
+    left: -4.5%;
+    top: 50%;
+
+    width: 8%;
+    aspect-ratio: 1;
+
+    transform:
+        translateY(-50%)
+        rotate(45deg);
+
+    border-radius: 1px;
+    background: #272020;
+}
+
+.hero-correction-pencil::after {
+    content: "H";
+    position: absolute;
+    left: 48%;
+    top: 50%;
+
+    transform:
+        translate(-50%, -50%)
+        rotate(1deg);
+
+    color: rgba(255,225,211,0.46);
+    font-family: var(--font-ui);
+    font-size: clamp(5px, 0.45vw, 8px);
+    font-weight: 1000;
+    line-height: 1;
+}
+
+
+/* ---------------------------------------------------------------
+   THEORY HEADING — A PHYSICAL CORRECTION, NOT A CSS LABEL
+   --------------------------------------------------------------- */
+
+.vandalized-word::before,
+.vandalized-word::after {
+    content: none !important;
+}
+
+.vandalism-theories {
+    display: none !important;
+}
+
+.vandalized-word {
+    position: relative;
+    display: inline-block;
+    isolation: isolate;
+    margin: 0 0.035em;
+}
+
+.theory-original-a {
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+}
+
+.theory-strike {
+    position: absolute;
+    z-index: 4;
+    left: -8%;
+    width: 116%;
+    height: 0.045em;
+
+    border-radius: 999px;
+    background: var(--red-hot);
+
+    box-shadow:
+        0 0 1px rgba(255,59,47,0.72),
+        0 0 7px rgba(255,59,47,0.13);
+
+    transform-origin: center;
+    pointer-events: none;
+}
+
+.theory-strike-one {
+    top: 48%;
+    transform: rotate(-11deg);
+}
+
+.theory-strike-two {
+    top: 58%;
+    left: -4%;
+    width: 108%;
+    height: 0.032em;
+    opacity: 0.9;
+    transform: rotate(7deg);
+}
+
+.theory-correction {
+    position: absolute;
+    z-index: 6;
+
+    left: 48%;
+    top: -0.48em;
+
+    transform:
+        translateX(-50%)
+        rotate(-8deg);
+
+    color: var(--red-hot);
+
+    font-family:
+        "Bradley Hand",
+        "Segoe Print",
+        "Comic Sans MS",
+        cursive;
+
+    font-size: 0.34em;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.09em;
+    white-space: nowrap;
+
+    text-shadow:
+        0.02em 0.02em 0 rgba(0,0,0,0.1);
+
+    pointer-events: none;
+}
+
+.theory-correction.active {
+    animation: theoryCorrectionJolt 0.42s ease both;
+}
+
+.theory-correction-arrow {
+    position: absolute;
+    z-index: 5;
+
+    left: 78%;
+    top: 3%;
+
+    width: 0.24em;
+    height: 0.04em;
+
+    background: var(--red-hot);
+
+    transform:
+        translate(-50%, -50%)
+        rotate(63deg);
+
+    transform-origin: left center;
+    pointer-events: none;
+}
+
+.theory-correction-arrow::after {
+    content: "";
+    position: absolute;
+    right: -0.015em;
+    top: 50%;
+
+    width: 0.08em;
+    height: 0.08em;
+
+    border-right: 0.025em solid var(--red-hot);
+    border-bottom: 0.025em solid var(--red-hot);
+
+    transform:
+        translateY(-50%)
+        rotate(-45deg);
+}
+
+@keyframes theoryCorrectionJolt {
+    0% {
+        transform:
+            translateX(-50%)
+            rotate(-8deg)
+            scale(1);
+    }
+
+    35% {
+        transform:
+            translateX(-50%)
+            rotate(-11deg)
+            scale(1.14);
+    }
+
+    100% {
+        transform:
+            translateX(-50%)
+            rotate(-8deg)
+            scale(1);
+    }
+}
+
+
+/* ---------------------------------------------------------------
+   THEORY WALL — MASTER COORDINATES FROM THE ORIGINAL 1672 × 941 ART
+   --------------------------------------------------------------- */
+
+.obsession-wall {
+    aspect-ratio: 1672 / 941;
+}
+
+.obsession-wall-art {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+}
+
+.obsession-hotspot {
+    transform: translate(-50%, -50%);
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+
+    border-color: rgba(255,255,255,0.34);
+    background: rgba(2,2,2,0.42);
+
+    box-shadow:
+        0 0 0 1px rgba(0,0,0,0.42),
+        0 0 18px rgba(198,32,32,0.04);
+}
+
+.obsession-hotspot::after {
+    inset: -8px;
+    border-color: rgba(255,59,47,0.22);
+}
+
+.obsession-hotspot:hover,
+.obsession-hotspot:focus-visible {
+    transform:
+        translate(-50%, -50%)
+        scale(1.14);
+
+    border-color: rgba(255,59,47,0.86);
+    background: rgba(126,17,17,0.68);
+
+    box-shadow:
+        0 0 26px rgba(198,32,32,0.28);
+}
+
+/* Note / subject centers measured from the supplied source art. */
+.obsession-hotspot-richard {
+    left: 15.7%;
+    top: 9.4%;
+}
+
+.obsession-hotspot-cabal {
+    left: 49.3%;
+    top: 11.5%;
+}
+
+.obsession-hotspot-sec {
+    left: 73.2%;
+    top: 10.6%;
+}
+
+.obsession-hotspot-interpol {
+    left: 91.1%;
+    top: 10.7%;
+}
+
+.obsession-hotspot-influencers {
+    left: 81.1%;
+    top: 39.8%;
+}
+
+.obsession-hotspot-harrow {
+    left: 49.0%;
+    top: 39.7%;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+}
+
+.obsession-hotspot-sacrifice {
+    left: 30.6%;
+    top: 58.6%;
+}
+
+.obsession-hotspot-nft {
+    left: 17.4%;
+    top: 62.8%;
+}
+
+
+/* ---------------------------------------------------------------
+   PRESS — THE ASSET IS THE MACHINE. THE MACHINE IS THE INTERFACE.
+   --------------------------------------------------------------- */
+
+.press-real-lever {
+    background: transparent;
+}
+
+.press-lever-sensor,
+.press-lever-callout {
+    pointer-events: none;
+}
+
+
+/* ---------------------------------------------------------------
+   VERTICAL DESKTOP REFINEMENT
+   --------------------------------------------------------------- */
+
+@media
+(min-width: 820px)
+and
+(max-aspect-ratio: 4 / 5) {
+
+    /* -----------------------------------------------------------
+       SECTION RHYTHM — LESS EMPTY BLACK, MORE INTENTIONAL TRANSITION
+       ----------------------------------------------------------- */
+
+    .archive-section {
+        padding-bottom: 86px;
+    }
+
+    .evidence-section {
+        padding-top: 84px;
+        padding-bottom: 82px;
+    }
+
+    .press-section {
+        padding-top: 84px;
+        padding-bottom: 86px;
+    }
+
+    .harrow-section {
+        padding-top: 88px;
+        padding-bottom: 92px;
+    }
+
+    .signals-section {
+        padding-top: 86px;
+        padding-bottom: 92px;
+    }
+
+    .classified-section {
+        padding-top: 88px;
+        padding-bottom: 96px;
+    }
+
+
+    /* -----------------------------------------------------------
+       WALLET TERMINAL — FIX THE CLIPPED "PRIVATE NODE" TAB
+       ----------------------------------------------------------- */
+
+    .archive-terminal::before {
+        left: 50%;
+        top: 9px;
+
+        transform: translateX(-50%);
+
+        padding: 4px 8px;
+
+        border-color: rgba(173,115,255,0.24);
+        background: rgba(5,5,6,0.82);
+        color: rgba(173,115,255,0.66);
+
+        font-size: 9px;
+        letter-spacing: 0.1em;
+    }
+
+
+    /* -----------------------------------------------------------
+       HERO CORRECTION PENCIL — ONLY NEEDED WHILE THIS SOURCE ART
+       IS THE PRODUCTION HERO.
+       ----------------------------------------------------------- */
+
+    .hero-correction-pencil {
+        display: block;
+    }
+
+
+    /* -----------------------------------------------------------
+       THEORY
+       ----------------------------------------------------------- */
+
+    .evidence-heading {
+        position: relative;
+    }
+
+    .theory-heading {
+        overflow: visible;
+    }
+
+    .obsession-wall {
+        width: 100%;
+        margin-left: 0;
+
+        border-color: rgba(198,32,32,0.22);
+    }
+
+    .obsession-hotspot > span {
+        top: calc(100% + 10px);
+
+        padding: 5px 7px;
+
+        background: rgba(0,0,0,0.9);
+        border-color: rgba(255,255,255,0.1);
+
+        font-size: 10px;
+        letter-spacing: 0.06em;
+    }
+
+
+    /* -----------------------------------------------------------
+       PRESS INTRO — AUTHOR'S NOTES ABOVE THE MACHINE, NOT BESIDE IT
+       ----------------------------------------------------------- */
+
+    .press-stage {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .press-copy {
+        display: grid;
+        grid-template-columns:
+            minmax(0, 0.78fr)
+            minmax(360px, 1.22fr);
+
+        column-gap: 46px;
+        row-gap: 0;
+
+        padding-left: 18px;
+        padding-bottom: 14px;
+    }
+
+    .press-copy::before {
+        grid-column: 1 / -1;
+        margin-bottom: 15px;
+    }
+
+    .press-copy > .eyebrow,
+    .press-copy > h2,
+    .press-copy > .press-lead,
+    .press-copy > p:not(.press-lead),
+    .press-copy > .press-object-links {
+        grid-column: 1;
+    }
+
+    .press-copy h2 {
+        max-width: 390px;
+        margin-bottom: 18px;
+
+        font-size: clamp(68px, 9.2vw, 96px);
+    }
+
+    .press-copy > p:not(.press-lead) {
+        margin-top: 7px;
+        margin-bottom: 0;
+    }
+
+    .press-object-links {
+        margin-top: 23px;
+        margin-bottom: 0;
+    }
+
+    .press-mini-terminal {
+        grid-column: 2;
+        grid-row: 2 / 8;
+
+        width: 100%;
+        max-width: 520px;
+        margin: 5px 0 0 auto;
+
+        align-self: end;
+
+        border-color: rgba(173,115,255,0.2);
+        background:
+            linear-gradient(
+                135deg,
+                rgba(140,66,255,0.05),
+                transparent 45%
+            ),
+            rgba(7,7,8,0.84);
+    }
+
+
+    /* -----------------------------------------------------------
+       PRESS ART STAGE — EXACT 1536 × 1024 COORDINATE PLANE
+       ----------------------------------------------------------- */
+
+    .press-machine-zone {
+        position: relative;
+
+        width: 100%;
+        min-height: 0;
+        aspect-ratio: 1536 / 1024;
+
+        margin: 2px 0 0;
+
+        overflow: visible;
+        isolation: isolate;
+    }
+
+    .machine-field-one {
+        width: 58%;
+        height: 62%;
+        left: 20%;
+        top: 14%;
+    }
+
+    .machine-field-two {
+        width: 42%;
+        height: 35%;
+        left: 39%;
+        bottom: 7%;
+    }
+
+    .press-machine {
+        position: absolute;
+        z-index: 2;
+
+        inset: 0;
+
+        width: 100%;
+        height: 100%;
+
+        padding: 0;
+
+        transform: none;
+
+        filter:
+            drop-shadow(0 32px 38px rgba(0,0,0,0.55));
+    }
+
+    .press-machine-art {
+        width: 100%;
+        height: 100%;
+
+        object-fit: contain;
+        object-position: center;
+    }
+
+    .press-machine-status {
+        z-index: 8;
+
+        left: 2.2%;
+        top: 3.4%;
+
+        min-width: 0;
+        width: auto;
+
+        padding: 8px 10px;
+
+        border-color: rgba(173,115,255,0.2);
+        background: rgba(2,2,2,0.82);
+    }
+
+    .press-machine-status span {
+        font-size: 10px;
+    }
+
+    .press-machine-status strong {
+        margin-top: 2px;
+        font-size: 14px;
+    }
+
+
+    /*
+       REAL LEVER MAP
+       Supplied 1536 × 1024 art:
+       - lever handle / shaft lives at the far-right side
+       - hit area follows the actual diagonal arm
+    */
+
+    .press-real-lever {
+        position: absolute;
+        z-index: 12;
+
+        left: 90.9%;
+        top: 49.2%;
+
+        width: 10.6%;
+        height: 34.5%;
+
+        padding: 0;
+        border: 0;
+
+        transform:
+            translate(-50%, -50%)
+            rotate(23deg);
+
+        transform-origin: center;
+
+        cursor: pointer;
+        outline: none;
+    }
+
+    .press-real-lever::before {
+        content: "";
+
+        position: absolute;
+        inset: 2% 31%;
+
+        opacity: 0;
+
+        border: 1px solid rgba(255,106,26,0.42);
+        border-radius: 999px;
+
+        background:
+            linear-gradient(
+                180deg,
+                rgba(255,106,26,0.04),
+                rgba(255,59,47,0.08)
+            );
+
+        box-shadow:
+            0 0 24px rgba(255,90,20,0.12);
+
+        transition:
+            opacity 0.16s ease,
+            box-shadow 0.16s ease;
+    }
+
+    .press-real-lever:hover::before,
+    .press-real-lever:focus-visible::before,
+    .press-real-lever.pulled::before {
+        opacity: 1;
+
+        box-shadow:
+            0 0 26px rgba(255,90,20,0.25),
+            0 0 54px rgba(255,59,47,0.12);
+    }
+
+    .press-lever-sensor {
+        position: absolute;
+
+        left: 50%;
+        top: 3%;
+
+        width: 36px;
+        height: 36px;
+
+        transform: translateX(-50%);
+
+        border: 1px solid rgba(255,255,255,0.25);
+        border-radius: 50%;
+
+        opacity: 0;
+
+        box-shadow:
+            0 0 0 9px rgba(255,106,26,0.06),
+            0 0 30px rgba(255,59,47,0.12);
+
+        transition: opacity 0.16s ease;
+    }
+
+    .press-real-lever:hover .press-lever-sensor,
+    .press-real-lever:focus-visible .press-lever-sensor,
+    .press-real-lever.pulled .press-lever-sensor {
+        opacity: 1;
+    }
+
+    .press-lever-callout {
+        position: absolute;
+
+        left: 51%;
+        bottom: -13%;
+
+        min-width: max-content;
+        padding: 6px 9px;
+
+        opacity: 0;
+
+        transform:
+            translateX(-50%)
+            rotate(-23deg)
+            translateY(6px);
+
+        border: 1px solid rgba(255,59,47,0.32);
+        background: rgba(2,2,2,0.92);
+
+        color: rgba(255,106,26,0.92);
+
+        font-family: var(--font-ui);
+        font-size: 10px;
+        font-weight: 1000;
+        line-height: 1;
+        letter-spacing: 0.1em;
+        white-space: nowrap;
+
+        box-shadow:
+            0 12px 28px rgba(0,0,0,0.48);
+
+        transition:
+            opacity 0.16s ease,
+            transform 0.16s ease;
+    }
+
+    .press-real-lever:hover .press-lever-callout,
+    .press-real-lever:focus-visible .press-lever-callout {
+        opacity: 1;
+
+        transform:
+            translateX(-50%)
+            rotate(-23deg)
+            translateY(0);
+    }
+
+    .press-real-lever.pulled {
+        animation: realLeverPulse 0.58s ease both;
+    }
+
+    @keyframes realLeverPulse {
+        0%,
+        100% {
+            filter: none;
+        }
+
+        45% {
+            filter:
+                drop-shadow(0 0 16px rgba(255,59,47,0.42));
+        }
+    }
+
+    .press-warning {
+        z-index: 11;
+
+        right: 1.2%;
+        bottom: 7.4%;
+
+        padding: 4px 6px;
+
+        background: rgba(2,2,2,0.68);
+
+        font-size: 10px;
+        letter-spacing: 0.07em;
+
+        transform: rotate(-4deg);
+
+        pointer-events: none;
+    }
+
+
+    /* -----------------------------------------------------------
+       MACHINE CONSOLE — BELOW THE ART, NEVER COVERING IT
+       ----------------------------------------------------------- */
+
+    .press-machine-console {
+        position: relative;
+        z-index: 4;
+
+        left: auto;
+        bottom: auto;
+
+        width: 100%;
+        margin-top: -3px;
+
+        display: grid;
+        grid-template-columns:
+            minmax(250px, 0.72fr)
+            minmax(0, 1.28fr);
+
+        border-color: rgba(173,115,255,0.2);
+
+        background:
+            linear-gradient(
+                90deg,
+                rgba(140,66,255,0.045),
+                transparent 36%
+            ),
+            rgba(4,4,5,0.92);
+
+        box-shadow:
+            0 22px 56px rgba(0,0,0,0.42);
+    }
+
+    .machine-console-top {
+        grid-column: 1 / -1;
+    }
+
+    .machine-console-message {
+        min-height: 104px;
+        padding: 18px 20px;
+
+        border-right: 1px solid var(--line);
+    }
+
+    .machine-console-readouts {
+        border-top: 0;
+        align-self: stretch;
+    }
+
+    .machine-console-readouts > div {
+        min-height: 104px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .press-state-rail {
+        margin-top: 18px;
+    }
+
+
+    /* -----------------------------------------------------------
+       TRANSITIONS — EMPTY SPACE BECOMES SIGNAL / STRING / MACHINE
+       BLEED INSTEAD OF "NEXT WEBSITE SECTION"
+       ----------------------------------------------------------- */
+
+    .archive-section::after {
+        content: "";
+
+        position: absolute;
+        z-index: 0;
+
+        left: 57%;
+        bottom: 0;
+
+        width: 48%;
+        height: 74px;
+
+        background:
+            linear-gradient(
+                13deg,
+                transparent 47%,
+                rgba(198,32,32,0.13) 48% 49%,
+                transparent 50%
+            );
+
+        transform: translateX(-10%);
+        pointer-events: none;
+    }
+
+    .press-section::after {
+        content: "OUTPUT // ROUTED TO HARROW";
+
+        position: absolute;
+        z-index: 1;
+
+        right: 30px;
+        bottom: 20px;
+
+        padding-top: 14px;
+
+        color: rgba(173,115,255,0.2);
+
+        font-family: var(--font-ui);
+        font-size: 10px;
+        font-weight: 1000;
+        letter-spacing: 0.14em;
+
+        border-top: 1px solid rgba(173,115,255,0.11);
+
+        pointer-events: none;
+    }
+
+    .harrow-section::after {
+        content: "SIGNAL LEAK // OUTGOING";
+
+        position: absolute;
+        right: 28px;
+        bottom: 18px;
+
+        color: rgba(173,115,255,0.18);
+
+        font-family: var(--font-ui);
+        font-size: 10px;
+        font-weight: 1000;
+        letter-spacing: 0.14em;
+
+        pointer-events: none;
+    }
+
+    .signals-section::after {
+        content: "";
+
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        height: 52px;
+
+        background:
+            linear-gradient(
+                180deg,
+                transparent,
+                rgba(198,32,32,0.018)
+            );
+
+        pointer-events: none;
+    }
+
+}
+
+
+/* ================================================================
+   PASS 05A — THEORY CORRECTION FINAL POSITION
+   ================================================================ */
+
+@media
+(min-width: 820px)
+and
+(max-aspect-ratio: 4 / 5) {
+
+    .theory-heading {
+        font-size: clamp(62px, 8.2vw, 88px) !important;
+        white-space: nowrap;
+    }
+
+    #theoryCorrection {
+        display: block !important;
+    }
+
+    .theory-correction {
+        left: 72%;
+        top: -0.60em;
+
+        font-size: 0.32em;
+
+        transform:
+            translateX(-50%)
+            rotate(-9deg);
+    }
+
+    .theory-correction-arrow {
+        left: 72%;
+        top: -1%;
+
+        width: 0.34em;
+
+        transform:
+            translate(-50%, -50%)
+            rotate(118deg);
+    }
+
+    .obsession-hotspot-richard {
+        left: 15.7%;
+        top: 5.6%;
     }
 
 }
