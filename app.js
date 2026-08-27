@@ -1,7 +1,8 @@
 /* ============================================================
    HELLBOX COMICS
-   FRONTEND APPLICATION V5
+   FRONTEND APPLICATION V6
    HARROW'S NERVOUS SYSTEM
+   + HELLION PROGRESSION
    ============================================================ */
 
 (() => {
@@ -20,8 +21,20 @@
 
     const STORAGE_KEYS = {
         discoveries: "hellbox:discoveries:v1",
-        visits: "hellbox:visits:v1",
-        pressTouches: "hellbox:press-touches:v1"
+
+        visits: "hellbox:visits:v2",
+
+        pressTouches: "hellbox:press-touches:v1",
+
+        relationship: "hellbox:relationship:v1",
+
+        lastSeen: "hellbox:last-seen:v1"
+    };
+
+    const HELLION_THRESHOLDS = {
+        noticed: 3,
+        familiar: 7,
+        hellion: 13
     };
 
 
@@ -106,6 +119,21 @@
             .replaceAll("'", "&#039;");
     };
 
+    const storageAvailable = (type) => {
+        try {
+            const storage = window[type];
+
+            const key = "__hellbox_storage_test__";
+
+            storage.setItem(key, key);
+            storage.removeItem(key);
+
+            return true;
+        } catch (error) {
+            return false;
+        }
+    };
+
 
     /* =========================================================
        APPLICATION STATE
@@ -129,6 +157,19 @@
         },
 
         discoveries: new Set(),
+
+        relationship: {
+            visits: 0,
+            interactions: 0,
+            pressTouches: 0,
+            discoveriesEver: 0,
+
+            stage: "visitor",
+
+            lastStage: "visitor",
+
+            promotedThisVisit: false
+        },
 
         press: {
             awake: false,
@@ -323,32 +364,71 @@
         }
     ];
 
-    const ORB_LINES = [
-        [
-            "YES?",
-            "I was in the middle of admiring my own work."
+    const ORB_LINES = {
+        visitor: [
+            [
+                "YES?",
+                "I was in the middle of admiring my own work."
+            ],
+            [
+                "WHAT?",
+                "You keep clicking me like this is going to improve your judgment."
+            ],
+            [
+                "STILL HERE?",
+                "Interesting. Questionable. But interesting."
+            ]
         ],
-        [
-            "WHAT?",
-            "You keep clicking me like this is going to improve your judgment."
+
+        noticed: [
+            [
+                "YOU AGAIN.",
+                "You're developing a pattern."
+            ],
+            [
+                "I NOTICED.",
+                "Most people don't poke around this much."
+            ],
+            [
+                "GOOD.",
+                "You're finally clicking the interesting things."
+            ]
         ],
-        [
-            "STILL HERE?",
-            "Interesting. Questionable. But interesting."
+
+        familiar: [
+            [
+                "I KNOW.",
+                "You were going to click me."
+            ],
+            [
+                "THERE YOU ARE.",
+                "I was beginning to think you found something productive to do."
+            ],
+            [
+                "KEEP UP.",
+                "You're starting to understand how this place thinks."
+            ]
         ],
-        [
-            "GOOD.",
-            "You noticed the thing I absolutely did not put there for you to notice."
-        ],
-        [
-            "DON'T WORRY.",
-            "Everything is under control by the broadest possible definition."
-        ],
-        [
-            "HARROW.",
-            "Yes. Still me."
+
+        hellion: [
+            [
+                "HELLION.",
+                "There you are."
+            ],
+            [
+                "GOOD.",
+                "I was wondering when you'd come back."
+            ],
+            [
+                "YOU GET IT.",
+                "That's probably worse for you than it is for me."
+            ],
+            [
+                "STILL MY FAVORITE.",
+                "Don't tell the others."
+            ]
         ]
-    ];
+    };
 
     const PRESS_TOUCH_LINES = [
         [
@@ -434,14 +514,330 @@
 
 
     /* =========================================================
+       HELLION RELATIONSHIP SYSTEM
+       ========================================================= */
+
+    function loadRelationship() {
+        const fallback = {
+            visits: 0,
+            interactions: 0,
+            pressTouches: 0,
+            discoveriesEver: 0,
+            stage: "visitor",
+            lastStage: "visitor"
+        };
+
+        if (!storageAvailable("localStorage")) {
+            state.relationship = {
+                ...state.relationship,
+                ...fallback
+            };
+
+            return;
+        }
+
+        try {
+            const raw = window.localStorage.getItem(
+                STORAGE_KEYS.relationship
+            );
+
+            if (!raw) {
+                state.relationship = {
+                    ...state.relationship,
+                    ...fallback
+                };
+
+                return;
+            }
+
+            const parsed = JSON.parse(raw);
+
+            state.relationship.visits =
+                safeNumber(parsed.visits, 0);
+
+            state.relationship.interactions =
+                safeNumber(parsed.interactions, 0);
+
+            state.relationship.pressTouches =
+                safeNumber(parsed.pressTouches, 0);
+
+            state.relationship.discoveriesEver =
+                safeNumber(parsed.discoveriesEver, 0);
+
+            state.relationship.stage =
+                safeText(parsed.stage, "visitor");
+
+            state.relationship.lastStage =
+                safeText(
+                    parsed.lastStage,
+                    state.relationship.stage
+                );
+
+        } catch (error) {
+            state.relationship = {
+                ...state.relationship,
+                ...fallback
+            };
+        }
+    }
+
+    function saveRelationship() {
+        if (!storageAvailable("localStorage")) {
+            return;
+        }
+
+        try {
+            window.localStorage.setItem(
+                STORAGE_KEYS.relationship,
+                JSON.stringify({
+                    visits:
+                        state.relationship.visits,
+
+                    interactions:
+                        state.relationship.interactions,
+
+                    pressTouches:
+                        state.relationship.pressTouches,
+
+                    discoveriesEver:
+                        state.relationship.discoveriesEver,
+
+                    stage:
+                        state.relationship.stage,
+
+                    lastStage:
+                        state.relationship.lastStage
+                })
+            );
+        } catch (error) {
+            // Relationship memory is non-critical.
+        }
+    }
+
+    function calculateRelationshipScore() {
+        const visitScore =
+            Math.min(
+                state.relationship.visits * 2,
+                10
+            );
+
+        const interactionScore =
+            Math.min(
+                Math.floor(
+                    state.relationship.interactions / 2
+                ),
+                12
+            );
+
+        const discoveryScore =
+            Math.min(
+                state.relationship.discoveriesEver,
+                12
+            );
+
+        const pressScore =
+            Math.min(
+                state.relationship.pressTouches,
+                6
+            );
+
+        return (
+            visitScore +
+            interactionScore +
+            discoveryScore +
+            pressScore
+        );
+    }
+
+    function relationshipStageForScore(score) {
+        if (
+            score >=
+            HELLION_THRESHOLDS.hellion
+        ) {
+            return "hellion";
+        }
+
+        if (
+            score >=
+            HELLION_THRESHOLDS.familiar
+        ) {
+            return "familiar";
+        }
+
+        if (
+            score >=
+            HELLION_THRESHOLDS.noticed
+        ) {
+            return "noticed";
+        }
+
+        return "visitor";
+    }
+
+    function updateRelationshipStage({
+        announce = true
+    } = {}) {
+        const previousStage =
+            state.relationship.stage;
+
+        const score =
+            calculateRelationshipScore();
+
+        const nextStage =
+            relationshipStageForScore(score);
+
+        state.relationship.lastStage =
+            previousStage;
+
+        state.relationship.stage =
+            nextStage;
+
+        saveRelationship();
+
+        document.body.dataset.relationshipStage =
+            nextStage;
+
+        if (
+            announce &&
+            previousStage !== nextStage &&
+            !state.relationship.promotedThisVisit
+        ) {
+            state.relationship.promotedThisVisit =
+                true;
+
+            announceRelationshipChange(
+                previousStage,
+                nextStage
+            );
+        }
+    }
+
+    function announceRelationshipChange(
+        previousStage,
+        nextStage
+    ) {
+        switch (nextStage) {
+            case "noticed":
+                showHarrowResponse(
+                    "YOU'RE STILL HERE.",
+                    "Most people would've wandered off by now."
+                );
+                break;
+
+            case "familiar":
+                showHarrowResponse(
+                    "I KNOW YOU.",
+                    "Not personally. Don't make this weird."
+                );
+                break;
+
+            case "hellion":
+                showHarrowResponse(
+                    "HELLION.",
+                    "There. You stayed long enough to become a problem."
+                );
+
+                whisper(
+                    "Welcome to the bad idea.",
+                    3800
+                );
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    function recordInteraction(
+        amount = 1,
+        options = {}
+    ) {
+        const {
+            press = false,
+            silent = false
+        } = options;
+
+        state.relationship.interactions +=
+            amount;
+
+        if (press) {
+            state.relationship.pressTouches +=
+                amount;
+        }
+
+        saveRelationship();
+
+        updateRelationshipStage({
+            announce: !silent
+        });
+    }
+
+    function recordPermanentDiscovery() {
+        state.relationship.discoveriesEver += 1;
+
+        saveRelationship();
+
+        updateRelationshipStage();
+    }
+
+    function isHellion() {
+        return (
+            state.relationship.stage ===
+            "hellion"
+        );
+    }
+
+    function isFamiliar() {
+        return (
+            state.relationship.stage ===
+                "familiar" ||
+            state.relationship.stage ===
+                "hellion"
+        );
+    }
+
+    function getRelationshipGreeting() {
+        switch (
+            state.relationship.stage
+        ) {
+            case "hellion":
+                return [
+                    "HELLION.",
+                    "You came back. Obviously."
+                ];
+
+            case "familiar":
+                return [
+                    "YOU AGAIN.",
+                    "Good. I hate training new people."
+                ];
+
+            case "noticed":
+                return [
+                    "BACK?",
+                    "This is becoming a habit."
+                ];
+
+            case "visitor":
+            default:
+                return [
+                    "OH.",
+                    "You're here."
+                ];
+        }
+    }
+
+
+    /* =========================================================
        DISCOVERY SYSTEM
        ========================================================= */
 
     function loadDiscoveries() {
         try {
-            const raw = window.sessionStorage.getItem(
-                STORAGE_KEYS.discoveries
-            );
+            const raw =
+                window.sessionStorage.getItem(
+                    STORAGE_KEYS.discoveries
+                );
 
             if (!raw) {
                 return;
@@ -453,9 +849,12 @@
                 return;
             }
 
-            state.discoveries = new Set(parsed);
+            state.discoveries =
+                new Set(parsed);
+
         } catch (error) {
-            state.discoveries = new Set();
+            state.discoveries =
+                new Set();
         }
 
         renderDiscoveryCounter();
@@ -466,28 +865,41 @@
             window.sessionStorage.setItem(
                 STORAGE_KEYS.discoveries,
                 JSON.stringify(
-                    Array.from(state.discoveries)
+                    Array.from(
+                        state.discoveries
+                    )
                 )
             );
         } catch (error) {
-            // Session persistence is decorative.
+            // Session memory is optional.
         }
     }
 
-    function discover(key, message = null) {
+    function discover(
+        key,
+        message = null
+    ) {
         if (!key) {
             return false;
         }
 
-        const alreadyFound = state.discoveries.has(key);
+        const alreadyFound =
+            state.discoveries.has(key);
 
         state.discoveries.add(key);
 
         saveDiscoveries();
         renderDiscoveryCounter();
 
-        if (!alreadyFound && message) {
-            whisper(message, 3000);
+        if (!alreadyFound) {
+            recordPermanentDiscovery();
+
+            if (message) {
+                whisper(
+                    message,
+                    3000
+                );
+            }
         }
 
         return !alreadyFound;
@@ -498,9 +910,14 @@
             return;
         }
 
-        const count = state.discoveries.size;
+        const count =
+            state.discoveries.size;
 
-        dom.discoveryCount.textContent = String(count).padStart(2, "0");
+        dom.discoveryCount.textContent =
+            String(count).padStart(
+                2,
+                "0"
+            );
 
         document.body.classList.toggle(
             "has-discoveries",
@@ -514,34 +931,106 @@
        ========================================================= */
 
     function registerVisit() {
-        try {
-            const current = safeNumber(
-                window.localStorage.getItem(
-                    STORAGE_KEYS.visits
-                ),
-                0
-            );
+        if (!storageAvailable("localStorage")) {
+            state.relationship.visits += 1;
 
-            const next = current + 1;
+            updateRelationshipStage({
+                announce: false
+            });
+
+            return;
+        }
+
+        try {
+            const now = Date.now();
+
+            const lastSeen =
+                safeNumber(
+                    window.localStorage.getItem(
+                        STORAGE_KEYS.lastSeen
+                    ),
+                    0
+                );
+
+            /*
+             * Prevent refresh-spamming from counting as
+             * dozens of meaningful return visits.
+             *
+             * A visit only increments if the previous one
+             * was more than 30 minutes ago.
+             */
+
+            const NEW_VISIT_WINDOW =
+                30 * 60 * 1000;
+
+            const qualifiesAsNewVisit =
+                !lastSeen ||
+                now - lastSeen >
+                    NEW_VISIT_WINDOW;
+
+            if (qualifiesAsNewVisit) {
+                state.relationship.visits += 1;
+            }
+
+            window.localStorage.setItem(
+                STORAGE_KEYS.lastSeen,
+                String(now)
+            );
 
             window.localStorage.setItem(
                 STORAGE_KEYS.visits,
-                String(next)
+                String(
+                    state.relationship.visits
+                )
             );
 
-            if (next === 1) {
-                dom.exitAfterthought.textContent =
-                    "you'll be back.";
-            } else if (next < 5) {
-                dom.exitAfterthought.textContent =
-                    "See? Back already.";
-            } else {
-                dom.exitAfterthought.textContent =
-                    "At this point you live here.";
-            }
+            saveRelationship();
+
+            updateRelationshipStage({
+                announce: false
+            });
+
         } catch (error) {
-            // Nothing important relies on this.
+            state.relationship.visits += 1;
+
+            updateRelationshipStage({
+                announce: false
+            });
         }
+
+        updateExitAfterthought();
+    }
+
+    function updateExitAfterthought() {
+        if (!dom.exitAfterthought) {
+            return;
+        }
+
+        if (isHellion()) {
+            dom.exitAfterthought.textContent =
+                "you always come back.";
+
+            return;
+        }
+
+        if (isFamiliar()) {
+            dom.exitAfterthought.textContent =
+                "See you again.";
+
+            return;
+        }
+
+        if (
+            state.relationship.visits >= 2
+        ) {
+            dom.exitAfterthought.textContent =
+                "See? Back already.";
+
+            return;
+        }
+
+        dom.exitAfterthought.textContent =
+            "you'll be back.";
     }
 
 
@@ -586,10 +1075,44 @@
             return;
         }
 
-        const thought = randomItem(HERO_THOUGHTS);
+        let thought =
+            randomItem(
+                HERO_THOUGHTS
+            );
 
-        dom.heroTransmission.textContent = thought.title;
-        dom.heroTransmissionSub.textContent = thought.sub;
+        if (isHellion()) {
+            const hellionThoughts = [
+                {
+                    title:
+                        "THE HELLIONS KEEP FINDING THINGS.",
+                    sub:
+                        "I should hide things better."
+                },
+                {
+                    title:
+                        "WELCOME BACK.",
+                    sub:
+                        "I knew you'd get bored somewhere else."
+                },
+                {
+                    title:
+                        "YOU GET IT NOW.",
+                    sub:
+                        "That's unfortunate."
+                }
+            ];
+
+            thought =
+                randomItem(
+                    hellionThoughts
+                );
+        }
+
+        dom.heroTransmission.textContent =
+            thought.title;
+
+        dom.heroTransmissionSub.textContent =
+            thought.sub;
     }
 
     function initHeroTransmission() {
@@ -616,16 +1139,35 @@
             return;
         }
 
-        dom.drawerCode.textContent = code;
-        dom.drawerEyebrow.textContent = eyebrow;
-        dom.drawerTitle.textContent = title;
-        dom.drawerCopy.innerHTML = html;
-        dom.drawerFootnote.innerHTML = footnote;
+        recordInteraction();
 
-        dom.drawer.classList.add("active");
-        dom.drawer.setAttribute("aria-hidden", "false");
+        dom.drawerCode.textContent =
+            code;
 
-        document.body.classList.add("drawer-open");
+        dom.drawerEyebrow.textContent =
+            eyebrow;
+
+        dom.drawerTitle.textContent =
+            title;
+
+        dom.drawerCopy.innerHTML =
+            html;
+
+        dom.drawerFootnote.innerHTML =
+            footnote;
+
+        dom.drawer.classList.add(
+            "active"
+        );
+
+        dom.drawer.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+        document.body.classList.add(
+            "drawer-open"
+        );
     }
 
     function closeDrawer() {
@@ -633,10 +1175,18 @@
             return;
         }
 
-        dom.drawer.classList.remove("active");
-        dom.drawer.setAttribute("aria-hidden", "true");
+        dom.drawer.classList.remove(
+            "active"
+        );
 
-        document.body.classList.remove("drawer-open");
+        dom.drawer.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        document.body.classList.remove(
+            "drawer-open"
+        );
     }
 
 
@@ -740,23 +1290,33 @@
     };
 
     function initHotspots() {
-        $$(".lair-hotspot").forEach((button) => {
-            button.addEventListener("click", () => {
-                const key = button.dataset.hotspot;
-                const content = HOTSPOT_CONTENT[key];
+        $$(".lair-hotspot").forEach(
+            (button) => {
+                button.addEventListener(
+                    "click",
+                    () => {
+                        const key =
+                            button.dataset.hotspot;
 
-                if (!content) {
-                    return;
-                }
+                        const content =
+                            HOTSPOT_CONTENT[key];
 
-                discover(
-                    `hero:${key}`,
-                    "There you go. You found one."
+                        if (!content) {
+                            return;
+                        }
+
+                        discover(
+                            `hero:${key}`,
+                            isHellion()
+                                ? "Still checking my work?"
+                                : "There you go. You found one."
+                        );
+
+                        openDrawer(content);
+                    }
                 );
-
-                openDrawer(content);
-            });
-        });
+            }
+        );
     }
 
 
@@ -767,7 +1327,8 @@
     const THEORY_CONTENT = {
         richard: {
             code: "THEORY // RH-369",
-            eyebrow: "HARROW // CURRENTLY THINKING",
+            eyebrow:
+                "HARROW // CURRENTLY THINKING",
             title: "RICHARD.",
             html: `
                 <p>
@@ -787,7 +1348,8 @@
 
         sec: {
             code: "THEORY // GOV-004",
-            eyebrow: "HARROW // REGULATORY FAN CLUB",
+            eyebrow:
+                "HARROW // REGULATORY FAN CLUB",
             title: "VERY SERIOUS PEOPLE.",
             html: `
                 <p>
@@ -804,7 +1366,8 @@
 
         cabal: {
             code: "THEORY // █████",
-            eyebrow: "HARROW // DIAGRAM INCOMPLETE",
+            eyebrow:
+                "HARROW // DIAGRAM INCOMPLETE",
             title: "THE CABAL.",
             html: `
                 <p>
@@ -825,7 +1388,8 @@
 
         interpol: {
             code: "THEORY // INT-???",
-            eyebrow: "HARROW // PLEASE RELAX",
+            eyebrow:
+                "HARROW // PLEASE RELAX",
             title: "INTERPOL.",
             html: `
                 <p>
@@ -846,7 +1410,8 @@
 
         you: {
             code: "THEORY // YOU",
-            eyebrow: "HARROW // OBSERVATION",
+            eyebrow:
+                "HARROW // OBSERVATION",
             title: "YOU'RE STILL HERE.",
             html: `
                 <p>
@@ -867,7 +1432,8 @@
 
         harrow: {
             code: "THEORY // HARROW",
-            eyebrow: "HARROW // PRIMARY SOURCE",
+            eyebrow:
+                "HARROW // PRIMARY SOURCE",
             title: "FINALLY. ME.",
             html: `
                 <p>
@@ -886,40 +1452,54 @@
     };
 
     function initTheoryWall() {
-        $$(".case-file[data-theory]").forEach((button) => {
-            button.addEventListener("click", () => {
-                const key = button.dataset.theory;
-                const content = THEORY_CONTENT[key];
+        $$(
+            ".case-file[data-theory]"
+        ).forEach((button) => {
+            button.addEventListener(
+                "click",
+                () => {
+                    const key =
+                        button.dataset.theory;
 
-                if (!content) {
-                    return;
+                    const content =
+                        THEORY_CONTENT[key];
+
+                    if (!content) {
+                        return;
+                    }
+
+                    discover(
+                        `theory:${key}`,
+                        "See? Everything touches everything."
+                    );
+
+                    openDrawer(content);
                 }
-
-                discover(
-                    `theory:${key}`,
-                    "See? Everything touches everything."
-                );
-
-                openDrawer(content);
-            });
+            );
         });
 
         if (dom.theoryCenter) {
             dom.theoryCenter.addEventListener(
                 "click",
                 () => {
+                    recordInteraction();
+
                     discover(
                         "theory:center",
                         "Wait. I had a point."
                     );
 
-                    if (dom.theorySingular) {
+                    if (
+                        dom.theorySingular
+                    ) {
                         dom.theorySingular.classList.add(
                             "crossed-out"
                         );
                     }
 
-                    if (dom.theoryCorrection) {
+                    if (
+                        dom.theoryCorrection
+                    ) {
                         dom.theoryCorrection.classList.add(
                             "active"
                         );
@@ -944,10 +1524,20 @@
             dom.harrowOrb.addEventListener(
                 "click",
                 () => {
-                    const [title, text] =
-                        randomItem(ORB_LINES);
+                    recordInteraction();
 
-                    discover("harrow:orb");
+                    const pool =
+                        ORB_LINES[
+                            state.relationship.stage
+                        ] ||
+                        ORB_LINES.visitor;
+
+                    const [title, text] =
+                        randomItem(pool);
+
+                    discover(
+                        "harrow:orb"
+                    );
 
                     showHarrowResponse(
                         title,
@@ -970,14 +1560,21 @@
             dom.heroLogoButton.addEventListener(
                 "click",
                 async () => {
+                    recordInteraction();
+
                     clicks += 1;
 
-                    discover("logo:hellbox");
+                    discover(
+                        "logo:hellbox"
+                    );
 
                     if (clicks === 1) {
                         whisper(
-                            "Yes. I made the logo too."
+                            isHellion()
+                                ? "Still checking the logo?"
+                                : "Yes. I made the logo too."
                         );
+
                         return;
                     }
 
@@ -985,6 +1582,7 @@
                         whisper(
                             "You can stop touching it."
                         );
+
                         return;
                     }
 
@@ -1012,7 +1610,11 @@
             dom.therapyNote.addEventListener(
                 "click",
                 () => {
-                    discover("note:therapy");
+                    recordInteraction();
+
+                    discover(
+                        "note:therapy"
+                    );
 
                     showHarrowResponse(
                         "MEDICAL OPINION.",
@@ -1026,11 +1628,17 @@
             dom.archiveSticky.addEventListener(
                 "click",
                 () => {
-                    discover("note:archive");
+                    recordInteraction();
+
+                    discover(
+                        "note:archive"
+                    );
 
                     showHarrowResponse(
                         "I LEFT YOU A NOTE.",
-                        "Do you know how exhausting personalization is?"
+                        isHellion()
+                            ? "You know where I keep them now."
+                            : "Do you know how exhausting personalization is?"
                     );
                 }
             );
@@ -1040,10 +1648,16 @@
             dom.archiveEmblem.addEventListener(
                 "click",
                 () => {
-                    discover("archive:emblem");
+                    recordInteraction();
+
+                    discover(
+                        "archive:emblem"
+                    );
 
                     whisper(
-                        "The box remembers what belongs to you."
+                        isHellion()
+                            ? "The box knows you."
+                            : "The box remembers what belongs to you."
                     );
                 }
             );
@@ -1053,7 +1667,11 @@
             dom.harrowPortrait.addEventListener(
                 "click",
                 () => {
-                    discover("harrow:portrait");
+                    recordInteraction();
+
+                    discover(
+                        "harrow:portrait"
+                    );
 
                     showHarrowResponse(
                         "YES, THAT'S ME.",
@@ -1067,7 +1685,11 @@
             dom.harrowProfileCard.addEventListener(
                 "click",
                 () => {
-                    discover("harrow:profile");
+                    recordInteraction();
+
+                    discover(
+                        "harrow:profile"
+                    );
 
                     showHarrowResponse(
                         "SELF APPOINTED.",
@@ -1081,7 +1703,11 @@
             dom.harrowWordmark.addEventListener(
                 "click",
                 () => {
-                    discover("harrow:wordmark");
+                    recordInteraction();
+
+                    discover(
+                        "harrow:wordmark"
+                    );
 
                     whisper(
                         "Autographs usually cost more."
@@ -1094,7 +1720,11 @@
             dom.selfReview.addEventListener(
                 "click",
                 () => {
-                    discover("harrow:review");
+                    recordInteraction();
+
+                    discover(
+                        "harrow:review"
+                    );
 
                     showHarrowResponse(
                         "UNBIASED.",
@@ -1108,11 +1738,17 @@
             dom.lockedSignal.addEventListener(
                 "click",
                 () => {
-                    discover("signal:locked");
+                    recordInteraction();
+
+                    discover(
+                        "signal:locked"
+                    );
 
                     showHarrowResponse(
                         "NO.",
-                        "Not every button exists for your benefit."
+                        isHellion()
+                            ? "You already knew that."
+                            : "Not every button exists for your benefit."
                     );
                 }
             );
@@ -1127,7 +1763,8 @@
     const CLASSIFIED_OBJECTS = {
         fuel: {
             code: "SYSTEM // FUEL",
-            eyebrow: "HARROW // CLASSIFIED",
+            eyebrow:
+                "HARROW // CLASSIFIED",
             title: "WRONG DRAWER.",
             html: `
                 <p>
@@ -1144,7 +1781,8 @@
 
         relay: {
             code: "SYSTEM // RELAY",
-            eyebrow: "HARROW // SECONDARY PATH",
+            eyebrow:
+                "HARROW // SECONDARY PATH",
             title: "NOT CONNECTED.",
             html: `
                 <p>
@@ -1162,7 +1800,8 @@
 
         machine: {
             code: "SYSTEM // INPUT",
-            eyebrow: "HARROW // HARDWARE",
+            eyebrow:
+                "HARROW // HARDWARE",
             title: "NO INPUT.",
             html: `
                 <p>
@@ -1176,31 +1815,35 @@
     };
 
     function initClassified() {
-        $$("[data-classified-object]").forEach(
-            (button) => {
-                button.addEventListener(
-                    "click",
-                    () => {
-                        const key =
-                            button.dataset.classifiedObject;
+        $$(
+            "[data-classified-object]"
+        ).forEach((button) => {
+            button.addEventListener(
+                "click",
+                () => {
+                    recordInteraction();
 
-                        const content =
-                            CLASSIFIED_OBJECTS[key];
+                    const key =
+                        button.dataset.classifiedObject;
 
-                        if (!content) {
-                            return;
-                        }
+                    const content =
+                        CLASSIFIED_OBJECTS[key];
 
-                        discover(
-                            `classified:${key}`,
-                            "You really don't listen."
-                        );
-
-                        openDrawer(content);
+                    if (!content) {
+                        return;
                     }
-                );
-            }
-        );
+
+                    discover(
+                        `classified:${key}`,
+                        isHellion()
+                            ? "You know this drawer says no."
+                            : "You really don't listen."
+                    );
+
+                    openDrawer(content);
+                }
+            );
+        });
 
         if (dom.classifiedMainObject) {
             let taps = 0;
@@ -1208,15 +1851,27 @@
             dom.classifiedMainObject.addEventListener(
                 "click",
                 () => {
+                    recordInteraction();
+
                     taps += 1;
 
-                    discover("classified:main");
+                    discover(
+                        "classified:main"
+                    );
 
                     if (taps === 1) {
                         whisper("No.");
-                    } else if (taps === 2) {
-                        whisper("Still no.");
-                    } else if (taps === 3) {
+                    } else if (
+                        taps === 2
+                    ) {
+                        whisper(
+                            isHellion()
+                                ? "Hellion. No."
+                                : "Still no."
+                        );
+                    } else if (
+                        taps === 3
+                    ) {
                         whisper(
                             "Persistence is not clearance."
                         );
@@ -1239,15 +1894,25 @@
        ========================================================= */
 
     function openRoadmapObject() {
+        recordInteraction();
+
         discover(
             "object:roadmap",
-            "Fine. Here's the part you're allowed to see."
+            isHellion()
+                ? "You already know I hate calling this a roadmap."
+                : "Fine. Here's the part you're allowed to see."
         );
 
         openDrawer({
-            code: "OBJECT // WHAT NEXT",
-            eyebrow: "HARROW // CURRENT OBSESSIONS",
-            title: "THE PLAN*",
+            code:
+                "OBJECT // WHAT NEXT",
+
+            eyebrow:
+                "HARROW // CURRENT OBSESSIONS",
+
+            title:
+                "THE PLAN*",
+
             html: `
                 <p>
                     I hate roadmaps.
@@ -1255,19 +1920,31 @@
                 </p>
 
                 <div class="roadmap-object">
+
                     <div>
                         <span>NOW</span>
-                        <strong>BUILD THE BOX.</strong>
+
+                        <strong>
+                            BUILD THE BOX.
+                        </strong>
+
                         <p>
-                            Publishing system. Archive.
-                            Wallet identity. The Press.
-                            Reader. Make the place feel alive.
+                            Publishing system.
+                            Archive.
+                            Wallet identity.
+                            The Press.
+                            Reader.
+                            Make the place feel alive.
                         </p>
                     </div>
 
                     <div>
                         <span>NEXT</span>
-                        <strong>MAKE THE COMICS HIT HARDER.</strong>
+
+                        <strong>
+                            MAKE THE COMICS HIT HARDER.
+                        </strong>
+
                         <p>
                             The reader becomes part theater,
                             part comic engine,
@@ -1277,7 +1954,11 @@
 
                     <div>
                         <span>AFTER THAT</span>
-                        <strong>PUT THINGS ONCHAIN.</strong>
+
+                        <strong>
+                            PUT THINGS ONCHAIN.
+                        </strong>
+
                         <p>
                             Native collectible editions.
                             Ownership-gated reading.
@@ -1287,11 +1968,16 @@
 
                     <div>
                         <span>LATER</span>
-                        <strong>THE PART I'M NOT SHOWING YOU.</strong>
+
+                        <strong>
+                            THE PART I'M NOT SHOWING YOU.
+                        </strong>
+
                         <p>
                             No.
                         </p>
                     </div>
+
                 </div>
 
                 <p>
@@ -1300,6 +1986,7 @@
                     before you interrupted me.
                 </p>
             `,
+
             footnote:
                 "ROADMAP STATUS // SUBJECT TO HARROW HAVING ANOTHER IDEA."
         });
@@ -1311,15 +1998,23 @@
        ========================================================= */
 
     function openManualObject() {
+        recordInteraction();
+
         discover(
             "object:manual",
             "I call it a manual because whitepaper sounds like homework."
         );
 
         openDrawer({
-            code: "OBJECT // MANUAL",
-            eyebrow: "HARROW // HOW THE BOX WORKS",
-            title: "THE MANUAL.",
+            code:
+                "OBJECT // MANUAL",
+
+            eyebrow:
+                "HARROW // HOW THE BOX WORKS",
+
+            title:
+                "THE MANUAL.",
+
             html: `
                 <p>
                     Eventually this is where the boring questions
@@ -1327,9 +2022,14 @@
                 </p>
 
                 <div class="roadmap-object">
+
                     <div>
                         <span>PUBLICATIONS</span>
-                        <strong>THE THING YOU ACTUALLY WANT.</strong>
+
+                        <strong>
+                            THE THING YOU ACTUALLY WANT.
+                        </strong>
+
                         <p>
                             Comics and graphic novels exist as publications
                             inside Hellbox.
@@ -1338,7 +2038,11 @@
 
                     <div>
                         <span>OWNERSHIP</span>
-                        <strong>YOUR WALLET IS THE RECEIPT.</strong>
+
+                        <strong>
+                            YOUR WALLET IS THE RECEIPT.
+                        </strong>
+
                         <p>
                             The box can recognize which onchain artifacts
                             belong to an address.
@@ -1347,7 +2051,11 @@
 
                     <div>
                         <span>THE PRESS</span>
-                        <strong>THIS MAKES THEM.</strong>
+
+                        <strong>
+                            THIS MAKES THEM.
+                        </strong>
+
                         <p>
                             Minting eventually happens here.
                             Not in a generic ecommerce widget
@@ -1357,20 +2065,27 @@
 
                     <div>
                         <span>THE READER</span>
-                        <strong>THIS IS WHY ANY OF IT MATTERS.</strong>
+
+                        <strong>
+                            THIS IS WHY ANY OF IT MATTERS.
+                        </strong>
+
                         <p>
                             Ownership gets you into the work.
                             The reading experience does the rest.
                         </p>
                     </div>
+
                 </div>
 
                 <p>
                     Token mechanics, economics and deeper system documentation
                     belong in objects like this.
+
                     They do not get to hijack the front door.
                 </p>
             `,
+
             footnote:
                 "DOCUMENT STATUS // STILL BEING WRITTEN BY SOMEONE WHO HATES DOCUMENTATION."
         });
@@ -1383,12 +2098,14 @@
 
     function readStoredPressTouches() {
         try {
-            state.press.touchCount = safeNumber(
-                window.sessionStorage.getItem(
-                    STORAGE_KEYS.pressTouches
-                ),
-                0
-            );
+            state.press.touchCount =
+                safeNumber(
+                    window.sessionStorage.getItem(
+                        STORAGE_KEYS.pressTouches
+                    ),
+                    0
+                );
+
         } catch (error) {
             state.press.touchCount = 0;
         }
@@ -1398,24 +2115,30 @@
         try {
             window.sessionStorage.setItem(
                 STORAGE_KEYS.pressTouches,
-                String(state.press.touchCount)
+                String(
+                    state.press.touchCount
+                )
             );
         } catch (error) {
-            // Decorative state only.
+            // Decorative.
         }
     }
 
     function setPressRail(activeState) {
-        $$(".press-state").forEach((item) => {
-            item.classList.toggle(
-                "active",
-                item.dataset.state === activeState
-            );
-        });
+        $$(".press-state").forEach(
+            (item) => {
+                item.classList.toggle(
+                    "active",
+                    item.dataset.state ===
+                        activeState
+                );
+            }
+        );
     }
 
     function setPressState(nextState) {
-        state.press.state = nextState;
+        state.press.state =
+            nextState;
 
         if (!dom.pressSection) {
             return;
@@ -1429,9 +2152,14 @@
 
         let miniStatus = "IDLE";
         let machineState = "ASLEEP";
+
         let consoleLabel = "STATUS";
-        let consoleTitle = "DON'T TOUCH IT.";
-        let consoleText = "I mean it.";
+        let consoleTitle =
+            "DON'T TOUCH IT.";
+
+        let consoleText =
+            "I mean it.";
+
         let power = "00";
         let ink = "??";
 
@@ -1443,12 +2171,19 @@
 
                 miniStatus = "AWAKE";
                 machineState = "AWAKE";
-                consoleLabel = "HARROW // YOU DID THIS";
-                consoleTitle = "NOW IT'S AWAKE.";
+
+                consoleLabel =
+                    "HARROW // YOU DID THIS";
+
+                consoleTitle =
+                    "NOW IT'S AWAKE.";
+
                 consoleText =
                     "Try pretending this wasn't exactly what you wanted.";
+
                 power = "37";
                 ink = "??";
+
                 break;
 
             case "wallet":
@@ -1456,14 +2191,24 @@
                     "machine-awake"
                 );
 
-                miniStatus = "IDENTIFY";
-                machineState = "WAITING";
-                consoleLabel = "IDENTIFICATION";
-                consoleTitle = "SHOW ME THE WALLET.";
+                miniStatus =
+                    "IDENTIFY";
+
+                machineState =
+                    "WAITING";
+
+                consoleLabel =
+                    "IDENTIFICATION";
+
+                consoleTitle =
+                    "SHOW ME THE WALLET.";
+
                 consoleText =
                     "I can't make something yours if you refuse to tell me who you are.";
+
                 power = "62";
                 ink = "??";
+
                 break;
 
             case "ready":
@@ -1473,12 +2218,23 @@
 
                 miniStatus = "READY";
                 machineState = "READY";
-                consoleLabel = "PRESS // READY";
-                consoleTitle = "DON'T GET EXCITED.";
+
+                consoleLabel =
+                    "PRESS // READY";
+
+                consoleTitle =
+                    isHellion()
+                        ? "YOU KNOW WHAT THIS DOES."
+                        : "DON'T GET EXCITED.";
+
                 consoleText =
-                    "The machine is ready. The publication isn't.";
+                    isHellion()
+                        ? "No public release loaded. You still pulled the lever."
+                        : "The machine is ready. The publication isn't.";
+
                 power = "91";
                 ink = "OK";
+
                 break;
 
             case "pressing":
@@ -1488,14 +2244,24 @@
                     "machine-alert"
                 );
 
-                miniStatus = "WORKING";
-                machineState = "WORKING";
-                consoleLabel = "PRESS // ACTIVE";
-                consoleTitle = "SEE WHAT YOU DID?";
+                miniStatus =
+                    "WORKING";
+
+                machineState =
+                    "WORKING";
+
+                consoleLabel =
+                    "PRESS // ACTIVE";
+
+                consoleTitle =
+                    "SEE WHAT YOU DID?";
+
                 consoleText =
                     "Now the machine thinks it has a job.";
+
                 power = "99";
                 ink = "RUN";
+
                 break;
 
             case "confirmed":
@@ -1503,14 +2269,24 @@
                     "machine-awake"
                 );
 
-                miniStatus = "YOURS";
-                machineState = "DONE";
-                consoleLabel = "PRESS // COMPLETE";
-                consoleTitle = "THERE. HAPPY?";
+                miniStatus =
+                    "YOURS";
+
+                machineState =
+                    "DONE";
+
+                consoleLabel =
+                    "PRESS // COMPLETE";
+
+                consoleTitle =
+                    "THERE. HAPPY?";
+
                 consoleText =
                     "This state is reserved for a real confirmed mint.";
+
                 power = "44";
                 ink = "OK";
+
                 break;
 
             case "error":
@@ -1521,56 +2297,81 @@
 
                 miniStatus = "NO";
                 machineState = "NO";
-                consoleLabel = "HARROW // NO";
-                consoleTitle = "THERE'S NOTHING TO MINT.";
+
+                consoleLabel =
+                    "HARROW // NO";
+
+                consoleTitle =
+                    "THERE'S NOTHING TO MINT.";
+
                 consoleText =
                     "I'm building it. Stop standing over my shoulder.";
+
                 power = "13";
                 ink = "--";
+
                 break;
 
             case "idle":
             default:
                 miniStatus = "IDLE";
-                machineState = "ASLEEP";
-                consoleLabel = "STATUS";
-                consoleTitle = "DON'T TOUCH IT.";
-                consoleText = "I mean it.";
+
+                machineState =
+                    "ASLEEP";
+
+                consoleLabel =
+                    "STATUS";
+
+                consoleTitle =
+                    "DON'T TOUCH IT.";
+
+                consoleText =
+                    "I mean it.";
+
                 power = "00";
                 ink = "??";
+
                 break;
         }
 
         if (dom.pressMiniStatus) {
-            dom.pressMiniStatus.textContent = miniStatus;
+            dom.pressMiniStatus.textContent =
+                miniStatus;
         }
 
         if (dom.pressMachineState) {
-            dom.pressMachineState.textContent = machineState;
+            dom.pressMachineState.textContent =
+                machineState;
         }
 
         if (dom.pressConsoleLabel) {
-            dom.pressConsoleLabel.textContent = consoleLabel;
+            dom.pressConsoleLabel.textContent =
+                consoleLabel;
         }
 
         if (dom.pressConsoleTitle) {
-            dom.pressConsoleTitle.textContent = consoleTitle;
+            dom.pressConsoleTitle.textContent =
+                consoleTitle;
         }
 
         if (dom.pressConsoleText) {
-            dom.pressConsoleText.textContent = consoleText;
+            dom.pressConsoleText.textContent =
+                consoleText;
         }
 
         if (dom.pressPowerValue) {
-            dom.pressPowerValue.textContent = power;
+            dom.pressPowerValue.textContent =
+                power;
         }
 
         if (dom.pressInkValue) {
-            dom.pressInkValue.textContent = ink;
+            dom.pressInkValue.textContent =
+                ink;
         }
 
         if (dom.pressRpcValue) {
-            dom.pressRpcValue.textContent = "369";
+            dom.pressRpcValue.textContent =
+                "369";
         }
 
         setPressRail(
@@ -1581,8 +2382,16 @@
     }
 
     function wakePress() {
+        recordInteraction(
+            1,
+            {
+                press: true
+            }
+        );
+
         if (state.press.awake) {
-            state.press.touchCount += 1;
+            state.press.touchCount +=
+                1;
 
             storePressTouches();
 
@@ -1592,13 +2401,23 @@
                     PRESS_TOUCH_LINES.length
                 ];
 
-            showHarrowResponse(title, text);
+            showHarrowResponse(
+                isHellion()
+                    ? "HELLION."
+                    : title,
+
+                isHellion()
+                    ? "You know better. That's why I like you."
+                    : text
+            );
 
             return;
         }
 
         state.press.awake = true;
-        state.press.touchCount += 1;
+
+        state.press.touchCount +=
+            1;
 
         storePressTouches();
 
@@ -1611,11 +2430,20 @@
 
         showHarrowResponse(
             "OH GOOD.",
-            "You touched the expensive machine."
+            isHellion()
+                ? "Back to touching the machine."
+                : "You touched the expensive machine."
         );
     }
 
     async function pullPressLever() {
+        recordInteraction(
+            1,
+            {
+                press: true
+            }
+        );
+
         if (state.press.busy) {
             showHarrowResponse(
                 "WAIT.",
@@ -1634,58 +2462,74 @@
         }
 
         if (!state.wallet.connected) {
-            setPressState("wallet");
+            setPressState(
+                "wallet"
+            );
 
             showHarrowResponse(
                 "SHOW ME THE WALLET.",
                 "The machine needs an address before it can eventually make bad decisions in your name."
             );
 
-            state.press.busy = false;
+            state.press.busy =
+                false;
 
             return;
         }
 
-        setPressState("ready");
+        setPressState(
+            "ready"
+        );
 
         await sleep(500);
 
-        setPressState("pressing");
+        setPressState(
+            "pressing"
+        );
 
         whisper(
-            "This would be the dramatic part."
+            isHellion()
+                ? "You know this isn't loaded."
+                : "This would be the dramatic part."
         );
 
         await sleep(1300);
 
         /*
-         * IMPORTANT:
+         * NO FAKE TRANSACTION.
          *
-         * There is deliberately NO fake transaction here.
-         *
-         * When a publication has a deployed contract and the backend
-         * can prepare a verified transaction, this is where the real
-         * mint flow will connect.
-         *
-         * Until then, the machine tells the truth.
+         * When a publication has a deployed contract
+         * and backend transaction preparation exists,
+         * the real mint pipeline plugs in here.
          */
 
-        setPressState("error");
+        setPressState(
+            "error"
+        );
 
         showHarrowResponse(
             "NOTHING FOR YOU YET.",
-            "There is no public release loaded into the Press. I refuse to fake one just because the lever is satisfying."
+            isHellion()
+                ? "Still nothing public. Still satisfying though."
+                : "There is no public release loaded into the Press. I refuse to fake one just because the lever is satisfying."
         );
 
         await sleep(2200);
 
-        if (state.wallet.connected) {
-            setPressState("ready");
+        if (
+            state.wallet.connected
+        ) {
+            setPressState(
+                "ready"
+            );
         } else {
-            setPressState("wallet");
+            setPressState(
+                "wallet"
+            );
         }
 
-        state.press.busy = false;
+        state.press.busy =
+            false;
     }
 
     function updatePressFromWallet() {
@@ -1702,24 +2546,38 @@
             return;
         }
 
-        if (state.wallet.connected) {
-            setPressState("ready");
+        if (
+            state.wallet.connected
+        ) {
+            setPressState(
+                "ready"
+            );
         } else {
-            setPressState("wallet");
+            setPressState(
+                "wallet"
+            );
         }
     }
 
     function updatePressPublication() {
         const publicPublication =
-            state.publications[0] || null;
+            state.publications[0] ||
+            null;
 
-        if (!dom.pressPublication || !dom.pressSupply) {
+        if (
+            !dom.pressPublication ||
+            !dom.pressSupply
+        ) {
             return;
         }
 
         if (!publicPublication) {
-            dom.pressPublication.textContent = "NONE";
-            dom.pressSupply.textContent = "-- / --";
+            dom.pressPublication.textContent =
+                "NONE";
+
+            dom.pressSupply.textContent =
+                "-- / --";
+
             return;
         }
 
@@ -1748,9 +2606,13 @@
         ) {
             dom.pressSupply.textContent =
                 `${minted} / ${maxSupply}`;
-        } else if (maxSupply !== null) {
+
+        } else if (
+            maxSupply !== null
+        ) {
             dom.pressSupply.textContent =
                 `-- / ${maxSupply}`;
+
         } else {
             dom.pressSupply.textContent =
                 "-- / --";
@@ -1798,7 +2660,8 @@
 
     function getEthereumProvider() {
         if (
-            typeof window.ethereum !== "undefined"
+            typeof window.ethereum !==
+            "undefined"
         ) {
             return window.ethereum;
         }
@@ -1807,9 +2670,11 @@
     }
 
     async function readWalletState() {
-        const provider = getEthereumProvider();
+        const provider =
+            getEthereumProvider();
 
-        state.wallet.provider = provider;
+        state.wallet.provider =
+            provider;
 
         if (!provider) {
             renderWalletState();
@@ -1817,13 +2682,15 @@
         }
 
         try {
-            const accounts = await provider.request({
-                method: "eth_accounts"
-            });
+            const accounts =
+                await provider.request({
+                    method: "eth_accounts"
+                });
 
-            const chainId = await provider.request({
-                method: "eth_chainId"
-            });
+            const chainId =
+                await provider.request({
+                    method: "eth_chainId"
+                });
 
             if (
                 Array.isArray(accounts) &&
@@ -1832,25 +2699,38 @@
                 state.wallet.address =
                     accounts[0];
 
-                state.wallet.connected = true;
+                state.wallet.connected =
+                    true;
             } else {
-                state.wallet.address = null;
-                state.wallet.connected = false;
+                state.wallet.address =
+                    null;
+
+                state.wallet.connected =
+                    false;
             }
 
             state.wallet.chainId =
-                normalizeChainId(chainId);
+                normalizeChainId(
+                    chainId
+                );
+
         } catch (error) {
-            state.wallet.address = null;
-            state.wallet.chainId = null;
-            state.wallet.connected = false;
+            state.wallet.address =
+                null;
+
+            state.wallet.chainId =
+                null;
+
+            state.wallet.connected =
+                false;
         }
 
         renderWalletState();
     }
 
     async function connectWallet() {
-        const provider = getEthereumProvider();
+        const provider =
+            getEthereumProvider();
 
         if (!provider) {
             showHarrowResponse(
@@ -1862,15 +2742,20 @@
         }
 
         try {
+            recordInteraction();
+
             if (dom.walletButton) {
-                dom.walletButton.disabled = true;
+                dom.walletButton.disabled =
+                    true;
+
                 dom.walletButton.textContent =
                     "LOOKING...";
             }
 
             const accounts =
                 await provider.request({
-                    method: "eth_requestAccounts"
+                    method:
+                        "eth_requestAccounts"
                 });
 
             if (
@@ -1884,21 +2769,31 @@
 
             const chainId =
                 await provider.request({
-                    method: "eth_chainId"
+                    method:
+                        "eth_chainId"
                 });
 
-            state.wallet.provider = provider;
-            state.wallet.address = accounts[0];
-            state.wallet.chainId =
-                normalizeChainId(chainId);
+            state.wallet.provider =
+                provider;
 
-            state.wallet.connected = true;
+            state.wallet.address =
+                accounts[0];
+
+            state.wallet.chainId =
+                normalizeChainId(
+                    chainId
+                );
+
+            state.wallet.connected =
+                true;
 
             renderWalletState();
 
             discover(
                 "wallet:connected",
-                "There you are."
+                isHellion()
+                    ? "There you are again."
+                    : "There you are."
             );
 
             if (
@@ -1909,10 +2804,16 @@
                     "WRONG CHAIN.",
                     "I can see you. You're just standing in the wrong neighborhood."
                 );
+
             } else {
                 showHarrowResponse(
-                    "THERE YOU ARE.",
-                    "Public blockchain. Very private moment."
+                    isHellion()
+                        ? "WELCOME BACK, HELLION."
+                        : "THERE YOU ARE.",
+
+                    isHellion()
+                        ? "Same wallet. Same bad instincts."
+                        : "Public blockchain. Very private moment."
                 );
             }
 
@@ -1923,9 +2824,11 @@
                 "NEVER MIND.",
                 "You either rejected it or your wallet decided today was its day to become art."
             );
+
         } finally {
             if (dom.walletButton) {
-                dom.walletButton.disabled = false;
+                dom.walletButton.disabled =
+                    false;
             }
 
             renderWalletState();
@@ -1935,7 +2838,9 @@
     function renderWalletState() {
         const connected =
             state.wallet.connected &&
-            Boolean(state.wallet.address);
+            Boolean(
+                state.wallet.address
+            );
 
         const onPulseChain =
             state.wallet.chainId ===
@@ -1947,7 +2852,11 @@
                     ? truncateAddress(
                         state.wallet.address
                     )
-                    : "SHOW HARROW";
+                    : (
+                        isHellion()
+                            ? "SHOW ME AGAIN"
+                            : "SHOW HARROW"
+                    );
         }
 
         if (dom.collectionWallet) {
@@ -1963,9 +2872,11 @@
             if (!connected) {
                 dom.collectionNetwork.textContent =
                     "PULSECHAIN // 369";
+
             } else if (onPulseChain) {
                 dom.collectionNetwork.textContent =
                     "PULSECHAIN // 369";
+
             } else {
                 dom.collectionNetwork.textContent =
                     `CHAIN // ${
@@ -1980,7 +2891,11 @@
                 connected
                     ? (
                         onPulseChain
-                            ? "SEEN"
+                            ? (
+                                isHellion()
+                                    ? "HELLION"
+                                    : "SEEN"
+                            )
                             : "WRONG CHAIN"
                     )
                     : "WAITING";
@@ -1990,23 +2905,33 @@
             dom.terminalAction.textContent =
                 connected
                     ? "LOOK AGAIN"
-                    : "SHOW HARROW";
+                    : (
+                        isHellion()
+                            ? "SHOW ME AGAIN"
+                            : "SHOW HARROW"
+                    );
         }
 
         if (!connected) {
             if (dom.terminalTitle) {
                 dom.terminalTitle.textContent =
-                    "DON'T BE SHY.";
+                    isHellion()
+                        ? "YOU KNOW THE DRILL."
+                        : "DON'T BE SHY.";
             }
 
             if (dom.terminalMessage) {
                 dom.terminalMessage.textContent =
-                    "Show me the wallet.";
+                    isHellion()
+                        ? "Show me the wallet again."
+                        : "Show me the wallet.";
             }
 
             if (dom.archiveHarrowNote) {
                 dom.archiveHarrowNote.textContent =
-                    "let's see the damage.";
+                    isHellion()
+                        ? "let's see what followed you home."
+                        : "let's see the damage.";
             }
         }
 
@@ -2025,7 +2950,11 @@
             dom.terminalAction.addEventListener(
                 "click",
                 async () => {
-                    if (!state.wallet.connected) {
+                    recordInteraction();
+
+                    if (
+                        !state.wallet.connected
+                    ) {
                         await connectWallet();
                         return;
                     }
@@ -2040,31 +2969,40 @@
             );
         }
 
-        const provider = getEthereumProvider();
+        const provider =
+            getEthereumProvider();
 
         if (
             provider &&
-            typeof provider.on === "function"
+            typeof provider.on ===
+                "function"
         ) {
             provider.on(
                 "accountsChanged",
                 async (accounts) => {
                     if (
-                        !Array.isArray(accounts) ||
+                        !Array.isArray(
+                            accounts
+                        ) ||
                         accounts.length === 0
                     ) {
-                        state.wallet.address = null;
-                        state.wallet.connected = false;
+                        state.wallet.address =
+                            null;
+
+                        state.wallet.connected =
+                            false;
 
                         renderWalletState();
                         renderCollection();
+
                         return;
                     }
 
                     state.wallet.address =
                         accounts[0];
 
-                    state.wallet.connected = true;
+                    state.wallet.connected =
+                        true;
 
                     renderWalletState();
 
@@ -2076,7 +3014,9 @@
                 "chainChanged",
                 async (chainId) => {
                     state.wallet.chainId =
-                        normalizeChainId(chainId);
+                        normalizeChainId(
+                            chainId
+                        );
 
                     renderWalletState();
 
@@ -2095,21 +3035,27 @@
         url,
         options = {}
     ) {
-        const response = await fetch(
-            url,
-            {
-                ...options,
-                headers: {
-                    Accept: "application/json",
-                    ...(options.headers || {})
+        const response =
+            await fetch(
+                url,
+                {
+                    ...options,
+
+                    headers: {
+                        Accept:
+                            "application/json",
+
+                        ...(options.headers ||
+                            {})
+                    }
                 }
-            }
-        );
+            );
 
         let body = null;
 
         try {
-            body = await response.json();
+            body =
+                await response.json();
         } catch (error) {
             body = null;
         }
@@ -2120,10 +3066,14 @@
                 body?.message ||
                 `Request failed: ${response.status}`;
 
-            const apiError = new Error(message);
+            const apiError =
+                new Error(message);
 
-            apiError.status = response.status;
-            apiError.body = body;
+            apiError.status =
+                response.status;
+
+            apiError.body =
+                body;
 
             throw apiError;
         }
@@ -2131,20 +3081,36 @@
         return body;
     }
 
-    function normalizePublicationList(payload) {
-        if (Array.isArray(payload)) {
+    function normalizePublicationList(
+        payload
+    ) {
+        if (
+            Array.isArray(payload)
+        ) {
             return payload;
         }
 
-        if (Array.isArray(payload?.publications)) {
+        if (
+            Array.isArray(
+                payload?.publications
+            )
+        ) {
             return payload.publications;
         }
 
-        if (Array.isArray(payload?.items)) {
+        if (
+            Array.isArray(
+                payload?.items
+            )
+        ) {
             return payload.items;
         }
 
-        if (Array.isArray(payload?.comics)) {
+        if (
+            Array.isArray(
+                payload?.comics
+            )
+        ) {
             return payload.comics;
         }
 
@@ -2202,7 +3168,9 @@
        COLLECTION RENDERING
        ========================================================= */
 
-    function publicationIdentity(publication) {
+    function publicationIdentity(
+        publication
+    ) {
         return (
             publication.publicationKey ||
             publication.key ||
@@ -2212,15 +3180,21 @@
         );
     }
 
-    function publicationTitle(publication) {
+    function publicationTitle(
+        publication
+    ) {
         return (
             publication.title ||
             publication.name ||
-            publicationIdentity(publication)
+            publicationIdentity(
+                publication
+            )
         );
     }
 
-    function publicationLifecycle(publication) {
+    function publicationLifecycle(
+        publication
+    ) {
         return (
             publication.lifecycle ||
             publication.status ||
@@ -2228,19 +3202,26 @@
         );
     }
 
-    function publicationReaderEnabled(publication) {
+    function publicationReaderEnabled(
+        publication
+    ) {
         if (
             publication.reader === true ||
-            publication.readerEnabled === true
+            publication.readerEnabled ===
+                true
         ) {
             return true;
         }
 
         if (
             publication.reader &&
-            typeof publication.reader === "object"
+            typeof publication.reader ===
+                "object"
         ) {
-            return publication.reader.enabled !== false;
+            return (
+                publication.reader.enabled !==
+                false
+            );
         }
 
         return false;
@@ -2250,13 +3231,6 @@
         const known =
             state.publications.length;
 
-        /*
-         * We do NOT pretend to know wallet ownership merely because
-         * a wallet is connected.
-         *
-         * Ownership must eventually come from verified backend /
-         * contract state.
-         */
         const owned = 0;
         const evolved = 0;
 
@@ -2273,7 +3247,9 @@
         };
     }
 
-    function renderCollection(options = {}) {
+    function renderCollection(
+        options = {}
+    ) {
         calculateCollectionSummary();
 
         const {
@@ -2284,39 +3260,54 @@
             dom.summaryKnown.textContent =
                 String(
                     state.collection.known
-                ).padStart(2, "0");
+                ).padStart(
+                    2,
+                    "0"
+                );
         }
 
         if (dom.summaryOwned) {
             dom.summaryOwned.textContent =
                 String(
                     state.collection.owned
-                ).padStart(2, "0");
+                ).padStart(
+                    2,
+                    "0"
+                );
         }
 
         if (dom.summaryMissing) {
             dom.summaryMissing.textContent =
                 String(
                     state.collection.missing
-                ).padStart(2, "0");
+                ).padStart(
+                    2,
+                    "0"
+                );
         }
 
         if (dom.summaryEvolved) {
             dom.summaryEvolved.textContent =
                 String(
                     state.collection.evolved
-                ).padStart(2, "0");
+                ).padStart(
+                    2,
+                    "0"
+                );
         }
 
         if (dom.publicationCount) {
             if (error) {
                 dom.publicationCount.textContent =
                     "ARCHIVE UNAVAILABLE";
+
             } else if (
-                state.publications.length === 0
+                state.publications.length ===
+                0
             ) {
                 dom.publicationCount.textContent =
                     "NOTHING PUBLIC YET";
+
             } else {
                 dom.publicationCount.textContent =
                     `${state.publications.length} PUBLIC`;
@@ -2327,7 +3318,8 @@
             return;
         }
 
-        dom.collectionList.innerHTML = "";
+        dom.collectionList.innerHTML =
+            "";
 
         if (error) {
             if (dom.terminalTitle) {
@@ -2340,7 +3332,9 @@
                     "This is a technical problem, not mysterious lore.";
             }
 
-            if (dom.archiveHarrowNote) {
+            if (
+                dom.archiveHarrowNote
+            ) {
                 dom.archiveHarrowNote.textContent =
                     "fine. i'll fix it.";
             }
@@ -2349,30 +3343,51 @@
         }
 
         if (
-            state.publications.length === 0
+            state.publications.length ===
+            0
         ) {
             if (dom.terminalTitle) {
                 dom.terminalTitle.textContent =
                     state.wallet.connected
-                        ? "NOTHING?"
-                        : "DON'T BE SHY.";
+                        ? (
+                            isHellion()
+                                ? "STILL NOTHING, HELLION."
+                                : "NOTHING?"
+                        )
+                        : (
+                            isHellion()
+                                ? "YOU KNOW THE DRILL."
+                                : "DON'T BE SHY."
+                        );
             }
 
             if (dom.terminalMessage) {
                 dom.terminalMessage.textContent =
                     state.wallet.connected
-                        ? "Huh. That's actually impressive."
+                        ? (
+                            isHellion()
+                                ? "You came back early again."
+                                : "Huh. That's actually impressive."
+                        )
                         : "Show me the wallet.";
             }
 
-            if (dom.archiveHarrowNote) {
+            if (
+                dom.archiveHarrowNote
+            ) {
                 dom.archiveHarrowNote.textContent =
                     state.wallet.connected
-                        ? "we'll fix this."
+                        ? (
+                            isHellion()
+                                ? "patience. disgusting."
+                                : "we'll fix this."
+                        )
                         : "let's see the damage.";
             }
 
-            if (dom.collectionStatus) {
+            if (
+                dom.collectionStatus
+            ) {
                 dom.collectionStatus.textContent =
                     state.wallet.connected
                         ? "NOTHING PUBLIC TO BRING HOME YET."
@@ -2397,7 +3412,10 @@
         }
 
         state.publications.forEach(
-            (publication, index) => {
+            (
+                publication,
+                index
+            ) => {
                 const key =
                     publicationIdentity(
                         publication
@@ -2419,7 +3437,9 @@
                     );
 
                 const item =
-                    document.createElement("div");
+                    document.createElement(
+                        "div"
+                    );
 
                 item.className =
                     "collection-item";
@@ -2430,6 +3450,7 @@
                     </span>
 
                     <div class="collection-item-main">
+
                         <span class="collection-item-type">
                             PUBLICATION // ${escapeHtml(lifecycle)}
                         </span>
@@ -2441,10 +3462,15 @@
                         <small>
                             ${escapeHtml(key)}
                         </small>
+
                     </div>
 
                     <div class="collection-item-state">
-                        <span>WALLET</span>
+
+                        <span>
+                            WALLET
+                        </span>
+
                         <strong>
                             ${
                                 state.wallet.connected
@@ -2452,6 +3478,7 @@
                                     : "NOT SHOWN"
                             }
                         </strong>
+
                     </div>
 
                     <button
@@ -2485,6 +3512,8 @@
             button.addEventListener(
                 "click",
                 () => {
+                    recordInteraction();
+
                     openPublicationReader(
                         button.dataset.publicationKey
                     );
@@ -2507,18 +3536,22 @@
         state.reader.objectUrls.forEach(
             (url) => {
                 try {
-                    URL.revokeObjectURL(url);
+                    URL.revokeObjectURL(
+                        url
+                    );
                 } catch (error) {
                     // Ignore.
                 }
             }
         );
 
-        state.reader.objectUrls = [];
+        state.reader.objectUrls =
+            [];
     }
 
     function showReaderLoading(
-        message = "The machine is doing something expensive."
+        message =
+            "The machine is doing something expensive."
     ) {
         if (!dom.readerLoading) {
             return;
@@ -2528,7 +3561,9 @@
             "active"
         );
 
-        if (dom.readerLoadingText) {
+        if (
+            dom.readerLoadingText
+        ) {
             dom.readerLoadingText.textContent =
                 message;
         }
@@ -2544,7 +3579,9 @@
         );
     }
 
-    function showReaderError(message) {
+    function showReaderError(
+        message
+    ) {
         hideReaderLoading();
 
         if (!dom.readerError) {
@@ -2571,8 +3608,14 @@
         );
     }
 
-    function normalizeReaderPages(payload) {
-        if (Array.isArray(payload?.pages)) {
+    function normalizeReaderPages(
+        payload
+    ) {
+        if (
+            Array.isArray(
+                payload?.pages
+            )
+        ) {
             return payload.pages;
         }
 
@@ -2595,12 +3638,19 @@
         return [];
     }
 
-    function pageUrlFromEntry(page) {
-        if (typeof page === "string") {
+    function pageUrlFromEntry(
+        page
+    ) {
+        if (
+            typeof page === "string"
+        ) {
             return page;
         }
 
-        if (!page || typeof page !== "object") {
+        if (
+            !page ||
+            typeof page !== "object"
+        ) {
             return null;
         }
 
@@ -2624,7 +3674,9 @@
             state.publications.find(
                 (item) => {
                     return (
-                        publicationIdentity(item) ===
+                        publicationIdentity(
+                            item
+                        ) ===
                         publicationKey
                     );
                 }
@@ -2635,11 +3687,16 @@
 
         state.reader.title =
             publication
-                ? publicationTitle(publication)
+                ? publicationTitle(
+                    publication
+                )
                 : publicationKey;
 
-        state.reader.pageIndex = 0;
-        state.reader.pages = [];
+        state.reader.pageIndex =
+            0;
+
+        state.reader.pages =
+            [];
 
         clearReaderObjectUrls();
 
@@ -2649,7 +3706,10 @@
         }
 
         if (dom.reader) {
-            dom.reader.classList.add("active");
+            dom.reader.classList.add(
+                "active"
+            );
+
             dom.reader.setAttribute(
                 "aria-hidden",
                 "false"
@@ -2663,7 +3723,9 @@
         hideReaderError();
 
         showReaderLoading(
-            "Checking whether the box is going to let you in."
+            isHellion()
+                ? "Checking your key, Hellion."
+                : "Checking whether the box is going to let you in."
         );
 
         try {
@@ -2673,29 +3735,40 @@
                 );
 
             const pages =
-                normalizeReaderPages(payload)
-                    .map(pageUrlFromEntry)
+                normalizeReaderPages(
+                    payload
+                )
+                    .map(
+                        pageUrlFromEntry
+                    )
                     .filter(Boolean);
 
-            if (pages.length === 0) {
+            if (
+                pages.length === 0
+            ) {
                 throw new Error(
                     "The reader returned no pages."
                 );
             }
 
-            state.reader.pages = pages;
+            state.reader.pages =
+                pages;
 
             renderReader();
+
             hideReaderLoading();
 
             discover(
                 `reader:${publicationKey}`,
-                "There. Now read it."
+                isHellion()
+                    ? "Back inside."
+                    : "There. Now read it."
             );
 
         } catch (error) {
             const status =
-                error?.status || 0;
+                error?.status ||
+                0;
 
             if (
                 status === 401 ||
@@ -2704,6 +3777,7 @@
                 showReaderError(
                     "The box doesn't recognize this wallet as an owner yet."
                 );
+
             } else {
                 showReaderError(
                     error?.message ||
@@ -2718,7 +3792,10 @@
             return;
         }
 
-        dom.reader.classList.remove("active");
+        dom.reader.classList.remove(
+            "active"
+        );
+
         dom.reader.setAttribute(
             "aria-hidden",
             "true"
@@ -2728,7 +3805,8 @@
             "reader-open"
         );
 
-        state.reader.open = false;
+        state.reader.open =
+            false;
 
         clearReaderObjectUrls();
         hideReaderError();
@@ -2739,7 +3817,9 @@
         const pageCount =
             state.reader.pages.length;
 
-        if (pageCount === 0) {
+        if (
+            pageCount === 0
+        ) {
             return;
         }
 
@@ -2751,37 +3831,43 @@
             );
 
         const humanPage =
-            state.reader.pageIndex + 1;
+            state.reader.pageIndex +
+            1;
 
-        if (dom.readerPageNumber) {
+        if (
+            dom.readerPageNumber
+        ) {
             dom.readerPageNumber.textContent =
-                String(humanPage).padStart(
+                String(
+                    humanPage
+                ).padStart(
                     2,
                     "0"
                 );
-        }
-
-        if (dom.readerPageCount) {
-            dom.readerPageCount.textContent =
-                String(pageCount).padStart(
-                    2,
-                    "0"
-                );
-        }
-
-        if (dom.readerBottomLabel) {
-            dom.readerBottomLabel.textContent =
-                `${String(humanPage).padStart(
-                    2,
-                    "0"
-                )} / ${String(pageCount).padStart(
-                    2,
-                    "0"
-                )}`;
         }
 
         if (
-            state.reader.mode === "paged"
+            dom.readerPageCount
+        ) {
+            dom.readerPageCount.textContent =
+                String(
+                    pageCount
+                ).padStart(
+                    2,
+                    "0"
+                );
+        }
+
+        if (
+            dom.readerBottomLabel
+        ) {
+            dom.readerBottomLabel.textContent =
+                `${String(humanPage).padStart(2, "0")} / ${String(pageCount).padStart(2, "0")}`;
+        }
+
+        if (
+            state.reader.mode ===
+            "paged"
         ) {
             renderPagedReader();
         } else {
@@ -2792,7 +3878,8 @@
     function renderPagedReader() {
         if (
             !dom.readerPageImage ||
-            state.reader.pages.length === 0
+            state.reader.pages.length ===
+                0
         ) {
             return;
         }
@@ -2802,16 +3889,19 @@
                 state.reader.pageIndex
             ];
 
-        dom.readerPageImage.src = pageUrl;
+        dom.readerPageImage.src =
+            pageUrl;
 
         dom.readerPageImage.classList.toggle(
             "fit-page",
-            state.reader.fit === "page"
+            state.reader.fit ===
+                "page"
         );
 
         dom.readerPageImage.classList.toggle(
             "fit-width",
-            state.reader.fit === "width"
+            state.reader.fit ===
+                "width"
         );
 
         if (dom.readerPaged) {
@@ -2819,7 +3909,9 @@
                 "flex";
         }
 
-        if (dom.readerContinuous) {
+        if (
+            dom.readerContinuous
+        ) {
             dom.readerContinuous.classList.remove(
                 "active"
             );
@@ -2827,14 +3919,20 @@
     }
 
     function renderContinuousReader() {
-        if (!dom.readerContinuous) {
+        if (
+            !dom.readerContinuous
+        ) {
             return;
         }
 
-        dom.readerContinuous.innerHTML = "";
+        dom.readerContinuous.innerHTML =
+            "";
 
         state.reader.pages.forEach(
-            (url, index) => {
+            (
+                url,
+                index
+            ) => {
                 const wrapper =
                     document.createElement(
                         "div"
@@ -2849,23 +3947,28 @@
                     );
 
                 label.textContent =
-                    `PAGE ${String(
-                        index + 1
-                    ).padStart(2, "0")}`;
+                    `PAGE ${String(index + 1).padStart(2, "0")}`;
 
                 const image =
                     document.createElement(
                         "img"
                     );
 
-                image.src = url;
+                image.src =
+                    url;
+
                 image.alt =
                     `${state.reader.title} page ${
                         index + 1
                     }`;
 
-                wrapper.appendChild(label);
-                wrapper.appendChild(image);
+                wrapper.appendChild(
+                    label
+                );
+
+                wrapper.appendChild(
+                    image
+                );
 
                 dom.readerContinuous.appendChild(
                     wrapper
@@ -2884,23 +3987,31 @@
     }
 
     function readerPrevious() {
-        if (state.reader.pageIndex <= 0) {
+        if (
+            state.reader.pageIndex <=
+            0
+        ) {
             return;
         }
 
-        state.reader.pageIndex -= 1;
+        state.reader.pageIndex -=
+            1;
+
         renderReader();
     }
 
     function readerNext() {
         if (
             state.reader.pageIndex >=
-            state.reader.pages.length - 1
+            state.reader.pages.length -
+                1
         ) {
             return;
         }
 
-        state.reader.pageIndex += 1;
+        state.reader.pageIndex +=
+            1;
+
         renderReader();
     }
 
@@ -2912,7 +4023,9 @@
             );
         }
 
-        if (dom.readerPreviousBottom) {
+        if (
+            dom.readerPreviousBottom
+        ) {
             dom.readerPreviousBottom.addEventListener(
                 "click",
                 readerPrevious
@@ -2926,7 +4039,9 @@
             );
         }
 
-        if (dom.readerNextBottom) {
+        if (
+            dom.readerNextBottom
+        ) {
             dom.readerNextBottom.addEventListener(
                 "click",
                 readerNext
@@ -2937,7 +4052,9 @@
             dom.readerFirst.addEventListener(
                 "click",
                 () => {
-                    state.reader.pageIndex = 0;
+                    state.reader.pageIndex =
+                        0;
+
                     renderReader();
                 }
             );
@@ -2950,7 +4067,7 @@
                     state.reader.pageIndex =
                         Math.max(
                             state.reader.pages.length -
-                            1,
+                                1,
                             0
                         );
 
@@ -2959,27 +4076,37 @@
             );
         }
 
-        if (dom.readerFitPage) {
+        if (
+            dom.readerFitPage
+        ) {
             dom.readerFitPage.addEventListener(
                 "click",
                 () => {
-                    state.reader.fit = "page";
+                    state.reader.fit =
+                        "page";
+
                     renderReader();
                 }
             );
         }
 
-        if (dom.readerFitWidth) {
+        if (
+            dom.readerFitWidth
+        ) {
             dom.readerFitWidth.addEventListener(
                 "click",
                 () => {
-                    state.reader.fit = "width";
+                    state.reader.fit =
+                        "width";
+
                     renderReader();
                 }
             );
         }
 
-        if (dom.readerLayoutToggle) {
+        if (
+            dom.readerLayoutToggle
+        ) {
             dom.readerLayoutToggle.addEventListener(
                 "click",
                 () => {
@@ -3007,7 +4134,9 @@
             );
         }
 
-        if (dom.readerErrorClose) {
+        if (
+            dom.readerErrorClose
+        ) {
             dom.readerErrorClose.addEventListener(
                 "click",
                 closeReader
@@ -3022,7 +4151,10 @@
                         "active"
                     )
                 ) {
-                    if (event.key === "Escape") {
+                    if (
+                        event.key ===
+                        "Escape"
+                    ) {
                         closeDrawer();
                     }
 
@@ -3037,25 +4169,31 @@
                     return;
                 }
 
-                if (event.key === "Escape") {
+                if (
+                    event.key ===
+                    "Escape"
+                ) {
                     closeReader();
                     return;
                 }
 
                 if (
-                    state.reader.mode !== "paged"
+                    state.reader.mode !==
+                    "paged"
                 ) {
                     return;
                 }
 
                 if (
-                    event.key === "ArrowLeft"
+                    event.key ===
+                    "ArrowLeft"
                 ) {
                     readerPrevious();
                 }
 
                 if (
-                    event.key === "ArrowRight"
+                    event.key ===
+                    "ArrowRight"
                 ) {
                     readerNext();
                 }
@@ -3076,7 +4214,9 @@
             );
         }
 
-        if (dom.drawerBackdrop) {
+        if (
+            dom.drawerBackdrop
+        ) {
             dom.drawerBackdrop.addEventListener(
                 "click",
                 closeDrawer
@@ -3091,88 +4231,112 @@
 
     function initScrollObservers() {
         if (
-            !("IntersectionObserver" in window)
+            !(
+                "IntersectionObserver"
+                in window
+            )
         ) {
             return;
         }
 
-        const seenZones = new Set();
+        const seenZones =
+            new Set();
 
         const observer =
             new IntersectionObserver(
                 (entries) => {
-                    entries.forEach((entry) => {
-                        if (
-                            !entry.isIntersecting ||
-                            entry.intersectionRatio <
-                                0.45
-                        ) {
-                            return;
-                        }
+                    entries.forEach(
+                        (entry) => {
+                            if (
+                                !entry.isIntersecting ||
+                                entry.intersectionRatio <
+                                    0.45
+                            ) {
+                                return;
+                            }
 
-                        const zone =
-                            entry.target.dataset.zone;
+                            const zone =
+                                entry.target.dataset.zone;
 
-                        if (
-                            !zone ||
-                            seenZones.has(zone)
-                        ) {
-                            return;
-                        }
+                            if (
+                                !zone ||
+                                seenZones.has(
+                                    zone
+                                )
+                            ) {
+                                return;
+                            }
 
-                        seenZones.add(zone);
+                            seenZones.add(
+                                zone
+                            );
 
-                        switch (zone) {
-                            case "box":
-                                whisper(
-                                    "This is where the problem starts."
-                                );
-                                break;
-
-                            case "archive":
-                                if (
-                                    !state.wallet.connected
-                                ) {
+                            switch (zone) {
+                                case "box":
                                     whisper(
-                                        "Show me what you brought."
+                                        isHellion()
+                                            ? "You know where this starts."
+                                            : "This is where the problem starts."
                                     );
-                                }
-                                break;
+                                    break;
 
-                            case "theory":
-                                whisper(
-                                    "I can explain all of this. Probably."
-                                );
-                                break;
+                                case "archive":
+                                    if (
+                                        !state.wallet.connected
+                                    ) {
+                                        whisper(
+                                            isHellion()
+                                                ? "Show me the wallet again."
+                                                : "Show me what you brought."
+                                        );
+                                    }
+                                    break;
 
-                            case "press":
-                                whisper(
-                                    "Don't touch the machine."
-                                );
-                                break;
+                                case "theory":
+                                    whisper(
+                                        isHellion()
+                                            ? "You still think I only have one theory?"
+                                            : "I can explain all of this. Probably."
+                                    );
+                                    break;
 
-                            case "harrow":
-                                whisper(
-                                    "Finally. The important section."
-                                );
-                                break;
+                                case "press":
+                                    whisper(
+                                        isHellion()
+                                            ? "Don't touch it. Yes, I know you're going to."
+                                            : "Don't touch the machine."
+                                    );
+                                    break;
 
-                            case "classified":
-                                whisper(
-                                    "Keep scrolling. It still says no."
-                                );
-                                break;
+                                case "harrow":
+                                    whisper(
+                                        isHellion()
+                                            ? "Still the important section."
+                                            : "Finally. The important section."
+                                    );
+                                    break;
 
-                            case "exit":
-                                whisper(
-                                    "Good. Go do something irresponsible."
-                                );
-                                break;
+                                case "classified":
+                                    whisper(
+                                        isHellion()
+                                            ? "Hellions don't get clearance either."
+                                            : "Keep scrolling. It still says no."
+                                    );
+                                    break;
 
-                            default:
-                                break;
+                                case "exit":
+                                    whisper(
+                                        isHellion()
+                                            ? "You'll be back."
+                                            : "Good. Go do something irresponsible."
+                                    );
+                                    break;
+
+                                default:
+                                    break;
+                            }
                         }
-                    });
+                    );
                 },
                 {
                     threshold: [
@@ -3184,8 +4348,59 @@
 
         $$("[data-zone]").forEach(
             (section) => {
-                observer.observe(section);
+                observer.observe(
+                    section
+                );
             }
+        );
+    }
+
+
+    /* =========================================================
+       RETURN-VISITOR GREETING
+       ========================================================= */
+
+    function greetVisitor() {
+        const [
+            title,
+            text
+        ] =
+            getRelationshipGreeting();
+
+        /*
+         * Don't hit a first-time visitor immediately
+         * with a giant response panel.
+         *
+         * Returning visitors get recognized.
+         */
+
+        if (
+            state.relationship.visits <=
+                1 &&
+            state.relationship.stage ===
+                "visitor"
+        ) {
+            window.setTimeout(
+                () => {
+                    whisper(
+                        "Try not to make this weird."
+                    );
+                },
+                1800
+            );
+
+            return;
+        }
+
+        window.setTimeout(
+            () => {
+                showHarrowResponse(
+                    title,
+                    text,
+                    4600
+                );
+            },
+            1700
         );
     }
 
@@ -3195,34 +4410,53 @@
        ========================================================= */
 
     async function init() {
+        /*
+         * Load persistent relationship before registering
+         * current visit so the progression system can calculate
+         * from actual prior state.
+         */
+
+        loadRelationship();
+
         loadDiscoveries();
+
         registerVisit();
 
+        updateRelationshipStage({
+            announce: false
+        });
+
+        updateExitAfterthought();
+
         initCursorBurn();
+
         initHeroTransmission();
 
         initDrawerEvents();
+
         initHotspots();
+
         initTheoryWall();
+
         initHarrowInteractions();
+
         initClassified();
 
         initPress();
+
         initWalletEvents();
+
         initReaderControls();
 
         initScrollObservers();
 
         await readWalletState();
+
         await loadPublications();
 
         updatePressPublication();
 
-        window.setTimeout(() => {
-            whisper(
-                "Try not to make this weird."
-            );
-        }, 1800);
+        greetVisitor();
     }
 
 
@@ -3231,7 +4465,8 @@
        ========================================================= */
 
     if (
-        document.readyState === "loading"
+        document.readyState ===
+        "loading"
     ) {
         document.addEventListener(
             "DOMContentLoaded",
@@ -3240,6 +4475,7 @@
                 once: true
             }
         );
+
     } else {
         init();
     }
