@@ -303,75 +303,99 @@
             data-zone="hero"
         >
 
-            <div class="hero-art" aria-hidden="true">
+            <!--
+                HERO SCENE
+                The artwork and every lore hotspot live inside the same
+                coordinate system so the hotspots stay attached to the art.
+            -->
 
-                <img
-                    src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.PNG"
-                    alt=""
-                    fetchpriority="high"
-                    decoding="async"
+            <div class="hero-scene">
+
+                <div class="hero-art" aria-hidden="true">
+
+                    <img
+                        src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.PNG"
+                        alt=""
+                        fetchpriority="high"
+                        decoding="async"
+                    >
+
+                </div>
+
+
+                <div
+                    class="hero-blackout"
+                    aria-hidden="true"
+                ></div>
+
+
+                <!-- HERO HOTSPOTS -->
+
+                <button
+                    class="lair-hotspot hotspot-cabal"
+                    type="button"
+                    data-hotspot="cabal"
+                    aria-label="Inspect Harrow's Cabal board"
                 >
-
-            </div>
-
-            <div class="hero-blackout"></div>
-
-
-            <!-- HERO HOTSPOTS -->
-
-            <button
-                class="lair-hotspot hotspot-cabal"
-                type="button"
-                data-hotspot="cabal"
-                aria-label="Inspect Harrow's Cabal board"
-            >
-                <span>+</span>
-            </button>
-
-            <button
-                class="lair-hotspot hotspot-monitor"
-                type="button"
-                data-hotspot="monitor"
-                aria-label="Inspect PulseChain monitor"
-            >
-                <span>+</span>
-            </button>
-
-            <button
-                class="lair-hotspot hotspot-harrow"
-                type="button"
-                data-hotspot="harrow"
-                aria-label="Bother Harrow"
-            >
-                <span>+</span>
-            </button>
-
-            <button
-                class="lair-hotspot hotspot-pages"
-                type="button"
-                data-hotspot="pages"
-                aria-label="Inspect comic pages"
-            >
-                <span>+</span>
-            </button>
-
-            <button
-                class="lair-hotspot hotspot-redacted"
-                type="button"
-                data-hotspot="redacted"
-                aria-label="Inspect redacted folder"
-            >
-                <span>+</span>
-            </button>
+                    <span class="hotspot-mark">+</span>
+                    <span class="hotspot-label">THE CABAL</span>
+                </button>
 
 
-            <div class="hero-meta">
-                <span>01 // OH. YOU'RE HERE.</span>
-                <span>LOCATION // NONE OF YOUR BUSINESS</span>
+                <button
+                    class="lair-hotspot hotspot-monitor"
+                    type="button"
+                    data-hotspot="monitor"
+                    aria-label="Inspect PulseChain monitor"
+                >
+                    <span class="hotspot-mark">+</span>
+                    <span class="hotspot-label">PULSECHAIN</span>
+                </button>
 
-                <span id="heroMetaHarrow">
-                    HARROW // BUSY
-                </span>
+
+                <button
+                    class="lair-hotspot hotspot-harrow"
+                    type="button"
+                    data-hotspot="harrow"
+                    aria-label="Bother Harrow"
+                >
+                    <span class="hotspot-mark">+</span>
+                    <span class="hotspot-label">HARROW</span>
+                </button>
+
+
+                <button
+                    class="lair-hotspot hotspot-pages"
+                    type="button"
+                    data-hotspot="pages"
+                    aria-label="Inspect Harrow's comic pages"
+                >
+                    <span class="hotspot-mark">+</span>
+                    <span class="hotspot-label">PANELS</span>
+                </button>
+
+
+                <button
+                    class="lair-hotspot hotspot-bike"
+                    type="button"
+                    data-hotspot="bike"
+                    aria-label="Inspect Harrow's motorcycle"
+                >
+                    <span class="hotspot-mark">+</span>
+                    <span class="hotspot-label">DEADLINE</span>
+                </button>
+
+
+                <button
+                    class="lair-hotspot hotspot-redacted"
+                    type="button"
+                    data-hotspot="redacted"
+                    aria-label="Inspect Harrow's motorcycle keys"
+                >
+                    <span class="hotspot-mark">+</span>
+                    <span class="hotspot-label">PUT THAT BACK</span>
+                </button>
+
             </div>
 
 
@@ -474,6 +498,16 @@
 
                 </div>
 
+            </div>
+
+
+            <div class="hero-meta">
+                <span>01 // OH. YOU'RE HERE.</span>
+                <span>LOCATION // NONE OF YOUR BUSINESS</span>
+
+                <span id="heroMetaHarrow">
+                    HARROW // BUSY
+                </span>
             </div>
 
 
