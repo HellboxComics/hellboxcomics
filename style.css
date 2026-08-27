@@ -8714,3 +8714,71 @@ and
     }
 
 }
+
+/* ================================================================
+   PRODUCTION PRECISION PASS 03A
+   THEORY COUNT — SURGICAL FIX ONLY
+
+   Purpose:
+   - Remove the floating "47*" correction.
+   - Keep the original "A" in the headline.
+   - Attach a restrained handwritten "47" directly to the A.
+   - Do not alter any other section, layout, breakpoint, image,
+     hotspot, Press control, or interaction.
+   ================================================================ */
+
+#theoryCorrection {
+    display: none !important;
+}
+
+.vandalized-word {
+    position: relative;
+    display: inline-block;
+    isolation: isolate;
+}
+
+/* subtle red strike through the original A */
+.vandalized-word::after {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    left: -5%;
+    top: 53%;
+    width: 112%;
+    height: 4px;
+    background: var(--red-hot);
+    transform: rotate(-10deg);
+    transform-origin: center;
+    pointer-events: none;
+}
+
+/* Harrow's correction stays physically attached to the A */
+.vandalized-word::before {
+    content: "47";
+    position: absolute;
+    z-index: 3;
+    left: 50%;
+    top: -0.62em;
+    transform: translateX(-48%) rotate(-8deg);
+    color: var(--red-hot);
+    font-family: var(--font-serif);
+    font-size: 0.31em;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+/* keep the correction readable but restrained on narrow screens */
+@media (max-width: 760px) {
+    .vandalized-word::after {
+        height: 3px;
+    }
+
+    .vandalized-word::before {
+        top: -0.58em;
+        font-size: 0.34em;
+    }
+}
+
