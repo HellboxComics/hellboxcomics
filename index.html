@@ -31,10 +31,33 @@
     <meta property="og:site_name" content="Hellbox Comics">
     <meta property="og:title" content="Hellbox Comics — Oh. You're Here.">
     <meta property="og:description" content="Harrow was working. You interrupted.">
+    <meta property="og:url" content="https://hellboxcomics.com/">
+    <meta property="og:locale" content="en_US">
 
     <meta
         property="og:image"
-        content="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero.PNG"
+        content="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.PNG"
+    >
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Hellbox Comics — Oh. You're Here.">
+    <meta name="twitter:description" content="Harrow was working. You interrupted.">
+    <meta
+        name="twitter:image"
+        content="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.PNG"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://cdn.hellboxcomics.com"
+        crossorigin
+    >
+
+    <link
+        rel="preload"
+        as="image"
+        href="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.PNG"
+        fetchpriority="high"
     >
 
     <link rel="stylesheet" href="/style.css">
@@ -283,8 +306,10 @@
             <div class="hero-art" aria-hidden="true">
 
                 <img
-                    src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero.PNG"
+                    src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.PNG"
                     alt=""
+                    fetchpriority="high"
+                    decoding="async"
                 >
 
             </div>
@@ -758,11 +783,11 @@
 
 
         <!-- =====================================================
-             04 // THEORY WALL
+             04 // OBSESSION WALL
         ====================================================== -->
 
         <section
-            class="evidence-section"
+            class="evidence-section obsession-wall-section"
             id="evidence"
             data-zone="theory"
         >
@@ -783,7 +808,6 @@
                         </span>
 
                         <h2 class="theory-heading">
-
                             I HAVE
 
                             <span
@@ -794,7 +818,6 @@
                             </span>
 
                             <em>THEORY.</em>
-
                         </h2>
 
 
@@ -824,159 +847,106 @@
                 </div>
 
 
-                <div class="evidence-board">
+                <div
+                    class="obsession-wall"
+                    id="obsessionWall"
+                >
+
+                    <img
+                        src="https://cdn.hellboxcomics.com/assets/brand/harrow/art/harrow-obssesion-wall.PNG"
+                        alt="Harrow's sprawling PulseChain obsession wall covered in notes, charts, photographs and red string"
+                        class="obsession-wall-art"
+                        loading="lazy"
+                        decoding="async"
+                    >
+
 
                     <button
-                        class="case-file case-rh"
+                        class="obsession-hotspot obsession-hotspot-richard case-file"
                         type="button"
                         data-theory="richard"
+                        aria-label="Inspect Richard Heart notes"
                     >
-                        <span>RICHARD HEART</span>
-
-                        <strong>
-                            BUILT THE CHAIN.
-                        </strong>
-
-                        <p>
-                            Then vanished into the world's most
-                            expensive game of Where's Waldo.
-                        </p>
-
-                        <small>
-                            I HAVE NOTES.
-                        </small>
+                        <span>RICHARD</span>
                     </button>
 
 
                     <button
-                        class="case-file case-sec"
+                        class="obsession-hotspot obsession-hotspot-sec case-file"
                         type="button"
                         data-theory="sec"
+                        aria-label="Inspect SEC notes"
                     >
-                        <span>THE SEC</span>
-
-                        <strong>
-                            VERY SERIOUS PEOPLE.
-                        </strong>
-
-                        <p>
-                            Historically vulnerable to memes.
-                        </p>
-
-                        <small>
-                            ALLEGEDLY HUMORLESS.
-                        </small>
+                        <span>SEC</span>
                     </button>
 
 
                     <button
-                        class="case-file case-cabal"
-                        type="button"
-                        data-theory="cabal"
-                    >
-                        <span>THE CABAL</span>
-
-                        <strong>
-                            I'M WORKING ON IT.
-                        </strong>
-
-                        <p>
-                            Current membership: everyone I dislike
-                            plus two people I'm unsure about.
-                        </p>
-
-                        <small>
-                            DIAGRAM INCOMPLETE.
-                        </small>
-                    </button>
-
-
-                    <button
-                        class="case-file case-interpol"
+                        class="obsession-hotspot obsession-hotspot-interpol case-file"
                         type="button"
                         data-theory="interpol"
+                        aria-label="Inspect INTERPOL notes"
                     >
                         <span>INTERPOL</span>
-
-                        <strong>
-                            RELAX.
-                        </strong>
-
-                        <p>
-                            This is satire.
-                        </p>
-
-                        <small>
-                            MOSTLY.
-                        </small>
                     </button>
 
 
                     <button
-                        class="case-file case-degen"
+                        class="obsession-hotspot obsession-hotspot-cabal case-file"
                         type="button"
-                        data-theory="you"
+                        data-theory="cabal"
+                        aria-label="Inspect Cabal notes"
                     >
-                        <span>YOU</span>
-
-                        <strong>
-                            STILL READING.
-                        </strong>
-
-                        <p>
-                            Interesting.
-                        </p>
-
-                        <small>
-                            VERY INTERESTING.
-                        </small>
+                        <span>THE CABAL</span>
                     </button>
 
 
                     <button
-                        class="case-file case-harrow"
+                        class="obsession-hotspot obsession-hotspot-nft case-file"
                         type="button"
-                        data-theory="harrow"
+                        data-theory="nft"
+                        aria-label="Inspect NFT culture notes"
                     >
-                        <span>HARROW</span>
-
-                        <strong>
-                            ME.
-                        </strong>
-
-                        <p>
-                            Finally, a reliable source.
-                        </p>
-
-                        <small>
-                            CITATION // HARROW
-                        </small>
+                        <span>NFT CULTURE</span>
                     </button>
 
 
-                    <div class="evidence-string evidence-string-a"></div>
-                    <div class="evidence-string evidence-string-b"></div>
-                    <div class="evidence-string evidence-string-c"></div>
-                    <div class="evidence-string evidence-string-d"></div>
+                    <button
+                        class="obsession-hotspot obsession-hotspot-sacrifice case-file"
+                        type="button"
+                        data-theory="sacrifice"
+                        aria-label="Inspect sacrifice-era notes"
+                    >
+                        <span>THE SACRIFICE</span>
+                    </button>
 
 
                     <button
-                        class="evidence-center-mark"
+                        class="obsession-hotspot obsession-hotspot-influencers case-file"
+                        type="button"
+                        data-theory="influencers"
+                        aria-label="Inspect influencer notes"
+                    >
+                        <span>INFLUENCERS</span>
+                    </button>
+
+
+                    <button
+                        class="obsession-hotspot obsession-hotspot-harrow case-file"
                         id="theoryCenter"
                         type="button"
-                        aria-label="Inspect Harrow's theory"
+                        data-theory="harrow"
+                        aria-label="Inspect Harrow"
                     >
-
-                        <img
-                            src="https://cdn.hellboxcomics.com/assets/brand/harrow/emblems/improved-harrow-emblem.PNG"
-                            alt=""
-                        >
-
+                        <span>HARROW</span>
                     </button>
 
 
-                    <div class="evidence-handwriting">
-                        WAIT. I HAD A POINT.
+                    <div
+                        class="obsession-wall-hint"
+                        aria-hidden="true"
+                    >
+                        SOME OF THIS MOVES.
                     </div>
 
                 </div>
@@ -1120,7 +1090,6 @@
                             <div class="press-mini-body">
 
                                 <div>
-
                                     <span>
                                         PUBLICATION
                                     </span>
@@ -1128,12 +1097,10 @@
                                     <strong id="pressPublication">
                                         NONE
                                     </strong>
-
                                 </div>
 
 
                                 <div>
-
                                     <span>
                                         SUPPLY
                                     </span>
@@ -1141,12 +1108,10 @@
                                     <strong id="pressSupply">
                                         -- / --
                                     </strong>
-
                                 </div>
 
 
                                 <div>
-
                                     <span>
                                         WALLET
                                     </span>
@@ -1154,12 +1119,10 @@
                                     <strong id="pressWallet">
                                         NOT SHOWN
                                     </strong>
-
                                 </div>
 
 
                                 <div>
-
                                     <span>
                                         CHAIN
                                     </span>
@@ -1167,7 +1130,6 @@
                                     <strong>
                                         369
                                     </strong>
-
                                 </div>
 
                             </div>
@@ -1229,6 +1191,8 @@
                                 src="https://cdn.hellboxcomics.com/assets/brand/hellbox/machines/hellbox-press-machine.PNG"
                                 alt="Harrow's Hellbox publishing press"
                                 class="press-machine-art"
+                                loading="lazy"
+                                decoding="async"
                             >
 
                             <span
