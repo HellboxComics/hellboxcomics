@@ -1966,29 +1966,69 @@
                 "WORKFLOW // THINK → DRAW → REGRET → PUBLISH."
         },
 
-        redacted: {
+        bike: {
             code:
-                "FOLDER // REDACTED",
+                "MACHINE // DEADLINE",
 
             eyebrow:
-                "HARROW // NONE OF YOUR BUSINESS",
+                "HARROW // TRANSPORTATION",
+
+            title:
+                "DEADLINE.",
+
+            html: `
+                <p>
+                    Harrow hates cages.
+                </p>
+
+                <p>
+                    Cars are cages.
+                    DEADLINE is the loophole.
+                </p>
+
+                <p>
+                    Blacked out until the light catches it.
+                    Then the paint turns candy blood red,
+                    like the bike was waiting for witnesses.
+                </p>
+
+                <p>
+                    It is not transportation.
+                    It is a deadline with handlebars.
+                </p>
+            `,
+
+            footnote:
+                "STATUS // PARKED. PATIENCE // NOT INSTALLED."
+        },
+
+        redacted: {
+            code:
+                "KEYS // DO NOT",
+
+            eyebrow:
+                "HARROW // PERSONAL PROPERTY",
 
             title:
                 "PUT THAT BACK.",
 
             html: `
                 <p>
-                    If it were ready for you,
-                    it would not be under a folder labeled REDACTED.
+                    Those are DEADLINE's keys.
                 </p>
 
                 <p>
-                    Good instincts though.
+                    You already found the motorcycle.
+                    This is the part where curiosity becomes theft.
+                </p>
+
+                <p>
+                    Put them back before Harrow notices.
                 </p>
             `,
 
             footnote:
-                "██ ███████ // NOT YET."
+                "CAGES // HATED. BORROWING THE BIKE // ALSO HATED."
         }
     };
 
