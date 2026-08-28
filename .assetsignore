@@ -1,9 +1,8 @@
-.git
-.git/**
-.wrangler
-.wrangler/**
-src
-src/**
-wrangler.json
-wrangler.jsonc
+# Worker source and internal project material are not public static assets.
+src/
+docs/
 README.md
+wrangler.jsonc
+.assetsignore
+*.zip
+*.md
