@@ -1,51 +1,85 @@
 # Hellbox Comics
 
-The live Hellbox Comics website and Cloudflare Worker.
+Production website and frontend prototype for **Hellbox Comics**, built and operated by Harrow.
 
-Hellbox is Harrow's underground, PulseChain-first digital publishing house. The website is the public lair; the publication engine, protected Reader, Archive ownership, and real Press mint flow are being built behind it.
+This repository currently contains the public interactive website, prototype Press/Archive/Reader frontend, accessibility/localization foundation, and Cloudflare Worker API skeleton. It does **not** yet contain a deployed NFT contract or production publication engine.
 
-## Gate 0 stabilization
+## Current checkpoint
 
-This repository checkpoint installs the final production hero and keeps the live prototype honest while the real publishing systems are built.
+**Gate 0.1 — Laptop + Mobile Master Pass**  
+Version: `20260828-gate0-1-02`
 
-- Uses the lowercase, cache-versioned production hero URL.
-- Removes the rejected fake pencil overlay.
-- Remaps all hero hotspots to the final 1672 × 941 hero artwork.
-- Moves **PUT THAT BACK** to the visible production copy marked **NOT FOR RELEASE**.
-- Removes the rejected motorcycle name; the bike remains intentionally unnamed.
-- Maps the infrastructure interaction to the HairyLabs Pulse Byte.
-- Removes the premature physical “Box” explainer.
-- Removes police/detective language outside Harrow's own obsession wall.
-- Prevents the local browser prototype from awarding fake **HELLION** status.
-- Removes obsolete Ashbox metadata that was not backed by real publication assets.
+This checkpoint:
 
-## Important files
+- loads the final production hero through a cache-busted CDN URL;
+- repairs hero hotspot click blocking;
+- removes visible `+` markers from environmental discoveries;
+- keeps discoveries invisible but keyboard/screen-reader operable;
+- turns mobile hero, theory wall, and Press art into horizontally explorable rooms;
+- adds mouse drag and keyboard panning to interactive artwork;
+- replaces the finite theory ticker with a seamless duplicated Harrow thought loop;
+- adds a real pause/resume control to moving ticker content;
+- compacts and auto-hides the mobile header while preserving section navigation;
+- moves mobile Harrow interruptions out of page copy;
+- reduces the Harrow orb and hides its count until something is discovered;
+- recomposes mobile Archive, Theory, Press, Harrow, Signals, Classified, Exit, and footer layouts;
+- compresses ordinary-laptop dead space while leaving widescreen-specific tuning deferred;
+- adds skip navigation, focus containment/restoration, larger-text, high-contrast, reduced-motion, forced-colors, and screen-reader foundations;
+- adds English, Spanish, and Brazilian Portuguese **interface-control** language packs;
+- keeps Harrow's authored prose in original English until each language receives human localization;
+- keeps fake local Hellion promotion disabled.
 
-- `index.html` — website structure
-- `style.css` — current visual system
-- `app.js` — browser interactions and prototype behavior
+## Root files
+
+- `index.html` — public page structure
+- `style.css` — current visual system and responsive compositions
+- `app.js` — browser interactions and prototype application state
 - `src/index.js` — Cloudflare Worker/API skeleton
-- `wrangler.jsonc` — Worker, static assets, and R2 bindings
+- `wrangler.jsonc` — Cloudflare deployment configuration
+- `.assetsignore` — keeps Worker source and internal docs out of public static assets
+- `locales/` — interface-control language packs
+- `docs/ACCESSIBILITY_AND_LOCALIZATION_STANDARD.md` — product accessibility/localization requirements
+- `docs/HARROW_CHARACTER_BIBLE_V1.md` — current Harrow character, art, writing, and lore direction
 
-## Deploy this checkpoint
+## Deploy
 
-1. Replace the existing repository contents with this complete checkpoint.
-2. Commit the changes to `main`.
-3. Let the existing Cloudflare deployment finish.
-4. Open `https://hellboxcomics.com/` on the vertical monitor and hard-refresh once.
-5. Verify the six hero interactions before changing anything else.
+1. Replace the complete repository with this checkpoint.
+2. Commit to `main`.
+3. Wait for Cloudflare deployment to finish.
+4. Hard-refresh the browser.
+5. Verify at ordinary laptop width and on mobile.
 
-The hero, CSS, and JavaScript URLs are versioned in `index.html`, so normal browser cache should not preserve the previous hero or rejected overlay.
+No manual code splicing is required.
 
-## Current production truth
+## Required Gate 0.1 checks
 
-The public experience is an advanced prototype. Real minting, authoritative ownership, signed Reader sessions, SciVive ingestion, the publication registry, and the production Hellion engine are not live yet. No interface should imply otherwise.
+- Hero hotspots open their correct drawers on laptop.
+- No visible plus-sign discovery markers remain.
+- Mobile art rooms pan horizontally by touch.
+- Arrow keys, Home, and End pan focused art rooms.
+- Mobile menu opens and section links work.
+- Harrow response boxes do not cover the paragraph being read.
+- The thought ticker loops without a blank ending and can be paused.
+- The discovery count is absent at zero.
+- Accessibility panel settings persist after refresh.
+- English, Spanish, and Brazilian Portuguese interface controls load.
+- No browser activity awards HELLION.
 
-## Infrastructure
+## Production truth
 
-- Public CDN: `cdn.hellboxcomics.com`
-- Asset domain: `assets.hellboxcomics.com`
-- Chain: PulseChain (`369`)
-- R2 bindings: public, assets, and private buckets
+- Public branding and website assets are served from `cdn.hellboxcomics.com`.
+- The final hero uses:
+  `https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.png?v=20260828-gate0-1-02`
+- Real Hellion standing will eventually be backend-authoritative. The browser prototype cannot award Hellion.
+- The current Press remains a temporary functional prototype. Press V2 will be redesigned from the functional blueprint before new production artwork is created.
+- SciVive is not yet registered, mintable, or Reader-accessible through this repository.
+- Widescreen desktop/rotated-display tuning remains intentionally deferred until the correct screens are available.
 
-Do not commit private publication pages, wallet secrets, API secrets, or deployment credentials to this repository.
+## Never commit
+
+- private publication pages;
+- wallet private keys or seed phrases;
+- Cloudflare API tokens;
+- admin secrets;
+- Reader signing secrets;
+- unreleased protected publication packages.
