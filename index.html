@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr" data-ui-locale="en">
 
 <head>
     <meta charset="UTF-8">
@@ -18,6 +18,7 @@
 
     <meta name="theme-color" content="#020202">
     <meta name="color-scheme" content="dark">
+    <meta name="format-detection" content="telephone=no">
 
     <link rel="canonical" href="https://hellboxcomics.com/">
 
@@ -36,7 +37,7 @@
 
     <meta
         property="og:image"
-        content="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.png?v=20260828-gate0-01"
+        content="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.png?v=20260828-gate0-1-02"
     >
 
     <meta name="twitter:card" content="summary_large_image">
@@ -44,7 +45,7 @@
     <meta name="twitter:description" content="Harrow was working. You interrupted.">
     <meta
         name="twitter:image"
-        content="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.png?v=20260828-gate0-01"
+        content="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.png?v=20260828-gate0-1-02"
     >
 
     <link
@@ -56,15 +57,31 @@
     <link
         rel="preload"
         as="image"
-        href="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.png?v=20260828-gate0-01"
+        href="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.png?v=20260828-gate0-1-02"
         fetchpriority="high"
     >
 
-    <link rel="stylesheet" href="/style.css?v=20260828-gate0-01">
+    <link rel="stylesheet" href="/style.css?v=20260828-gate0-1-02">
 </head>
 
 
 <body>
+
+    <a
+        class="skip-link"
+        href="#mainContent"
+        data-i18n="access.skip"
+    >
+        SKIP THE INTERRUPTION
+    </a>
+
+    <div
+        class="sr-only"
+        id="a11yStatus"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+    ></div>
 
     <!-- =========================================================
          ATMOSPHERE
@@ -175,6 +192,9 @@
     <div
         class="lair-drawer"
         id="lairDrawer"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="drawerTitle"
         aria-hidden="true"
     >
 
@@ -232,6 +252,111 @@
 
 
     <!-- =========================================================
+         ACCESSIBILITY + INTERFACE LANGUAGE
+    ========================================================== -->
+
+    <div
+        class="access-panel"
+        id="accessPanel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="accessPanelTitle"
+        aria-hidden="true"
+    >
+
+        <button
+            class="access-panel-backdrop"
+            id="accessPanelBackdrop"
+            type="button"
+            tabindex="-1"
+            aria-label="Close accessibility settings"
+        ></button>
+
+        <section class="access-panel-card">
+
+            <header class="access-panel-header">
+                <div>
+                    <span>HELLBOX // ACCESS</span>
+                    <h2 id="accessPanelTitle" data-i18n="access.title">
+                        USE THE SITE YOUR WAY.
+                    </h2>
+                </div>
+
+                <button
+                    class="access-panel-close"
+                    id="accessPanelClose"
+                    type="button"
+                    aria-label="Close accessibility settings"
+                >
+                    ×
+                </button>
+            </header>
+
+            <div class="access-panel-body">
+
+                <fieldset class="access-setting-group">
+                    <legend data-i18n="access.display">DISPLAY</legend>
+
+                    <button
+                        class="access-setting"
+                        id="accessTextToggle"
+                        type="button"
+                        aria-pressed="false"
+                    >
+                        <span data-i18n="access.largeText">LARGER TEXT</span>
+                        <strong data-setting-state>OFF</strong>
+                    </button>
+
+                    <button
+                        class="access-setting"
+                        id="accessContrastToggle"
+                        type="button"
+                        aria-pressed="false"
+                    >
+                        <span data-i18n="access.highContrast">HIGH CONTRAST</span>
+                        <strong data-setting-state>OFF</strong>
+                    </button>
+
+                    <button
+                        class="access-setting"
+                        id="accessMotionToggle"
+                        type="button"
+                        aria-pressed="false"
+                    >
+                        <span data-i18n="access.reduceMotion">REDUCE MOTION</span>
+                        <strong data-setting-state>OFF</strong>
+                    </button>
+                </fieldset>
+
+                <div class="access-language">
+                    <label for="interfaceLanguage" data-i18n="access.interfaceLanguage">
+                        INTERFACE LANGUAGE
+                    </label>
+
+                    <select id="interfaceLanguage">
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                        <option value="pt-BR">Português (Brasil)</option>
+                    </select>
+
+                    <p data-i18n="access.languageNote">
+                        Interface controls can change language. Harrow's authored voice remains in original English until each translation is rewritten by a human instead of murdered by a robot.
+                    </p>
+                </div>
+
+                <p class="access-keyboard-note">
+                    <span data-i18n="access.keyboard">KEYBOARD</span>
+                    <strong>ALT + A</strong>
+                </p>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <!-- =========================================================
          HEADER
     ========================================================== -->
 
@@ -259,11 +384,11 @@
             aria-label="Primary navigation"
         >
 
-            <a href="#archive">YOUR STUFF</a>
-            <a href="#evidence">THEORY</a>
-            <a href="#press">PRESS</a>
-            <a href="#harrow">HARROW</a>
-            <a href="#signals">KEEP UP</a>
+            <a href="#archive" data-i18n="nav.archive">YOUR STUFF</a>
+            <a href="#evidence" data-i18n="nav.theory">THEORY</a>
+            <a href="#press" data-i18n="nav.press">PRESS</a>
+            <a href="#harrow" data-i18n="nav.harrow">HARROW</a>
+            <a href="#signals" data-i18n="nav.signals">KEEP UP</a>
 
         </nav>
 
@@ -278,14 +403,42 @@
             class="wallet-button"
             id="walletButton"
             type="button"
+            data-i18n="wallet.show"
         >
-            SHOW HARROW
+            SHOW ME
         </button>
+
+        <button
+            class="mobile-menu-button"
+            id="mobileMenuButton"
+            type="button"
+            aria-expanded="false"
+            aria-controls="mobileNav"
+            data-i18n="nav.menu"
+        >
+            MENU
+        </button>
+
+        <nav
+            class="mobile-nav"
+            id="mobileNav"
+            aria-label="Mobile navigation"
+            aria-hidden="true"
+        >
+            <a href="#archive" data-i18n="nav.archive">YOUR STUFF</a>
+            <a href="#evidence" data-i18n="nav.theory">THEORY</a>
+            <a href="#press" data-i18n="nav.press">PRESS</a>
+            <a href="#harrow" data-i18n="nav.harrow">HARROW</a>
+            <a href="#signals" data-i18n="nav.signals">KEEP UP</a>
+            <button type="button" data-open-access data-i18n="access.open">
+                ACCESS // LANGUAGE
+            </button>
+        </nav>
 
     </header>
 
 
-    <main>
+    <main id="mainContent" tabindex="-1">
 
 
         <!-- =====================================================
@@ -304,12 +457,26 @@
                 coordinate system so the hotspots stay attached to the art.
             -->
 
-            <div class="hero-scene">
+            <p class="sr-only" id="heroSceneHelp">
+                Interactive artwork. Swipe or use the left and right arrow keys to inspect the room. Use Tab to reach discoverable objects.
+            </p>
+
+            <div
+                class="hero-scene-viewport"
+                id="heroSceneViewport"
+                role="region"
+                aria-roledescription="interactive artwork"
+                tabindex="0"
+                aria-label="Harrow's lair"
+                aria-describedby="heroSceneHelp"
+            >
+
+                <div class="hero-scene">
 
                 <div class="hero-art" aria-hidden="true">
 
                     <img
-                        src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.png?v=20260828-gate0-01"
+                        src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.png?v=20260828-gate0-1-02"
                         alt=""
                         fetchpriority="high"
                         decoding="async"
@@ -330,7 +497,6 @@
                     data-hotspot="cabal"
                     aria-label="Inspect Harrow's Cabal board"
                 >
-                    <span class="hotspot-mark">+</span>
                     <span class="hotspot-label">THE CABAL</span>
                 </button>
 
@@ -341,7 +507,6 @@
                     data-hotspot="monitor"
                     aria-label="Inspect Harrow's Pulse Byte infrastructure"
                 >
-                    <span class="hotspot-mark">+</span>
                     <span class="hotspot-label">PULSE BYTE</span>
                 </button>
 
@@ -352,7 +517,6 @@
                     data-hotspot="harrow"
                     aria-label="Bother Harrow"
                 >
-                    <span class="hotspot-mark">+</span>
                     <span class="hotspot-label">HARROW</span>
                 </button>
 
@@ -363,7 +527,6 @@
                     data-hotspot="pages"
                     aria-label="Inspect Harrow's comic pages"
                 >
-                    <span class="hotspot-mark">+</span>
                     <span class="hotspot-label">PANELS</span>
                 </button>
 
@@ -374,7 +537,6 @@
                     data-hotspot="bike"
                     aria-label="Inspect Harrow's motorcycle"
                 >
-                    <span class="hotspot-mark">+</span>
                     <span class="hotspot-label">THE BIKE</span>
                 </button>
 
@@ -385,9 +547,10 @@
                     data-hotspot="redacted"
                     aria-label="Inspect Harrow's production copy"
                 >
-                    <span class="hotspot-mark">+</span>
                     <span class="hotspot-label">PUT THAT BACK</span>
                 </button>
+
+                </div>
 
             </div>
 
@@ -460,11 +623,25 @@
 
                         <div class="transmission-header">
                             <span>HARROW // INTERRUPTION</span>
-                            <span class="live-text">● LIVE</span>
+
+                            <div class="transmission-header-actions">
+                                <span class="live-text">● LIVE</span>
+                                <button
+                                    class="transmission-toggle"
+                                    id="transmissionToggle"
+                                    type="button"
+                                    aria-expanded="false"
+                                    aria-controls="heroTransmissionDetails"
+                                    aria-label="Expand Harrow transmission"
+                                    data-i18n="transmission.more"
+                                >
+                                    MORE
+                                </button>
+                            </div>
                         </div>
 
 
-                        <div class="transmission-body">
+                        <div class="transmission-body" id="heroTransmissionDetails">
 
                             <span class="transmission-label">
                                 CURRENT THOUGHT:
@@ -731,7 +908,7 @@
                                 class="terminal-action"
                                 id="terminalAction"
                             >
-                                SHOW HARROW
+                                SHOW ME
                             </button>
 
                         </div>
@@ -893,10 +1070,24 @@
                 </div>
 
 
+                <p class="sr-only" id="theoryWallHelp">
+                    Interactive theory wall. Swipe or use the left and right arrow keys to inspect it. Use Tab to reach discoverable notes.
+                </p>
+
                 <div
-                    class="obsession-wall"
-                    id="obsessionWall"
+                    class="obsession-wall-viewport"
+                    id="obsessionWallViewport"
+                    role="region"
+                    aria-roledescription="interactive artwork"
+                    tabindex="0"
+                    aria-label="Harrow's theory wall"
+                    aria-describedby="theoryWallHelp"
                 >
+
+                    <div
+                        class="obsession-wall"
+                        id="obsessionWall"
+                    >
 
                     <img
                         src="https://cdn.hellboxcomics.com/assets/brand/harrow/art/harrow-obssesion-wall.PNG"
@@ -992,7 +1183,9 @@
                         class="obsession-wall-hint"
                         aria-hidden="true"
                     >
-                        SOME OF THIS MOVES.
+                        SOME OF THIS MOVES. DON'T.
+                    </div>
+
                     </div>
 
                 </div>
@@ -1006,41 +1199,57 @@
              HARROW BRAIN TICKER
         ====================================================== -->
 
-        <div class="obsession-strip">
+        <div class="obsession-strip" aria-label="Fragments from Harrow's current train of thought">
 
-            <div class="obsession-track">
+            <button
+                class="ticker-toggle"
+                id="tickerToggle"
+                type="button"
+                aria-pressed="false"
+                data-i18n="motion.pause"
+            >
+                PAUSE
+            </button>
 
-                <span>369</span>
-                <i>//</i>
+            <div class="obsession-track" id="obsessionTrack">
 
-                <span>I HAD A POINT</span>
-                <i>//</i>
+                <div class="obsession-sequence">
+                    <span>I HAD A POINT</span><i>//</i>
+                    <span>WAIT. NO. THAT'S ACTUALLY FUNNY.</span><i>//</i>
+                    <span>WRITE THAT DOWN</span><i>//</i>
+                    <span>THE CABAL HAS A GROUP CHAT</span><i>//</i>
+                    <span>WHO LET ETHEREUM CHARGE RENT?</span><i>//</i>
+                    <span>EVERYONE'S AN ECONOMIST DURING A GREEN CANDLE</span><i>//</i>
+                    <span>THE RPC IS FINE. YOU'RE THE PROBLEM.</span><i>//</i>
+                    <span>RICHARD, THIS IS WHY I HAVE NOTES</span><i>//</i>
+                    <span>I READ THE DOCUMENT. MOST OF IT.</span><i>//</i>
+                    <span>SCREENSHOTS ARE FOREVER</span><i>//</i>
+                    <span>PULSICANS ARE VERY NORMAL PEOPLE</span><i>//</i>
+                    <span>I DON'T NEED A ROADMAP. I NEED MORE WALL.</span><i>//</i>
+                    <span>DON'T ERASE THAT</span><i>//</i>
+                    <span>WHERE WAS I?</span><i>//</i>
+                    <span>OH RIGHT. ME.</span><i>//</i>
+                    <span>369</span><i>//</i>
+                </div>
 
-                <span>WAIT</span>
-                <i>//</i>
-
-                <span>NO THAT'S ACTUALLY FUNNY</span>
-                <i>//</i>
-
-                <span>CODE IS SPEECH</span>
-                <i>//</i>
-
-                <span>WRITE THAT DOWN</span>
-                <i>//</i>
-
-                <span>RICHARD</span>
-                <i>//</i>
-
-                <span>WHERE WAS I</span>
-                <i>//</i>
-
-                <span>PULSECHAIN</span>
-                <i>//</i>
-
-                <span>OH RIGHT</span>
-                <i>//</i>
-
-                <span>369</span>
+                <div class="obsession-sequence" aria-hidden="true">
+                    <span>I HAD A POINT</span><i>//</i>
+                    <span>WAIT. NO. THAT'S ACTUALLY FUNNY.</span><i>//</i>
+                    <span>WRITE THAT DOWN</span><i>//</i>
+                    <span>THE CABAL HAS A GROUP CHAT</span><i>//</i>
+                    <span>WHO LET ETHEREUM CHARGE RENT?</span><i>//</i>
+                    <span>EVERYONE'S AN ECONOMIST DURING A GREEN CANDLE</span><i>//</i>
+                    <span>THE RPC IS FINE. YOU'RE THE PROBLEM.</span><i>//</i>
+                    <span>RICHARD, THIS IS WHY I HAVE NOTES</span><i>//</i>
+                    <span>I READ THE DOCUMENT. MOST OF IT.</span><i>//</i>
+                    <span>SCREENSHOTS ARE FOREVER</span><i>//</i>
+                    <span>PULSICANS ARE VERY NORMAL PEOPLE</span><i>//</i>
+                    <span>I DON'T NEED A ROADMAP. I NEED MORE WALL.</span><i>//</i>
+                    <span>DON'T ERASE THAT</span><i>//</i>
+                    <span>WHERE WAS I?</span><i>//</i>
+                    <span>OH RIGHT. ME.</span><i>//</i>
+                    <span>369</span><i>//</i>
+                </div>
 
             </div>
 
@@ -1192,10 +1401,24 @@
                          is the lever the visitor pulls.
                     ========================================== -->
 
+                    <p class="sr-only" id="pressMachineHelp">
+                        Interactive publishing machine. Swipe or use the left and right arrow keys to inspect it. Use Tab to reach the real lever and other controls.
+                    </p>
+
                     <div
-                        class="press-machine-zone"
-                        id="pressMachineZone"
+                        class="press-machine-viewport"
+                        id="pressMachineViewport"
+                        role="region"
+                        aria-roledescription="interactive machine"
+                        tabindex="0"
+                        aria-label="The Hellbox Press"
+                        aria-describedby="pressMachineHelp"
                     >
+
+                        <div
+                            class="press-machine-zone"
+                            id="pressMachineZone"
+                        >
 
                         <div
                             class="machine-field machine-field-one"
@@ -1237,7 +1460,6 @@
                             data-press-object="chain"
                             aria-label="Inspect the PulseChain terminal on the Hellbox Press"
                         >
-                            <span>+</span>
                             <small>CHAIN</small>
                         </button>
 
@@ -1248,7 +1470,6 @@
                             data-press-object="qc"
                             aria-label="Inspect Harrow's quality control station"
                         >
-                            <span>+</span>
                             <small>QC</small>
                         </button>
 
@@ -1259,7 +1480,6 @@
                             data-press-object="output"
                             aria-label="Inspect the Hellbox Press output"
                         >
-                            <span>+</span>
                             <small>OUTPUT</small>
                         </button>
 
@@ -1305,6 +1525,8 @@
                             id="pressWarning"
                         >
                             DO NOT PULL THAT.
+                        </div>
+
                         </div>
 
                     </div>
@@ -1840,6 +2062,7 @@
                         class="classified-object"
                         id="classifiedMainObject"
                         type="button"
+                        aria-label="Inspect the classified Hellbox system"
                     >
 
                         <div class="classified-orbit orbit-one"></div>
@@ -1992,6 +2215,9 @@
 
             <span>HELLBOX COMICS // A HARROW PRODUCTION</span>
             <span>HELLBOXCOMICS.COM</span>
+            <button type="button" data-open-access data-i18n="access.open">
+                ACCESS // LANGUAGE
+            </button>
             <span>WRITTEN // DRAWN // BUILT // OPERATED BY HARROW</span>
 
         </div>
@@ -2006,6 +2232,9 @@
     <section
         class="hellbox-reader"
         id="hellboxReader"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="readerTitle"
         aria-hidden="true"
     >
 
@@ -2233,7 +2462,7 @@
          FRONTEND APPLICATION
     ========================================================== -->
 
-    <script src="/app.js?v=20260828-gate0-01"></script>
+    <script src="/app.js?v=20260828-gate0-1-02"></script>
 
 </body>
 
