@@ -1,6 +1,6 @@
 /* ============================================================
    HELLBOX COMICS
-   FRONTEND APPLICATION V8 — GATE 0 STABILIZATION
+   FRONTEND APPLICATION V9 — GATE 0.1 ACCESSIBLE MOBILE/LAPTOP
    HARROW'S NERVOUS SYSTEM
    ------------------------------------------------------------
    - Relationship / Hellion memory
@@ -34,7 +34,9 @@
         pressTouches: "hellbox:press-touches:v2",
         relationship: "hellbox:relationship:v3",
         lastSeen: "hellbox:last-seen:v3",
-        dialogueHistory: "hellbox:dialogue-history:v1"
+        dialogueHistory: "hellbox:dialogue-history:v1",
+        accessibility: "hellbox:accessibility:v1",
+        uiLocale: "hellbox:ui-locale:v1"
     };
 
     /*
@@ -224,6 +226,18 @@
 
         diagnostics: {
             enabled: false
+        },
+
+        ui: {
+            locale: "en",
+            translations: {},
+            heroTransmissionInterval: null,
+            lastFocusedElement: null,
+            mobileMenuOpen: false,
+            accessPanelOpen: false,
+            tickerPaused: false,
+            mobileScrollTimer: null,
+            lastScrollY: 0
         }
     };
 
@@ -234,6 +248,8 @@
 
     const dom = {
         body: document.body,
+        main: $("#mainContent"),
+        a11yStatus: $("#a11yStatus"),
 
         cursorBurn: $("#cursorBurn"),
 
@@ -259,11 +275,31 @@
         drawerCopy: $("#drawerCopy"),
         drawerFootnote: $("#drawerFootnote"),
 
+        accessPanel: $("#accessPanel"),
+        accessPanelBackdrop: $("#accessPanelBackdrop"),
+        accessPanelClose: $("#accessPanelClose"),
+        accessTextToggle: $("#accessTextToggle"),
+        accessContrastToggle: $("#accessContrastToggle"),
+        accessMotionToggle: $("#accessMotionToggle"),
+        interfaceLanguage: $("#interfaceLanguage"),
+
+        mobileMenuButton: $("#mobileMenuButton"),
+        mobileNav: $("#mobileNav"),
+
         walletButton: $("#walletButton"),
 
         heroLogoButton: $("#heroLogoButton"),
         heroTransmission: $("#heroTransmission"),
         heroTransmissionSub: $("#heroTransmissionSub"),
+        heroTransmissionPanel: $(".hero-transmission"),
+        transmissionToggle: $("#transmissionToggle"),
+
+        tickerToggle: $("#tickerToggle"),
+        obsessionTrack: $("#obsessionTrack"),
+
+        heroSceneViewport: $("#heroSceneViewport"),
+        obsessionWallViewport: $("#obsessionWallViewport"),
+        pressMachineViewport: $("#pressMachineViewport"),
 
         therapyNote: $("#therapyNote"),
 
@@ -995,6 +1031,8 @@
         dom.harrowResponseText.textContent =
             text;
 
+        dom.harrowResponse.inert = false;
+
         dom.harrowResponse.classList.add(
             "active"
         );
@@ -1063,6 +1101,8 @@
             "aria-hidden",
             "true"
         );
+
+        dom.harrowResponse.inert = true;
     }
 
 
@@ -1749,12 +1789,32 @@
             thought.sub;
     }
 
+    function motionShouldBeReduced() {
+        return (
+            document.body.classList.contains(
+                "a11y-reduce-motion"
+            ) ||
+            window.matchMedia(
+                "(prefers-reduced-motion: reduce)"
+            ).matches
+        );
+    }
+
     function initHeroTransmission() {
         rotateHeroTransmission();
 
-        window.setInterval(() => {
-            rotateHeroTransmission();
-        }, 12500);
+        window.clearInterval(
+            state.ui.heroTransmissionInterval
+        );
+
+        if (motionShouldBeReduced()) {
+            return;
+        }
+
+        state.ui.heroTransmissionInterval =
+            window.setInterval(() => {
+                rotateHeroTransmission();
+            }, 12500);
     }
 
 
@@ -1774,6 +1834,9 @@
         }
 
         recordInteraction();
+
+        state.ui.lastFocusedElement =
+            document.activeElement;
 
         if (dom.drawerCode) {
             dom.drawerCode.textContent =
@@ -1800,6 +1863,8 @@
                 footnote;
         }
 
+        dom.drawer.inert = false;
+
         dom.drawer.classList.add(
             "active"
         );
@@ -1812,6 +1877,10 @@
         document.body.classList.add(
             "drawer-open"
         );
+
+        window.setTimeout(() => {
+            dom.drawerClose?.focus();
+        }, 0);
     }
 
     function closeDrawer() {
@@ -1828,9 +1897,19 @@
             "true"
         );
 
+        dom.drawer.inert = true;
+
         document.body.classList.remove(
             "drawer-open"
         );
+
+        if (
+            state.ui.lastFocusedElement &&
+            typeof state.ui.lastFocusedElement.focus ===
+                "function"
+        ) {
+            state.ui.lastFocusedElement.focus();
+        }
     }
 
 
@@ -2023,9 +2102,6 @@
                  * still visually hidden, but the browser cursor
                  * changes when the pointer actually enters one.
                  */
-
-                button.style.cursor =
-                    "crosshair";
 
                 button.setAttribute(
                     "aria-label",
@@ -2355,6 +2431,1080 @@
                 );
             }
         );
+    }
+
+
+    /* =========================================================
+       RESPONSIVE ART VIEWPORTS
+       Mobile treats the lair, theory wall and Press as rooms that
+       can be explored horizontally instead of crushing the art.
+       ========================================================= */
+
+    function positionMobileArtViewport(
+        selector,
+        ratio
+    ) {
+        const viewport =
+            $(selector);
+
+        if (
+            !viewport ||
+            viewport.dataset.initialPosition ===
+                "set"
+        ) {
+            return;
+        }
+
+        const applyPosition = () => {
+            const maximum =
+                Math.max(
+                    0,
+                    viewport.scrollWidth -
+                    viewport.clientWidth
+                );
+
+            if (maximum <= 0) {
+                return;
+            }
+
+            viewport.scrollLeft =
+                maximum * ratio;
+
+            viewport.dataset.initialPosition =
+                "set";
+        };
+
+        const image =
+            $("img", viewport);
+
+        if (
+            image &&
+            !image.complete
+        ) {
+            image.addEventListener(
+                "load",
+                () => {
+                    window.requestAnimationFrame(
+                        applyPosition
+                    );
+                },
+                {
+                    once: true
+                }
+            );
+
+        } else {
+            window.requestAnimationFrame(
+                applyPosition
+            );
+        }
+    }
+
+    function initResponsiveArtViews() {
+        const mobile =
+            window.matchMedia(
+                "(max-width: 760px)"
+            );
+
+        if (!mobile.matches) {
+            return;
+        }
+
+        positionMobileArtViewport(
+            "#heroSceneViewport",
+            0.68
+        );
+
+        positionMobileArtViewport(
+            "#obsessionWallViewport",
+            0.48
+        );
+
+        positionMobileArtViewport(
+            "#pressMachineViewport",
+            0.52
+        );
+    }
+
+
+    /* =========================================================
+       ACCESSIBILITY, INTERFACE LANGUAGE, AND MOBILE CONTROL
+       ========================================================= */
+
+    const SUPPORTED_UI_LOCALES = new Set([
+        "en",
+        "es",
+        "pt-BR"
+    ]);
+
+    function announceStatus(message) {
+        if (!dom.a11yStatus || !message) {
+            return;
+        }
+
+        dom.a11yStatus.textContent = "";
+
+        window.requestAnimationFrame(() => {
+            dom.a11yStatus.textContent =
+                String(message);
+        });
+    }
+
+    function translation(key, fallback = "") {
+        return (
+            state.ui.translations?.[key] ||
+            fallback ||
+            key
+        );
+    }
+
+    async function loadUiLocale(locale) {
+        const nextLocale =
+            SUPPORTED_UI_LOCALES.has(locale)
+                ? locale
+                : "en";
+
+        try {
+            const response = await fetch(
+                `/locales/${encodeURIComponent(nextLocale)}.json?v=20260828-gate0-1-02`,
+                {
+                    cache: "force-cache"
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    `Locale ${nextLocale} unavailable.`
+                );
+            }
+
+            state.ui.translations =
+                await response.json();
+
+            state.ui.locale =
+                nextLocale;
+
+        } catch (error) {
+            if (nextLocale !== "en") {
+                return loadUiLocale("en");
+            }
+
+            state.ui.locale = "en";
+            state.ui.translations = {};
+        }
+
+        document.documentElement.dataset.uiLocale =
+            state.ui.locale;
+
+        $$('[data-i18n]').forEach((element) => {
+            const key =
+                element.dataset.i18n;
+
+            const nextText =
+                state.ui.translations?.[key];
+
+            if (typeof nextText === "string") {
+                element.textContent =
+                    nextText;
+            }
+        });
+
+        if (dom.interfaceLanguage) {
+            dom.interfaceLanguage.value =
+                state.ui.locale;
+        }
+
+        if (storageAvailable("localStorage")) {
+            try {
+                window.localStorage.setItem(
+                    STORAGE_KEYS.uiLocale,
+                    state.ui.locale
+                );
+            } catch (error) {
+                // Non-critical.
+            }
+        }
+
+        updateAccessSettingLabels();
+        updateTickerControl();
+        updateTransmissionDisclosure();
+    }
+
+    function preferredUiLocale() {
+        if (storageAvailable("localStorage")) {
+            try {
+                const stored =
+                    window.localStorage.getItem(
+                        STORAGE_KEYS.uiLocale
+                    );
+
+                if (SUPPORTED_UI_LOCALES.has(stored)) {
+                    return stored;
+                }
+            } catch (error) {
+                // Fall back to browser language.
+            }
+        }
+
+        const browserLanguages =
+            navigator.languages ||
+            [navigator.language || "en"];
+
+        for (const item of browserLanguages) {
+            if (SUPPORTED_UI_LOCALES.has(item)) {
+                return item;
+            }
+
+            const base =
+                String(item).split("-")[0];
+
+            if (SUPPORTED_UI_LOCALES.has(base)) {
+                return base;
+            }
+
+            if (
+                base === "pt" &&
+                SUPPORTED_UI_LOCALES.has("pt-BR")
+            ) {
+                return "pt-BR";
+            }
+        }
+
+        return "en";
+    }
+
+    function readAccessibilityPreferences() {
+        const fallback = {
+            largeText: false,
+            highContrast: false,
+            reduceMotion: false
+        };
+
+        if (!storageAvailable("localStorage")) {
+            return fallback;
+        }
+
+        try {
+            const raw =
+                window.localStorage.getItem(
+                    STORAGE_KEYS.accessibility
+                );
+
+            if (!raw) {
+                return fallback;
+            }
+
+            return {
+                ...fallback,
+                ...JSON.parse(raw)
+            };
+
+        } catch (error) {
+            return fallback;
+        }
+    }
+
+    function writeAccessibilityPreferences(preferences) {
+        if (!storageAvailable("localStorage")) {
+            return;
+        }
+
+        try {
+            window.localStorage.setItem(
+                STORAGE_KEYS.accessibility,
+                JSON.stringify(preferences)
+            );
+        } catch (error) {
+            // Non-critical.
+        }
+    }
+
+    function currentAccessibilityPreferences() {
+        return {
+            largeText:
+                document.body.classList.contains(
+                    "a11y-large-text"
+                ),
+            highContrast:
+                document.body.classList.contains(
+                    "a11y-high-contrast"
+                ),
+            reduceMotion:
+                document.body.classList.contains(
+                    "a11y-reduce-motion"
+                )
+        };
+    }
+
+    function setAccessPreference(name, enabled, {
+        save = true,
+        announce = true
+    } = {}) {
+        const className = {
+            largeText: "a11y-large-text",
+            highContrast: "a11y-high-contrast",
+            reduceMotion: "a11y-reduce-motion"
+        }[name];
+
+        if (!className) {
+            return;
+        }
+
+        document.body.classList.toggle(
+            className,
+            Boolean(enabled)
+        );
+
+        if (save) {
+            writeAccessibilityPreferences(
+                currentAccessibilityPreferences()
+            );
+        }
+
+        updateAccessSettingLabels();
+
+        if (name === "reduceMotion") {
+            initHeroTransmission();
+            updateTickerControl();
+        }
+
+        if (announce) {
+            const label = {
+                largeText: "Larger text",
+                highContrast: "High contrast",
+                reduceMotion: "Reduced motion"
+            }[name];
+
+            announceStatus(
+                `${label} ${enabled ? "on" : "off"}.`
+            );
+        }
+    }
+
+    function updateAccessSettingLabels() {
+        const controls = [
+            [dom.accessTextToggle, "largeText"],
+            [dom.accessContrastToggle, "highContrast"],
+            [dom.accessMotionToggle, "reduceMotion"]
+        ];
+
+        controls.forEach(([button, key]) => {
+            if (!button) {
+                return;
+            }
+
+            const enabled =
+                currentAccessibilityPreferences()[key];
+
+            button.setAttribute(
+                "aria-pressed",
+                enabled ? "true" : "false"
+            );
+
+            const stateElement =
+                $("[data-setting-state]", button);
+
+            if (stateElement) {
+                stateElement.textContent =
+                    enabled
+                        ? translation("setting.on", "ON")
+                        : translation("setting.off", "OFF");
+            }
+        });
+    }
+
+    function focusableElements(root) {
+        if (!root) {
+            return [];
+        }
+
+        return $$(
+            'a[href], button:not([disabled]), select:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+            root
+        ).filter((element) => {
+            return (
+                element.offsetWidth > 0 ||
+                element.offsetHeight > 0
+            );
+        });
+    }
+
+    function trapFocus(event, root) {
+        if (
+            event.key !== "Tab" ||
+            !root
+        ) {
+            return false;
+        }
+
+        const items =
+            focusableElements(root);
+
+        if (items.length === 0) {
+            return false;
+        }
+
+        const first = items[0];
+        const last = items[items.length - 1];
+
+        if (
+            event.shiftKey &&
+            document.activeElement === first
+        ) {
+            event.preventDefault();
+            last.focus();
+            return true;
+        }
+
+        if (
+            !event.shiftKey &&
+            document.activeElement === last
+        ) {
+            event.preventDefault();
+            first.focus();
+            return true;
+        }
+
+        return false;
+    }
+
+    function openAccessPanel() {
+        if (!dom.accessPanel) {
+            return;
+        }
+
+        state.ui.lastFocusedElement =
+            document.activeElement;
+
+        state.ui.accessPanelOpen = true;
+
+        dom.accessPanel.inert = false;
+        dom.accessPanel.classList.add("active");
+        dom.accessPanel.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+        document.body.classList.add(
+            "access-panel-open"
+        );
+
+        closeMobileMenu();
+
+        window.setTimeout(() => {
+            dom.accessPanelClose?.focus();
+        }, 0);
+    }
+
+    function closeAccessPanel() {
+        if (!dom.accessPanel) {
+            return;
+        }
+
+        state.ui.accessPanelOpen = false;
+
+        dom.accessPanel.classList.remove("active");
+        dom.accessPanel.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        dom.accessPanel.inert = true;
+
+        document.body.classList.remove(
+            "access-panel-open"
+        );
+
+        if (
+            state.ui.lastFocusedElement &&
+            typeof state.ui.lastFocusedElement.focus ===
+                "function"
+        ) {
+            state.ui.lastFocusedElement.focus();
+        }
+    }
+
+    function initAccessibilityPanel() {
+        const preferences =
+            readAccessibilityPreferences();
+
+        setAccessPreference(
+            "largeText",
+            Boolean(preferences.largeText),
+            { save: false, announce: false }
+        );
+
+        setAccessPreference(
+            "highContrast",
+            Boolean(preferences.highContrast),
+            { save: false, announce: false }
+        );
+
+        setAccessPreference(
+            "reduceMotion",
+            Boolean(preferences.reduceMotion),
+            { save: false, announce: false }
+        );
+
+        $$('[data-open-access]').forEach((button) => {
+            button.addEventListener(
+                "click",
+                openAccessPanel
+            );
+        });
+
+        dom.accessPanelBackdrop?.addEventListener(
+            "click",
+            closeAccessPanel
+        );
+
+        dom.accessPanelClose?.addEventListener(
+            "click",
+            closeAccessPanel
+        );
+
+        dom.accessTextToggle?.addEventListener(
+            "click",
+            () => {
+                setAccessPreference(
+                    "largeText",
+                    !document.body.classList.contains(
+                        "a11y-large-text"
+                    )
+                );
+            }
+        );
+
+        dom.accessContrastToggle?.addEventListener(
+            "click",
+            () => {
+                setAccessPreference(
+                    "highContrast",
+                    !document.body.classList.contains(
+                        "a11y-high-contrast"
+                    )
+                );
+            }
+        );
+
+        dom.accessMotionToggle?.addEventListener(
+            "click",
+            () => {
+                setAccessPreference(
+                    "reduceMotion",
+                    !document.body.classList.contains(
+                        "a11y-reduce-motion"
+                    )
+                );
+            }
+        );
+
+        dom.interfaceLanguage?.addEventListener(
+            "change",
+            () => {
+                loadUiLocale(
+                    dom.interfaceLanguage.value
+                );
+
+                announceStatus(
+                    "Interface language updated."
+                );
+            }
+        );
+    }
+
+    function openMobileMenu() {
+        if (!dom.mobileNav) {
+            return;
+        }
+
+        state.ui.mobileMenuOpen = true;
+
+        dom.mobileNav.inert = false;
+        dom.mobileNav.classList.add("active");
+        dom.mobileNav.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+        dom.mobileMenuButton?.setAttribute(
+            "aria-expanded",
+            "true"
+        );
+
+        const first =
+            focusableElements(dom.mobileNav)[0];
+
+        first?.focus();
+    }
+
+    function closeMobileMenu({ restoreFocus = false } = {}) {
+        if (!dom.mobileNav) {
+            return;
+        }
+
+        state.ui.mobileMenuOpen = false;
+
+        dom.mobileNav.classList.remove("active");
+        dom.mobileNav.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        dom.mobileNav.inert = true;
+
+        dom.mobileMenuButton?.setAttribute(
+            "aria-expanded",
+            "false"
+        );
+
+        if (restoreFocus) {
+            dom.mobileMenuButton?.focus();
+        }
+    }
+
+    function initMobileMenu() {
+        dom.mobileMenuButton?.addEventListener(
+            "click",
+            () => {
+                if (state.ui.mobileMenuOpen) {
+                    closeMobileMenu({
+                        restoreFocus: true
+                    });
+                } else {
+                    openMobileMenu();
+                }
+            }
+        );
+
+        dom.mobileNav?.addEventListener(
+            "click",
+            (event) => {
+                if (event.target.closest("a")) {
+                    closeMobileMenu();
+                }
+            }
+        );
+
+        document.addEventListener(
+            "pointerdown",
+            (event) => {
+                if (
+                    !state.ui.mobileMenuOpen ||
+                    dom.mobileNav?.contains(
+                        event.target
+                    ) ||
+                    dom.mobileMenuButton?.contains(
+                        event.target
+                    )
+                ) {
+                    return;
+                }
+
+                closeMobileMenu();
+            }
+        );
+    }
+
+    function updateTransmissionDisclosure() {
+        if (
+            !dom.heroTransmissionPanel ||
+            !dom.transmissionToggle
+        ) {
+            return;
+        }
+
+        const expanded =
+            dom.heroTransmissionPanel.classList.contains(
+                "is-expanded"
+            );
+
+        dom.transmissionToggle.setAttribute(
+            "aria-expanded",
+            expanded ? "true" : "false"
+        );
+
+        dom.transmissionToggle.textContent =
+            expanded
+                ? translation("transmission.less", "LESS")
+                : translation("transmission.more", "MORE");
+
+        dom.transmissionToggle.setAttribute(
+            "aria-label",
+            expanded
+                ? "Collapse Harrow transmission"
+                : "Expand Harrow transmission"
+        );
+    }
+
+    function initTransmissionDisclosure() {
+        dom.transmissionToggle?.addEventListener(
+            "click",
+            () => {
+                dom.heroTransmissionPanel?.classList.toggle(
+                    "is-expanded"
+                );
+
+                updateTransmissionDisclosure();
+            }
+        );
+
+        updateTransmissionDisclosure();
+    }
+
+    function updateTickerControl() {
+        if (!dom.tickerToggle) {
+            return;
+        }
+
+        const reduced =
+            motionShouldBeReduced();
+
+        dom.tickerToggle.hidden =
+            reduced;
+
+        dom.tickerToggle.setAttribute(
+            "aria-pressed",
+            state.ui.tickerPaused
+                ? "true"
+                : "false"
+        );
+
+        dom.tickerToggle.textContent =
+            state.ui.tickerPaused
+                ? translation("motion.resume", "RESUME")
+                : translation("motion.pause", "PAUSE");
+
+        dom.tickerToggle.closest(
+            ".obsession-strip"
+        )?.classList.toggle(
+            "is-paused",
+            state.ui.tickerPaused
+        );
+    }
+
+    function initTickerControl() {
+        dom.tickerToggle?.addEventListener(
+            "click",
+            () => {
+                state.ui.tickerPaused =
+                    !state.ui.tickerPaused;
+
+                updateTickerControl();
+
+                announceStatus(
+                    state.ui.tickerPaused
+                        ? "Moving thought ticker paused."
+                        : "Moving thought ticker resumed."
+                );
+            }
+        );
+
+        updateTickerControl();
+    }
+
+    function initArtViewportControls() {
+        const viewports = [
+            dom.heroSceneViewport,
+            dom.obsessionWallViewport,
+            dom.pressMachineViewport
+        ].filter(Boolean);
+
+        viewports.forEach((viewport) => {
+            viewport.addEventListener(
+                "keydown",
+                (event) => {
+                    const step =
+                        Math.max(
+                            80,
+                            viewport.clientWidth * 0.42
+                        );
+
+                    if (event.key === "ArrowLeft") {
+                        event.preventDefault();
+                        viewport.scrollBy({
+                            left: -step,
+                            behavior: motionShouldBeReduced()
+                                ? "auto"
+                                : "smooth"
+                        });
+                    }
+
+                    if (event.key === "ArrowRight") {
+                        event.preventDefault();
+                        viewport.scrollBy({
+                            left: step,
+                            behavior: motionShouldBeReduced()
+                                ? "auto"
+                                : "smooth"
+                        });
+                    }
+
+                    if (event.key === "Home") {
+                        event.preventDefault();
+                        viewport.scrollTo({
+                            left: 0,
+                            behavior: motionShouldBeReduced()
+                                ? "auto"
+                                : "smooth"
+                        });
+                    }
+
+                    if (event.key === "End") {
+                        event.preventDefault();
+                        viewport.scrollTo({
+                            left:
+                                viewport.scrollWidth,
+                            behavior: motionShouldBeReduced()
+                                ? "auto"
+                                : "smooth"
+                        });
+                    }
+                }
+            );
+
+            let dragging = false;
+            let startX = 0;
+            let startScroll = 0;
+
+            viewport.addEventListener(
+                "pointerdown",
+                (event) => {
+                    if (
+                        event.pointerType !== "mouse" ||
+                        event.target.closest(
+                            "button, a, select, input"
+                        )
+                    ) {
+                        return;
+                    }
+
+                    dragging = true;
+                    startX = event.clientX;
+                    startScroll = viewport.scrollLeft;
+                    viewport.classList.add("is-dragging");
+                    viewport.setPointerCapture(
+                        event.pointerId
+                    );
+                }
+            );
+
+            viewport.addEventListener(
+                "pointermove",
+                (event) => {
+                    if (!dragging) {
+                        return;
+                    }
+
+                    viewport.scrollLeft =
+                        startScroll -
+                        (event.clientX - startX);
+                }
+            );
+
+            const endDrag = (event) => {
+                if (!dragging) {
+                    return;
+                }
+
+                dragging = false;
+                viewport.classList.remove(
+                    "is-dragging"
+                );
+
+                try {
+                    viewport.releasePointerCapture(
+                        event.pointerId
+                    );
+                } catch (error) {
+                    // Pointer capture may already be released.
+                }
+            };
+
+            viewport.addEventListener(
+                "pointerup",
+                endDrag
+            );
+
+            viewport.addEventListener(
+                "pointercancel",
+                endDrag
+            );
+        });
+    }
+
+    function initMobileHeaderBehavior() {
+        const mobile =
+            window.matchMedia(
+                "(max-width: 760px)"
+            );
+
+        const header =
+            $(".site-header");
+
+        if (!header) {
+            return;
+        }
+
+        state.ui.lastScrollY =
+            window.scrollY;
+
+        window.addEventListener(
+            "scroll",
+            () => {
+                if (!mobile.matches) {
+                    header.classList.remove(
+                        "header-hidden"
+                    );
+                    document.body.classList.remove(
+                        "header-hidden-state",
+                        "mobile-scrolling"
+                    );
+                    return;
+                }
+
+                const current =
+                    Math.max(0, window.scrollY);
+
+                const delta =
+                    current -
+                    state.ui.lastScrollY;
+
+                const blocked =
+                    document.body.classList.contains(
+                        "drawer-open"
+                    ) ||
+                    document.body.classList.contains(
+                        "reader-open"
+                    ) ||
+                    document.body.classList.contains(
+                        "access-panel-open"
+                    ) ||
+                    state.ui.mobileMenuOpen;
+
+                if (!blocked && current > 120) {
+                    if (delta > 7) {
+                        header.classList.add(
+                            "header-hidden"
+                        );
+                        document.body.classList.add(
+                            "header-hidden-state"
+                        );
+                    } else if (delta < -5) {
+                        header.classList.remove(
+                            "header-hidden"
+                        );
+                        document.body.classList.remove(
+                            "header-hidden-state"
+                        );
+                    }
+                } else {
+                    header.classList.remove(
+                        "header-hidden"
+                    );
+                    document.body.classList.remove(
+                        "header-hidden-state"
+                    );
+                }
+
+                document.body.classList.add(
+                    "mobile-scrolling"
+                );
+
+                window.clearTimeout(
+                    state.ui.mobileScrollTimer
+                );
+
+                state.ui.mobileScrollTimer =
+                    window.setTimeout(() => {
+                        document.body.classList.remove(
+                            "mobile-scrolling"
+                        );
+                    }, 180);
+
+                state.ui.lastScrollY =
+                    current;
+            },
+            {
+                passive: true
+            }
+        );
+    }
+
+    function initSectionNavigationState() {
+        if (!("IntersectionObserver" in window)) {
+            return;
+        }
+
+        const links = $$([
+            '.header-nav a[href^="#"]',
+            '.mobile-nav a[href^="#"]'
+        ].join(","));
+
+        const byTarget = new Map();
+
+        links.forEach((link) => {
+            const target =
+                link.getAttribute("href");
+
+            if (!byTarget.has(target)) {
+                byTarget.set(target, []);
+            }
+
+            byTarget.get(target).push(link);
+        });
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const visible = entries
+                    .filter((entry) => entry.isIntersecting)
+                    .sort(
+                        (a, b) =>
+                            b.intersectionRatio -
+                            a.intersectionRatio
+                    )[0];
+
+                if (!visible) {
+                    return;
+                }
+
+                const hash =
+                    `#${visible.target.id}`;
+
+                links.forEach((link) => {
+                    link.removeAttribute(
+                        "aria-current"
+                    );
+                });
+
+                (byTarget.get(hash) || [])
+                    .forEach((link) => {
+                        link.setAttribute(
+                            "aria-current",
+                            "true"
+                        );
+                    });
+            },
+            {
+                rootMargin: "-25% 0px -60% 0px",
+                threshold: [0.05, 0.25, 0.5]
+            }
+        );
+
+        [
+            "archive",
+            "evidence",
+            "press",
+            "harrow",
+            "signals"
+        ].forEach((id) => {
+            const section =
+                document.getElementById(id);
+
+            if (section) {
+                observer.observe(section);
+            }
+        });
     }
 
 
@@ -3985,8 +5135,14 @@ if (dom.readerDormantObject) {
                     )
                     : (
                         isHellion()
-                            ? "SHOW ME AGAIN"
-                            : "SHOW HARROW"
+                            ? translation(
+                                "wallet.showAgain",
+                                "SHOW ME AGAIN"
+                            )
+                            : translation(
+                                "wallet.show",
+                                "SHOW ME"
+                            )
                     );
         }
 
@@ -4038,8 +5194,14 @@ if (dom.readerDormantObject) {
                     ? "LOOK AGAIN"
                     : (
                         isHellion()
-                            ? "SHOW ME AGAIN"
-                            : "SHOW HARROW"
+                            ? translation(
+                                "wallet.showAgain",
+                                "SHOW ME AGAIN"
+                            )
+                            : translation(
+                                "wallet.show",
+                                "SHOW ME"
+                            )
                     );
         }
 
@@ -4797,6 +5959,14 @@ if (dom.readerDormantObject) {
             return payload.manifest.pages;
         }
 
+        if (
+            Array.isArray(
+                payload?.reader?.manifest?.pages
+            )
+        ) {
+            return payload.reader.manifest.pages;
+        }
+
         return [];
     }
 
@@ -4819,6 +5989,7 @@ if (dom.readerDormantObject) {
             page.src ||
             page.assetUrl ||
             page.asset ||
+            page.endpoint ||
             null
         );
     }
@@ -4829,6 +6000,9 @@ if (dom.readerDormantObject) {
         if (!publicationKey) {
             return;
         }
+
+        state.ui.lastFocusedElement =
+            document.activeElement;
 
         const publication =
             state.publications.find(
@@ -4864,6 +6038,8 @@ if (dom.readerDormantObject) {
         }
 
         if (dom.reader) {
+            dom.reader.inert = false;
+
             dom.reader.classList.add(
                 "active"
             );
@@ -4880,6 +6056,10 @@ if (dom.readerDormantObject) {
 
         state.reader.open =
             true;
+
+        window.setTimeout(() => {
+            dom.readerClose?.focus();
+        }, 0);
 
         hideReaderError();
 
@@ -4962,6 +6142,8 @@ if (dom.readerDormantObject) {
             "true"
         );
 
+        dom.reader.inert = true;
+
         document.body.classList.remove(
             "reader-open"
         );
@@ -4974,6 +6156,14 @@ if (dom.readerDormantObject) {
         hideReaderLoading();
 
         updateDiagnostics();
+
+        if (
+            state.ui.lastFocusedElement &&
+            typeof state.ui.lastFocusedElement.focus ===
+                "function"
+        ) {
+            state.ui.lastFocusedElement.focus();
+        }
     }
 
     function renderReader() {
@@ -5305,6 +6495,22 @@ if (dom.readerDormantObject) {
                  */
 
                 if (
+                    event.altKey &&
+                    event.key.toLowerCase() ===
+                        "a"
+                ) {
+                    event.preventDefault();
+
+                    if (state.ui.accessPanelOpen) {
+                        closeAccessPanel();
+                    } else {
+                        openAccessPanel();
+                    }
+
+                    return;
+                }
+
+                if (
                     event.ctrlKey &&
                     event.shiftKey &&
                     event.key.toLowerCase() ===
@@ -5317,6 +6523,29 @@ if (dom.readerDormantObject) {
                     return;
                 }
 
+
+                if (state.ui.accessPanelOpen) {
+                    if (event.key === "Escape") {
+                        closeAccessPanel();
+                        return;
+                    }
+
+                    if (trapFocus(event, dom.accessPanel)) {
+                        return;
+                    }
+                }
+
+                if (state.ui.mobileMenuOpen) {
+                    if (event.key === "Escape") {
+                        closeMobileMenu({ restoreFocus: true });
+                        return;
+                    }
+
+                    if (trapFocus(event, dom.mobileNav)) {
+                        return;
+                    }
+                }
+
                 if (
                     dom.drawer?.classList.contains(
                         "active"
@@ -5327,7 +6556,10 @@ if (dom.readerDormantObject) {
                         "Escape"
                     ) {
                         closeDrawer();
+                        return;
                     }
+
+                    trapFocus(event, dom.drawer);
 
                     return;
                 }
@@ -5358,6 +6590,10 @@ if (dom.readerDormantObject) {
                 ) {
                     closeReader();
 
+                    return;
+                }
+
+                if (trapFocus(event, dom.reader)) {
                     return;
                 }
 
@@ -5930,6 +7166,18 @@ if (dom.readerDormantObject) {
        ========================================================= */
 
     async function init() {
+        [
+            dom.drawer,
+            dom.harrowResponse,
+            dom.reader,
+            dom.accessPanel,
+            dom.mobileNav
+        ].filter(Boolean).forEach((element) => {
+            element.inert =
+                element.getAttribute("aria-hidden") ===
+                "true";
+        });
+
         loadRelationship();
         loadDiscoveries();
         loadDialogueHistory();
@@ -5942,8 +7190,21 @@ if (dom.readerDormantObject) {
 
         updateExitAfterthought();
 
+        await loadUiLocale(
+            preferredUiLocale()
+        );
+
+        initAccessibilityPanel();
+        initMobileMenu();
+        initTransmissionDisclosure();
+        initTickerControl();
+        initArtViewportControls();
+        initMobileHeaderBehavior();
+        initSectionNavigationState();
+
         initCursorBurn();
         initHeroTransmission();
+        initResponsiveArtViews();
 
         initDrawerEvents();
         initKeyboardControls();
