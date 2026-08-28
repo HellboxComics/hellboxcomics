@@ -1,6 +1,6 @@
 /* ============================================================
    HELLBOX COMICS
-   FRONTEND APPLICATION V7
+   FRONTEND APPLICATION V8 — GATE 0 STABILIZATION
    HARROW'S NERVOUS SYSTEM
    ------------------------------------------------------------
    - Relationship / Hellion memory
@@ -32,15 +32,19 @@
         discoveries: "hellbox:discoveries:v2",
         visits: "hellbox:visits:v3",
         pressTouches: "hellbox:press-touches:v2",
-        relationship: "hellbox:relationship:v2",
-        lastSeen: "hellbox:last-seen:v2",
+        relationship: "hellbox:relationship:v3",
+        lastSeen: "hellbox:last-seen:v3",
         dialogueHistory: "hellbox:dialogue-history:v1"
     };
 
-    const HELLION_THRESHOLDS = {
-        noticed: 4,
-        familiar: 9,
-        hellion: 18
+    /*
+     * Local recognition is presentation-only.
+     * Real HELLION standing will be issued by the future server-side
+     * history/standing engine and can never be earned by button farming.
+     */
+    const PROTOTYPE_RELATIONSHIP_THRESHOLDS = {
+        noticed: 5,
+        familiar: 14
     };
 
     const MESSAGE_TIMINGS = {
@@ -262,10 +266,8 @@
         heroTransmissionSub: $("#heroTransmissionSub"),
 
         therapyNote: $("#therapyNote"),
-        boxDefinitionObject: $("#boxDefinitionObject"),
 
         publicationCount: $("#publicationCount"),
-        hellionStatusObject: $("#hellionStatusObject"),
         readerDormantObject: $("#readerDormantObject"),
 
         collectionWallet: $("#collectionWallet"),
@@ -1221,21 +1223,14 @@
     function relationshipStageForScore(score) {
         if (
             score >=
-            HELLION_THRESHOLDS.hellion
-        ) {
-            return "hellion";
-        }
-
-        if (
-            score >=
-            HELLION_THRESHOLDS.familiar
+            PROTOTYPE_RELATIONSHIP_THRESHOLDS.familiar
         ) {
             return "familiar";
         }
 
         if (
             score >=
-            HELLION_THRESHOLDS.noticed
+            PROTOTYPE_RELATIONSHIP_THRESHOLDS.noticed
         ) {
             return "noticed";
         }
@@ -1310,21 +1305,6 @@
 
             return;
         }
-
-        if (nextStage === "hellion") {
-            showHarrowResponse(
-                "HELLION.",
-                "There. You stayed long enough to become a problem.",
-                {
-                    importance: "important"
-                }
-            );
-
-            whisper(
-                "Welcome to the bad idea.",
-                7000
-            );
-        }
     }
 
     function recordInteraction(
@@ -1368,19 +1348,15 @@
     }
 
     function isHellion() {
-        return (
-            currentRelationshipStage() ===
-            "hellion"
-        );
+        /*
+         * Gate 0 intentionally refuses to mint fake status in localStorage.
+         * The production relationship engine will answer this from Hellbox history.
+         */
+        return false;
     }
 
     function isFamiliar() {
-        return (
-            currentRelationshipStage() ===
-                "familiar" ||
-            currentRelationshipStage() ===
-                "hellion"
-        );
+        return currentRelationshipStage() === "familiar";
     }
 
 
@@ -1892,38 +1868,37 @@
 
         monitor: {
             code:
-                "TERMINAL // 369",
+                "INFRASTRUCTURE // RPC",
 
             eyebrow:
-                "HARROW // CHAIN",
+                "HARROW // UNDER THE FLOORBOARDS",
 
             title:
-                "PULSECHAIN.",
+                "PULSE BYTE.",
 
             html: `
                 <p>
-                    Cheap enough to make bad ideas economically viable.
+                    HairyLabs keeps the lair connected to PulseChain.
                 </p>
 
                 <p>
-                    Fast enough that I can make another one
-                    before anyone talks me out of the first.
+                    The comics are the point.
+                    This is the machinery that refuses to become an excuse.
                 </p>
 
                 <p>
-                    The natives call themselves Pulsicans.
-                    I did not invent that.
-                    Which somehow makes it better.
+                    Public RPCs are communal drinking fountains.
+                    Harrow prefers his own plumbing.
                 </p>
             `,
 
             footnote:
-                "CHAIN // 369 // CODE IS SPEECH."
+                "CHAIN // 369 // RPC STATUS // CONNECTED."
         },
 
         harrow: {
             code:
-                "SUBJECT // OBVIOUS",
+                "HARROW // OBVIOUS",
 
             eyebrow:
                 "HARROW // HARROW",
@@ -1973,67 +1948,69 @@
 
         bike: {
             code:
-                "MACHINE // DEADLINE",
+                "MACHINE // UNNAMED",
 
             eyebrow:
-                "HARROW // TRANSPORTATION",
+                "HARROW // CAGES ARE FOR OTHER PEOPLE",
 
             title:
-                "DEADLINE.",
+                "THE BIKE.",
 
             html: `
                 <p>
-                    Harrow hates cages.
+                    Harrow hates cars.
                 </p>
 
                 <p>
                     Cars are cages.
-                    DEADLINE is the loophole.
+                    This is what he uses when the room gets too small.
                 </p>
 
                 <p>
-                    Blacked out until the light catches it.
-                    Then the paint turns candy blood red,
-                    like the bike was waiting for witnesses.
+                    Blacked-out steel.
+                    Low enough to look guilty standing still.
+                    Loud enough to finish the argument before Harrow starts it.
                 </p>
 
                 <p>
-                    It is not transportation.
-                    It is a deadline with handlebars.
+                    It has a name.
+                    The last one was rejected.
+                    Try not to get attached to anything unfinished.
                 </p>
             `,
 
             footnote:
-                "STATUS // PARKED. PATIENCE // NOT INSTALLED."
+                "NAME // NOT GOOD ENOUGH YET."
         },
 
         redacted: {
             code:
-                "KEYS // DO NOT",
+                "PRESS COPY // NOT FOR RELEASE",
 
             eyebrow:
-                "HARROW // PERSONAL PROPERTY",
+                "HARROW // PUT IT DOWN",
 
             title:
                 "PUT THAT BACK.",
 
             html: `
                 <p>
-                    Those are DEADLINE's keys.
+                    It says PRODUCTION COPY.
                 </p>
 
                 <p>
-                    You already found the motorcycle.
-                    This is the part where curiosity becomes theft.
+                    It also says NOT FOR RELEASE.
+                    Harrow admired the part where you interpreted both as an invitation.
                 </p>
 
                 <p>
-                    Put them back before Harrow notices.
+                    BURN AFTER READING was written for him.
+                    Not you.
                 </p>
             `,
 
             footnote:
-                "CAGES // HATED. BORROWING THE BIKE // ALSO HATED."
+                "STATUS // UNFINISHED. CURIOSITY // NOT AUTHORIZATION."
         }
     };
 
@@ -2764,158 +2741,7 @@
        ========================================================= */
 
     function initProjectObjects() {
-        if (dom.boxDefinitionObject) {
-            dom.boxDefinitionObject.addEventListener(
-                "click",
-                () => {
-                    discover(
-                        "object:the-box",
-                        isHellion()
-                            ? "You are literally standing in the answer."
-                            : "Fine. One useful explanation."
-                    );
-
-                    openDrawer({
-                        code:
-                            "OBJECT // HBX-01",
-
-                        eyebrow:
-                            "HARROW // THE BOX",
-
-                        title:
-                            "YOU'RE IN IT.",
-
-                        html: `
-                            <p>
-                                Hellbox is the publishing system around the work.
-                            </p>
-
-                            <p>
-                                Harrow makes the pages.
-                                The Press turns a finished publication into
-                                onchain editions.
-                                Your wallet carries the receipt.
-                                The Reader opens what belongs to you.
-                            </p>
-
-                            <div class="roadmap-object">
-
-                                <div>
-                                    <span>PAGES</span>
-
-                                    <strong>
-                                        THE REASON ANY OF THIS EXISTS.
-                                    </strong>
-
-                                    <p>
-                                        Graphic fiction first.
-                                        Everything else has to justify itself.
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <span>THE PRESS</span>
-
-                                    <strong>
-                                        PUBLICATION BECOMES EDITION.
-                                    </strong>
-
-                                    <p>
-                                        No generic mint page pretending
-                                        to be a bookstore.
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <span>THE WALLET</span>
-
-                                    <strong>
-                                        THE RECEIPT REMEMBERS.
-                                    </strong>
-
-                                    <p>
-                                        The chain can tell the Box
-                                        which publication keys are yours.
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <span>THE READER</span>
-
-                                    <strong>
-                                        THEN YOU READ THE DAMN COMIC.
-                                    </strong>
-
-                                    <p>
-                                        The collectible is the key.
-                                        The work is the point.
-                                    </p>
-                                </div>
-
-                            </div>
-
-                            <p>
-                                PulseChain keeps the receipt.
-                                Harrow keeps the blame.
-                            </p>
-                        `,
-
-                        footnote:
-                            "HELLBOX // COMICS FIRST. INFRASTRUCTURE BECAUSE IT HAS TO WORK."
-                    });
-                }
-            );
-        }
-
-        if (dom.hellionStatusObject) {
-            dom.hellionStatusObject.addEventListener(
-                "click",
-                () => {
-                    discover(
-                        "status:hellion"
-                    );
-
-                    openDrawer({
-                        code:
-                            "STATUS // HELLION",
-
-                        eyebrow:
-                            "THE BOX // MEMORY",
-
-                        title:
-                            "IT REMEMBERS YOU.",
-
-                        html: `
-                            <p>
-                                You did not apply.
-                            </p>
-
-                            <p>
-                                You kept coming back.
-                                You touched enough things.
-                                You looked behind enough labels.
-                                Eventually the Box stopped treating you
-                                like a visitor.
-                            </p>
-
-                            <p>
-                                Harrow calls that a Hellion.
-                            </p>
-
-                            <p>
-                                There are no benefits.
-                                Your judgment is simply documented now.
-                            </p>
-                        `,
-
-                        footnote:
-                            "HELLION // NOT A MEMBERSHIP TIER. MORE OF A DIAGNOSIS."
-                    });
-                }
-            );
-        }
-
-        if (dom.readerDormantObject) {
+if (dom.readerDormantObject) {
             dom.readerDormantObject.addEventListener(
                 "click",
                 () => {
@@ -5999,6 +5825,12 @@
             relationship: {
                 stage:
                     currentRelationshipStage(),
+
+                authority:
+                    "LOCAL RECOGNITION PROTOTYPE",
+
+                hellionEligible:
+                    false,
 
                 score,
 
