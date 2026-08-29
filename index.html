@@ -153,7 +153,7 @@
     >
 
         <div class="harrow-response-top">
-            <span>HARROW</span>
+            <span data-i18n="global.harrow">HARROW</span>
 
             <button
                 type="button"
@@ -172,7 +172,7 @@
             >
 
             <div>
-                <strong id="harrowResponseTitle">
+                <strong id="harrowResponseTitle" data-i18n="dialogue.orb.visitor.02.title">
                     WHAT?
                 </strong>
 
@@ -305,7 +305,7 @@
                         aria-pressed="false"
                     >
                         <span data-i18n="access.largeText">LARGER TEXT</span>
-                        <strong data-setting-state>OFF</strong>
+                        <strong data-setting-state data-i18n="setting.off">OFF</strong>
                     </button>
 
                     <button
@@ -315,7 +315,7 @@
                         aria-pressed="false"
                     >
                         <span data-i18n="access.highContrast">HIGH CONTRAST</span>
-                        <strong data-setting-state>OFF</strong>
+                        <strong data-setting-state data-i18n="setting.off">OFF</strong>
                     </button>
 
                     <button
@@ -325,7 +325,7 @@
                         aria-pressed="false"
                     >
                         <span data-i18n="access.reduceMotion">REDUCE MOTION</span>
-                        <strong data-setting-state>OFF</strong>
+                        <strong data-setting-state data-i18n="setting.off">OFF</strong>
                     </button>
                 </fieldset>
 
@@ -335,9 +335,8 @@
                     </label>
 
                     <select id="interfaceLanguage">
-                        <option value="en">English</option>
-                        <option value="es">Español</option>
-                        <option value="pt-BR">Português (Brasil)</option>
+                        <option value="en" data-i18n="access.language.english">English</option>
+                        <option value="es" data-i18n="access.language.spanish">Español</option>
                     </select>
 
                     <p data-i18n="access.languageNote">
@@ -375,7 +374,7 @@
                 class="header-emblem"
             >
 
-            <span>HELLBOX COMICS // BY HARROW</span>
+            <span data-i18n="header.brand">HELLBOX COMICS // BY HARROW</span>
 
         </a>
 
@@ -390,13 +389,21 @@
             <a href="#press" data-i18n="nav.press">PRESS</a>
             <a href="#harrow" data-i18n="nav.harrow">HARROW</a>
             <a href="#signals" data-i18n="nav.signals">KEEP UP</a>
+            <button
+                class="header-access-button"
+                type="button"
+                data-open-access
+                data-i18n="access.open"
+            >
+                ACCESS // LANGUAGE
+            </button>
 
         </nav>
 
 
         <div class="header-network">
             <span class="network-light"></span>
-            <span>PULSECHAIN // 369</span>
+            <span data-i18n="header.network">PULSECHAIN // 369</span>
         </div>
 
 
@@ -458,7 +465,7 @@
                 coordinate system so the hotspots stay attached to the art.
             -->
 
-            <p class="sr-only" id="heroSceneHelp">
+            <p class="sr-only" id="heroSceneHelp" data-i18n="hero.sceneHelp">
                 Interactive artwork. Swipe or use the left and right arrow keys to inspect the room. Use Tab to reach discoverable objects.
             </p>
 
@@ -494,61 +501,67 @@
 
                 <button
                     class="lair-hotspot hotspot-cabal"
+                    data-i18n-attr="aria-label:hero.hotspot.cabal"
                     type="button"
                     data-hotspot="cabal"
                     aria-label="Inspect Harrow's Cabal board"
                 >
-                    <span class="hotspot-label">THE CABAL</span>
+                    <span class="hotspot-label" data-i18n="hero.hotspot.cabal">THE CABAL</span>
                 </button>
 
 
                 <button
                     class="lair-hotspot hotspot-monitor"
+                    data-i18n-attr="aria-label:hero.hotspot.monitor"
                     type="button"
                     data-hotspot="monitor"
                     aria-label="Inspect Harrow's Pulse Byte infrastructure"
                 >
-                    <span class="hotspot-label">PULSE BYTE</span>
+                    <span class="hotspot-label" data-i18n="hero.hotspot.monitor">PULSE BYTE</span>
                 </button>
 
 
                 <button
                     class="lair-hotspot hotspot-harrow"
+                    data-i18n-attr="aria-label:global.harrow"
                     type="button"
                     data-hotspot="harrow"
                     aria-label="Bother Harrow"
                 >
-                    <span class="hotspot-label">HARROW</span>
+                    <span class="hotspot-label" data-i18n="global.harrow">HARROW</span>
                 </button>
 
 
                 <button
                     class="lair-hotspot hotspot-pages"
+                    data-i18n-attr="aria-label:hero.hotspot.pages"
                     type="button"
                     data-hotspot="pages"
                     aria-label="Inspect Harrow's comic pages"
                 >
-                    <span class="hotspot-label">PANELS</span>
+                    <span class="hotspot-label" data-i18n="hero.hotspot.pages">PANELS</span>
                 </button>
 
 
                 <button
                     class="lair-hotspot hotspot-bike"
+                    data-i18n-attr="aria-label:hero.hotspot.bike"
                     type="button"
                     data-hotspot="bike"
                     aria-label="Inspect Harrow's motorcycle"
                 >
-                    <span class="hotspot-label">THE BIKE</span>
+                    <span class="hotspot-label" data-i18n="hero.hotspot.bike">THE BIKE</span>
                 </button>
 
 
                 <button
                     class="lair-hotspot hotspot-redacted"
+                    data-i18n-attr="aria-label:hero.hotspot.redacted"
                     type="button"
                     data-hotspot="redacted"
                     aria-label="Inspect Harrow's production copy"
                 >
-                    <span class="hotspot-label">PUT THAT BACK</span>
+                    <span class="hotspot-label" data-i18n="hero.hotspot.redacted">PUT THAT BACK</span>
                 </button>
 
                 </div>
@@ -582,19 +595,19 @@
 
                     <div class="hero-copy">
 
-                        <span class="system-label">
+                        <span class="system-label" data-i18n="hero.systemLabel">
                             HELLBOX COMICS // PRIVATE PROPERTY*
                         </span>
 
                         <h1>
-                            OH.
-                            <span>YOU'RE HERE.</span>
+                            <b data-i18n="hero.title.line1">OH.</b>
+                            <span data-i18n="hero.title.line2">YOU'RE HERE.</span>
                         </h1>
 
                         <p class="hero-description">
-                            I WAS WORKING.<br>
-                            TRY NOT TO BREAK ANYTHING.<br>
-                            <small>*PROBABLY NOT LEGALLY.</small>
+                            <span data-i18n="hero.description.1">I WAS WORKING.</span><br>
+                            <span data-i18n="hero.description.2">TRY NOT TO BREAK ANYTHING.</span><br>
+                            <small data-i18n="hero.description.3">*PROBABLY NOT LEGALLY.</small>
                         </p>
 
 
@@ -604,13 +617,14 @@
                                 href="#box"
                                 class="button-primary"
                             >
-                                COME IN
+                                <b data-i18n="hero.action.enter">COME IN</b>
                                 <span>↘</span>
                             </a>
 
                             <a
                                 href="#harrow"
                                 class="button-ghost"
+                                data-i18n="hero.action.leave"
                             >
                                 OR DON'T
                             </a>
@@ -623,10 +637,10 @@
                     <aside class="hero-transmission">
 
                         <div class="transmission-header">
-                            <span>HARROW // INTERRUPTION</span>
+                            <span data-i18n="hero.transmission.header">HARROW // INTERRUPTION</span>
 
                             <div class="transmission-header-actions">
-                                <span class="live-text">● LIVE</span>
+                                <span class="live-text" data-i18n="global.live">● LIVE</span>
                                 <button
                                     class="transmission-toggle"
                                     id="transmissionToggle"
@@ -644,11 +658,11 @@
 
                         <div class="transmission-body" id="heroTransmissionDetails">
 
-                            <span class="transmission-label">
+                            <span class="transmission-label" data-i18n="hero.transmission.label">
                                 CURRENT THOUGHT:
                             </span>
 
-                            <strong id="heroTransmission">
+                            <strong id="heroTransmission" data-i18n="hero.thought.03.title">
                                 I HAD AN IDEA.
                             </strong>
 
@@ -673,16 +687,16 @@
 
 
             <div class="hero-meta">
-                <span>01 // OH. YOU'RE HERE.</span>
-                <span>LOCATION // NONE OF YOUR BUSINESS</span>
+                <span data-i18n="hero.meta.section">01 // OH. YOU'RE HERE.</span>
+                <span data-i18n="hero.meta.location">LOCATION // NONE OF YOUR BUSINESS</span>
 
-                <span id="heroMetaHarrow">
+                <span id="heroMetaHarrow" data-i18n="hero.meta.harrowBusy">
                     HARROW // BUSY
                 </span>
             </div>
 
 
-            <div class="hero-scroll-note">
+            <div class="hero-scroll-note" data-i18n="hero.scroll">
                 WELL? // KEEP GOING
             </div>
 
@@ -701,7 +715,7 @@
 
             <div class="section-shell">
 
-                <div class="section-number">
+                <div class="section-number" data-i18n="problem.section">
                     02 // THE PROBLEM
                 </div>
 
@@ -710,13 +724,13 @@
 
                     <div class="manifesto-title">
 
-                        <span class="eyebrow">
+                        <span class="eyebrow" data-i18n="problem.eyebrow">
                             THIS GOT OUT OF HAND
                         </span>
 
                         <h2>
-                            I NEEDED SOMEWHERE
-                            <em>TO PUT THE PROBLEM.</em>
+                            <b data-i18n="problem.title.1">I NEEDED SOMEWHERE</b>
+                            <em data-i18n="problem.title.2">TO PUT THE PROBLEM.</em>
                         </h2>
 
                     </div>
@@ -724,24 +738,24 @@
 
                     <div class="manifesto-body">
 
-                        <p class="manifesto-lead">
+                        <p class="manifesto-lead" data-i18n="problem.lead">
                             At some point crypto stopped being something
                             I watched and became something I thought about
                             while brushing my teeth.
                         </p>
 
-                        <p>
+                        <p data-i18n="problem.body.1">
                             PulseChain. Ethereum. Richard. Regulators.
                             Degens. Money. Ego. Tribalism. Memes.
                             Lawsuits. People becoming economists because
                             a green candle appeared.
                         </p>
 
-                        <p>
+                        <p data-i18n="problem.body.2">
                             Eventually the thoughts needed somewhere to go.
                         </p>
 
-                        <p>
+                        <p data-i18n="problem.body.3">
                             So I gave them panels.
                         </p>
 
@@ -752,15 +766,15 @@
                             type="button"
                         >
 
-                            <div class="admin-note-top">
+                            <div class="admin-note-top" data-i18n="problem.note.header">
                                 HARROW // MEDICAL OPINION
                             </div>
 
-                            <strong>
+                            <strong data-i18n="problem.note.title">
                                 THIS IS HEALTHIER THAN THERAPY.
                             </strong>
 
-                            <span>
+                            <span data-i18n="problem.note.sub">
                                 SIGNIFICANTLY CHEAPER TOO.
                             </span>
 
@@ -804,7 +818,7 @@
 
             <div class="section-shell">
 
-                <div class="section-number">
+                <div class="section-number" data-i18n="archive.section">
                     03 // YOUR STUFF
                 </div>
 
@@ -813,13 +827,13 @@
 
                     <div>
 
-                        <span class="eyebrow">
+                        <span class="eyebrow" data-i18n="archive.eyebrow">
                             ALRIGHT. WHAT'D YOU BRING?
                         </span>
 
                         <h2>
-                            SHOW
-                            <em>ME.</em>
+                            <b data-i18n="archive.title.1">SHOW</b>
+                            <em data-i18n="archive.title.2">ME.</em>
                         </h2>
 
                     </div>
@@ -827,7 +841,7 @@
 
                     <div class="section-intro">
 
-                        <p>
+                        <p data-i18n="archive.intro">
                             Connect your wallet.
                             It's a public blockchain.
                             Privacy already lost this argument.
@@ -836,7 +850,7 @@
                         <div class="archive-live-count">
                             <span></span>
 
-                            <strong id="publicationCount">
+                            <strong id="publicationCount" data-i18n="archive.publication.checking">
                                 CHECKING
                             </strong>
                         </div>
@@ -851,9 +865,9 @@
                     <div class="terminal-top">
 
                         <div>
-                            <span>WALLET</span>
+                            <span data-i18n="archive.label.wallet">WALLET</span>
 
-                            <strong id="collectionWallet">
+                            <strong id="collectionWallet" data-i18n="wallet.notShown">
                                 NOT SHOWN
                             </strong>
                         </div>
@@ -861,11 +875,11 @@
 
                         <div class="terminal-top-right">
 
-                            <span id="collectionNetwork">
+                            <span id="collectionNetwork" data-i18n="header.network">
                                 PULSECHAIN // 369
                             </span>
 
-                            <strong id="collectionAccessState">
+                            <strong id="collectionAccessState" data-i18n="wallet.state.waiting">
                                 WAITING
                             </strong>
                         </div>
@@ -892,15 +906,15 @@
 
                         <div class="terminal-copy">
 
-                            <span>
+                            <span data-i18n="archive.label.harrowLooking">
                                 HARROW // LOOKING AT YOUR STUFF
                             </span>
 
-                            <h3 id="terminalTitle">
+                            <h3 id="terminalTitle" data-i18n="archive.title.default">
                                 DON'T BE SHY.
                             </h3>
 
-                            <p id="terminalMessage">
+                            <p id="terminalMessage" data-i18n="archive.message.default">
                                 Show me the wallet.
                             </p>
 
@@ -908,7 +922,7 @@
                                 type="button"
                                 class="terminal-action"
                                 id="terminalAction"
-                            >
+                             data-i18n="wallet.show">
                                 SHOW ME
                             </button>
 
@@ -921,9 +935,9 @@
                             type="button"
                         >
 
-                            <span>NOTE:</span>
+                            <span data-i18n="archive.note.label">NOTE:</span>
 
-                            <strong id="archiveHarrowNote">
+                            <strong id="archiveHarrowNote" data-i18n="archive.note.default">
                                 let's see the damage.
                             </strong>
 
@@ -940,25 +954,25 @@
                     <div class="collection-summary">
 
                         <div>
-                            <span>EXIST</span>
+                            <span data-i18n="archive.summary.exist">EXIST</span>
                             <strong id="summaryKnown">00</strong>
                         </div>
 
 
                         <div class="summary-owned">
-                            <span>YOURS</span>
+                            <span data-i18n="archive.summary.yours">YOURS</span>
                             <strong id="summaryOwned">00</strong>
                         </div>
 
 
                         <div class="summary-missing">
-                            <span>MISSING</span>
+                            <span data-i18n="archive.summary.missing">MISSING</span>
                             <strong id="summaryMissing">00</strong>
                         </div>
 
 
                         <div class="summary-altered">
-                            <span>WEIRD</span>
+                            <span data-i18n="archive.summary.weird">WEIRD</span>
                             <strong id="summaryEvolved">00</strong>
                         </div>
 
@@ -976,7 +990,7 @@
                         <div
                             class="terminal-footer-status"
                             id="collectionStatus"
-                        >
+                         data-i18n="archive.status.default">
                             SHOW ME SOMETHING INTERESTING.
                         </div>
 
@@ -985,7 +999,7 @@
                             id="readerDormantObject"
                             type="button"
                             aria-label="Inspect the Hellbox Reader"
-                        >
+                         data-i18n="archive.reader.asleep">
                             READER // ASLEEP
                         </button>
 
@@ -1010,7 +1024,7 @@
 
             <div class="section-shell">
 
-                <div class="section-number">
+                <div class="section-number" data-i18n="theory.section">
                     04 // HOLD ON, LOOK AT THIS
                 </div>
 
@@ -1019,18 +1033,18 @@
 
                     <div>
 
-                        <span class="eyebrow">
+                        <span class="eyebrow" data-i18n="theory.eyebrow">
                             I HAVE A THEORY
                         </span>
 
                         <h2 class="theory-heading">
-                            I HAVE
+                            <b data-i18n="theory.title.1">I HAVE</b>
 
                             <span
                                 class="vandalized-word"
                                 id="theorySingular"
                             >
-                                <span class="theory-original-a">A</span>
+                                <span class="theory-original-a" data-i18n="theory.title.article">A</span>
                                 <span
                                     class="theory-strike theory-strike-one"
                                     aria-hidden="true"
@@ -1042,6 +1056,7 @@
                                 <span
                                     class="theory-correction"
                                     id="theoryCorrection"
+                                    data-i18n="theory.title.correction"
                                     aria-hidden="true"
                                 >47</span>
                                 <span
@@ -1050,7 +1065,7 @@
                                 ></span>
                             </span>
 
-                            <em>THEORY.</em>
+                            <em data-i18n="theory.title.2">THEORY.</em>
                         </h2>
 
                     </div>
@@ -1058,11 +1073,11 @@
 
                     <div class="section-intro">
 
-                        <p>
+                        <p data-i18n="theory.intro.1">
                             Actually I have 47.
                         </p>
 
-                        <p>
+                        <p data-i18n="theory.intro.2">
                             This one has string.
                         </p>
 
@@ -1071,7 +1086,7 @@
                 </div>
 
 
-                <p class="sr-only" id="theoryWallHelp">
+                <p class="sr-only" id="theoryWallHelp" data-i18n="theory.wallHelp">
                     Interactive theory wall. Swipe or use the left and right arrow keys to inspect it. Use Tab to reach discoverable notes.
                 </p>
 
@@ -1135,7 +1150,7 @@
                         data-theory="cabal"
                         aria-label="Inspect Cabal notes"
                     >
-                        <span>THE CABAL</span>
+                        <span data-i18n="hero.hotspot.cabal">THE CABAL</span>
                     </button>
 
 
@@ -1155,7 +1170,7 @@
                         data-theory="sacrifice"
                         aria-label="Inspect sacrifice-era notes"
                     >
-                        <span>THE SACRIFICE</span>
+                        <span data-i18n="drawer.theory.sacrifice.title">THE SACRIFICE</span>
                     </button>
 
 
@@ -1165,7 +1180,7 @@
                         data-theory="influencers"
                         aria-label="Inspect influencer notes"
                     >
-                        <span>INFLUENCERS</span>
+                        <span data-i18n="drawer.theory.influencers.title">INFLUENCERS</span>
                     </button>
 
 
@@ -1176,14 +1191,14 @@
                         data-theory="harrow"
                         aria-label="Inspect Harrow"
                     >
-                        <span>HARROW</span>
+                        <span data-i18n="global.harrow">HARROW</span>
                     </button>
 
 
                     <div
                         class="obsession-wall-hint"
                         aria-hidden="true"
-                    >
+                     data-i18n="theory.wallHint">
                         SOME OF THIS MOVES. DON'T.
                     </div>
 
@@ -1215,41 +1230,41 @@
             <div class="obsession-track" id="obsessionTrack">
 
                 <div class="obsession-sequence">
-                    <span>I HAD A POINT</span><i>//</i>
-                    <span>WAIT. NO. THAT'S ACTUALLY FUNNY.</span><i>//</i>
-                    <span>WRITE THAT DOWN</span><i>//</i>
-                    <span>THE CABAL HAS A GROUP CHAT</span><i>//</i>
-                    <span>WHO LET ETHEREUM CHARGE RENT?</span><i>//</i>
-                    <span>EVERYONE'S AN ECONOMIST DURING A GREEN CANDLE</span><i>//</i>
-                    <span>THE RPC IS FINE. YOU'RE THE PROBLEM.</span><i>//</i>
-                    <span>RICHARD, THIS IS WHY I HAVE NOTES</span><i>//</i>
-                    <span>I READ THE DOCUMENT. MOST OF IT.</span><i>//</i>
-                    <span>SCREENSHOTS ARE FOREVER</span><i>//</i>
-                    <span>PULSICANS ARE VERY NORMAL PEOPLE</span><i>//</i>
-                    <span>I DON'T NEED A ROADMAP. I NEED MORE WALL.</span><i>//</i>
-                    <span>DON'T ERASE THAT</span><i>//</i>
-                    <span>WHERE WAS I?</span><i>//</i>
-                    <span>OH RIGHT. ME.</span><i>//</i>
-                    <span>369</span><i>//</i>
+                    <span data-i18n="ticker.01">I HAD A POINT</span><i>//</i>
+                    <span data-i18n="ticker.02">WAIT. NO. THAT'S ACTUALLY FUNNY.</span><i>//</i>
+                    <span data-i18n="ticker.03">WRITE THAT DOWN</span><i>//</i>
+                    <span data-i18n="ticker.04">THE CABAL HAS A GROUP CHAT</span><i>//</i>
+                    <span data-i18n="ticker.05">WHO LET ETHEREUM CHARGE RENT?</span><i>//</i>
+                    <span data-i18n="ticker.06">EVERYONE'S AN ECONOMIST DURING A GREEN CANDLE</span><i>//</i>
+                    <span data-i18n="ticker.07">THE RPC IS FINE. YOU'RE THE PROBLEM.</span><i>//</i>
+                    <span data-i18n="ticker.08">RICHARD, THIS IS WHY I HAVE NOTES</span><i>//</i>
+                    <span data-i18n="ticker.09">I READ THE DOCUMENT. MOST OF IT.</span><i>//</i>
+                    <span data-i18n="ticker.10">SCREENSHOTS ARE FOREVER</span><i>//</i>
+                    <span data-i18n="ticker.11">PULSICANS ARE VERY NORMAL PEOPLE</span><i>//</i>
+                    <span data-i18n="ticker.12">I DON'T NEED A ROADMAP. I NEED MORE WALL.</span><i>//</i>
+                    <span data-i18n="ticker.13">DON'T ERASE THAT</span><i>//</i>
+                    <span data-i18n="ticker.14">WHERE WAS I?</span><i>//</i>
+                    <span data-i18n="ticker.15">OH RIGHT. ME.</span><i>//</i>
+                    <span data-i18n="ticker.16">369</span><i>//</i>
                 </div>
 
                 <div class="obsession-sequence" aria-hidden="true">
-                    <span>I HAD A POINT</span><i>//</i>
-                    <span>WAIT. NO. THAT'S ACTUALLY FUNNY.</span><i>//</i>
-                    <span>WRITE THAT DOWN</span><i>//</i>
-                    <span>THE CABAL HAS A GROUP CHAT</span><i>//</i>
-                    <span>WHO LET ETHEREUM CHARGE RENT?</span><i>//</i>
-                    <span>EVERYONE'S AN ECONOMIST DURING A GREEN CANDLE</span><i>//</i>
-                    <span>THE RPC IS FINE. YOU'RE THE PROBLEM.</span><i>//</i>
-                    <span>RICHARD, THIS IS WHY I HAVE NOTES</span><i>//</i>
-                    <span>I READ THE DOCUMENT. MOST OF IT.</span><i>//</i>
-                    <span>SCREENSHOTS ARE FOREVER</span><i>//</i>
-                    <span>PULSICANS ARE VERY NORMAL PEOPLE</span><i>//</i>
-                    <span>I DON'T NEED A ROADMAP. I NEED MORE WALL.</span><i>//</i>
-                    <span>DON'T ERASE THAT</span><i>//</i>
-                    <span>WHERE WAS I?</span><i>//</i>
-                    <span>OH RIGHT. ME.</span><i>//</i>
-                    <span>369</span><i>//</i>
+                    <span data-i18n="ticker.01">I HAD A POINT</span><i>//</i>
+                    <span data-i18n="ticker.02">WAIT. NO. THAT'S ACTUALLY FUNNY.</span><i>//</i>
+                    <span data-i18n="ticker.03">WRITE THAT DOWN</span><i>//</i>
+                    <span data-i18n="ticker.04">THE CABAL HAS A GROUP CHAT</span><i>//</i>
+                    <span data-i18n="ticker.05">WHO LET ETHEREUM CHARGE RENT?</span><i>//</i>
+                    <span data-i18n="ticker.06">EVERYONE'S AN ECONOMIST DURING A GREEN CANDLE</span><i>//</i>
+                    <span data-i18n="ticker.07">THE RPC IS FINE. YOU'RE THE PROBLEM.</span><i>//</i>
+                    <span data-i18n="ticker.08">RICHARD, THIS IS WHY I HAVE NOTES</span><i>//</i>
+                    <span data-i18n="ticker.09">I READ THE DOCUMENT. MOST OF IT.</span><i>//</i>
+                    <span data-i18n="ticker.10">SCREENSHOTS ARE FOREVER</span><i>//</i>
+                    <span data-i18n="ticker.11">PULSICANS ARE VERY NORMAL PEOPLE</span><i>//</i>
+                    <span data-i18n="ticker.12">I DON'T NEED A ROADMAP. I NEED MORE WALL.</span><i>//</i>
+                    <span data-i18n="ticker.13">DON'T ERASE THAT</span><i>//</i>
+                    <span data-i18n="ticker.14">WHERE WAS I?</span><i>//</i>
+                    <span data-i18n="ticker.15">OH RIGHT. ME.</span><i>//</i>
+                    <span data-i18n="ticker.16">369</span><i>//</i>
                 </div>
 
             </div>
@@ -1272,7 +1287,7 @@
 
             <div class="section-shell">
 
-                <div class="section-number">
+                <div class="section-number" data-i18n="press.section">
                     05 // DON'T TOUCH THAT
                 </div>
 
@@ -1286,20 +1301,20 @@
 
                     <div class="press-copy">
 
-                        <span class="eyebrow">
+                        <span class="eyebrow" data-i18n="press.eyebrow">
                             HARROW // WORKING
                         </span>
 
                         <h2>
-                            I'M
-                            <em>WORKING.</em>
+                            <b data-i18n="press.title.1">I'M</b>
+                            <em data-i18n="press.title.2">WORKING.</em>
                         </h2>
 
-                        <p class="press-lead">
+                        <p class="press-lead" data-i18n="press.lead">
                             You'll see it when I decide it's finished.
                         </p>
 
-                        <p>
+                        <p data-i18n="press.sub">
                             So never.
                         </p>
 
@@ -1310,7 +1325,7 @@
                                 class="press-object-link"
                                 id="roadmapObject"
                                 type="button"
-                            >
+                             data-i18n="press.roadmap">
                                 WHAT I'M DOING NEXT →
                             </button>
 
@@ -1318,7 +1333,7 @@
                                 class="press-object-link"
                                 id="manualObject"
                                 type="button"
-                            >
+                             data-i18n="press.manual">
                                 THE MANUAL →
                             </button>
 
@@ -1332,11 +1347,11 @@
 
                             <div class="press-mini-header">
 
-                                <span>
+                                <span data-i18n="press.bay">
                                     HELLBOX PRESS // BAY 01
                                 </span>
 
-                                <strong id="pressMiniStatus">
+                                <strong id="pressMiniStatus" data-i18n="press.rail.01">
                                     IDLE
                                 </strong>
 
@@ -1346,18 +1361,18 @@
                             <div class="press-mini-body">
 
                                 <div>
-                                    <span>
+                                    <span data-i18n="archive.item.publication">
                                         PUBLICATION
                                     </span>
 
-                                    <strong id="pressPublication">
+                                    <strong id="pressPublication" data-i18n="press.publication.none">
                                         NONE
                                     </strong>
                                 </div>
 
 
                                 <div>
-                                    <span>
+                                    <span data-i18n="press.label.supply">
                                         SUPPLY
                                     </span>
 
@@ -1368,22 +1383,22 @@
 
 
                                 <div>
-                                    <span>
+                                    <span data-i18n="archive.label.wallet">
                                         WALLET
                                     </span>
 
-                                    <strong id="pressWallet">
+                                    <strong id="pressWallet" data-i18n="wallet.notShown">
                                         NOT SHOWN
                                     </strong>
                                 </div>
 
 
                                 <div>
-                                    <span>
+                                    <span data-i18n="press.label.chain">
                                         CHAIN
                                     </span>
 
-                                    <strong>
+                                    <strong data-i18n="ticker.16">
                                         369
                                     </strong>
                                 </div>
@@ -1402,7 +1417,7 @@
                          is the lever the visitor pulls.
                     ========================================== -->
 
-                    <p class="sr-only" id="pressMachineHelp">
+                    <p class="sr-only" id="pressMachineHelp" data-i18n="press.machineHelp">
                         Interactive publishing machine. Swipe or use the left and right arrow keys to inspect it. Use Tab to reach the real lever and other controls.
                     </p>
 
@@ -1461,7 +1476,7 @@
                             data-press-object="chain"
                             aria-label="Inspect the PulseChain terminal on the Hellbox Press"
                         >
-                            <small>CHAIN</small>
+                            <small data-i18n="press.label.chain">CHAIN</small>
                         </button>
 
 
@@ -1490,11 +1505,11 @@
                             id="pressMachineStatus"
                         >
 
-                            <span>
+                            <span data-i18n="press.machine.bay">
                                 MACHINE // BAY 01
                             </span>
 
-                            <strong id="pressMachineState">
+                            <strong id="pressMachineState" data-i18n="press.state.idle.machine">
                                 ASLEEP
                             </strong>
 
@@ -1515,7 +1530,7 @@
                             <span
                                 class="press-lever-callout"
                                 aria-hidden="true"
-                            >
+                             data-i18n="press.machine.callout">
                                 PULL IT. I DARE YOU.
                             </span>
                         </button>
@@ -1524,7 +1539,7 @@
                         <div
                             class="press-warning"
                             id="pressWarning"
-                        >
+                         data-i18n="press.machine.warning">
                             DO NOT PULL THAT.
                         </div>
 
@@ -1540,7 +1555,7 @@
 
                         <div class="machine-console-top">
 
-                            <span>
+                            <span data-i18n="press.console.header">
                                 HARROW // MACHINE
                             </span>
 
@@ -1554,15 +1569,15 @@
 
                         <div class="machine-console-message">
 
-                            <span id="pressConsoleLabel">
+                            <span id="pressConsoleLabel" data-i18n="press.state.idle.label">
                                 STATUS
                             </span>
 
-                            <strong id="pressConsoleTitle">
+                            <strong id="pressConsoleTitle" data-i18n="press.state.idle.title">
                                 DON'T TOUCH IT.
                             </strong>
 
-                            <p id="pressConsoleText">
+                            <p id="pressConsoleText" data-i18n="press.state.idle.text">
                                 I mean it.
                             </p>
 
@@ -1572,23 +1587,23 @@
                         <div class="machine-console-readouts">
 
                             <div>
-                                <span>POWER</span>
+                                <span data-i18n="press.console.power">POWER</span>
                                 <strong id="pressPowerValue">00</strong>
                             </div>
 
                             <div>
-                                <span>INK</span>
+                                <span data-i18n="press.console.ink">INK</span>
                                 <strong id="pressInkValue">??</strong>
                             </div>
 
                             <div>
-                                <span>RPC</span>
-                                <strong id="pressRpcValue">369</strong>
+                                <span data-i18n="press.console.rpc">RPC</span>
+                                <strong id="pressRpcValue" data-i18n="ticker.16">369</strong>
                             </div>
 
                             <div>
-                                <span>BAD IDEA</span>
-                                <strong id="pressIdeaValue">YES</strong>
+                                <span data-i18n="press.console.badIdea">BAD IDEA</span>
+                                <strong id="pressIdeaValue" data-i18n="press.console.yes">YES</strong>
                             </div>
 
                         </div>
@@ -1609,27 +1624,27 @@
 
                     <div class="press-state active" data-state="idle">
                         <span>01</span>
-                        <strong>IDLE</strong>
+                        <strong data-i18n="press.rail.01">IDLE</strong>
                     </div>
 
                     <div class="press-state" data-state="wallet">
                         <span>02</span>
-                        <strong>IDENTIFY</strong>
+                        <strong data-i18n="press.rail.02">IDENTIFY</strong>
                     </div>
 
                     <div class="press-state" data-state="ready">
                         <span>03</span>
-                        <strong>READY</strong>
+                        <strong data-i18n="press.rail.03">READY</strong>
                     </div>
 
                     <div class="press-state" data-state="pressing">
                         <span>04</span>
-                        <strong>PRESSING</strong>
+                        <strong data-i18n="press.rail.04">PRESSING</strong>
                     </div>
 
                     <div class="press-state" data-state="confirmed">
                         <span>05</span>
-                        <strong>YOURS</strong>
+                        <strong data-i18n="archive.summary.yours">YOURS</strong>
                     </div>
 
                 </div>
@@ -1649,14 +1664,14 @@
             data-zone="harrow"
         >
 
-            <div class="harrow-background-word">
+            <div class="harrow-background-word" data-i18n="global.harrow">
                 HARROW
             </div>
 
 
             <div class="section-shell">
 
-                <div class="section-number">
+                <div class="section-number" data-i18n="harrow.section">
                     06 // FINALLY
                 </div>
 
@@ -1680,8 +1695,8 @@
 
 
                             <div class="surveillance-overlay">
-                                <span>HARROW</span>
-                                <span>YES, I PICKED THE PHOTO</span>
+                                <span data-i18n="global.harrow">HARROW</span>
+                                <span data-i18n="harrow.photo.caption.2">YES, I PICKED THE PHOTO</span>
                             </div>
 
                         </button>
@@ -1700,15 +1715,15 @@
 
                             <div>
 
-                                <span>
+                                <span data-i18n="harrow.profile.label">
                                     IMPORTANT PERSON
                                 </span>
 
-                                <strong>
+                                <strong data-i18n="global.harrow">
                                     HARROW
                                 </strong>
 
-                                <small>
+                                <small data-i18n="harrow.profile.sub">
                                     SELF APPOINTED
                                 </small>
 
@@ -1722,8 +1737,8 @@
                     <div class="harrow-file">
 
                         <div class="harrow-file-top">
-                            <span>THE REASON YOU'RE ACTUALLY HERE</span>
-                            <span>OBVIOUSLY</span>
+                            <span data-i18n="harrow.file.header.1">THE REASON YOU'RE ACTUALLY HERE</span>
+                            <span data-i18n="harrow.file.header.2">OBVIOUSLY</span>
                         </div>
 
 
@@ -1743,28 +1758,28 @@
 
 
                         <div class="harrow-role-list">
-                            <strong>WRITER.</strong>
-                            <strong>ARTIST.</strong>
-                            <strong>OPERATOR.</strong>
-                            <strong>PROBLEM.</strong>
+                            <strong data-i18n="harrow.role.writer">WRITER.</strong>
+                            <strong data-i18n="harrow.role.artist">ARTIST.</strong>
+                            <strong data-i18n="harrow.role.operator">OPERATOR.</strong>
+                            <strong data-i18n="harrow.role.problem">PROBLEM.</strong>
                         </div>
 
 
                         <div class="harrow-authorship-declaration">
-                            <span>NO STUDIO. NO COMMITTEE. NO ADULT SUPERVISION.</span>
-                            <strong>WRITTEN // DRAWN // BUILT // OPERATED BY HARROW.</strong>
+                            <span data-i18n="harrow.authorship.1">NO STUDIO. NO COMMITTEE. NO ADULT SUPERVISION.</span>
+                            <strong data-i18n="harrow.authorship.2">WRITTEN // DRAWN // BUILT // OPERATED BY HARROW.</strong>
                         </div>
 
 
-                        <p class="harrow-intro">
+                        <p class="harrow-intro" data-i18n="harrow.intro.1">
                             Harrow.
                         </p>
 
-                        <p class="harrow-intro">
+                        <p class="harrow-intro" data-i18n="classified.body.1">
                             Obviously.
                         </p>
 
-                        <p class="harrow-intro">
+                        <p class="harrow-intro" data-i18n="harrow.intro.3">
                             I make graphic fiction about crypto because
                             reality keeps writing drafts and frankly the
                             dialogue needs work.
@@ -1774,23 +1789,23 @@
                         <div class="harrow-data">
 
                             <div>
-                                <span>FAVORITE ARTIST</span>
-                                <strong>HARROW</strong>
+                                <span data-i18n="harrow.data.favoriteArtist.label">FAVORITE ARTIST</span>
+                                <strong data-i18n="global.harrow">HARROW</strong>
                             </div>
 
                             <div>
-                                <span>FAVORITE WRITER</span>
-                                <strong>ALSO HARROW</strong>
+                                <span data-i18n="harrow.data.favoriteWriter.label">FAVORITE WRITER</span>
+                                <strong data-i18n="harrow.data.favoriteWriter.value">ALSO HARROW</strong>
                             </div>
 
                             <div>
-                                <span>BIGGEST INFLUENCE</span>
-                                <strong>HARROW, EARLIER</strong>
+                                <span data-i18n="harrow.data.influence.label">BIGGEST INFLUENCE</span>
+                                <strong data-i18n="harrow.data.influence.value">HARROW, EARLIER</strong>
                             </div>
 
                             <div>
-                                <span>HUMILITY</span>
-                                <strong>DISTRACTING</strong>
+                                <span data-i18n="harrow.data.humility.label">HUMILITY</span>
+                                <strong data-i18n="harrow.data.humility.value">DISTRACTING</strong>
                             </div>
 
                         </div>
@@ -1802,16 +1817,16 @@
                             type="button"
                         >
 
-                            <span>
+                            <span data-i18n="harrow.review.label">
                                 COMPLETELY INDEPENDENT PERFORMANCE REVIEW
                             </span>
 
-                            <p>
+                            <p data-i18n="harrow.review.quote">
                                 “Harrow continues to exceed expectations
                                 despite being the person who established them.”
                             </p>
 
-                            <small>
+                            <small data-i18n="harrow.review.by">
                                 REVIEWED BY // A PANEL OF HARROW
                             </small>
 
@@ -1820,16 +1835,16 @@
 
                         <div class="harrow-love-note">
 
-                            <span>
+                            <span data-i18n="harrow.sincere.label">
                                 FINE. ONE SINCERE THING.
                             </span>
 
-                            <strong>
+                            <strong data-i18n="harrow.sincere.title">
                                 IF YOU'RE STILL READING,
                                 YOU PROBABLY GET THE JOKE.
                             </strong>
 
-                            <p>
+                            <p data-i18n="harrow.sincere.sub">
                                 Don't get sentimental.
                             </p>
 
@@ -1871,7 +1886,7 @@
 
             <div class="section-shell">
 
-                <div class="section-number">
+                <div class="section-number" data-i18n="signals.section">
                     07 // KEEP UP
                 </div>
 
@@ -1880,13 +1895,13 @@
 
                     <div>
 
-                        <span class="eyebrow">
+                        <span class="eyebrow" data-i18n="signals.eyebrow">
                             YOU KNOW WHERE I AM
                         </span>
 
                         <h2>
-                            KEEP
-                            <em>UP.</em>
+                            <b data-i18n="signals.title.1">KEEP</b>
+                            <em data-i18n="signals.title.2">UP.</em>
                         </h2>
 
                     </div>
@@ -1894,8 +1909,8 @@
 
                     <div class="section-intro">
 
-                        <p>I post things.</p>
-                        <p>Sometimes they're even relevant.</p>
+                        <p data-i18n="signals.intro.1">I post things.</p>
+                        <p data-i18n="signals.intro.2">Sometimes they're even relevant.</p>
 
                     </div>
 
@@ -1912,13 +1927,13 @@
                         class="signal-card"
                     >
 
-                        <span>HELLBOX // X</span>
+                        <span data-i18n="signals.hellbox.label">HELLBOX // X</span>
 
                         <strong>
                             @HellboxComics
                         </strong>
 
-                        <small>
+                        <small data-i18n="signals.hellbox.sub">
                             OFFICIAL PROPAGANDA ↗
                         </small>
 
@@ -1932,13 +1947,13 @@
                         class="signal-card"
                     >
 
-                        <span>HARROW // X</span>
+                        <span data-i18n="signals.harrow.label">HARROW // X</span>
 
                         <strong>
                             @SinnisterHarrow
                         </strong>
 
-                        <small>
+                        <small data-i18n="signals.harrow.sub">
                             LESS OFFICIAL PROPAGANDA ↗
                         </small>
 
@@ -1952,13 +1967,13 @@
                         class="signal-card"
                     >
 
-                        <span>TELEGRAM</span>
+                        <span data-i18n="signals.telegram.label">TELEGRAM</span>
 
                         <strong>
                             HellboxComics
                         </strong>
 
-                        <small>
+                        <small data-i18n="signals.telegram.sub">
                             THE BASEMENT ↗
                         </small>
 
@@ -1973,11 +1988,11 @@
 
                         <span>███████</span>
 
-                        <strong>
+                        <strong data-i18n="signals.locked.title">
                             NO.
                         </strong>
 
-                        <small>
+                        <small data-i18n="signals.locked.sub">
                             YOU DON'T NEED THIS YET.
                         </small>
 
@@ -2001,7 +2016,7 @@
 
             <div class="section-shell">
 
-                <div class="section-number">
+                <div class="section-number" data-i18n="classified.section">
                     08 // I'M NOT TELLING YOU
                 </div>
 
@@ -2011,17 +2026,17 @@
 
                     <div class="classified-copy">
 
-                        <span class="classified-label">
+                        <span class="classified-label" data-i18n="classified.label">
                             NONE OF YOUR BUSINESS
                         </span>
 
                         <h2>
-                            THERE'S
-                            <em>MORE.</em>
+                            <b data-i18n="classified.title.1">THERE'S</b>
+                            <em data-i18n="classified.title.2">MORE.</em>
                         </h2>
 
-                        <p>Obviously.</p>
-                        <p>No.</p>
+                        <p data-i18n="classified.body.1">Obviously.</p>
+                        <p data-i18n="classified.body.2">No.</p>
 
 
                         <div class="redaction-lines">
@@ -2036,21 +2051,21 @@
                             <button
                                 type="button"
                                 data-classified-object="fuel"
-                            >
+                             data-i18n="classified.fuel">
                                 FUEL SOURCE // ███████
                             </button>
 
                             <button
                                 type="button"
                                 data-classified-object="relay"
-                            >
+                             data-i18n="classified.relay">
                                 REMOTE RELAY // OFFLINE
                             </button>
 
                             <button
                                 type="button"
                                 data-classified-object="machine"
-                            >
+                             data-i18n="classified.machine">
                                 MACHINE // NO INPUT
                             </button>
 
@@ -2078,7 +2093,7 @@
                             ████████████
                         </span>
 
-                        <strong>
+                        <strong data-i18n="classified.yet">
                             YET.
                         </strong>
 
@@ -2100,7 +2115,7 @@
             data-zone="exit"
         >
 
-            <div class="exit-background">
+            <div class="exit-background" data-i18n="exit.title.1">
                 GO
             </div>
 
@@ -2109,27 +2124,27 @@
 
                 <div class="exit-content">
 
-                    <span>
+                    <span data-i18n="exit.section">
                         09 // THAT'S IT
                     </span>
 
                     <h2>
-                        GO
-                        <em>AWAY.</em>
+                        <b data-i18n="exit.title.1">GO</b>
+                        <em data-i18n="exit.title.2">AWAY.</em>
                     </h2>
 
-                    <p>
+                    <p data-i18n="exit.body">
                         I have work to do.
                     </p>
 
-                    <a href="#top">
+                    <a href="#top" data-i18n="exit.restart">
                         MAKE THE SAME MISTAKE AGAIN
                     </a>
 
                     <small
                         class="exit-afterthought"
                         id="exitAfterthought"
-                    >
+                     data-i18n="exit.afterthought.default">
                         you'll be back.
                     </small>
 
@@ -2152,8 +2167,8 @@
     >
 
         <div class="footer-status">
-            <span>END OF CURRENT INTERRUPTION</span>
-            <span>HARROW RETURNED TO WORK</span>
+            <span data-i18n="footer.status.1">END OF CURRENT INTERRUPTION</span>
+            <span data-i18n="footer.status.2">HARROW RETURNED TO WORK</span>
         </div>
 
 
@@ -2162,7 +2177,7 @@
 
             <div class="footer-block">
 
-                <span>
+                <span data-i18n="footer.by">
                     EVERYTHING BY
                 </span>
 
@@ -2177,7 +2192,7 @@
 
             <div class="footer-block">
 
-                <span>
+                <span data-i18n="footer.infrastructure">
                     INFRASTRUCTURE
                 </span>
 
@@ -2199,9 +2214,9 @@
 
             <div class="footer-block">
 
-                <span>NEXT</span>
+                <span data-i18n="footer.next">NEXT</span>
 
-                <strong class="footer-redacted">
+                <strong class="footer-redacted" data-i18n="footer.redacted">
                     NONE OF YOUR BUSINESS.
                 </strong>
 
@@ -2214,12 +2229,12 @@
 
         <div class="footer-bottom">
 
-            <span>HELLBOX COMICS // A HARROW PRODUCTION</span>
-            <span>HELLBOXCOMICS.COM</span>
+            <span data-i18n="footer.production">HELLBOX COMICS // A HARROW PRODUCTION</span>
+            <span data-i18n="footer.domain">HELLBOXCOMICS.COM</span>
             <button type="button" data-open-access data-i18n="access.open">
                 ACCESS // LANGUAGE
             </button>
-            <span>WRITTEN // DRAWN // BUILT // OPERATED BY HARROW</span>
+            <span data-i18n="footer.authorship">WRITTEN // DRAWN // BUILT // OPERATED BY HARROW</span>
 
         </div>
 
@@ -2250,9 +2265,9 @@
                 >
 
                 <div>
-                    <span>HARROW // READER</span>
+                    <span data-i18n="reader.header">HARROW // READER</span>
 
-                    <strong id="readerTitle">
+                    <strong id="readerTitle" data-i18n="reader.defaultTitle">
                         HELLBOX PUBLICATION
                     </strong>
                 </div>
@@ -2262,7 +2277,7 @@
 
             <div class="reader-counter">
 
-                <span>PAGE</span>
+                <span data-i18n="reader.page">PAGE</span>
 
                 <strong id="readerPageNumber">
                     00
@@ -2282,21 +2297,21 @@
                 <button
                     id="readerFitPage"
                     type="button"
-                >
+                 data-i18n="reader.fitPage">
                     FIT PAGE
                 </button>
 
                 <button
                     id="readerFitWidth"
                     type="button"
-                >
+                 data-i18n="reader.fitWidth">
                     FIT WIDTH
                 </button>
 
                 <button
                     id="readerLayoutToggle"
                     type="button"
-                >
+                 data-i18n="reader.continuous">
                     CONTINUOUS
                 </button>
 
@@ -2319,7 +2334,7 @@
             <div
                 class="reader-session-status"
                 id="readerSessionStatus"
-            >
+             data-i18n="reader.session">
                 FINE // IT'S YOU
             </div>
 
@@ -2376,7 +2391,7 @@
                 <button
                     id="readerFirst"
                     type="button"
-                >
+                 data-i18n="reader.first">
                     FIRST
                 </button>
 
@@ -2401,7 +2416,7 @@
                 <button
                     id="readerLast"
                     type="button"
-                >
+                 data-i18n="reader.last">
                     LAST
                 </button>
 
@@ -2414,13 +2429,13 @@
             >
 
                 <div>
-                    <span>HARROW // WAIT</span>
+                    <span data-i18n="reader.loading.header">HARROW // WAIT</span>
 
-                    <h3>
+                    <h3 data-i18n="reader.loading.title">
                         HOLD ON.
                     </h3>
 
-                    <p id="readerLoadingText">
+                    <p id="readerLoadingText" data-i18n="reader.loading.default">
                         The machine is doing something expensive.
                     </p>
                 </div>
@@ -2434,20 +2449,20 @@
             >
 
                 <div>
-                    <span>HARROW // NO</span>
+                    <span data-i18n="reader.error.header">HARROW // NO</span>
 
-                    <h3>
+                    <h3 data-i18n="reader.error.title">
                         NOT THIS ONE.
                     </h3>
 
-                    <p id="readerErrorText">
+                    <p id="readerErrorText" data-i18n="reader.error.default">
                         You don't own this one.
                     </p>
 
                     <button
                         id="readerErrorClose"
                         type="button"
-                    >
+                     data-i18n="reader.error.close">
                         FINE
                     </button>
                 </div>
@@ -2463,7 +2478,7 @@
          FRONTEND APPLICATION
     ========================================================== -->
 
-    <script src="/app.js?v=20260828-gate0-1-02"></script>
+    <script src="/app.js?v=20260829-gate0-2-runtime-03"></script>
 
 </body>
 
