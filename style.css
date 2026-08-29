@@ -3207,8 +3207,7 @@ body:hover .cursor-burn {
 
 .obsession-hotspot::before {
 
-    content:
-        "+";
+    content: "";
 
     position:
         absolute;
