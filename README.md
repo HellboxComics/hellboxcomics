@@ -22,6 +22,23 @@ Before changing this repository, read:
 
 If this README conflicts with `HELLBOX_PROJECT_STATE.md`, the project-state bible wins.
 
+## Repository privacy
+
+Public Git identity is:
+
+```text
+Harrow <noreply@hellboxcomics.com>
+```
+
+After Gate 2, the repository history was privacy-rewritten and verified so the user's personal identity no longer appears in Git author/committer metadata, tracked historical content, commit messages, or historical paths.
+
+Repository rules:
+- do not place the user's personal/legal name, personal email, local machine username/hostname, private tokens, or secrets into tracked files or public documentation
+- sanitize terminal logs before committing them
+- do not merge old pre-privacy clones/bundles/history back into `main`
+- do not use commit SHA values as durable project-state anchors; history/privacy maintenance can invalidate them
+- prefer Gate names, commit subjects, migrations, file paths, durable data state, and explicit production validation results
+
 ## Harrow
 
 Harrow is Hellbox's writer, artist, publisher, operator, narrator, host, and problem.
@@ -81,6 +98,15 @@ The site is live at `hellboxcomics.com` and deploys from `main` through Cloudfla
   - phone `390x844`
 - temporary Gate 2 preview authorization was removed and its Cloudflare secret deleted
 - normal public `/api/reader/scivive` remains intentionally hidden with HTTP `404`
+
+**Post-Gate-2 repository privacy hardening**
+
+- Git author/committer history rewritten to Harrow-only public identity
+- historical tracked-content identity references scrubbed
+- commit messages and historical paths scanned clean
+- both public branches replaced with scrubbed history using guarded force-with-lease
+- pre-scrub local backup and filter-repo temporary data removed
+- old pre-rewrite commit SHAs are intentionally obsolete and should not be used as handoff anchors
 
 ## Reader product direction
 
@@ -252,6 +278,10 @@ Hellbox is changed incrementally.
 
 For terminal work, proceed **one immediate action at a time** rather than dumping a long future command sequence.
 
+For handoff/checkpoint references:
+- use Gate names, commit subjects, file paths, migration names, and validation results
+- do not rely on commit hashes as permanent identifiers
+
 At every Gate close:
 
 1. finish technical acceptance
@@ -296,6 +326,7 @@ Do **not** deploy the NFT contract yet. Contract deployment belongs to Gate 4 af
 
 Never commit:
 
+- the user's personal/legal identity, personal email, local machine username/hostname, or unsanitized terminal logs
 - wallet private keys or seed phrases
 - Cloudflare API tokens
 - Worker/admin/session secrets
