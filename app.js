@@ -2552,9 +2552,9 @@
 
     const FALLBACK_UI_LOCALE = "en";
     const LOCALE_MANIFEST_URL =
-        "/locales/manifest.json?v=20260829-gate0-2-runtime-02";
+        "/locales/manifest.json?v=20260829-gate0-2-runtime-04";
     const LOCALE_CACHE_VERSION =
-        "20260829-gate0-2-runtime-02";
+        "20260829-gate0-2-runtime-04";
 
     /*
      * Gate 0.2 validates the production localization runtime with English
@@ -2699,7 +2699,7 @@
             const response = await fetch(
                 LOCALE_MANIFEST_URL,
                 {
-                    cache: "force-cache"
+                    cache: "no-store"
                 }
             );
 
@@ -2816,7 +2816,7 @@
         const response = await fetch(
             `${path}${separator}v=${LOCALE_CACHE_VERSION}`,
             {
-                cache: "force-cache"
+                cache: "no-store"
             }
         );
 
