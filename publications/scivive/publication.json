@@ -61,7 +61,7 @@
   "provenance": {
     "author": "Richard Heart",
     "hellboxRole": "publisher_only",
-    "sourceNotes": "SciVive is being preserved as the existing source work. Hellbox will not rewrite, finish, sanitize, or claim authorship of the source text. Public source availability and Hellbox Reader access policy are intentionally separate.",
+    "sourceNotes": "SciVive is being preserved as the existing source work. Hellbox will not rewrite, finish, sanitize, or claim authorship of the source text. Public source availability and Hellbox Reader access policy are intentionally separate. The PDF and EPUB currently pinned through Filebase were independently fetched through ipfs.io and verified byte-for-byte against the canonical source SHA-256 fingerprints recorded in this manifest.",
     "sources": [
       {
         "sourceType": "internet_archive",
@@ -124,17 +124,35 @@
       "sortOrder": 10,
       "metadata": {
         "sourceFileName": "sciVive.pdf",
-        "pageCount": 461
+        "pageCount": 461,
+        "verifiedIpfsCid": "QmWKTwYfhMDksDwz5eMwsw8YFJC8yYwPLFZxWAbUyDS2EH",
+        "ipfsPinProvider": "Filebase",
+        "ipfsBucket": "hellbox-publications",
+        "ipfsObjectPath": "scivive/source/sciVive.pdf",
+        "independentGatewayVerification": {
+          "gateway": "https://ipfs.io/ipfs/",
+          "verifiedByteSize": 8433084,
+          "verifiedSha256": "d105e16e991944b63d8e696c8236f5b4497d3c959119a87e580f46f2181bc548"
+        }
       },
       "locations": [
+        {
+          "provider": "ipfs",
+          "locationRole": "delivery",
+          "locator": "ipfs://QmWKTwYfhMDksDwz5eMwsw8YFJC8yYwPLFZxWAbUyDS2EH",
+          "gatewayUrl": null,
+          "publicRetrievable": true,
+          "primary": true,
+          "priority": 10
+        },
         {
           "provider": "https",
           "locationRole": "source",
           "locator": "https://archive.org/details/SciViveBookOutline_201802",
           "gatewayUrl": null,
           "publicRetrievable": true,
-          "primary": true,
-          "priority": 10
+          "primary": false,
+          "priority": 50
         },
         {
           "provider": "r2_public",
@@ -157,17 +175,35 @@
       "sortOrder": 20,
       "metadata": {
         "sourceFileName": "sciVive.epub",
-        "zipEntryCount": 741
+        "zipEntryCount": 741,
+        "verifiedIpfsCid": "Qmdaq6fSFu9fUwJ8okygjmAFtczmbTFxZicbSyFWRLEjxz",
+        "ipfsPinProvider": "Filebase",
+        "ipfsBucket": "hellbox-publications",
+        "ipfsObjectPath": "scivive/source/scivive.epub",
+        "independentGatewayVerification": {
+          "gateway": "https://ipfs.io/ipfs/",
+          "verifiedByteSize": 187192050,
+          "verifiedSha256": "a6bbaadbb31eb8baecd0ba156fbeafbd9528d8cd93e38023fa144131bffa67d3"
+        }
       },
       "locations": [
+        {
+          "provider": "ipfs",
+          "locationRole": "delivery",
+          "locator": "ipfs://Qmdaq6fSFu9fUwJ8okygjmAFtczmbTFxZicbSyFWRLEjxz",
+          "gatewayUrl": null,
+          "publicRetrievable": true,
+          "primary": true,
+          "priority": 10
+        },
         {
           "provider": "https",
           "locationRole": "source",
           "locator": "https://archive.org/details/SciViveBookOutline_201802",
           "gatewayUrl": null,
           "publicRetrievable": true,
-          "primary": true,
-          "priority": 10
+          "primary": false,
+          "priority": 50
         },
         {
           "provider": "r2_public",
@@ -186,21 +222,26 @@
       "storagePolicy": {
         "publicIpfsPreferred": true,
         "ipfsPinRequiredBeforeValidated": true,
-        "ipfsCidsRecorded": false,
+        "ipfsCidsRecorded": true,
         "privateOriginalAssets": false,
         "publicR2Role": "presentation-assets-and-fallback-mirror",
-        "privateR2Role": "reserved-for-original-in-house-protected-assets"
+        "privateR2Role": "reserved-for-original-in-house-protected-assets",
+        "ipfsPinProvider": "Filebase",
+        "ipfsBucket": "hellbox-publications",
+        "verifiedPublicGateway": "ipfs.io"
       },
       "sourceIntegrity": {
         "pdfPageCount": 461,
         "pdfSha256": "d105e16e991944b63d8e696c8236f5b4497d3c959119a87e580f46f2181bc548",
         "epubByteSize": 187192050,
-        "epubSha256": "a6bbaadbb31eb8baecd0ba156fbeafbd9528d8cd93e38023fa144131bffa67d3"
+        "epubSha256": "a6bbaadbb31eb8baecd0ba156fbeafbd9528d8cd93e38023fa144131bffa67d3",
+        "pdfIpfsCid": "QmWKTwYfhMDksDwz5eMwsw8YFJC8yYwPLFZxWAbUyDS2EH",
+        "epubIpfsCid": "Qmdaq6fSFu9fUwJ8okygjmAFtczmbTFxZicbSyFWRLEjxz",
+        "ipfsVerification": "verified-byte-for-byte"
       },
       "activationBlockers": [
-        "Record durable pinned IPFS CID(s) for the public SciVive source material.",
-        "Capture explicit license/reuse evidence if a specific open license is to be claimed.",
-        "Gate 2 must create the production Reader manifest before package validation."
+        "Gate 2 must create the production Reader manifest before the package advances from draft to validated.",
+        "If Hellbox intends to claim a specific open/reuse license publicly, explicit license evidence must be captured first."
       ]
     }
   }
