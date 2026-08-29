@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 1,
+  "manifestVersion": "0.2.0-recovery.1",
+  "defaultLocale": "en",
+  "fallbackLocale": "en",
+  "selection": {
+    "queryParameter": "lang",
+    "storageKey": "hellbox:ui-locale:v1",
+    "browserLanguageFallback": true
+  },
+  "policy": {
+    "canonicalSiteLocale": "en",
+    "canonicalHarrowVoice": "en",
+    "fullSiteLocalizationRequired": true,
+    "publishOnlyCompletePacks": true,
+    "humanVoiceAdaptationRequired": true,
+    "liveMachineTranslationAllowed": false,
+    "siteLocaleIndependentFromPublicationLocale": true,
+    "publicationTranslationRequiresIntentionalLocalizedEdition": true,
+    "rtlRequiredBeforeRtlLocaleLaunch": true,
+    "mirrorPublicationArtworkForRtl": false
+  },
+  "coverageRequired": [
+    "document_metadata",
+    "static_copy",
+    "navigation",
+    "buttons_and_labels",
+    "wallet_states",
+    "archive_states",
+    "press_states",
+    "reader_states",
+    "drawers_and_dialogs",
+    "harrow_dialogue",
+    "ticker",
+    "errors",
+    "accessibility_text",
+    "live_announcements"
+  ],
+  "translationProduction": {
+    "delivery": "approved_static_json",
+    "draftProvider": "google_cloud_translation",
+    "visitorRuntimeCallsProvider": false,
+    "sourceLocale": "en",
+    "workflow": [
+      "canonical_english_source",
+      "google_machine_draft",
+      "hellbox_glossary_review",
+      "harrow_voice_adaptation",
+      "layout_and_accessibility_qa",
+      "approve_complete_pack",
+      "publish_static_json"
+    ],
+    "protectedTerms": [
+      "Hellbox Comics",
+      "Harrow",
+      "PulseChain",
+      "Pulse Byte",
+      "Chain ID 369",
+      "Hellbox Reader",
+      "Hellbox Press"
+    ]
+  },
+  "locales": [
+    {
+      "code": "en",
+      "name": "English",
+      "nativeName": "English",
+      "direction": "ltr",
+      "status": "complete",
+      "public": true,
+      "pack": "/locales/en.json",
+      "machineDraft": false,
+      "harrowVoiceApproved": true
+    },
+    {
+      "code": "es",
+      "name": "Spanish",
+      "nativeName": "Español",
+      "direction": "ltr",
+      "status": "building",
+      "public": false,
+      "pack": "/locales/es.json",
+      "machineDraft": true,
+      "harrowVoiceApproved": false
+    },
+    {
+      "code": "pt-BR",
+      "name": "Brazilian Portuguese",
+      "nativeName": "Português do Brasil",
+      "direction": "ltr",
+      "status": "building",
+      "public": false,
+      "pack": "/locales/pt-BR.json",
+      "machineDraft": true,
+      "harrowVoiceApproved": false
+    }
+  ],
+  "plannedLocales": [
+    {
+      "code": "vi",
+      "name": "Vietnamese",
+      "nativeName": "Tiếng Việt",
+      "direction": "ltr",
+      "priority": 1
+    },
+    {
+      "code": "id",
+      "name": "Indonesian",
+      "nativeName": "Bahasa Indonesia",
+      "direction": "ltr",
+      "priority": 2
+    },
+    {
+      "code": "hi",
+      "name": "Hindi",
+      "nativeName": "हिन्दी",
+      "direction": "ltr",
+      "priority": 3
+    },
+    {
+      "code": "ur",
+      "name": "Urdu",
+      "nativeName": "اردو",
+      "direction": "rtl",
+      "priority": 4
+    },
+    {
+      "code": "uk",
+      "name": "Ukrainian",
+      "nativeName": "Українська",
+      "direction": "ltr",
+      "priority": 5
+    },
+    {
+      "code": "tr",
+      "name": "Turkish",
+      "nativeName": "Türkçe",
+      "direction": "ltr",
+      "priority": 6
+    },
+    {
+      "code": "zh-Hans",
+      "name": "Simplified Chinese",
+      "nativeName": "简体中文",
+      "direction": "ltr",
+      "priority": 7
+    },
+    {
+      "code": "ko",
+      "name": "Korean",
+      "nativeName": "한국어",
+      "direction": "ltr",
+      "priority": 8
+    },
+    {
+      "code": "ja",
+      "name": "Japanese",
+      "nativeName": "日本語",
+      "direction": "ltr",
+      "priority": 9
+    },
+    {
+      "code": "fr",
+      "name": "French",
+      "nativeName": "Français",
+      "direction": "ltr",
+      "priority": 10
+    },
+    {
+      "code": "ar",
+      "name": "Arabic",
+      "nativeName": "العربية",
+      "direction": "rtl",
+      "priority": 11
+    }
+  ]
+}
