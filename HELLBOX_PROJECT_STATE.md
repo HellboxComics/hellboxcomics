@@ -2,7 +2,8 @@
 
 Last updated: 2026-08-29
 Current production branch: `main`
-Current live checkpoint: Gate 0 COMPLETE — stabilization/platform foundation
+Current live checkpoint: Gate 1 COMPLETE — publication platform & durable data model
+Latest verified production commit: `6f1206d` — `Gate 1: read publications from D1`
 Known-good historical commit: `5373ba1460babdd3b1f577dba16137fd83ffa6a1`
 Recovery commit on `main`: `2890ab0`
 Recovery tree hash: `b19c2df2f533960305cd2aaf65fdd0842ade5e6e`
@@ -66,6 +67,13 @@ Localization workflow:
 
 Avoid unnecessary repository restructuring.
 
+File handoff rules:
+- direct `.js` downloads are unreliable for the user, so deliver JavaScript replacement files inside ZIP archives
+- the user normally drops delivered items into the repository root
+- when a destination folder does not already exist in the repository root, include the required folder structure inside the ZIP so extracting from the root creates the correct path automatically
+- when the destination folder already exists in the repository root, do not recreate/repackage the existing project folder; state the exact target path and let the user place the extracted replacement file there
+- always print the complete current terminal/deploy/verification commands in the same response; never tell the user to look back at an earlier message for required steps
+
 Do not modify `src/index.js`, `wrangler.jsonc`, `.assetsignore`, or deployment structure casually.
 
 ---
@@ -78,12 +86,21 @@ Current production state:
 - branch: `main`
 - Cloudflare deployment is live
 - Gate 0 foundation is complete
+- Gate 1 publication platform/data model is complete
+- latest verified production commit: `6f1206d` — `Gate 1: read publications from D1`
 - public site works in English and Spanish
 - current Gate 0.2 frontend runtime cache generation: `runtime-05`
 - current Gate 0.2 layout stylesheet cache generation: `gate0-2-04`
 - GA4 is installed with Measurement ID `G-5E9EX1RE0Z`
 - GA4 Realtime was verified; Brave Shields can block the user's own Analytics requests
 - public/backend multi-chain foundation is live
+- production D1 database `hellbox-production` is bound to the Worker as `DB`
+- remote D1 migrations `0001_publication_platform.sql`, `0002_refine_asset_location_identity.sql`, and `0003_seed_scivive.sql` are applied
+- SciVive is the first durable publication record and remains intentionally private
+- Worker publication APIs read D1 rather than a hardcoded publication registry
+- live health reports publication engine `publication-key-d1-v1` and registry source `d1`
+- public publication enumeration returns zero publications while SciVive is private
+- direct normal-app lookup of private SciVive returns `404 Publication not found.` by design
 - Press prototype is usable enough to defer, but is not final
 
 Recovery history remains:
@@ -827,7 +844,7 @@ PulseChain Testnet V4 should be used first when tPLS is available.
 
 ## 26. CURRENT RESPONSIVE STATUS
 
-Current live checkpoint: Gate 0 complete.
+Current live checkpoint: Gate 1 complete.
 
 Verified:
 - mobile remains usable
@@ -855,7 +872,8 @@ Do not reopen cosmetic Press work until the dedicated Press Gate unless a regres
 - CSS contains many historical overrides; future cleanup must be incremental.
 - Frontend `app.js` is large and monolithic.
 - Worker/backend `src/index.js` is large and monolithic.
-- Publication registry is still prototype/hardcoded.
+- D1 publication storage is live; Gate 2 Reader manifest/protected-delivery/session infrastructure is not yet implemented.
+- SciVive package remains `draft` with 0 validation errors and 2 non-blocking validation warnings at the Gate 1 checkpoint.
 - Real minting is not implemented.
 - NFT contract is not deployed.
 - Archive ownership is not production-real.
@@ -906,11 +924,14 @@ The project is rebased onto a production-style Gate 0 through Gate 9 system desc
 
 Current position:
 - Gate 0 COMPLETE
-- Gate 1 NEXT
+- Gate 1 COMPLETE
+- Gate 2 NEXT
 
-Begin Gate 1 by inspecting current `wrangler.jsonc` and Worker storage/bindings, then create the first durable publication data/schema layer around SciVive.
+Begin Gate 2 by turning the durable SciVive publication package into the first real Hellbox Reader vertical slice.
 
-Do not touch final Press art, contracts, or large visual polish before the publication data model exists.
+First inspect the existing Reader-related frontend/backend paths in `app.js` and `src/index.js` plus the current SciVive package definition. Then choose the smallest single-file Reader implementation step. Do not stack frontend and backend Reader changes before either one is verified.
+
+Gate 2 may use an explicitly authorized test session. Do not prematurely implement Gate 3 wallet ownership, Gate 4 contracts, final Press art, or broad visual polish.
 
 ---
 
@@ -944,33 +965,68 @@ Delivered:
 Gate 0 means the foundation is stable enough to build the actual product.
 It does NOT mean the Hellbox product loop is complete.
 
-### GATE 1 — PUBLICATION PLATFORM & DATA MODEL — NEXT
+### GATE 1 — PUBLICATION PLATFORM & DATA MODEL — COMPLETE
 
 Goal:
 Make a Hellbox publication a real first-class durable data object rather than hardcoded prototype data.
 
-Build:
+Delivered:
 - D1-backed publication model
 - lifecycle records
 - chain-independent `publicationKey`
 - per-chain deployment/token identity fields
 - release/payment/supply configuration
 - public/private publication visibility
-- R2 public/private package structure
+- R2 public/private package-location model
 - publication package manifest/schema
 - validation rules
 - SciVive as the first real private publication package
-- Worker publication APIs read durable data rather than hardcoded arrays
+- verified SciVive PDF/EPUB SHA-256 fingerprints and IPFS CIDs
+- refined asset-location identity supporting primary delivery, source, and mirror locations
+- production `DB` binding to D1 database `hellbox-production`
+- Worker publication APIs read durable D1 data rather than a hardcoded array
 
-Exit criteria:
-- SciVive exists as a real private publication record
-- package validates
-- public/private asset locations are defined
-- Worker returns publication metadata from durable storage
-- no contract required yet
-- no manual public-site edit required merely to represent the publication
+Gate 1 production migrations:
+- `0001_publication_platform.sql`
+- `0002_refine_asset_location_identity.sql`
+- `0003_seed_scivive.sql`
 
-### GATE 2 — READER VERTICAL SLICE
+SciVive durable checkpoint:
+- `publicationKey`: `scivive`
+- lifecycle: `private`
+- public visible: `false`
+- presentation class: `book`
+- Reader enabled: `true`
+- Reader access policy: `ownership`
+- PulseChain chain ID: `369`
+- max supply: `5555`
+- payment: `free`
+- max primary mints per wallet: `1`
+- max per transaction: `1`
+- royalty: `369` bps
+- publishing enabled: `false`
+- contract address: `null`
+- package status: `draft`
+- package validation: `0` errors, `2` non-blocking warnings
+
+Live verification at Gate 1 close:
+- `/api/health` reports `publicationEngine: publication-key-d1-v1`
+- `/api/health` reports registry source `d1`
+- D1 registry counts: total `1`, public `0`, private `1`
+- `/api/publications` returns an empty public list while SciVive is private
+- `/api/publications/scivive` returns HTTP `404` to a normal unauthenticated/public request
+- all expected bindings report configured, including database/public bucket/private bucket/assets
+- repository working tree was clean after production verification
+
+Exit criteria status:
+- SciVive exists as a real private publication record: PASS
+- package validates without blocking errors: PASS
+- public/private asset locations are defined: PASS
+- Worker returns publication metadata from durable storage: PASS
+- no contract required yet: PASS
+- no manual public-site edit required merely to represent the publication: PASS
+
+### GATE 2 — READER VERTICAL SLICE — NEXT
 
 Goal:
 Make SciVive genuinely readable inside Hellbox.
@@ -1154,7 +1210,7 @@ SciVive is live and the complete Hellbox publishing loop works in production.
 
 ### CURRENT CRITICAL PATH
 
-`Gate 1 publication data → Gate 2 Reader → Gate 3 ownership → Gate 4 testnet contract → Gate 5 Press`
+`Gate 2 Reader → Gate 3 ownership → Gate 4 testnet contract → Gate 5 Press`
 
 Do not spend weeks polishing prototype surfaces before this vertical slice works.
 
@@ -1180,20 +1236,26 @@ Every future user-visible interaction must enter the English catalog at creation
 
 ## 33. EXACT NEXT ENGINEERING ACTION
 
-Begin Gate 1.
+Begin Gate 2 — Reader vertical slice.
 
-First inspect:
-- current `wrangler.jsonc`
-- current D1 bindings, if any
-- current R2 bindings
-- current Worker publication registry/storage assumptions
+First inspect, without changing them yet:
+- current Reader-related routes/authorization behavior in `src/index.js`
+- current Reader/open-publication behavior in `app.js`
+- `publications/scivive/publication.json` Reader/package fields
+- existing SciVive source asset locations and formats
 
-Then choose the smallest durable Gate 1 file.
-Expected first real implementation file is normally a D1 migration/schema file such as:
-`migrations/0001_publication_platform.sql`
+Then choose the smallest single-file Gate 2 implementation step. The first durable Reader artifact should establish the Reader content/manifest contract for SciVive before broad UI work. Do not edit `app.js` and `src/index.js` together as one unverified change.
 
-Do not modify `wrangler.jsonc` until its current state is inspected.
-Use SciVive as the concrete vertical-slice publication rather than designing an abstract platform without a real test package.
+Gate 2 authorization can begin with an explicit authorized test session so Reader delivery can be proven independently. Wallet-signature identity and real ownership authority belong to Gate 3.
+
+Reader constraints already locked:
+- SciVive must read like a native Hellbox BOOK experience, not an embedded PDF viewer
+- support fit-page / fit-width and paged / continuous modes
+- support keyboard, touch, preloading, accessibility, and honest failure states
+- unauthorized normal app requests must not be able to fetch protected Reader assets
+- SciVive's publicly retrievable source provenance is separate from Hellbox Reader access policy
+
+Do not touch final Press art or contract deployment during this step.
 
 ---
 
