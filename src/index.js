@@ -2480,9 +2480,28 @@ async function getPublicationRegistrySummary(
         `
           SELECT
             COUNT(*) AS total_configured,
-            SUM(CASE WHEN public_visible = 1 THEN 1 ELSE 0 END) AS public_count,
-            SUM(CASE WHEN public_visible = 0 THEN 1 ELSE 0 END) AS private_count
-          FROM publications
+            SUM(CASE WHEN p.public_visible = 1 THEN 1 ELSE 0 END) AS public_count,
+            SUM(CASE WHEN p.public_visible = 0 THEN 1 ELSE 0 END) AS private_count,
+            SUM(
+              CASE
+                WHEN
+                  f.reader_enabled = 1
+                  AND EXISTS (
+                    SELECT 1
+                    FROM publication_packages pkg
+                    WHERE pkg.publication_key = p.publication_key
+                      AND pkg.reader_manifest_key IS NOT NULL
+                      AND TRIM(pkg.reader_manifest_key) != ''
+                      AND pkg.private_prefix IS NOT NULL
+                      AND TRIM(pkg.private_prefix) != ''
+                  )
+                THEN 1
+                ELSE 0
+              END
+            ) AS reader_configured_count
+          FROM publications p
+          LEFT JOIN publication_features f
+            ON f.publication_key = p.publication_key
         `
       )
       .first();
@@ -2506,6 +2525,12 @@ async function getPublicationRegistrySummary(
     privateCount:
       Number(
         row?.private_count ||
+        0
+      ),
+
+    readerConfiguredCount:
+      Number(
+        row?.reader_configured_count ||
         0
       ),
   };
@@ -2671,7 +2696,12 @@ async function queryPublications(
           c.max_primary_mints_per_wallet,
           c.max_per_transaction,
           c.royalty_bps,
-          c.royalty_receiver
+          c.royalty_receiver,
+
+          pkg.package_version,
+          pkg.status AS package_status,
+          pkg.private_prefix,
+          pkg.reader_manifest_key
 
         FROM publications p
 
@@ -2682,6 +2712,24 @@ async function queryPublications(
         LEFT JOIN publication_chain_configs c
           ON c.publication_key =
             p.publication_key
+
+        LEFT JOIN publication_packages pkg
+          ON pkg.package_id = (
+            SELECT pkg2.package_id
+            FROM publication_packages pkg2
+            WHERE pkg2.publication_key =
+              p.publication_key
+            ORDER BY
+              CASE pkg2.status
+                WHEN 'active' THEN 0
+                WHEN 'validated' THEN 1
+                WHEN 'draft' THEN 2
+                WHEN 'retired' THEN 3
+                ELSE 4
+              END,
+              pkg2.package_version DESC
+            LIMIT 1
+          )
 
         ${whereClause}
 
@@ -2855,25 +2903,9 @@ function publicationFromD1Row(
     chains:
       [],
 
-    reader: {
-      enabled:
-        d1Boolean(
-          row.reader_enabled
-        ),
-
-      accessPolicy:
-        row.reader_access_policy ||
-        "ownership",
-
-      source:
-        "unconfigured",
-
-      manifestKey:
-        null,
-
-      assetPrefix:
-        null,
-    },
+    reader: readerFromD1Row(
+      row
+    ),
 
     features: {
       sealed:
@@ -2920,6 +2952,101 @@ function publicationFromD1Row(
         null,
     },
   };
+}
+
+function readerFromD1Row(
+  row
+) {
+  const manifestKey =
+    normalizeReaderStoragePointer(
+      row.reader_manifest_key,
+      false
+    );
+
+  const assetPrefix =
+    normalizeReaderStoragePointer(
+      row.private_prefix,
+      true
+    );
+
+  const configured =
+    Boolean(
+      manifestKey &&
+      assetPrefix
+    );
+
+  return {
+    enabled:
+      d1Boolean(
+        row.reader_enabled
+      ),
+
+    accessPolicy:
+      row.reader_access_policy ||
+      "ownership",
+
+    source:
+      configured
+        ? "private"
+        : "unconfigured",
+
+    manifestKey:
+      configured
+        ? manifestKey
+        : null,
+
+    assetPrefix:
+      configured
+        ? assetPrefix
+        : null,
+
+    packageVersion:
+      row.package_version == null
+        ? null
+        : Number(
+            row.package_version
+          ),
+
+    packageStatus:
+      row.package_status ||
+      null,
+  };
+}
+
+function normalizeReaderStoragePointer(
+  value,
+  ensureTrailingSlash
+) {
+  const normalized =
+    String(
+      value ||
+      ""
+    )
+      .trim()
+      .replace(
+        /^\/+/,
+        ""
+      );
+
+  if (
+    !normalized ||
+    normalized.includes(
+      ".."
+    )
+  ) {
+    return null;
+  }
+
+  if (
+    ensureTrailingSlash &&
+    !normalized.endsWith(
+      "/"
+    )
+  ) {
+    return `${normalized}/`;
+  }
+
+  return normalized;
 }
 
 function chainFromD1Row(
@@ -3388,10 +3515,16 @@ async function loadReaderManifest(
     publication
       .reader
       .source !==
-    "private"
+    "private" ||
+    !publication
+      .reader
+      .manifestKey ||
+    !publication
+      .reader
+      .assetPrefix
   ) {
     throw new Error(
-      "Unsupported reader source."
+      "Reader delivery is not configured in D1."
     );
   }
 
@@ -3413,12 +3546,62 @@ async function loadReaderManifest(
   const rawManifest =
     await object.json();
 
+  if (
+    String(
+      rawManifest?.publicationKey ||
+      ""
+    ) !==
+      publication.publicationKey
+  ) {
+    throw new Error(
+      "Protected reader manifest publication mismatch."
+    );
+  }
+
+  const manifestPrefix =
+    normalizeReaderStoragePointer(
+      rawManifest?.delivery
+        ?.assetPrefix,
+      true
+    );
+
+  if (
+    !manifestPrefix ||
+    manifestPrefix !==
+      publication
+        .reader
+        .assetPrefix
+  ) {
+    throw new Error(
+      "Protected reader manifest prefix does not match D1."
+    );
+  }
+
   const rawPages =
     Array.isArray(
       rawManifest.pages
     )
       ? rawManifest.pages
       : [];
+
+  const declaredPageCount =
+    Number(
+      rawManifest.pageCount ??
+      rawPages.length
+    );
+
+  if (
+    !Number.isInteger(
+      declaredPageCount
+    ) ||
+    declaredPageCount <= 0 ||
+    declaredPageCount !==
+      rawPages.length
+  ) {
+    throw new Error(
+      "Protected reader manifest page count is invalid."
+    );
+  }
 
   const pages =
     rawPages.map(
