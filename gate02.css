@@ -77,14 +77,13 @@
 }
 
 /*
-   Ordinary laptop hero: the two highest measured targets can sit partly
+   Standard non-ultrawide desktop/laptop hero: the highest measured targets can sit partly
    beneath the fixed header because the artwork itself begins behind it.
    Their invisible hit centers are lowered slightly into the usable art.
    The visual art is not moved.
 */
 @media
 (min-width: 761px)
-and (max-width: 1699px)
 and (min-aspect-ratio: 4 / 5)
 and (max-aspect-ratio: 16 / 9) {
 
@@ -236,13 +235,12 @@ body.form-focus .harrow-orb {
 
 
 /* ----------------------------------------------------------------
-   STANDARD LAPTOP — COMPRESS EMPTY SPACE
+   STANDARD NON-ULTRAWIDE DESKTOP/LAPTOP — COMPRESS EMPTY SPACE
    Deliberately excludes ultrawides and rotated/tall display tuning.
    ---------------------------------------------------------------- */
 
 @media
 (min-width: 901px)
-and (max-width: 1699px)
 and (min-aspect-ratio: 4 / 5)
 and (max-aspect-ratio: 16 / 9) {
 
@@ -470,7 +468,7 @@ a,
    legacy Press rules won and the HARROW // MACHINE console remained an
    absolute overlay.
 
-   This pass starts at the actual desktop breakpoint and makes the viewport
+   This pass starts at the actual desktop breakpoint with no arbitrary pixel-width ceiling and makes the viewport
    itself the right-column grid item. The machine console is a separate,
    normal-flow row beneath the machine art. It cannot overlap the left
    mini-terminal.
@@ -478,7 +476,6 @@ a,
 
 @media
 (min-width: 761px)
-and (max-width: 1699px)
 and (min-aspect-ratio: 4 / 5)
 and (max-aspect-ratio: 16 / 9) {
 
