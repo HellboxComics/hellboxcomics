@@ -1,0 +1,437 @@
+/* ================================================================
+   HELLBOX COMICS — GATE 0.2
+   LAPTOP POLISH + GLOBALIZATION + MULTI-CHAIN FOUNDATION
+
+   This file intentionally loads after the legacy production stylesheet.
+   It contains only the stabilized Gate 0.2 layer. Widescreen-specific
+   compositions remain frozen until the correct displays are available.
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   ENVIRONMENTAL DISCOVERY — ART FIRST, NO MAP PINS
+   ---------------------------------------------------------------- */
+
+.lair-hotspot,
+.obsession-hotspot,
+.press-art-hotspot,
+.press-hotspot,
+[data-hotspot],
+[data-theory],
+[data-press-hotspot] {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    color: transparent !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    outline: 0;
+    opacity: 1 !important;
+}
+
+/* Remove every inherited plus/circle constructor rather than covering it. */
+.lair-hotspot::before,
+.lair-hotspot::after,
+.obsession-hotspot::before,
+.obsession-hotspot::after,
+.press-art-hotspot::before,
+.press-art-hotspot::after,
+.press-hotspot::before,
+.press-hotspot::after,
+[data-hotspot]::before,
+[data-hotspot]::after,
+[data-theory]::before,
+[data-theory]::after,
+[data-press-hotspot]::before,
+[data-press-hotspot]::after {
+    content: "" !important;
+    color: transparent !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+/* A restrained environmental disturbance appears only on deliberate approach. */
+.lair-hotspot,
+.obsession-hotspot,
+.press-art-hotspot,
+.press-hotspot {
+    isolation: isolate;
+}
+
+.lair-hotspot > span,
+.obsession-hotspot > span,
+.press-art-hotspot > span,
+.press-hotspot > span {
+    display: none !important;
+}
+
+.lair-hotspot:focus-visible,
+.obsession-hotspot:focus-visible,
+.press-art-hotspot:focus-visible,
+.press-hotspot:focus-visible {
+    outline: 2px solid var(--purple-hot) !important;
+    outline-offset: 5px;
+    border-radius: 50% !important;
+    background:
+        radial-gradient(
+            circle,
+            rgba(173,115,255,0.16) 0,
+            rgba(140,66,255,0.08) 42%,
+            transparent 72%
+        ) !important;
+    box-shadow:
+        0 0 0 8px rgba(140,66,255,0.06),
+        0 0 34px rgba(140,66,255,0.28) !important;
+}
+
+/* Hover is a local reflection, not a button reveal. */
+@media (hover: hover) and (pointer: fine) {
+    .lair-hotspot:hover,
+    .obsession-hotspot:hover,
+    .press-art-hotspot:hover,
+    .press-hotspot:hover {
+        transform: none !important;
+        background:
+            radial-gradient(
+                circle,
+                rgba(255,255,255,0.075) 0,
+                rgba(140,66,255,0.055) 38%,
+                transparent 72%
+            ) !important;
+        box-shadow:
+            0 0 38px rgba(140,66,255,0.10) !important;
+    }
+}
+
+/* ----------------------------------------------------------------
+   PRESS — THE REAL LEVER IS THE INVITATION
+   ---------------------------------------------------------------- */
+
+.press-lever-label,
+.press-lever-warning,
+.press-lever-copy,
+.press-lever-hint,
+[data-press-lever-label],
+[data-lever-copy],
+#pressLeverLabel,
+#pressLeverWarning,
+#pressLeverHint {
+    display: none !important;
+}
+
+/* Hide exact legacy text containers even if old IDs/classes survive. */
+.gate02-legacy-lever-copy {
+    display: none !important;
+}
+
+/* The hit region remains usable without drawing a tutorial over the machine. */
+#pressLever,
+.press-lever {
+    color: transparent !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+/* ----------------------------------------------------------------
+   FLOATING HARROW UI — PRESENT, NOT IN THE WAY
+   ---------------------------------------------------------------- */
+
+.harrow-orb {
+    transition:
+        opacity 180ms ease,
+        transform 180ms ease,
+        visibility 180ms step-end !important;
+}
+
+body.floating-ui-suppressed .harrow-orb,
+body.drawer-open .harrow-orb,
+body.reader-open .harrow-orb,
+body.mobile-menu-open .harrow-orb,
+body.artwork-dragging .harrow-orb,
+body.form-focus .harrow-orb {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transform: translate3d(18px, 12px, 0) scale(0.92) !important;
+}
+
+/* Keep brief Harrow remarks beneath the compact header and above safe areas. */
+@media (max-width: 760px) {
+    .harrow-whisper {
+        left: 16px !important;
+        right: 16px !important;
+        bottom: calc(16px + env(safe-area-inset-bottom)) !important;
+        width: auto !important;
+        max-width: none !important;
+        transform: translateY(18px) !important;
+    }
+
+    .harrow-whisper[aria-hidden="false"],
+    .harrow-whisper.active {
+        transform: translateY(0) !important;
+    }
+
+    .harrow-orb {
+        right: -18px !important;
+        bottom: calc(18px + env(safe-area-inset-bottom)) !important;
+        width: 48px !important;
+        height: 48px !important;
+        padding: 5px !important;
+    }
+
+    .discovery-counter,
+    .harrow-orb .discovery-counter {
+        min-width: 0 !important;
+        padding: 2px 5px !important;
+        font-size: 10px !important;
+    }
+}
+
+/* ----------------------------------------------------------------
+   THEORY TICKER — CONTROL DOES NOT COVER THE THOUGHT
+   ---------------------------------------------------------------- */
+
+.obsession-strip {
+    position: relative;
+}
+
+#tickerToggle,
+.obsession-pause,
+.ticker-toggle {
+    position: absolute !important;
+    z-index: 7;
+    right: 10px !important;
+    top: 50% !important;
+    bottom: auto !important;
+    transform: translateY(-50%) !important;
+    min-width: 42px !important;
+    min-height: 34px !important;
+    padding: 0 10px !important;
+    border: 1px solid rgba(255,255,255,0.32) !important;
+    background: rgba(27,8,48,0.86) !important;
+    color: #fff !important;
+    font-size: 11px !important;
+    line-height: 1 !important;
+    letter-spacing: 0.08em;
+    backdrop-filter: blur(10px);
+}
+
+.obsession-track {
+    padding-right: 92px !important;
+}
+
+/* ----------------------------------------------------------------
+   PRESS STATE RAIL — READABLE HORIZONTAL PROGRESSION
+   ---------------------------------------------------------------- */
+
+.press-state-rail {
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+    mask-image: linear-gradient(
+        90deg,
+        transparent 0,
+        #000 12px,
+        #000 calc(100% - 24px),
+        transparent 100%
+    );
+}
+
+.press-state,
+.press-state-rail > * {
+    scroll-snap-align: start;
+}
+
+/* ----------------------------------------------------------------
+   STANDARD LAPTOP — COMPRESS EMPTY SPACE, PRESERVE WIDESCREENS
+   ---------------------------------------------------------------- */
+
+@media
+(min-width: 901px)
+and (max-width: 1699px)
+and (min-aspect-ratio: 4 / 5) {
+
+    .manifesto-section,
+    .archive-section,
+    .evidence-section,
+    .press-section,
+    .harrow-section,
+    .signals-section,
+    .classified-section {
+        min-height: 0 !important;
+    }
+
+    .manifesto-section {
+        padding-top: clamp(74px, 6vw, 98px) !important;
+        padding-bottom: clamp(74px, 6vw, 98px) !important;
+    }
+
+    .archive-section {
+        padding-top: clamp(76px, 6vw, 102px) !important;
+        padding-bottom: clamp(72px, 5.5vw, 94px) !important;
+    }
+
+    .evidence-section {
+        padding-top: clamp(74px, 5.5vw, 94px) !important;
+        padding-bottom: clamp(66px, 5vw, 88px) !important;
+    }
+
+    .press-section {
+        padding-top: clamp(72px, 5.4vw, 92px) !important;
+        padding-bottom: clamp(74px, 5.6vw, 96px) !important;
+    }
+
+    #harrow,
+    .harrow-section {
+        padding-top: clamp(76px, 5.7vw, 98px) !important;
+        padding-bottom: clamp(70px, 5.2vw, 90px) !important;
+    }
+
+    .signals-section {
+        padding-top: clamp(70px, 5vw, 88px) !important;
+        padding-bottom: clamp(72px, 5.2vw, 92px) !important;
+    }
+
+    .classified-section {
+        padding-top: clamp(72px, 5.2vw, 92px) !important;
+        padding-bottom: clamp(74px, 5.4vw, 96px) !important;
+    }
+
+    .exit-section {
+        min-height: clamp(540px, 62vh, 720px) !important;
+    }
+
+    /* Keep the temporary Press prototype readable without pretending it is V2. */
+    .press-stage {
+        align-items: center !important;
+    }
+
+    .press-machine-zone {
+        min-height: clamp(610px, 64vw, 760px) !important;
+    }
+
+    /* Reduce inherited spacer regions between major sections. */
+    section + section {
+        scroll-margin-top: calc(var(--header-h) + 18px);
+    }
+}
+
+/* ----------------------------------------------------------------
+   MOBILE REFINEMENT
+   ---------------------------------------------------------------- */
+
+@media (max-width: 760px) {
+    .section-number {
+        margin-bottom: 26px !important;
+    }
+
+    .manifesto-section,
+    .archive-section,
+    .evidence-section,
+    .press-section,
+    .harrow-section,
+    .signals-section,
+    .classified-section {
+        min-height: 0 !important;
+    }
+
+    .manifesto-section,
+    .archive-section,
+    .evidence-section,
+    .press-section,
+    .harrow-section,
+    .signals-section,
+    .classified-section {
+        padding-top: 68px !important;
+        padding-bottom: 72px !important;
+    }
+
+    .harrow-response {
+        max-height: min(68dvh, 620px);
+        overflow-y: auto;
+    }
+
+    .signals-section {
+        padding-top: 64px !important;
+    }
+
+    .signal-card {
+        min-height: 134px !important;
+    }
+
+    #tickerToggle,
+    .obsession-pause,
+    .ticker-toggle {
+        right: 6px !important;
+        min-width: 38px !important;
+        padding: 0 7px !important;
+        font-size: 10px !important;
+    }
+
+    .obsession-track {
+        padding-right: 72px !important;
+    }
+}
+
+/* ----------------------------------------------------------------
+   LOCALIZATION + RTL FOUNDATION
+   ---------------------------------------------------------------- */
+
+html[dir="rtl"] body {
+    text-align: right;
+}
+
+html[dir="rtl"] .site-header,
+html[dir="rtl"] .hero-actions,
+html[dir="rtl"] .header-network,
+html[dir="rtl"] .terminal-top,
+html[dir="rtl"] .transmission-header,
+html[dir="rtl"] .reader-controls {
+    direction: rtl;
+}
+
+html[dir="rtl"] .hero-copy,
+html[dir="rtl"] .drawer-copy,
+html[dir="rtl"] .harrow-copy {
+    text-align: right;
+}
+
+/* Longer translations must wrap instead of escaping their controls. */
+button,
+a,
+.system-label,
+.section-number,
+.hero-meta,
+.transmission-label,
+.header-nav,
+.header-network,
+.footer-status,
+.footer-bottom {
+    overflow-wrap: anywhere;
+}
+
+/* ----------------------------------------------------------------
+   ACCESSIBILITY
+   ---------------------------------------------------------------- */
+
+@media (prefers-contrast: more) {
+    .lair-hotspot:focus-visible,
+    .obsession-hotspot:focus-visible,
+    .press-art-hotspot:focus-visible,
+    .press-hotspot:focus-visible {
+        outline-width: 3px !important;
+        background: rgba(0,0,0,0.76) !important;
+    }
+}
+
+@media (forced-colors: active) {
+    .lair-hotspot:focus-visible,
+    .obsession-hotspot:focus-visible,
+    .press-art-hotspot:focus-visible,
+    .press-hotspot:focus-visible {
+        outline: 3px solid ButtonText !important;
+    }
+}
