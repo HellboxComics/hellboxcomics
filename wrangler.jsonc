@@ -12,18 +12,25 @@
     ]
   },
 
+  // Hellbox project storage uses only hellbox-public and hellbox-private.
+  // The legacy hellbox-assets bucket is intentionally excluded forever.
   "r2_buckets": [
     {
       "binding": "PUBLIC_BUCKET",
       "bucket_name": "hellbox-public"
     },
     {
-      "binding": "ASSETS_BUCKET",
-      "bucket_name": "hellbox-assets"
-    },
-    {
       "binding": "PRIVATE_BUCKET",
       "bucket_name": "hellbox-private"
+    }
+  ],
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "hellbox-production",
+      "database_id": "cc09b526-b9bb-4b23-a5b1-d02deaf7dbd6",
+      "migrations_dir": "migrations"
     }
   ]
 }
