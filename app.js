@@ -923,8 +923,14 @@
             pool.length === 0
         ) {
             return {
-                title: "HMM.",
-                text: "I had something for this."
+                title: translation(
+                    "runtime.dialogueFallback.title",
+                    "HMM."
+                ),
+                text: translation(
+                    "runtime.dialogueFallback.text",
+                    "I had something for this."
+                )
             };
         }
 
@@ -1331,8 +1337,14 @@
     ) {
         if (nextStage === "noticed") {
             showHarrowResponse(
-                "YOU'RE STILL HERE.",
-                "Most people would've wandered off by now.",
+                translation(
+                    "relationship.noticed.title",
+                    "YOU'RE STILL HERE."
+                ),
+                translation(
+                    "relationship.noticed.text",
+                    "Most people would've wandered off by now."
+                ),
                 {
                     importance: "important"
                 }
@@ -1343,8 +1355,14 @@
 
         if (nextStage === "familiar") {
             showHarrowResponse(
-                "I KNOW YOU.",
-                "Not personally. Don't make this weird.",
+                translation(
+                    "relationship.familiar.title",
+                    "I KNOW YOU."
+                ),
+                translation(
+                    "relationship.familiar.text",
+                    "Not personally. Don't make this weird."
+                ),
                 {
                     importance: "important"
                 }
@@ -1842,9 +1860,18 @@
        ========================================================= */
 
     function openDrawer({
-        code = "OBJECT // UNKNOWN",
-        eyebrow = "HARROW // NOTE",
-        title = "DON'T TOUCH THAT.",
+        code = translation(
+            "drawer.default.code",
+            "OBJECT // UNKNOWN"
+        ),
+        eyebrow = translation(
+            "drawer.default.eyebrow",
+            "HARROW // NOTE"
+        ),
+        title = translation(
+            "drawer.default.title",
+            "DON'T TOUCH THAT."
+        ),
         html = "",
         footnote = ""
     }) {
@@ -2126,7 +2153,10 @@
                     "aria-label",
                     button.getAttribute(
                         "aria-label"
-                    ) || "Something in Harrow's lair"
+                    ) || translation(
+                        "access.hotspotGeneric",
+                        "Something in Harrow's lair"
+                    )
                 );
 
                 button.addEventListener(
@@ -2163,8 +2193,14 @@
                         discover(
                             `hero:${key}`,
                             isHellion()
-                                ? "Still checking my work?"
-                                : "There you go. You found one."
+                                ? translation(
+                                    "discovery.hero.hellion",
+                                    "Still checking my work?"
+                                )
+                                : translation(
+                                    "discovery.hero.default",
+                                    "There you go. You found one."
+                                )
                         );
 
                         openDrawer(content);
@@ -2432,8 +2468,14 @@
                         discover(
                             `theory:${key}`,
                             isHellion()
-                                ? "You've seen the board before. It got worse."
-                                : "See? Everything touches everything."
+                                ? translation(
+                                    "discovery.theory.hellion",
+                                    "You've seen the board before. It got worse."
+                                )
+                                : translation(
+                                    "discovery.theory.default",
+                                    "See? Everything touches everything."
+                                )
                         );
 
                         if (
@@ -2552,9 +2594,9 @@
 
     const FALLBACK_UI_LOCALE = "en";
     const LOCALE_MANIFEST_URL =
-        "/locales/manifest.json?v=20260829-gate0-2-runtime-04";
+        "/locales/manifest.json?v=20260829-gate0-2-runtime-05";
     const LOCALE_CACHE_VERSION =
-        "20260829-gate0-2-runtime-04";
+        "20260829-gate0-2-runtime-05";
 
     /*
      * Gate 0.2 validates the production localization runtime with English
@@ -4072,8 +4114,14 @@
         dom.transmissionToggle.setAttribute(
             "aria-label",
             expanded
-                ? "Collapse Harrow transmission"
-                : "Expand Harrow transmission"
+                ? translation(
+                    "access.transmission.collapse",
+                    "Collapse Harrow transmission"
+                )
+                : translation(
+                    "access.transmission.expand",
+                    "Expand Harrow transmission"
+                )
         );
     }
 
@@ -4134,8 +4182,14 @@
 
                 announceStatus(
                     state.ui.tickerPaused
-                        ? "Moving thought ticker paused."
-                        : "Moving thought ticker resumed."
+                        ? translation(
+                            "access.announce.tickerPaused",
+                            "Moving thought ticker paused."
+                        )
+                        : translation(
+                            "access.announce.tickerResumed",
+                            "Moving thought ticker resumed."
+                        )
                 );
             }
         );
@@ -4500,8 +4554,14 @@
                     if (clicks === 1) {
                         whisper(
                             isHellion()
-                                ? "Still checking whether I changed the logo?"
-                                : "Yes. I like the logo too."
+                                ? translation(
+                                    "interaction.logo.firstHellion",
+                                    "Still checking whether I changed the logo?"
+                                )
+                                : translation(
+                                    "interaction.logo.first",
+                                    "Yes. I like the logo too."
+                                )
                         );
 
                         return;
@@ -4509,7 +4569,10 @@
 
                     if (clicks === 2) {
                         whisper(
-                            "Touch it again. See what happens."
+                            translation(
+                                "interaction.logo.second",
+                                "Touch it again. See what happens."
+                            )
                         );
 
                         return;
@@ -4520,8 +4583,14 @@
                     );
 
                     showHarrowResponse(
-                        "CONGRATULATIONS.",
-                        "You successfully annoyed the branding.",
+                        translation(
+                            "interaction.logo.title",
+                            "CONGRATULATIONS."
+                        ),
+                        translation(
+                            "interaction.logo.text",
+                            "You successfully annoyed the branding."
+                        ),
                         {
                             importance: "important"
                         }
@@ -4549,8 +4618,14 @@
                     );
 
                     showHarrowResponse(
-                        "MEDICAL OPINION.",
-                        "My credentials are between me and whatever institution forgot to revoke them."
+                        translation(
+                            "interaction.therapy.title",
+                            "MEDICAL OPINION."
+                        ),
+                        translation(
+                            "interaction.therapy.text",
+                            "My credentials are between me and whatever institution forgot to revoke them."
+                        )
                     );
                 }
             );
@@ -4567,10 +4642,19 @@
                     );
 
                     showHarrowResponse(
-                        "I LEFT YOU A NOTE.",
+                        translation(
+                            "interaction.archiveNote.title",
+                            "I LEFT YOU A NOTE."
+                        ),
                         isHellion()
-                            ? "You know where I keep them now."
-                            : "Do you know how exhausting personalization is?"
+                            ? translation(
+                                "interaction.archiveNote.hellion",
+                                "You know where I keep them now."
+                            )
+                            : translation(
+                                "interaction.archiveNote.text",
+                                "Do you know how exhausting personalization is?"
+                            )
                     );
                 }
             );
@@ -4588,8 +4672,14 @@
 
                     whisper(
                         isHellion()
-                            ? "The box knows you."
-                            : "The box remembers what belongs to you."
+                            ? translation(
+                                "interaction.archiveEmblem.hellion",
+                                "The box knows you."
+                            )
+                            : translation(
+                                "interaction.archiveEmblem",
+                                "The box remembers what belongs to you."
+                            )
                     );
                 }
             );
@@ -4640,7 +4730,10 @@
                     );
 
                     whisper(
-                        "Autographs usually cost more."
+                        translation(
+                            "interaction.autograph",
+                            "Autographs usually cost more."
+                        )
                     );
                 }
             );
@@ -4657,8 +4750,14 @@
                     );
 
                     showHarrowResponse(
-                        "UNBIASED.",
-                        "I personally verified the reviewer had excellent taste."
+                        translation(
+                            "interaction.review.title",
+                            "UNBIASED."
+                        ),
+                        translation(
+                            "interaction.review.text",
+                            "I personally verified the reviewer had excellent taste."
+                        )
                     );
                 }
             );
@@ -4831,7 +4930,7 @@
        ========================================================= */
 
     function initProjectObjects() {
-if (dom.readerDormantObject) {
+        if (dom.readerDormantObject) {
             dom.readerDormantObject.addEventListener(
                 "click",
                 () => {
@@ -4841,43 +4940,63 @@ if (dom.readerDormantObject) {
 
                     openDrawer({
                         code:
-                            "SYSTEM // READER",
+                            translation(
+                                "drawer.project.reader.code",
+                                "SYSTEM // READER"
+                            ),
 
                         eyebrow:
-                            "HARROW // THE PART THAT MATTERS",
+                            translation(
+                                "drawer.project.reader.eyebrow",
+                                "HARROW // THE PART THAT MATTERS"
+                            ),
 
                         title:
-                            "THE READER.",
+                            translation(
+                                "drawer.project.reader.title",
+                                "THE READER."
+                            ),
 
                         html: `
-                            <p>
-                                This is the part people forget
-                                when they get excited about tokens.
-                            </p>
+                            <p>${escapeHtml(
+                                translation(
+                                    "drawer.project.reader.body.01",
+                                    "This is the part people forget when they get excited about tokens."
+                                )
+                            )}</p>
 
-                            <p>
-                                The collectible is the key.
-                                The comic is the reason.
-                            </p>
+                            <p>${escapeHtml(
+                                translation(
+                                    "drawer.project.reader.body.02",
+                                    "The collectible is the key. The comic is the reason."
+                                )
+                            )}</p>
 
-                            <p>
-                                When a publication is live,
-                                the Box checks the wallet,
-                                verifies access,
-                                and opens the protected pages here.
-                            </p>
+                            <p>${escapeHtml(
+                                translation(
+                                    "drawer.project.reader.body.03",
+                                    "When a publication is live, the Box checks the wallet, verifies access, and opens the protected pages here."
+                                )
+                            )}</p>
 
-                            <p>
-                                No PDF dump.
-                                No generic storefront.
-                                You read it inside the Box.
-                            </p>
+                            <p>${escapeHtml(
+                                translation(
+                                    "drawer.project.reader.body.04",
+                                    "No PDF dump. No generic storefront. You read it inside the Box."
+                                )
+                            )}</p>
                         `,
 
                         footnote:
                             state.publications.length > 0
-                                ? "READER // READY WHEN THE RIGHT KEY ARRIVES."
-                                : "READER // BUILT. WAITING FOR A PUBLIC RELEASE."
+                                ? translation(
+                                    "drawer.project.reader.footnoteReady",
+                                    "READER // READY WHEN THE RIGHT KEY ARRIVES."
+                                )
+                                : translation(
+                                    "drawer.project.reader.footnote",
+                                    "READER // BUILT. WAITING FOR A PUBLIC RELEASE."
+                                )
                     });
                 }
             );
@@ -4889,40 +5008,59 @@ if (dom.readerDormantObject) {
                 () => {
                     discover(
                         "infrastructure:bytes",
-                        "Yes. Even the plumbing has lore."
+                        translation(
+                            "discovery.bytes",
+                            "Yes. Even the plumbing has lore."
+                        )
                     );
 
                     openDrawer({
                         code:
-                            "INFRASTRUCTURE // BYTES",
+                            translation(
+                                "drawer.project.bytes.code",
+                                "INFRASTRUCTURE // BYTES"
+                            ),
 
                         eyebrow:
-                            "HARROW // PRIVATE PLUMBING",
+                            translation(
+                                "drawer.project.bytes.eyebrow",
+                                "HARROW // PRIVATE PLUMBING"
+                            ),
 
                         title:
-                            "BACKED BY BYTES.",
+                            translation(
+                                "drawer.project.bytes.title",
+                                "BACKED BY BYTES."
+                            ),
 
                         html: `
-                            <p>
-                                Harrow dislikes dependencies.
-                                Public RPCs count.
-                            </p>
+                            <p>${escapeHtml(
+                                translation(
+                                    "drawer.project.bytes.body.01",
+                                    "Harrow dislikes dependencies. Public RPCs count."
+                                )
+                            )}</p>
 
-                            <p>
-                                Hellbox uses Pulse Bytes infrastructure
-                                as part of its private PulseChain plumbing.
-                            </p>
+                            <p>${escapeHtml(
+                                translation(
+                                    "drawer.project.bytes.body.02",
+                                    "Hellbox uses Pulse Bytes infrastructure as part of its private PulseChain plumbing."
+                                )
+                            )}</p>
 
-                            <p>
-                                The point is not to make infrastructure
-                                the main character.
-                                The point is to make sure the main character
-                                still has a stage.
-                            </p>
+                            <p>${escapeHtml(
+                                translation(
+                                    "drawer.project.bytes.body.03",
+                                    "The point is not to make infrastructure the main character. The point is to make sure the main character still has a stage."
+                                )
+                            )}</p>
                         `,
 
                         footnote:
-                            "CHAIN // 369 // INFRASTRUCTURE SHOULD BE BORING UNTIL IT BREAKS."
+                            translation(
+                                "drawer.project.bytes.footnote",
+                                "CHAIN // 369 // INFRASTRUCTURE SHOULD BE BORING UNTIL IT BREAKS."
+                            )
                     });
                 }
             );
@@ -5056,8 +5194,14 @@ if (dom.readerDormantObject) {
                         discover(
                             `press:${key}`,
                             isHellion()
-                                ? "Still inspecting the machine?"
-                                : "The machine has more going on than the lever."
+                                ? translation(
+                                    "discovery.press.hellion",
+                                    "Still inspecting the machine?"
+                                )
+                                : translation(
+                                    "discovery.press.default",
+                                    "The machine has more going on than the lever."
+                                )
                         );
 
                         openDrawer(
@@ -5797,7 +5941,10 @@ if (dom.readerDormantObject) {
 
             discover(
                 "press:wake",
-                "You woke it up."
+                translation(
+                    "discovery.pressWake",
+                    "You woke it up."
+                )
             );
         }
 
@@ -5831,10 +5978,19 @@ if (dom.readerDormantObject) {
 
         if (state.press.busy) {
             showHarrowResponse(
-                "WAIT.",
+                translation(
+                    "press.busy.title",
+                    "WAIT."
+                ),
                 state.press.leverPulls % 2 === 0
-                    ? "You press elevator buttons repeatedly too, don't you?"
-                    : "It's already doing the thing. Have some dignity."
+                    ? translation(
+                        "press.busy.even",
+                        "You press elevator buttons repeatedly too, don't you?"
+                    )
+                    : translation(
+                        "press.busy.odd",
+                        "It's already doing the thing. Have some dignity."
+                    )
             );
 
             return;
@@ -5887,8 +6043,14 @@ if (dom.readerDormantObject) {
 
         whisper(
             state.press.leverPulls > 2
-                ? "You know this is still empty."
-                : "This would be the dramatic part."
+                ? translation(
+                    "press.empty.whisperRepeat",
+                    "You know this is still empty."
+                )
+                : translation(
+                    "press.empty.whisper",
+                    "This would be the dramatic part."
+                )
         );
 
         await sleep(1450);
@@ -6309,9 +6471,15 @@ if (dom.readerDormantObject) {
 
             } else {
                 dom.collectionNetwork.textContent =
-                    `CHAIN // ${
+                    `${translation(
+                        "wallet.network.chainPrefix",
+                        "CHAIN"
+                    )} // ${
                         state.wallet.chainId ??
-                        "UNKNOWN"
+                        translation(
+                            "wallet.network.unknown",
+                            "UNKNOWN"
+                        )
                     }`;
             }
         }
@@ -6352,22 +6520,40 @@ if (dom.readerDormantObject) {
             if (dom.terminalTitle) {
                 dom.terminalTitle.textContent =
                     isHellion()
-                        ? "YOU KNOW THE DRILL."
-                        : "DON'T BE SHY.";
+                        ? translation(
+                            "archive.title.defaultHellion",
+                            "YOU KNOW THE DRILL."
+                        )
+                        : translation(
+                            "archive.title.default",
+                            "DON'T BE SHY."
+                        );
             }
 
             if (dom.terminalMessage) {
                 dom.terminalMessage.textContent =
                     isHellion()
-                        ? "Show me the wallet again."
-                        : "Show me the wallet.";
+                        ? translation(
+                            "archive.message.defaultHellion",
+                            "Show me the wallet again."
+                        )
+                        : translation(
+                            "archive.message.default",
+                            "Show me the wallet."
+                        );
             }
 
             if (dom.archiveHarrowNote) {
                 dom.archiveHarrowNote.textContent =
                     isHellion()
-                        ? "let's see what followed you home."
-                        : "let's see the damage.";
+                        ? translation(
+                            "archive.note.defaultHellion",
+                            "let's see what followed you home."
+                        )
+                        : translation(
+                            "archive.note.default",
+                            "let's see the damage."
+                        );
             }
         }
 
@@ -6403,8 +6589,14 @@ if (dom.readerDormantObject) {
                     await loadPublications();
 
                     showHarrowResponse(
-                        "I LOOKED AGAIN.",
-                        "The chain did not become more interesting because you refreshed it."
+                        translation(
+                            "wallet.lookedAgain.title",
+                            "I LOOKED AGAIN."
+                        ),
+                        translation(
+                            "wallet.lookedAgain.text",
+                            "The chain did not become more interesting because you refreshed it."
+                        )
                     );
                 }
             );
@@ -6576,12 +6768,18 @@ if (dom.readerDormantObject) {
     async function loadPublications() {
         if (dom.publicationCount) {
             dom.publicationCount.textContent =
-                "CHECKING";
+                translation(
+                    "archive.publication.checking",
+                    "CHECKING"
+                );
         }
 
         if (dom.collectionStatus) {
             dom.collectionStatus.textContent =
-                "LOOKING AT THE PUBLIC LEDGER...";
+                translation(
+                    "archive.status.lookingLedger",
+                    "LOOKING AT THE PUBLIC LEDGER..."
+                );
         }
 
         try {
@@ -6610,12 +6808,18 @@ if (dom.readerDormantObject) {
 
             if (dom.publicationCount) {
                 dom.publicationCount.textContent =
-                    "ARCHIVE UNAVAILABLE";
+                    translation(
+                        "archive.status.unavailable",
+                        "ARCHIVE UNAVAILABLE"
+                    );
             }
 
             if (dom.collectionStatus) {
                 dom.collectionStatus.textContent =
-                    "THE ARCHIVE INDEX DID NOT ANSWER.";
+                    translation(
+                        "archive.status.indexNoAnswer",
+                        "THE ARCHIVE INDEX DID NOT ANSWER."
+                    );
             }
         }
 
@@ -6759,35 +6963,53 @@ if (dom.readerDormantObject) {
         if (dom.publicationCount) {
             if (error) {
                 dom.publicationCount.textContent =
-                    "ARCHIVE UNAVAILABLE";
+                    translation(
+                        "archive.status.unavailable",
+                        "ARCHIVE UNAVAILABLE"
+                    );
 
             } else if (
                 state.publications.length ===
                 0
             ) {
                 dom.publicationCount.textContent =
-                    "NOTHING PUBLIC YET";
+                    translation(
+                        "archive.status.nothingPublic",
+                        "NOTHING PUBLIC YET"
+                    );
 
             } else {
                 dom.publicationCount.textContent =
-                    `${state.publications.length} PUBLIC`;
+                    `${state.publications.length} ${translation(
+                        "archive.publication.public",
+                        "PUBLIC"
+                    )}`;
             }
         }
 
         if (dom.readerDormantObject) {
             if (error) {
                 dom.readerDormantObject.textContent =
-                    "READER // OFFLINE";
+                    translation(
+                        "archive.reader.offline",
+                        "READER // OFFLINE"
+                    );
 
             } else if (
                 state.publications.length > 0
             ) {
                 dom.readerDormantObject.textContent =
-                    "READER // READY";
+                    translation(
+                        "archive.reader.ready",
+                        "READER // READY"
+                    );
 
             } else {
                 dom.readerDormantObject.textContent =
-                    "READER // ASLEEP";
+                    translation(
+                        "archive.reader.asleep",
+                        "READER // ASLEEP"
+                    );
             }
         }
 
@@ -6801,17 +7023,26 @@ if (dom.readerDormantObject) {
         if (error) {
             if (dom.terminalTitle) {
                 dom.terminalTitle.textContent =
-                    "THE ARCHIVE ISN'T ANSWERING.";
+                    translation(
+                        "archive.title.error",
+                        "THE ARCHIVE ISN'T ANSWERING."
+                    );
             }
 
             if (dom.terminalMessage) {
                 dom.terminalMessage.textContent =
-                    "This is a technical problem, not mysterious lore.";
+                    translation(
+                        "archive.message.error",
+                        "This is a technical problem, not mysterious lore."
+                    );
             }
 
             if (dom.archiveHarrowNote) {
                 dom.archiveHarrowNote.textContent =
-                    "fine. i'll fix it.";
+                    translation(
+                        "archive.note.error",
+                        "fine. i'll fix it."
+                    );
             }
 
             return;
@@ -6825,13 +7056,25 @@ if (dom.readerDormantObject) {
                     state.wallet.connected
                         ? (
                             isHellion()
-                                ? "STILL NOTHING, HELLION."
-                                : "NOTHING?"
+                                ? translation(
+                                    "archive.title.nothingHellion",
+                                    "STILL NOTHING, HELLION."
+                                )
+                                : translation(
+                                    "archive.title.nothingConnected",
+                                    "NOTHING?"
+                                )
                         )
                         : (
                             isHellion()
-                                ? "YOU KNOW THE DRILL."
-                                : "DON'T BE SHY."
+                                ? translation(
+                                    "archive.title.defaultHellion",
+                                    "YOU KNOW THE DRILL."
+                                )
+                                : translation(
+                                    "archive.title.default",
+                                    "DON'T BE SHY."
+                                )
                         );
             }
 
@@ -6840,10 +7083,19 @@ if (dom.readerDormantObject) {
                     state.wallet.connected
                         ? (
                             isHellion()
-                                ? "You came back early again."
-                                : "Huh. That's actually impressive."
+                                ? translation(
+                                    "archive.message.nothingHellion",
+                                    "You came back early again."
+                                )
+                                : translation(
+                                    "archive.message.nothingConnected",
+                                    "Huh. That's actually impressive."
+                                )
                         )
-                        : "Show me the wallet.";
+                        : translation(
+                            "archive.message.default",
+                            "Show me the wallet."
+                        );
             }
 
             if (dom.archiveHarrowNote) {
@@ -6851,17 +7103,32 @@ if (dom.readerDormantObject) {
                     state.wallet.connected
                         ? (
                             isHellion()
-                                ? "patience. disgusting."
-                                : "we'll fix this."
+                                ? translation(
+                                    "archive.note.nothingHellion",
+                                    "patience. disgusting."
+                                )
+                                : translation(
+                                    "archive.note.nothingConnected",
+                                    "we'll fix this."
+                                )
                         )
-                        : "let's see the damage.";
+                        : translation(
+                            "archive.note.default",
+                            "let's see the damage."
+                        );
             }
 
             if (dom.collectionStatus) {
                 dom.collectionStatus.textContent =
                     state.wallet.connected
-                        ? "NOTHING PUBLIC TO BRING HOME YET."
-                        : "SHOW ME SOMETHING INTERESTING.";
+                        ? translation(
+                            "archive.status.nothingConnected",
+                            "NOTHING PUBLIC TO BRING HOME YET."
+                        )
+                        : translation(
+                            "archive.status.default",
+                            "SHOW ME SOMETHING INTERESTING."
+                        );
             }
 
             return;
@@ -6870,15 +7137,27 @@ if (dom.readerDormantObject) {
         if (dom.terminalTitle) {
             dom.terminalTitle.textContent =
                 state.wallet.connected
-                    ? "THERE'S SOMETHING HERE."
-                    : "THE BOX HAS THINGS.";
+                    ? translation(
+                        "archive.title.knownWallet",
+                        "THERE'S SOMETHING HERE."
+                    )
+                    : translation(
+                        "archive.title.knownNoWallet",
+                        "THE BOX HAS THINGS."
+                    );
         }
 
         if (dom.terminalMessage) {
             dom.terminalMessage.textContent =
                 state.wallet.connected
-                    ? "Ownership verification comes next."
-                    : "Connect a wallet and I'll tell you which ones followed you home.";
+                    ? translation(
+                        "archive.message.knownWallet",
+                        "Ownership verification comes next."
+                    )
+                    : translation(
+                        "archive.message.knownNoWallet",
+                        "Connect a wallet and I'll tell you which ones followed you home."
+                    );
         }
 
         state.publications.forEach(
@@ -6922,7 +7201,12 @@ if (dom.readerDormantObject) {
                     <div class="collection-item-main">
 
                         <span class="collection-item-type">
-                            PUBLICATION // ${escapeHtml(lifecycle)}
+                            ${escapeHtml(
+                                translation(
+                                    "archive.item.publication",
+                                    "PUBLICATION"
+                                )
+                            )} // ${escapeHtml(lifecycle)}
                         </span>
 
                         <strong>
@@ -6938,15 +7222,26 @@ if (dom.readerDormantObject) {
                     <div class="collection-item-state">
 
                         <span>
-                            WALLET
+                            ${escapeHtml(
+                                translation(
+                                    "archive.item.wallet",
+                                    "WALLET"
+                                )
+                            )}
                         </span>
 
                         <strong>
-                            ${
+                            ${escapeHtml(
                                 state.wallet.connected
-                                    ? "UNVERIFIED"
-                                    : "NOT SHOWN"
-                            }
+                                    ? translation(
+                                        "archive.item.unverified",
+                                        "UNVERIFIED"
+                                    )
+                                    : translation(
+                                        "wallet.notShown",
+                                        "NOT SHOWN"
+                                    )
+                            )}
                         </strong>
 
                     </div>
@@ -6961,11 +7256,17 @@ if (dom.readerDormantObject) {
                                 : "disabled"
                         }
                     >
-                        ${
+                        ${escapeHtml(
                             readerEnabled
-                                ? "TRY READER"
-                                : "NOT READY"
-                        }
+                                ? translation(
+                                    "archive.item.tryReader",
+                                    "TRY READER"
+                                )
+                                : translation(
+                                    "archive.item.notReady",
+                                    "NOT READY"
+                                )
+                        )}
                     </button>
                 `;
 
@@ -6993,7 +7294,10 @@ if (dom.readerDormantObject) {
 
         if (dom.collectionStatus) {
             dom.collectionStatus.textContent =
-                "PUBLIC INDEX LOADED.";
+                translation(
+                    "archive.status.publicLoaded",
+                    "PUBLIC INDEX LOADED."
+                );
         }
     }
 
@@ -7451,9 +7755,10 @@ if (dom.readerDormantObject) {
                     url;
 
                 image.alt =
-                    `${state.reader.title} page ${
-                        index + 1
-                    }`;
+                    `${state.reader.title} — ${translation(
+                        "reader.page",
+                        "PAGE"
+                    )} ${index + 1}`;
 
                 wrapper.appendChild(
                     label
@@ -7848,8 +8153,14 @@ if (dom.readerDormantObject) {
                                 case "box":
                                     whisper(
                                         isHellion()
-                                            ? "You know where this starts."
-                                            : "This is where the problem starts."
+                                            ? translation(
+                                                "scroll.box.hellion",
+                                                "You know where this starts."
+                                            )
+                                            : translation(
+                                                "scroll.box",
+                                                "This is where the problem starts."
+                                            )
                                     );
                                     break;
 
@@ -7859,8 +8170,14 @@ if (dom.readerDormantObject) {
                                     ) {
                                         whisper(
                                             isHellion()
-                                                ? "Show me the wallet again."
-                                                : "Show me what you brought."
+                                                ? translation(
+                                                    "scroll.archive.hellion",
+                                                    "Show me the wallet again."
+                                                )
+                                                : translation(
+                                                    "scroll.archive",
+                                                    "Show me what you brought."
+                                                )
                                         );
                                     }
                                     break;
@@ -7868,40 +8185,70 @@ if (dom.readerDormantObject) {
                                 case "theory":
                                     whisper(
                                         isHellion()
-                                            ? "You still think that's the whole board?"
-                                            : "I can explain all of this. Probably."
+                                            ? translation(
+                                                "scroll.theory.hellion",
+                                                "You still think that's the whole board?"
+                                            )
+                                            : translation(
+                                                "scroll.theory",
+                                                "I can explain all of this. Probably."
+                                            )
                                     );
                                     break;
 
                                 case "press":
                                     whisper(
                                         isHellion()
-                                            ? "Don't touch it. Yes, I know."
-                                            : "Don't touch the machine."
+                                            ? translation(
+                                                "scroll.press.hellion",
+                                                "Don't touch it. Yes, I know."
+                                            )
+                                            : translation(
+                                                "scroll.press",
+                                                "Don't touch the machine."
+                                            )
                                     );
                                     break;
 
                                 case "harrow":
                                     whisper(
                                         isHellion()
-                                            ? "Still the important section."
-                                            : "Finally. The important section."
+                                            ? translation(
+                                                "scroll.harrow.hellion",
+                                                "Still the important section."
+                                            )
+                                            : translation(
+                                                "scroll.harrow",
+                                                "Finally. The important section."
+                                            )
                                     );
                                     break;
 
                                 case "classified":
                                     whisper(
                                         isHellion()
-                                            ? "Hellions don't get clearance either."
-                                            : "Keep scrolling. It still says no."
+                                            ? translation(
+                                                "scroll.classified.hellion",
+                                                "Hellions don't get clearance either."
+                                            )
+                                            : translation(
+                                                "scroll.classified",
+                                                "Keep scrolling. It still says no."
+                                            )
                                     );
                                     break;
 
                                 case "exit":
                                     whisper(
                                         isHellion()
-                                            ? "You'll be back."
-                                            : "Good. Go do something irresponsible."
+                                            ? translation(
+                                                "scroll.exit.hellion",
+                                                "You'll be back."
+                                            )
+                                            : translation(
+                                                "scroll.exit",
+                                                "Good. Go do something irresponsible."
+                                            )
                                     );
                                     break;
 
@@ -7943,7 +8290,10 @@ if (dom.readerDormantObject) {
             window.setTimeout(
                 () => {
                     whisper(
-                        "Try not to make this weird."
+                        translation(
+                            "greet.first",
+                            "Try not to make this weird."
+                        )
                     );
                 },
                 2200
@@ -7953,36 +8303,66 @@ if (dom.readerDormantObject) {
         }
 
         let title =
-            "YOU AGAIN.";
+            translation(
+                "greet.default.title",
+                "YOU AGAIN."
+            );
 
         let text =
-            "This is becoming a habit.";
+            translation(
+                "greet.default.text",
+                "This is becoming a habit."
+            );
 
         if (isHellion()) {
             const options = [
                 {
                     title:
-                        "HELLION.",
+                        translation(
+                            "greet.hellion.01.title",
+                            "HELLION."
+                        ),
                     text:
-                        "There you are."
+                        translation(
+                            "greet.hellion.01.text",
+                            "There you are."
+                        )
                 },
                 {
                     title:
-                        "WELCOME BACK.",
+                        translation(
+                            "greet.hellion.02.title",
+                            "WELCOME BACK."
+                        ),
                     text:
-                        "Outside still disappointing?"
+                        translation(
+                            "greet.hellion.02.text",
+                            "Outside still disappointing?"
+                        )
                 },
                 {
                     title:
-                        "BACK AGAIN.",
+                        translation(
+                            "greet.hellion.03.title",
+                            "BACK AGAIN."
+                        ),
                     text:
-                        "Predictable. Useful. I approve."
+                        translation(
+                            "greet.hellion.03.text",
+                            "Predictable. Useful. I approve."
+                        )
                 },
                 {
                     title:
-                        "YOU RETURNED.",
+                        translation(
+                            "greet.hellion.04.title",
+                            "YOU RETURNED."
+                        ),
                     text:
-                        "I assume this means everything else failed to hold your attention."
+                        translation(
+                            "greet.hellion.04.text",
+                            "I assume this means everything else failed to hold your attention."
+                        )
                 }
             ];
 
@@ -8000,20 +8380,32 @@ if (dom.readerDormantObject) {
             "familiar"
         ) {
             title =
-                "THERE YOU ARE.";
+                translation(
+                    "greet.familiar.title",
+                    "THERE YOU ARE."
+                );
 
             text =
-                "I was wondering how long you'd pretend to have other things to do.";
+                translation(
+                    "greet.familiar.text",
+                    "I was wondering how long you'd pretend to have other things to do."
+                );
 
         } else if (
             currentRelationshipStage() ===
             "noticed"
         ) {
             title =
-                "BACK?";
+                translation(
+                    "greet.noticed.title",
+                    "BACK?"
+                );
 
             text =
-                "Interesting.";
+                translation(
+                    "greet.noticed.text",
+                    "Interesting."
+                );
         }
 
         window.setTimeout(
