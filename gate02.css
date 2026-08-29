@@ -460,96 +460,181 @@ a,
     }
 }
 
-
 /* ----------------------------------------------------------------
-   GATE 0.2 - STANDARD LAPTOP PRESS STRUCTURE
-   Screenshot audit 2026-08-29
+   GATE 0.2 - STANDARD DESKTOP/LAPTOP PRESS STRUCTURE
+   Screenshot audit correction 2026-08-29
+
+   IMPORTANT:
+   Gate 0.1 desktop begins at 761px. The previous repair incorrectly began
+   at 901px, so on some laptop/zoom/device-scale combinations the broken
+   legacy Press rules won and the HARROW // MACHINE console remained an
+   absolute overlay.
+
+   This pass starts at the actual desktop breakpoint and makes the viewport
+   itself the right-column grid item. The machine console is a separate,
+   normal-flow row beneath the machine art. It cannot overlap the left
+   mini-terminal.
    ---------------------------------------------------------------- */
 
-@media (min-width: 901px) and (max-width: 1699px) and (min-aspect-ratio: 4 / 5) and (max-aspect-ratio: 16 / 9) {
+@media
+(min-width: 761px)
+and (max-width: 1699px)
+and (min-aspect-ratio: 4 / 5)
+and (max-aspect-ratio: 16 / 9) {
+
     html {
-        scroll-padding-top: calc(var(--header-h) + 30px);
+        scroll-padding-top: calc(var(--header-h) + 34px);
     }
 
     section[id] {
-        scroll-margin-top: calc(var(--header-h) + 30px) !important;
+        scroll-margin-top: calc(var(--header-h) + 34px) !important;
+    }
+
+    #press {
+        scroll-margin-top: calc(var(--header-h) + 42px) !important;
     }
 
     .press-stage {
-        grid-template-columns: minmax(300px, 0.58fr) minmax(0, 1.42fr) !important;
-        column-gap: clamp(28px, 3vw, 48px) !important;
-        row-gap: 16px !important;
+        display: grid !important;
+
+        grid-template-columns:
+            minmax(290px, 0.56fr)
+            minmax(0, 1.44fr) !important;
+
+        grid-template-rows:
+            auto
+            auto !important;
+
+        column-gap: clamp(26px, 3vw, 46px) !important;
+        row-gap: 14px !important;
+
         align-items: start !important;
     }
 
     .press-copy {
-        grid-column: 1;
-        grid-row: 1 / span 2;
-        align-self: start;
+        grid-column: 1 !important;
+        grid-row: 1 / span 2 !important;
+
+        min-width: 0;
+        align-self: start !important;
+    }
+
+    /*
+       Critical structural correction:
+       Gate 0.1 globally made this wrapper display:contents. Override that
+       on desktop so the whole machine art is one predictable grid item.
+    */
+    .press-machine-viewport {
+        display: block !important;
+
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+
+        width: 100% !important;
+        min-width: 0 !important;
+
+        margin: 0 !important;
+
+        overflow: visible !important;
     }
 
     .press-machine-zone {
-        grid-column: 2;
-        grid-row: 1;
+        position: relative !important;
+
         width: 100% !important;
         min-height: 0 !important;
+
         aspect-ratio: 1536 / 1024;
+
         margin: 0 !important;
+
+        isolation: isolate;
     }
 
     .press-machine {
+        position: absolute !important;
         inset: 0 !important;
+
         left: auto !important;
         top: auto !important;
+
         width: 100% !important;
         height: 100% !important;
+
         transform: none !important;
     }
 
     .press-machine-art {
         width: 100% !important;
         height: 100% !important;
-        object-fit: contain;
-        object-position: center;
+
+        object-fit: contain !important;
+        object-position: center !important;
     }
 
+    /*
+       The console is a sibling of press-machine-viewport in the DOM.
+       Make it the second row of the RIGHT column. No absolute positioning,
+       no negative margins, no overlap with press-mini-terminal.
+    */
     .press-machine-console {
         position: relative !important;
-        grid-column: 2;
-        grid-row: 2;
+
+        grid-column: 2 !important;
+        grid-row: 2 !important;
+
+        inset: auto !important;
         left: auto !important;
         right: auto !important;
         top: auto !important;
         bottom: auto !important;
+
         width: 100% !important;
+        max-width: none !important;
+
         margin: 0 !important;
-        display: grid;
-        grid-template-columns: minmax(230px, 0.72fr) minmax(0, 1.28fr);
-        align-self: start;
-        box-shadow: 0 20px 52px rgba(0,0,0,0.42) !important;
+
+        transform: none !important;
+
+        display: grid !important;
+        grid-template-columns:
+            minmax(220px, 0.72fr)
+            minmax(0, 1.28fr) !important;
+
+        align-self: start !important;
+
+        z-index: 4 !important;
+
+        box-shadow:
+            0 20px 52px rgba(0,0,0,0.42) !important;
     }
 
     .machine-console-top {
-        grid-column: 1 / -1;
+        grid-column: 1 / -1 !important;
     }
 
     .machine-console-message {
-        min-height: 100px;
-        border-right: 1px solid var(--line);
+        min-height: 100px !important;
+
+        border-right:
+            1px solid var(--line) !important;
     }
 
     .machine-console-readouts {
-        border-top: 0;
-        align-self: stretch;
+        border-top: 0 !important;
+
+        align-self: stretch !important;
     }
 
     .machine-console-readouts > div {
-        min-height: 100px;
+        min-height: 100px !important;
     }
 
     .press-state-rail {
         position: relative;
+
         z-index: 3;
+
         margin-top: 20px !important;
     }
 }
