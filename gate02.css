@@ -418,3 +418,45 @@ a,
         outline: 3px solid ButtonText !important;
     }
 }
+
+/* ----------------------------------------------------------------
+   DESKTOP ACCESS / LANGUAGE ENTRY
+   The selector itself remains inside the existing accessibility panel.
+   This button simply makes that panel reachable from the primary header
+   on ordinary desktop/laptop layouts.
+   ---------------------------------------------------------------- */
+
+.header-access-button {
+    min-height: 38px;
+    padding: 0 2px 7px;
+
+    border: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    background: transparent;
+    color: #b2adb5;
+
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+
+    cursor: pointer;
+    transition:
+        color 0.18s ease,
+        border-color 0.18s ease;
+}
+
+.header-access-button:hover,
+.header-access-button:focus-visible {
+    color: #fff;
+    border-bottom-color: var(--purple-hot);
+}
+
+@media (max-width: 760px) {
+    .header-access-button {
+        display: none;
+    }
+}
+
