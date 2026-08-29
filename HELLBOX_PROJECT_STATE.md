@@ -4,12 +4,9 @@ Last updated: 2026-08-29
 Current production branch: `main`
 Current live checkpoint: Gate 2 COMPLETE — SciVive Reader vertical slice proven end-to-end
 Current roadmap position: Gate 3 NEXT — identity, ownership & Archive
-Latest repository commit: `c5008f6` — `Gate 2: add Reader browser acceptance test`
-Latest production-facing frontend commit: `83d5d0f` — `Gate 2: version protected Reader frontend`
-Latest production-facing Worker commit: `0ad0e4c` — `Gate 2: remove temporary Reader preview`
-Known-good historical commit: `5373ba1460babdd3b1f577dba16137fd83ffa6a1`
-Recovery commit on `main`: `2890ab0`
-Recovery tree hash: `b19c2df2f533960305cd2aaf65fdd0842ade5e6e`
+Public repository identity: `Harrow <noreply@hellboxcomics.com>`
+Repository privacy status: scrubbed and verified after Gate 2; no personal identity references remain in commit identity, tracked content, commit messages, or historical paths
+Checkpoint-reference rule: use Gate/checkpoint names plus live validation results; do not treat commit hashes as durable handoff identifiers
 Broken Gate 0.2 backup branch: `backup-broken-gate02-20260828`
 
 ---
@@ -95,6 +92,14 @@ README maintenance:
 - it is not a substitute for this state bible
 - README should stay concise enough for repository orientation while this file carries the exhaustive handoff context
 
+Repository privacy workflow — locked:
+- public Git identity is `Harrow <noreply@hellboxcomics.com>`
+- never expose the user's personal/legal identity in tracked project material, commit metadata, committed terminal logs, example paths, or public documentation
+- when copying terminal output into documentation, remove local usernames/hostnames and any private tokens/secrets
+- commit hashes are not durable handoff anchors; privacy/history maintenance can invalidate them
+- prefer Gate/checkpoint names, commit subjects, filenames, migrations, durable data state, and live acceptance results
+- old pre-privacy clones/history must never be merged back into `main`
+
 Project-state maintenance between formal Gate closes:
 - update this file immediately for major architecture, lore, tokenomics, publication-rule, Harrow-canon, or product-direction changes
 - do NOT interrupt implementation to document every minor CSS/file change
@@ -127,9 +132,9 @@ Current production state:
 - Gate 0 foundation is complete
 - Gate 1 publication platform/data model is complete
 - Gate 2 SciVive Reader vertical slice is complete
-- latest repository commit: `c5008f6` — `Gate 2: add Reader browser acceptance test`
-- latest production-facing frontend commit: `83d5d0f` — `Gate 2: version protected Reader frontend`
-- latest normal production Worker cleanup commit: `0ad0e4c` — `Gate 2: remove temporary Reader preview`
+- Gate 2 closeout state bible and README are complete
+- public Git history was privacy-rewritten after Gate 2; old pre-rewrite SHAs are intentionally obsolete
+- identify implementation checkpoints by commit subject/Gate rather than hard-coded SHA in handoff documentation
 - public site works in English and Spanish
 - current main frontend runtime query version: `20260829-gate2-reader-5e26336`
 - current Gate 0.2 layout stylesheet cache generation remains `gate0-2-04`
@@ -189,13 +194,14 @@ Gate 2 browser acceptance:
 - Reader is not implemented as an embedded PDF viewer
 
 Recovery history remains:
-- known-good historical commit: `5373ba1460babdd3b1f577dba16137fd83ffa6a1`
-- recovery commit: `2890ab0`
-- recovery tree hash: `b19c2df2f533960305cd2aaf65fdd0842ade5e6e`
+- the repository was restored from the last known-good Gate 0 baseline after a broken all-at-once Gate 0.2 deployment
+- `main` was rebuilt incrementally from that recovered baseline
 - broken backup branch: `backup-broken-gate02-20260828`
+- the later privacy rewrite intentionally changed historical commit hashes across both branches
 
 The broken branch is forensic history only.
 Do not merge it wholesale into `main`.
+Do not restore or merge an old pre-privacy clone, bundle, or branch snapshot back into the live repository, because doing so could reintroduce scrubbed identity metadata.
 
 ## 4. ACTIVE VISUAL / DEVICE TARGETS
 
@@ -1221,17 +1227,19 @@ Gate 2 production artifacts:
 - `tools/test_reader_ui.py`
 - `migrations/0004_connect_scivive_reader.sql`
 
-Gate 2 key commits:
-- `4c75989` — define SciVive Reader manifest
-- `f9f5f92` — add SciVive Reader asset builder
-- `6e4d0d7` — add private Reader R2 uploader
-- `7229b55` — bind SciVive Reader delivery in D1
-- `e03b52a` — read Reader delivery from D1
-- `cd88bd4` — temporary protected Reader preview session for proof
-- `0ad0e4c` — remove temporary Reader preview
-- `5e26336` — add protected Reader frontend transport
-- `83d5d0f` — version protected Reader frontend
-- `c5008f6` — add Reader browser acceptance test
+Gate 2 implementation checkpoints (identify by commit subject; hashes were intentionally rewritten during the privacy scrub):
+- `Gate 2: define SciVive Reader manifest`
+- `Gate 2: add SciVive Reader asset builder`
+- `Gate 2: add private Reader R2 uploader`
+- `Gate 2: bind SciVive Reader delivery`
+- `Gate 2: read Reader delivery from D1`
+- `Gate 2: add protected Reader preview session` — temporary proof mechanism only
+- `Gate 2: remove temporary Reader preview`
+- `Gate 2: add protected Reader frontend transport`
+- `Gate 2: version protected Reader frontend`
+- `Gate 2: add Reader browser acceptance test`
+- `Close Gate 2 project state`
+- `Close Gate 2 README`
 
 Production acceptance proof:
 - authorized temporary Gate 2 test session opened the real production SciVive private manifest
@@ -1482,26 +1490,48 @@ Documentation procedure when Gate 3 closes:
 - update `README.md`
 - provide macro progress based on actual product maturity/remaining risk
 
-## 30. RECOVERY RECORD
+## 30. RECOVERY AND PRIVACY RECORD
 
-Broken state:
+### Recovery
+
+The repository was recovered after a broken all-at-once Gate 0.2 deployment.
+
+Locked recovery facts:
 - backup branch: `backup-broken-gate02-20260828`
-- broken `main` HEAD before recovery: `b7d5fde`
+- the last known-good production tree was restored to `main`
+- recovery was validated by matching the recovered tree to the known-good tree before incremental development resumed
+- Gate 0, Gate 1, and Gate 2 were then rebuilt/advanced incrementally under the one-file-at-a-time workflow
+- exact pre-privacy commit/tree hashes are intentionally no longer recorded here because the later privacy rewrite changed the public history
 
-Known-good reference:
-- short commit: `5373ba1`
-- full commit: `5373ba1460babdd3b1f577dba16137fd83ffa6a1`
+The broken backup branch is forensic history only.
+Do not merge it wholesale into `main`.
 
-Recovery commit:
-- `2890ab0`
+### Repository privacy hardening — completed after Gate 2
 
-Tree verification:
-- recovery tree:
-  `b19c2df2f533960305cd2aaf65fdd0842ade5e6e`
-- known-good tree:
-  `b19c2df2f533960305cd2aaf65fdd0842ade5e6e`
+Public identity rule:
+- all Hellbox Git author/committer identity must be `Harrow <noreply@hellboxcomics.com>`
+- the user's personal/legal name, personal email, local machine username/hostname, or other directly identifying strings must not be introduced into tracked files, commit messages, examples, screenshots/logs committed to Git, or handoff documentation
+- use Harrow/project-level identifiers in public repository material
 
-The hashes matched before the recovery was pushed.
+Completed privacy work:
+- all historical commit author and committer identities were rewritten to Harrow
+- tracked-file identity references were scrubbed across historical snapshots
+- commit messages were scanned
+- historical filenames/paths were scanned
+- verification result: `0` non-Harrow commit identities
+- verification result: `0` historical commits containing the scrubbed personal identity strings
+- verification result: `0` historical paths containing those strings
+- both `main` and `backup-broken-gate02-20260828` were force-updated to the scrubbed histories using guarded `--force-with-lease`
+- GitHub remote branch refs were verified to match the scrubbed local branches
+- the local pre-scrub Git bundle was deleted
+- `.git/filter-repo` temporary rewrite data was deleted
+- temporary Gate 2 shell credentials were cleared
+
+Important consequence:
+- every pre-scrub commit hash is obsolete
+- do not use old chat logs or old documentation SHAs as authoritative repository checkpoints
+- do not resurrect an old clone/bundle without first ensuring it cannot reintroduce pre-scrub history
+- durable handoff references should use Gate names, commit subjects, file paths, schema/migration names, production state, and explicit validation evidence rather than SHA values
 
 ---
 
