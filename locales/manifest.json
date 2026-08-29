@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "manifestVersion": "0.2.0-recovery.1",
+  "manifestVersion": "0.2.0-recovery.2",
   "defaultLocale": "en",
   "fallbackLocale": "en",
   "selection": {
@@ -18,7 +18,12 @@
     "siteLocaleIndependentFromPublicationLocale": true,
     "publicationTranslationRequiresIntentionalLocalizedEdition": true,
     "rtlRequiredBeforeRtlLocaleLaunch": true,
-    "mirrorPublicationArtworkForRtl": false
+    "mirrorPublicationArtworkForRtl": false,
+    "gate02RuntimeLocales": [
+      "en",
+      "es"
+    ],
+    "additionalLocalesDeferredUntilCopyFreeze": true
   },
   "coverageRequired": [
     "document_metadata",
@@ -58,7 +63,13 @@
       "Chain ID 369",
       "Hellbox Reader",
       "Hellbox Press"
-    ]
+    ],
+    "validatedWith": [
+      "en",
+      "es"
+    ],
+    "deferAdditionalLocalesUntil": "canonical English website copy is near final",
+    "deltaLocalizationRequiredAfterCopyFreeze": true
   },
   "locales": [
     {
@@ -77,22 +88,24 @@
       "name": "Spanish",
       "nativeName": "Español",
       "direction": "ltr",
-      "status": "building",
-      "public": false,
+      "status": "complete",
+      "public": true,
       "pack": "/locales/es.json",
-      "machineDraft": true,
-      "harrowVoiceApproved": false
+      "machineDraft": false,
+      "harrowVoiceApproved": true,
+      "note": "Gate 0.2 proof/test secondary locale. Re-run delta localization after canonical English copy freezes."
     },
     {
       "code": "pt-BR",
       "name": "Brazilian Portuguese",
       "nativeName": "Português do Brasil",
       "direction": "ltr",
-      "status": "building",
+      "status": "deferred",
       "public": false,
       "pack": "/locales/pt-BR.json",
-      "machineDraft": true,
-      "harrowVoiceApproved": false
+      "machineDraft": false,
+      "harrowVoiceApproved": false,
+      "deferredUntil": "canonical English website copy is near final"
     }
   ],
   "plannedLocales": [
