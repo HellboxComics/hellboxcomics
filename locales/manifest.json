@@ -1,0 +1,111 @@
+{
+  "defaultLocale": "en",
+  "publicLocales": [
+    {
+      "code": "en",
+      "name": "English",
+      "nativeName": "English",
+      "direction": "ltr",
+      "status": "complete"
+    },
+    {
+      "code": "es",
+      "name": "Spanish",
+      "nativeName": "Español",
+      "direction": "ltr",
+      "status": "complete"
+    },
+    {
+      "code": "pt-BR",
+      "name": "Brazilian Portuguese",
+      "nativeName": "Português do Brasil",
+      "direction": "ltr",
+      "status": "complete"
+    }
+  ],
+  "plannedLocales": [
+    {
+      "code": "vi",
+      "name": "Vietnamese",
+      "nativeName": "Tiếng Việt",
+      "direction": "ltr",
+      "wave": 1
+    },
+    {
+      "code": "id",
+      "name": "Indonesian",
+      "nativeName": "Bahasa Indonesia",
+      "direction": "ltr",
+      "wave": 1
+    },
+    {
+      "code": "hi",
+      "name": "Hindi",
+      "nativeName": "हिन्दी",
+      "direction": "ltr",
+      "wave": 2
+    },
+    {
+      "code": "ur",
+      "name": "Urdu",
+      "nativeName": "اردو",
+      "direction": "rtl",
+      "wave": 2
+    },
+    {
+      "code": "uk",
+      "name": "Ukrainian",
+      "nativeName": "Українська",
+      "direction": "ltr",
+      "wave": 2
+    },
+    {
+      "code": "tr",
+      "name": "Turkish",
+      "nativeName": "Türkçe",
+      "direction": "ltr",
+      "wave": 2
+    },
+    {
+      "code": "zh-Hans",
+      "name": "Simplified Chinese",
+      "nativeName": "简体中文",
+      "direction": "ltr",
+      "wave": 3
+    },
+    {
+      "code": "ko",
+      "name": "Korean",
+      "nativeName": "한국어",
+      "direction": "ltr",
+      "wave": 3
+    },
+    {
+      "code": "ja",
+      "name": "Japanese",
+      "nativeName": "日本語",
+      "direction": "ltr",
+      "wave": 3
+    },
+    {
+      "code": "fr",
+      "name": "French",
+      "nativeName": "Français",
+      "direction": "ltr",
+      "wave": 3
+    },
+    {
+      "code": "ar",
+      "name": "Arabic",
+      "nativeName": "العربية",
+      "direction": "rtl",
+      "wave": 3
+    }
+  ],
+  "policy": {
+    "siteLocaleIndependentFromPublicationLocale": true,
+    "canonicalHarrowVoice": "en",
+    "publishOnlyCompletePacks": true,
+    "humanVoiceAdaptationRequired": true
+  }
+}
