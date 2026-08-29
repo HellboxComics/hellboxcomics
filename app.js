@@ -1,6 +1,6 @@
 /* ============================================================
    HELLBOX COMICS
-   FRONTEND APPLICATION V10 — GATE 0.2 LOCALIZATION RUNTIME
+   FRONTEND APPLICATION V11 — GATE 2 PROTECTED READER TRANSPORT
    HARROW'S NERVOUS SYSTEM
    ------------------------------------------------------------
    - Relationship / Hellion memory
@@ -36,7 +36,8 @@
         lastSeen: "hellbox:last-seen:v3",
         dialogueHistory: "hellbox:dialogue-history:v1",
         accessibility: "hellbox:accessibility:v1",
-        uiLocale: "hellbox:ui-locale:v1"
+        uiLocale: "hellbox:ui-locale:v1",
+        readerSession: "hellbox:reader-session:v1"
     };
 
     /*
@@ -174,7 +175,8 @@
             provider: null,
             address: null,
             chainId: null,
-            connected: false
+            connected: false,
+            sessionToken: null
         },
 
         publications: [],
@@ -218,7 +220,10 @@
             pageIndex: 0,
             mode: "paged",
             fit: "page",
-            objectUrls: []
+            objectUrls: [],
+            sessionToken: null,
+            renderGeneration: 0,
+            continuousObserver: null
         },
 
         whisperTimer: null,
@@ -7306,7 +7311,77 @@
        READER
        ========================================================= */
 
+    function readerSessionToken() {
+        if (
+            state.reader.sessionToken &&
+            typeof state.reader.sessionToken ===
+                "string"
+        ) {
+            return state.reader.sessionToken;
+        }
+
+        if (
+            state.wallet.sessionToken &&
+            typeof state.wallet.sessionToken ===
+                "string"
+        ) {
+            return state.wallet.sessionToken;
+        }
+
+        if (
+            storageAvailable(
+                "sessionStorage"
+            )
+        ) {
+            return (
+                window.sessionStorage.getItem(
+                    STORAGE_KEYS.readerSession
+                ) ||
+                ""
+            );
+        }
+
+        return "";
+    }
+
+    function readerRequestHeaders(
+        headers = {}
+    ) {
+        const token =
+            readerSessionToken();
+
+        if (!token) {
+            return {
+                ...headers
+            };
+        }
+
+        return {
+            ...headers,
+            Authorization:
+                `Bearer ${token}`
+        };
+    }
+
+    function disconnectReaderContinuousObserver() {
+        if (
+            state.reader.continuousObserver
+        ) {
+            try {
+                state.reader.continuousObserver.disconnect();
+
+            } catch (error) {
+                // Ignore observer teardown failures.
+            }
+        }
+
+        state.reader.continuousObserver =
+            null;
+    }
+
     function clearReaderObjectUrls() {
+        disconnectReaderContinuousObserver();
+
         state.reader.objectUrls.forEach(
             (url) => {
                 try {
@@ -7322,6 +7397,22 @@
 
         state.reader.objectUrls =
             [];
+
+        state.reader.pages.forEach(
+            (page) => {
+                if (
+                    page &&
+                    typeof page ===
+                        "object"
+                ) {
+                    page.objectUrl =
+                        null;
+
+                    page.loadPromise =
+                        null;
+                }
+            }
+        );
     }
 
     function showReaderLoading(
@@ -7444,6 +7535,230 @@
         );
     }
 
+    function normalizeReaderPageEntry(
+        page,
+        index
+    ) {
+        const endpoint =
+            pageUrlFromEntry(page);
+
+        if (!endpoint) {
+            return null;
+        }
+
+        return {
+            id:
+                typeof page === "object" &&
+                page !== null &&
+                page.id !== undefined
+                    ? String(page.id)
+                    : String(index + 1),
+
+            endpoint,
+
+            objectUrl:
+                null,
+
+            loadPromise:
+                null
+        };
+    }
+
+    async function ensureReaderPageObjectUrl(
+        index
+    ) {
+        const page =
+            state.reader.pages[index];
+
+        if (!page) {
+            const error =
+                new Error(
+                    translation(
+                        "reader.error.noPages",
+                        "The reader returned no pages."
+                    )
+                );
+
+            error.status =
+                404;
+
+            throw error;
+        }
+
+        if (page.objectUrl) {
+            return page.objectUrl;
+        }
+
+        if (page.loadPromise) {
+            return page.loadPromise;
+        }
+
+        const generation =
+            state.reader.renderGeneration;
+
+        page.loadPromise =
+            (async () => {
+                const response =
+                    await fetch(
+                        page.endpoint,
+                        {
+                            method:
+                                "GET",
+
+                            headers:
+                                readerRequestHeaders({
+                                    Accept:
+                                        "image/avif,image/webp,image/*,*/*;q=0.8"
+                                }),
+
+                            cache:
+                                "no-store"
+                        }
+                    );
+
+                if (!response.ok) {
+                    let body =
+                        null;
+
+                    try {
+                        body =
+                            await response.json();
+
+                    } catch (error) {
+                        body =
+                            null;
+                    }
+
+                    const apiError =
+                        new Error(
+                            body?.error ||
+                            body?.message ||
+                            `Reader page request failed: ${response.status}`
+                        );
+
+                    apiError.status =
+                        response.status;
+
+                    throw apiError;
+                }
+
+                const contentType =
+                    response.headers.get(
+                        "Content-Type"
+                    ) ||
+                    "";
+
+                if (
+                    contentType &&
+                    !contentType.toLowerCase().startsWith(
+                        "image/"
+                    )
+                ) {
+                    const contentError =
+                        new Error(
+                            "Reader page returned an invalid content type."
+                        );
+
+                    contentError.status =
+                        502;
+
+                    throw contentError;
+                }
+
+                const blob =
+                    await response.blob();
+
+                if (
+                    !state.reader.open ||
+                    generation !==
+                        state.reader.renderGeneration
+                ) {
+                    throw new Error(
+                        "Reader request was superseded."
+                    );
+                }
+
+                const objectUrl =
+                    URL.createObjectURL(
+                        blob
+                    );
+
+                page.objectUrl =
+                    objectUrl;
+
+                state.reader.objectUrls.push(
+                    objectUrl
+                );
+
+                return objectUrl;
+            })();
+
+        try {
+            return await page.loadPromise;
+
+        } finally {
+            page.loadPromise =
+                null;
+        }
+    }
+
+    function preloadReaderPage(
+        index
+    ) {
+        if (
+            index < 0 ||
+            index >=
+                state.reader.pages.length
+        ) {
+            return;
+        }
+
+        void ensureReaderPageObjectUrl(
+            index
+        ).catch(() => {
+            // Preload failure is non-blocking. The foreground
+            // request will surface an honest error if needed.
+        });
+    }
+
+    function preloadReaderNeighbors(
+        index
+    ) {
+        preloadReaderPage(
+            index + 1
+        );
+
+        preloadReaderPage(
+            index - 1
+        );
+    }
+
+    function readerAccessErrorMessage(
+        error
+    ) {
+        const status =
+            error?.status ||
+            0;
+
+        if (
+            status === 401 ||
+            status === 403
+        ) {
+            return translation(
+                "reader.error.owner",
+                "The box doesn't recognize this wallet as an owner yet."
+            );
+        }
+
+        return (
+            error?.message ||
+            translation(
+                "reader.error.refused",
+                "The reader refused to cooperate."
+            )
+        );
+    }
+
     async function openPublicationReader(
         publicationKey
     ) {
@@ -7464,6 +7779,9 @@
                 }
             );
 
+        state.reader.renderGeneration +=
+            1;
+
         state.reader.publicationKey =
             publicationKey;
 
@@ -7477,10 +7795,10 @@
         state.reader.pageIndex =
             0;
 
+        clearReaderObjectUrls();
+
         state.reader.pages =
             [];
-
-        clearReaderObjectUrls();
 
         if (dom.readerTitle) {
             dom.readerTitle.textContent =
@@ -7522,7 +7840,11 @@
         try {
             const payload =
                 await apiJson(
-                    `/api/reader/${encodeURIComponent(publicationKey)}`
+                    `/api/reader/${encodeURIComponent(publicationKey)}`,
+                    {
+                        headers:
+                            readerRequestHeaders()
+                    }
                 );
 
             const pages =
@@ -7530,7 +7852,7 @@
                     payload
                 )
                     .map(
-                        pageUrlFromEntry
+                        normalizeReaderPageEntry
                     )
                     .filter(Boolean);
 
@@ -7547,8 +7869,6 @@
 
             renderReader();
 
-            hideReaderLoading();
-
             discover(
                 `reader:${publicationKey}`,
                 isHellion()
@@ -7557,24 +7877,11 @@
             );
 
         } catch (error) {
-            const status =
-                error?.status ||
-                0;
-
-            if (
-                status === 401 ||
-                status === 403
-            ) {
-                showReaderError(
-                    translation("reader.error.owner", "The box doesn't recognize this wallet as an owner yet.")
-                );
-
-            } else {
-                showReaderError(
-                    error?.message ||
-                    translation("reader.error.refused", "The reader refused to cooperate.")
-                );
-            }
+            showReaderError(
+                readerAccessErrorMessage(
+                    error
+                )
+            );
         }
     }
 
@@ -7582,6 +7889,9 @@
         if (!dom.reader) {
             return;
         }
+
+        state.reader.renderGeneration +=
+            1;
 
         dom.reader.classList.remove(
             "active"
@@ -7604,6 +7914,17 @@
         clearReaderObjectUrls();
         hideReaderError();
         hideReaderLoading();
+
+        if (dom.readerPageImage) {
+            dom.readerPageImage.removeAttribute(
+                "src"
+            );
+        }
+
+        if (dom.readerContinuous) {
+            dom.readerContinuous.innerHTML =
+                "";
+        }
 
         updateDiagnostics();
 
@@ -7664,7 +7985,7 @@
             state.reader.mode ===
             "paged"
         ) {
-            renderPagedReader();
+            void renderPagedReader();
 
         } else {
             renderContinuousReader();
@@ -7673,7 +7994,7 @@
         updateDiagnostics();
     }
 
-    function renderPagedReader() {
+    async function renderPagedReader() {
         if (
             !dom.readerPageImage ||
             state.reader.pages.length ===
@@ -7682,13 +8003,18 @@
             return;
         }
 
-        const pageUrl =
+        disconnectReaderContinuousObserver();
+
+        const pageIndex =
+            state.reader.pageIndex;
+
+        const page =
             state.reader.pages[
-                state.reader.pageIndex
+                pageIndex
             ];
 
-        dom.readerPageImage.src =
-            pageUrl;
+        const generation =
+            state.reader.renderGeneration;
 
         dom.readerPageImage.classList.toggle(
             "fit-page",
@@ -7702,6 +8028,12 @@
                 "width"
         );
 
+        dom.readerPageImage.alt =
+            `${state.reader.title} — ${translation(
+                "reader.page",
+                "PAGE"
+            )} ${pageIndex + 1}`;
+
         if (dom.readerPaged) {
             dom.readerPaged.style.display =
                 "flex";
@@ -7712,6 +8044,97 @@
                 "active"
             );
         }
+
+        if (!page.objectUrl) {
+            showReaderLoading();
+        }
+
+        try {
+            const objectUrl =
+                await ensureReaderPageObjectUrl(
+                    pageIndex
+                );
+
+            if (
+                !state.reader.open ||
+                generation !==
+                    state.reader.renderGeneration ||
+                pageIndex !==
+                    state.reader.pageIndex ||
+                state.reader.mode !==
+                    "paged"
+            ) {
+                return;
+            }
+
+            dom.readerPageImage.src =
+                objectUrl;
+
+            hideReaderLoading();
+            hideReaderError();
+
+            preloadReaderNeighbors(
+                pageIndex
+            );
+
+        } catch (error) {
+            if (
+                !state.reader.open ||
+                generation !==
+                    state.reader.renderGeneration
+            ) {
+                return;
+            }
+
+            showReaderError(
+                readerAccessErrorMessage(
+                    error
+                )
+            );
+        }
+    }
+
+    async function loadContinuousReaderImage(
+        image,
+        index
+    ) {
+        if (
+            !image ||
+            image.dataset.readerLoaded ===
+                "1"
+        ) {
+            return;
+        }
+
+        image.dataset.readerLoaded =
+            "loading";
+
+        try {
+            const objectUrl =
+                await ensureReaderPageObjectUrl(
+                    index
+                );
+
+            if (!state.reader.open) {
+                return;
+            }
+
+            image.src =
+                objectUrl;
+
+            image.dataset.readerLoaded =
+                "1";
+
+        } catch (error) {
+            image.dataset.readerLoaded =
+                "error";
+
+            showReaderError(
+                readerAccessErrorMessage(
+                    error
+                )
+            );
+        }
     }
 
     function renderContinuousReader() {
@@ -7719,12 +8142,58 @@
             return;
         }
 
+        disconnectReaderContinuousObserver();
+
         dom.readerContinuous.innerHTML =
             "";
 
+        const observerSupported =
+            "IntersectionObserver" in
+            window;
+
+        if (observerSupported) {
+            state.reader.continuousObserver =
+                new IntersectionObserver(
+                    (entries) => {
+                        entries.forEach(
+                            (entry) => {
+                                if (
+                                    !entry.isIntersecting
+                                ) {
+                                    return;
+                                }
+
+                                const image =
+                                    entry.target;
+
+                                const index =
+                                    Number(
+                                        image.dataset.readerIndex
+                                    );
+
+                                state.reader.continuousObserver?.unobserve(
+                                    image
+                                );
+
+                                void loadContinuousReaderImage(
+                                    image,
+                                    index
+                                );
+                            }
+                        );
+                    },
+                    {
+                        root:
+                            null,
+                        rootMargin:
+                            "1200px 0px"
+                    }
+                );
+        }
+
         state.reader.pages.forEach(
             (
-                url,
+                page,
                 index
             ) => {
                 const wrapper =
@@ -7751,14 +8220,47 @@
                         "img"
                     );
 
-                image.src =
-                    url;
-
                 image.alt =
                     `${state.reader.title} — ${translation(
                         "reader.page",
                         "PAGE"
                     )} ${index + 1}`;
+
+                image.loading =
+                    "lazy";
+
+                image.decoding =
+                    "async";
+
+                image.dataset.readerIndex =
+                    String(index);
+
+                if (page.objectUrl) {
+                    image.src =
+                        page.objectUrl;
+
+                    image.dataset.readerLoaded =
+                        "1";
+
+                } else if (
+                    state.reader.continuousObserver
+                ) {
+                    image.dataset.readerLoaded =
+                        "0";
+
+                    state.reader.continuousObserver.observe(
+                        image
+                    );
+
+                } else if (
+                    index ===
+                    state.reader.pageIndex
+                ) {
+                    void loadContinuousReaderImage(
+                        image,
+                        index
+                    );
+                }
 
                 wrapper.appendChild(
                     label
@@ -7782,6 +8284,8 @@
         dom.readerContinuous.classList.add(
             "active"
         );
+
+        hideReaderLoading();
     }
 
     function readerPrevious() {
