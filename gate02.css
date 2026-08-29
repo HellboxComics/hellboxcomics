@@ -460,3 +460,97 @@ a,
     }
 }
 
+
+/* ----------------------------------------------------------------
+   GATE 0.2 - STANDARD LAPTOP PRESS STRUCTURE
+   Screenshot audit 2026-08-29
+   ---------------------------------------------------------------- */
+
+@media (min-width: 901px) and (max-width: 1699px) and (min-aspect-ratio: 4 / 5) and (max-aspect-ratio: 16 / 9) {
+    html {
+        scroll-padding-top: calc(var(--header-h) + 30px);
+    }
+
+    section[id] {
+        scroll-margin-top: calc(var(--header-h) + 30px) !important;
+    }
+
+    .press-stage {
+        grid-template-columns: minmax(300px, 0.58fr) minmax(0, 1.42fr) !important;
+        column-gap: clamp(28px, 3vw, 48px) !important;
+        row-gap: 16px !important;
+        align-items: start !important;
+    }
+
+    .press-copy {
+        grid-column: 1;
+        grid-row: 1 / span 2;
+        align-self: start;
+    }
+
+    .press-machine-zone {
+        grid-column: 2;
+        grid-row: 1;
+        width: 100% !important;
+        min-height: 0 !important;
+        aspect-ratio: 1536 / 1024;
+        margin: 0 !important;
+    }
+
+    .press-machine {
+        inset: 0 !important;
+        left: auto !important;
+        top: auto !important;
+        width: 100% !important;
+        height: 100% !important;
+        transform: none !important;
+    }
+
+    .press-machine-art {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain;
+        object-position: center;
+    }
+
+    .press-machine-console {
+        position: relative !important;
+        grid-column: 2;
+        grid-row: 2;
+        left: auto !important;
+        right: auto !important;
+        top: auto !important;
+        bottom: auto !important;
+        width: 100% !important;
+        margin: 0 !important;
+        display: grid;
+        grid-template-columns: minmax(230px, 0.72fr) minmax(0, 1.28fr);
+        align-self: start;
+        box-shadow: 0 20px 52px rgba(0,0,0,0.42) !important;
+    }
+
+    .machine-console-top {
+        grid-column: 1 / -1;
+    }
+
+    .machine-console-message {
+        min-height: 100px;
+        border-right: 1px solid var(--line);
+    }
+
+    .machine-console-readouts {
+        border-top: 0;
+        align-self: stretch;
+    }
+
+    .machine-console-readouts > div {
+        min-height: 100px;
+    }
+
+    .press-state-rail {
+        position: relative;
+        z-index: 3;
+        margin-top: 20px !important;
+    }
+}
+
