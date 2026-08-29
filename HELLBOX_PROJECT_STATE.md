@@ -2,8 +2,11 @@
 
 Last updated: 2026-08-29
 Current production branch: `main`
-Current live checkpoint: Gate 1 COMPLETE — publication platform & durable data model
-Latest verified production commit: `6f1206d` — `Gate 1: read publications from D1`
+Current live checkpoint: Gate 2 COMPLETE — SciVive Reader vertical slice proven end-to-end
+Current roadmap position: Gate 3 NEXT — identity, ownership & Archive
+Latest repository commit: `c5008f6` — `Gate 2: add Reader browser acceptance test`
+Latest production-facing frontend commit: `83d5d0f` — `Gate 2: version protected Reader frontend`
+Latest production-facing Worker commit: `0ad0e4c` — `Gate 2: remove temporary Reader preview`
 Known-good historical commit: `5373ba1460babdd3b1f577dba16137fd83ffa6a1`
 Recovery commit on `main`: `2890ab0`
 Recovery tree hash: `b19c2df2f533960305cd2aaf65fdd0842ade5e6e`
@@ -34,31 +37,67 @@ If an old chat conflicts with this file, prefer the most recent explicit decisio
 
 ## 2. DEVELOPMENT WORKFLOW — LOCKED
 
+This repository is developed incrementally and must remain recoverable at every checkpoint.
+
 Do not use giant multi-file replacement packages by default.
 
-Work incrementally, one file at a time.
+Work one file at a time.
 
 For every code/config change:
 1. Explain why that exact file is next.
 2. Provide the complete replacement file, never a patch requiring manual splicing.
-3. User commits/deploys that one file.
-4. Verify the live result and/or backend behavior.
-5. Only then move to the next file.
+3. User places that one file in the exact repository path.
+4. Validate that only the expected file changed before committing when appropriate.
+5. User commits/deploys that one file.
+6. Verify the live result and/or backend behavior.
+7. Only then move to the next file.
+
+Interaction cadence is also locked:
+- give the user one immediate terminal action/validation step at a time
+- do not dump long batches of future commands
+- wait for the result of the current step before giving the next
+- if a deployment can lag, verify the actual live version rather than assuming the push has propagated
 
 For backend/API work:
 - test changed backend behavior immediately
 - isolate failures to the specific file/change that caused them
 - do not stack unverified backend changes
+- temporary test mechanisms must be explicitly removed after proof and their secrets deleted
 
 For static assets/runtime files:
 - if CSS/JS URLs are versioned, bump the cache version when the asset changes
 - do not assume a deployed file is active until the live page is confirmed to request the new version
+- Cloudflare edge cache can temporarily serve an older unversioned asset even after deployment; verify the versioned path and then verify the normal path after propagation
 
-Project-state maintenance is checkpoint-based:
-- update `HELLBOX_PROJECT_STATE.md` at completion of each established Gate
-- update it immediately for major architecture, lore, tokenomics, publication-rule, Harrow-canon, or product-direction changes
+Gate-close documentation procedure — mandatory:
+1. Finish technical acceptance for the Gate.
+2. Update `HELLBOX_PROJECT_STATE.md` as the authoritative handoff/bible.
+3. Update `README.md` as the concise project-facing overview/setup/status document.
+4. Commit and verify each documentation file incrementally.
+5. Give the user a short macro-progress report that reflects actual project effort and risk, not simple gate-count percentages.
+6. Only then begin the next Gate.
+
+`HELLBOX_PROJECT_STATE.md` must be comprehensive enough that a new ChatGPT thread, Claude session, or competent human developer can continue immediately without asking the user to re-explain:
+- what Hellbox Comics is
+- product purpose and end goal
+- Harrow identity/voice/visual canon
+- architecture and infrastructure
+- publication/Reader/Press/Archive model
+- locked decisions and non-goals
+- workflow and file-handoff rules
+- current production state
+- completed proofs
+- known risks/debt
+- exact next engineering action
+
+README maintenance:
+- keep `README.md` current between Gates
+- it is not a substitute for this state bible
+- README should stay concise enough for repository orientation while this file carries the exhaustive handoff context
+
+Project-state maintenance between formal Gate closes:
+- update this file immediately for major architecture, lore, tokenomics, publication-rule, Harrow-canon, or product-direction changes
 - do NOT interrupt implementation to document every minor CSS/file change
-- the file must remain comprehensive enough that another competent AI/developer can resume without asking the user dozens of questions
 
 Localization workflow:
 - every new user-visible interaction/text added during development gets a canonical English locale key when created
@@ -69,39 +108,85 @@ Avoid unnecessary repository restructuring.
 
 File handoff rules:
 - direct `.js` downloads are unreliable for the user, so deliver JavaScript replacement files inside ZIP archives
+- for ordinary text/config files such as `.md`, `.json`, `.sql`, `.py`, or `.html`, provide both a direct file and ZIP when practical
 - the user normally drops delivered items into the repository root
-- when a destination folder does not already exist in the repository root, include the required folder structure inside the ZIP so extracting from the root creates the correct path automatically
-- when the destination folder already exists in the repository root, do not recreate/repackage the existing project folder; state the exact target path and let the user place the extracted replacement file there
-- always print the complete current terminal/deploy/verification commands in the same response; never tell the user to look back at an earlier message for required steps
+- when a destination folder does not already exist in the repository root, include the required folder structure inside the ZIP so extracting from the correct parent/root creates the right path automatically
+- when the destination folder already exists, do not nest a duplicate project folder; state the exact target path
+- always print the complete current terminal/deploy/verification command needed for the immediate step
+- never tell the user to look back at an earlier message for required commands
 
 Do not modify `src/index.js`, `wrangler.jsonc`, `.assetsignore`, or deployment structure casually.
 
----
-
 ## 3. CURRENT REPOSITORY / DEPLOYMENT STATE
 
-The repository was recovered after a broken all-at-once Gate 0.2 deployment, then Gate 0.2 was rebuilt incrementally and verified.
+The repository was recovered after a broken all-at-once Gate 0.2 deployment, then rebuilt incrementally.
 
 Current production state:
 - branch: `main`
 - Cloudflare deployment is live
 - Gate 0 foundation is complete
 - Gate 1 publication platform/data model is complete
-- latest verified production commit: `6f1206d` — `Gate 1: read publications from D1`
+- Gate 2 SciVive Reader vertical slice is complete
+- latest repository commit: `c5008f6` — `Gate 2: add Reader browser acceptance test`
+- latest production-facing frontend commit: `83d5d0f` — `Gate 2: version protected Reader frontend`
+- latest normal production Worker cleanup commit: `0ad0e4c` — `Gate 2: remove temporary Reader preview`
 - public site works in English and Spanish
-- current Gate 0.2 frontend runtime cache generation: `runtime-05`
-- current Gate 0.2 layout stylesheet cache generation: `gate0-2-04`
+- current main frontend runtime query version: `20260829-gate2-reader-5e26336`
+- current Gate 0.2 layout stylesheet cache generation remains `gate0-2-04`
 - GA4 is installed with Measurement ID `G-5E9EX1RE0Z`
 - GA4 Realtime was verified; Brave Shields can block the user's own Analytics requests
 - public/backend multi-chain foundation is live
 - production D1 database `hellbox-production` is bound to the Worker as `DB`
-- remote D1 migrations `0001_publication_platform.sql`, `0002_refine_asset_location_identity.sql`, and `0003_seed_scivive.sql` are applied
-- SciVive is the first durable publication record and remains intentionally private
+- production R2 buckets remain `hellbox-public` and `hellbox-private`
+- SciVive protected Reader delivery is stored in `hellbox-private`
 - Worker publication APIs read D1 rather than a hardcoded publication registry
-- live health reports publication engine `publication-key-d1-v1` and registry source `d1`
-- public publication enumeration returns zero publications while SciVive is private
-- direct normal-app lookup of private SciVive returns `404 Publication not found.` by design
+- Worker Reader delivery pointers (`reader_manifest_key` and `private_prefix`) come from D1
+- live health reports publication engine `publication-key-d1-v1`, registry source `d1`, and `readerConfiguredCount: 1`
+- SciVive remains intentionally private and not publicly enumerable
+- normal unauthenticated/public `/api/reader/scivive` returns HTTP `404` by design
+- the temporary Gate 2 preview route was removed after testing
+- temporary Cloudflare secret `HELLBOX_GATE2_READER_KEY` was permanently deleted after testing
 - Press prototype is usable enough to defer, but is not final
+
+Production D1 migrations applied:
+- `0001_publication_platform.sql`
+- `0002_refine_asset_location_identity.sql`
+- `0003_seed_scivive.sql`
+- `0004_connect_scivive_reader.sql`
+
+SciVive durable Reader binding:
+- package status: `draft`
+- private page prefix: `comics/scivive/001/reader/pages/`
+- Reader manifest key: `comics/scivive/001/reader/manifest.json`
+- validation errors: `0`
+- validation warnings: `1`
+- publishing enabled: `0`
+- Reader manifest registered as `reader-manifest`
+- Reader manifest access class: `reader_gated`
+- Reader manifest provider: `r2_private`
+- Reader manifest public retrievable: `0`
+
+Gate 2 private Reader storage:
+- canonical source PDF bytes: `8,433,084`
+- canonical source PDF SHA-256: `d105e16e991944b63d8e696c8236f5b4497d3c959119a87e580f46f2181bc548`
+- canonical source PDF page count: `461`
+- Reader presentation format: WebP facsimile pages
+- generated Reader pages: `461`
+- generated Reader page bytes: `156,576,522`
+- private objects in delivery plan: `462` total (manifest + 461 pages)
+- all `462/462` objects were downloaded back from remote R2 and matched local byte size + SHA-256
+- page `0001` was subsequently fetched through the production Worker and matched the local generated WebP byte-for-byte
+
+Gate 2 browser acceptance:
+- laptop `1440x900`: PASS
+- tablet `820x1180`: PASS
+- mobile `390x844`: PASS
+- browser acceptance test: `tools/test_reader_ui.py`
+- production publication/ownership data is not modified by that browser test
+- laptop/tablet verify the full web Reader control surface
+- compact phone layout verifies protected image display, next/previous navigation, close, page-fit presentation, and viewport containment
+- protected page transport uses authenticated `fetch` → Blob → `URL.createObjectURL(...)`, not direct protected URLs in `<img src>`
+- Reader is not implemented as an embedded PDF viewer
 
 Recovery history remains:
 - known-good historical commit: `5373ba1460babdd3b1f577dba16137fd83ffa6a1`
@@ -112,21 +197,36 @@ Recovery history remains:
 The broken branch is forensic history only.
 Do not merge it wholesale into `main`.
 
----
+## 4. ACTIVE VISUAL / DEVICE TARGETS
 
-## 4. ACTIVE VISUAL TARGETS
+Website priority:
+1. exceptional PC/Mac browser experience
+2. polished and genuinely usable tablet/mobile web experience
+3. dedicated native mobile/tablet app later
 
-Until widescreen monitors are available again:
+The website must be dialed in before native-app development begins.
+
+Current web acceptance sizes established in Gate 2:
+- laptop: `1440x900`
+- tablet: `820x1180`
+- phone: `390x844`
+
+Reader product rule:
+- laptop/desktop web is allowed the richest control surface
+- tablet web should retain strong Reader functionality
+- compact phone web may simplify controls when necessary, but must remain polished, readable, navigable, contained within the viewport, and ownership-safe
+- do not require desktop-control parity on compact phone layouts merely to claim responsiveness
+- long-term app-store mobile/tablet experience will be purpose-built after the website is mature
+
+Until dedicated widescreen monitors are available again:
 - optimize standard laptop/desktop
-- optimize mobile
+- optimize tablet/mobile
 
 Deferred:
 - vertical widescreen
 - horizontal widescreen
 
 Widescreen-specific tuning resumes separately; do not force one breakpoint to serve every display.
-
----
 
 ## 5. HELLBOX CORE PRODUCT — LOCKED
 
@@ -579,9 +679,11 @@ Reader presentation classes:
 
 BOOK:
 - prose/facsimile, e.g. SciVive
+- Gate 2 proves BOOK via page-based WebP facsimile delivery from a verified source PDF
 
 COMIC:
 - fixed page/spread reading
+- later work can add comic-specific spread behavior without replacing the Reader architecture
 
 ENHANCED:
 - future artist-authored sound, timing, depth, lighting, frame effects
@@ -589,7 +691,7 @@ ENHANCED:
 - no automatic gimmick animation
 
 Reader principles:
-- artwork is the star
+- artwork/content is the star
 - UI disappears when not needed
 - fit page
 - fit width
@@ -603,8 +705,47 @@ Reader principles:
 - ownership gate
 - protected assets
 - no dishonest DRM claims
+- protected pages must not rely on raw private URLs that can be dropped directly into `<img src>`
+- authenticated browser delivery should fetch protected bytes, convert them to Blob/object URLs, and revoke them when no longer needed
 
----
+Gate 2 implemented BOOK Reader foundation:
+- SciVive Reader manifest: `publications/scivive/reader/manifest.json`
+- manifest page count: `461`
+- deterministic page storage keys: `page-0001.webp` through `page-0461.webp`
+- reproducible source/render tool: `tools/build_scivive_reader.py`
+- reproducible private R2 upload/verification tool: `tools/upload_scivive_reader.py`
+- browser acceptance tool: `tools/test_reader_ui.py`
+- private R2 manifest: `comics/scivive/001/reader/manifest.json`
+- private R2 pages: `comics/scivive/001/reader/pages/page-0001.webp` through `page-0461.webp`
+- D1 is authoritative for Reader manifest key and private page prefix
+- Worker validates private manifest publication identity, page prefix, and page count before serving it
+- frontend uses authenticated blob transport for protected page images
+- adjacent page preloading is implemented
+- continuous mode lazy-loads protected blob images
+- normal public SciVive Reader request remains HTTP `404`
+
+Gate 2 authorization proof:
+- a narrowly scoped temporary Gate 2 preview session was created solely to prove production private delivery before Gate 3 ownership exists
+- the session loaded the real private 461-page manifest from production R2 through the Worker
+- page 1 returned HTTP `200`
+- Worker-delivered page 1 SHA-256: `822feb5e0b165ae9ba395d7eb1a8821a631951a80cafaae5b9604f2800c94171`
+- it matched the locally generated source page byte-for-byte
+- the temporary preview routes were then removed
+- `HELLBOX_GATE2_READER_KEY` was deleted from Cloudflare
+- public Reader protection was re-verified as HTTP `404`
+
+Browser acceptance at Gate 2 close:
+- laptop `1440x900`: PASS
+- tablet `820x1180`: PASS
+- mobile `390x844`: PASS
+- laptop/tablet exercise full fit/layout controls
+- phone intentionally hides desktop-only FIT PAGE / FIT WIDTH / CONTINUOUS controls below the compact breakpoint while preserving page display, previous/next, close, page-fit, and no horizontal overflow
+
+Important current boundary:
+- Gate 2 proves Reader delivery and UI
+- production wallet identity + ownership authority are intentionally NOT complete yet
+- real ownership authorization begins in Gate 3
+- until Gate 3, SciVive must remain private/non-public and cannot be considered a production collector-access release
 
 ## 20. PRESS — CURRENT / FUTURE
 
@@ -844,14 +985,18 @@ PulseChain Testnet V4 should be used first when tPLS is available.
 
 ## 26. CURRENT RESPONSIVE STATUS
 
-Current live checkpoint: Gate 1 complete.
+Current live checkpoint: Gate 2 complete.
 
 Verified:
-- mobile remains usable
 - standard laptop/desktop remains usable
+- tablet Reader acceptance passes at `820x1180`
+- compact mobile Reader acceptance passes at `390x844`
 - full-screen standard desktop Press no longer falls back to the original overlap after removing the arbitrary 1699px Gate 0.2 ceiling
 - hidden hero/theory interactions function
 - English/Spanish switching functions
+- Gate 2 Reader UI passes browser acceptance at laptop, tablet, and phone sizes
+- compact phone Reader remains viewport-contained with working previous/next/close controls
+- versioned frontend runtime is live as `/app.js?v=20260829-gate2-reader-5e26336`
 
 Known visual debt intentionally deferred:
 - Press prototype composition is tolerable but far from final
@@ -861,10 +1006,9 @@ Known visual debt intentionally deferred:
 - transient Harrow response cards can cover nearby content
 - Harrow → Keep Up transition has excess vertical space
 - horizontal/vertical widescreen tuning remains outstanding
+- compact phone Reader intentionally has a reduced control surface compared with laptop/tablet; native mobile/tablet app comes later after website maturity
 
 Do not reopen cosmetic Press work until the dedicated Press Gate unless a regression makes the prototype unusable.
-
----
 
 ## 27. CURRENT KNOWN RISKS
 
@@ -872,12 +1016,14 @@ Do not reopen cosmetic Press work until the dedicated Press Gate unless a regres
 - CSS contains many historical overrides; future cleanup must be incremental.
 - Frontend `app.js` is large and monolithic.
 - Worker/backend `src/index.js` is large and monolithic.
-- D1 publication storage is live; Gate 2 Reader manifest/protected-delivery/session infrastructure is not yet implemented.
-- SciVive package remains `draft` with 0 validation errors and 2 non-blocking validation warnings at the Gate 1 checkpoint.
+- D1 publication and Reader delivery storage are live, but production wallet identity/ownership authority is not implemented yet.
+- SciVive package remains intentionally `draft` with 0 validation errors and 1 non-blocking warning.
+- SciVive remains intentionally private/non-public until real ownership authorization exists.
 - Real minting is not implemented.
 - NFT contract is not deployed.
 - Archive ownership is not production-real.
-- Reader authentication/ownership flow still needs production implementation.
+- Gate 2 used a temporary preview authorization solely for proof; it has been removed and its Cloudflare secret deleted. Do not resurrect it as production auth.
+- Reader browser transport is production-capable, but real collector authorization must come from Gate 3 identity/ownership rather than localStorage or a test secret.
 - Current relationship/Hellion system is not server-authoritative.
 - Hidden hotspots make exhaustive manual QA difficult; build an internal hotspot inventory/debug mode before release candidate.
 - Frontend and backend chain registries can drift until a shared source/parity check exists.
@@ -885,8 +1031,8 @@ Do not reopen cosmetic Press work until the dedicated Press Gate unless a regres
 - GA4 can be blocked by privacy browsers/extensions; blocker behavior is not a site failure.
 - Current Press is only a visual/interaction prototype and must not dictate final Press architecture.
 - Current hero composition contains temporary hotspot-coordinate workarounds.
-
----
+- Cloudflare static-asset edge cache may briefly serve an older unversioned asset after deployment. Keep versioned JS/CSS references and verify the normal path after propagation.
+- Browser acceptance currently validates the Reader UI with mocked publication/Reader API responses so it cannot mutate production ownership state. Production private-byte delivery is separately proven through the Worker/R2 Gate 2 verification.
 
 ## 28. FILES THAT MUST NOT BE CHANGED CASUALLY
 
@@ -920,21 +1066,33 @@ Do not reopen cosmetic Press work until the dedicated Press Gate unless a regres
 
 The old decimal `0.3` plan is retired.
 
-The project is rebased onto a production-style Gate 0 through Gate 9 system described in Section 31.
+The project uses the production-style Gate 0 through Gate 9 system described in Section 31.
 
 Current position:
 - Gate 0 COMPLETE
 - Gate 1 COMPLETE
-- Gate 2 NEXT
+- Gate 2 COMPLETE
+- Gate 3 NEXT
 
-Begin Gate 2 by turning the durable SciVive publication package into the first real Hellbox Reader vertical slice.
+Begin Gate 3 by making wallet identity and ownership authoritative without disturbing the proven Reader vertical slice.
 
-First inspect the existing Reader-related frontend/backend paths in `app.js` and `src/index.js` plus the current SciVive package definition. Then choose the smallest single-file Reader implementation step. Do not stack frontend and backend Reader changes before either one is verified.
+Before changing code, inspect:
+- current wallet connect/signature paths in `app.js`
+- current session/authentication helpers and Reader authorization paths in `src/index.js`
+- current Archive data source and any localStorage/prototype ownership behavior
+- current chain/RPC helpers used for PulseChain reads
+- the D1 schema fields that can support identity/session/ownership indexing
 
-Gate 2 may use an explicitly authorized test session. Do not prematurely implement Gate 3 wallet ownership, Gate 4 contracts, final Press art, or broad visual polish.
+Then choose the smallest single-file Gate 3 step.
 
----
+Do not deploy the NFT contract yet; contract deployment belongs to Gate 4 after identity/ownership architecture is ready to consume it.
 
+Do not make SciVive public merely to test Gate 3.
+
+Do not resurrect the removed Gate 2 preview key/routes as a shortcut.
+
+Gate 3 target authority:
+wallet signature → short server session → chain-aware identity → indexed/verified ownership → Archive and Reader use the same authority.
 
 ## 31. PRODUCTION GATE SYSTEM — REBASED 2026-08-29
 
@@ -1026,30 +1184,80 @@ Exit criteria status:
 - no contract required yet: PASS
 - no manual public-site edit required merely to represent the publication: PASS
 
-### GATE 2 — READER VERTICAL SLICE — NEXT
+### GATE 2 — READER VERTICAL SLICE — COMPLETE
 
 Goal:
-Make SciVive genuinely readable inside Hellbox.
+Make SciVive genuinely readable inside Hellbox while keeping protected delivery independent from yet-unbuilt NFT ownership.
 
-Build:
-- BOOK Reader production path
-- protected private R2 delivery
-- short signed Reader session
-- page/chapter manifest
-- fit page / fit width
-- paged / continuous
-- keyboard/touch
-- preloading
-- accessibility
-- honest failure states
+Delivered:
+- SciVive BOOK Reader manifest with 461 deterministic pages
+- verified canonical SciVive PDF source
+- reproducible PDF → WebP Reader build tool
+- 461 generated WebP presentation pages
+- protected `hellbox-private` Reader delivery
+- reproducible remote R2 upload + byte/hash verification tool
+- 462/462 private Reader objects remotely verified
+- D1 Reader binding migration
+- D1-backed `reader_manifest_key` and `private_prefix`
+- private Reader manifest registered as a durable package asset
+- Worker loads Reader delivery configuration from D1
+- Worker loads/validates the protected manifest from private R2
+- authenticated protected page delivery through the Worker
+- production byte-for-byte page verification
+- frontend protected image transport using authenticated fetch + Blob/object URL
+- adjacent-page preloading
+- continuous-mode lazy protected-image loading
+- versioned frontend asset deployment
+- browser Reader acceptance test
+- laptop, tablet, and compact-phone responsive acceptance
+- temporary preview authorization added only for production proof, then removed
+- temporary `HELLBOX_GATE2_READER_KEY` Cloudflare secret deleted after proof
+- normal public SciVive Reader protection re-verified as HTTP `404`
 
-Exit criteria:
-- authorized test session opens SciVive
-- unauthorized normal app request cannot fetch protected reading assets
-- Reader works on mobile and laptop
-- Reader does not feel like an embedded PDF viewer
+Gate 2 production artifacts:
+- `publications/scivive/reader/manifest.json`
+- `tools/build_scivive_reader.py`
+- `tools/upload_scivive_reader.py`
+- `tools/test_reader_ui.py`
+- `migrations/0004_connect_scivive_reader.sql`
 
-### GATE 3 — IDENTITY, OWNERSHIP & ARCHIVE
+Gate 2 key commits:
+- `4c75989` — define SciVive Reader manifest
+- `f9f5f92` — add SciVive Reader asset builder
+- `6e4d0d7` — add private Reader R2 uploader
+- `7229b55` — bind SciVive Reader delivery in D1
+- `e03b52a` — read Reader delivery from D1
+- `cd88bd4` — temporary protected Reader preview session for proof
+- `0ad0e4c` — remove temporary Reader preview
+- `5e26336` — add protected Reader frontend transport
+- `83d5d0f` — version protected Reader frontend
+- `c5008f6` — add Reader browser acceptance test
+
+Production acceptance proof:
+- authorized temporary Gate 2 test session opened the real production SciVive private manifest
+- manifest reported 461 pages
+- real protected page 1 returned HTTP `200`
+- page 1 matched the locally generated WebP byte-for-byte
+- unauthorized normal app Reader request returned HTTP `404`
+- after preview cleanup, preview endpoint returned HTTP `404`
+- after secret deletion, normal Worker remained healthy
+- browser acceptance: laptop `1440x900` PASS
+- browser acceptance: tablet `820x1180` PASS
+- browser acceptance: mobile `390x844` PASS
+- Reader is not an embedded PDF viewer
+
+Exit criteria status:
+- authorized test session opens SciVive: PASS
+- unauthorized normal app request cannot fetch protected reading assets: PASS
+- Reader works on laptop: PASS
+- Reader works on tablet/mobile web: PASS
+- Reader does not feel/behave like an embedded PDF viewer: PASS
+- temporary test authorization removed after proof: PASS
+
+Important boundary:
+Gate 2 proves delivery and Reader UX. Production wallet identity and ownership authorization remain Gate 3 work.
+
+### GATE 3 — IDENTITY, OWNERSHIP & ARCHIVE — NEXT
 
 Goal:
 Make wallet identity and ownership real.
@@ -1210,9 +1418,9 @@ SciVive is live and the complete Hellbox publishing loop works in production.
 
 ### CURRENT CRITICAL PATH
 
-`Gate 2 Reader → Gate 3 ownership → Gate 4 testnet contract → Gate 5 Press`
+`Gate 3 ownership → Gate 4 testnet contract → Gate 5 Press → Gate 6 publisher operations`
 
-Do not spend weeks polishing prototype surfaces before this vertical slice works.
+Do not spend weeks polishing prototype surfaces before the ownership → testnet mint → Archive → Reader loop works.
 
 ---
 
@@ -1236,28 +1444,43 @@ Every future user-visible interaction must enter the English catalog at creation
 
 ## 33. EXACT NEXT ENGINEERING ACTION
 
-Begin Gate 2 — Reader vertical slice.
+Begin Gate 3 — Identity, Ownership & Archive.
 
-First inspect, without changing them yet:
-- current Reader-related routes/authorization behavior in `src/index.js`
-- current Reader/open-publication behavior in `app.js`
-- `publications/scivive/publication.json` Reader/package fields
-- existing SciVive source asset locations and formats
+Gate 2 is closed and its proven Reader path must be preserved.
 
-Then choose the smallest single-file Gate 2 implementation step. The first durable Reader artifact should establish the Reader content/manifest contract for SciVive before broad UI work. Do not edit `app.js` and `src/index.js` together as one unverified change.
+First inspect, without changing multiple files at once:
+- `src/index.js`: current wallet/session/auth helpers, Reader authorization, chain/RPC reads
+- `app.js`: wallet connect/sign behavior, Reader session usage, Archive rendering/data source
+- D1 schema/migrations: what already exists for ownership/event/history/session data
+- current Archive prototype and any localStorage-derived ownership state
+- PulseChain RPC configuration and fallback behavior
 
-Gate 2 authorization can begin with an explicit authorized test session so Reader delivery can be proven independently. Wallet-signature identity and real ownership authority belong to Gate 3.
+The first Gate 3 implementation should establish a real server-verifiable wallet identity/session boundary before building ownership indexing.
 
-Reader constraints already locked:
-- SciVive must read like a native Hellbox BOOK experience, not an embedded PDF viewer
-- support fit-page / fit-width and paged / continuous modes
-- support keyboard, touch, preloading, accessibility, and honest failure states
-- unauthorized normal app requests must not be able to fetch protected Reader assets
-- SciVive's publicly retrievable source provenance is separate from Hellbox Reader access policy
+Recommended sequence:
+1. wallet challenge/nonce model
+2. wallet signature verification
+3. short server session
+4. chain-aware address identity
+5. authoritative ownership read/index model
+6. Archive consumes authoritative ownership
+7. Reader consumes the exact same ownership authority
 
-Do not touch final Press art or contract deployment during this step.
+Do not:
+- deploy the main NFT contract yet (Gate 4)
+- make SciVive public
+- treat localStorage as authority
+- resurrect the Gate 2 preview secret or preview routes
+- couple Archive and Reader to different ownership sources
+- edit `app.js` and `src/index.js` in one unverified step
 
----
+Current acceptance target for the first Gate 3 slice:
+A wallet can prove control of an address, receive a short server-side/verifiable session, and the server can identify that address consistently without granting publication ownership merely because the client claims it.
+
+Documentation procedure when Gate 3 closes:
+- update this file
+- update `README.md`
+- provide macro progress based on actual product maturity/remaining risk
 
 ## 30. RECOVERY RECORD
 
