@@ -88,24 +88,45 @@ and (max-width: 1699px)
 and (min-aspect-ratio: 4 / 5)
 and (max-aspect-ratio: 16 / 9) {
 
+    /*
+       Screenshot-verified laptop reachability pass.
+       Several original art coordinates technically worked but sat beneath
+       persistent interface layers:
+       - Cabal / Pulse Byte were too close to the fixed header.
+       - Pages landed beneath Harrow's transmission card.
+       - Production copy lived beneath the large hero headline/actions.
+
+       These targets stay on the same depicted objects/foreground evidence,
+       but move to exposed portions of those objects so the art can actually
+       teach the visitor where interaction exists.
+    */
+
     .hotspot-cabal {
-        top: max(12.5%, 118px);
+        left: 64.5%;
+        top: max(16.5%, 150px);
+        width: 92px;
+        height: 84px;
     }
 
     .hotspot-monitor {
-        top: max(14%, 128px);
+        left: 39.5%;
+        top: max(18%, 160px);
+        width: 110px;
+        height: 90px;
     }
 
-    /*
-       The production-copy folder is partially occupied by the hero copy
-       deck.  Move the invisible target toward the exposed lower edge of
-       the same foreground object instead of covering the object with UI.
-    */
+    .hotspot-pages {
+        left: 45%;
+        top: 82%;
+        width: 112px;
+        height: 92px;
+    }
+
     .hotspot-redacted {
-        left: 12.5%;
-        top: 75%;
-        width: 76px;
-        height: 76px;
+        left: 30%;
+        top: 77%;
+        width: 122px;
+        height: 104px;
     }
 }
 
