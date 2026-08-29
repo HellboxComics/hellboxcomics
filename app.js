@@ -2862,23 +2862,50 @@
         const candidateKeys =
             localeStringKeys(pack);
 
-        if (
-            canonicalKeys.length !==
-            candidateKeys.length
-        ) {
-            return false;
-        }
+        const allowDevelopmentFallbacks =
+            Boolean(
+                state.ui.localeManifest
+                    ?.translationProduction
+                    ?.deltaLocalizationRequiredAfterCopyFreeze
+            );
 
-        for (
-            let index = 0;
-            index < canonicalKeys.length;
-            index += 1
-        ) {
+        if (allowDevelopmentFallbacks) {
+            /*
+               While canonical English copy is still changing, an approved
+               secondary locale may temporarily lag behind new English keys.
+               Missing keys fall back to canonical English. Unknown/extra keys
+               are still rejected so stale or malformed catalogs cannot drift.
+               The manifest disables this mode when English copy freezes,
+               returning validation to exact key parity.
+            */
+            const canonicalKeySet =
+                new Set(canonicalKeys);
+
+            for (const key of candidateKeys) {
+                if (!canonicalKeySet.has(key)) {
+                    return false;
+                }
+            }
+
+        } else {
             if (
-                canonicalKeys[index] !==
-                candidateKeys[index]
+                canonicalKeys.length !==
+                candidateKeys.length
             ) {
                 return false;
+            }
+
+            for (
+                let index = 0;
+                index < canonicalKeys.length;
+                index += 1
+            ) {
+                if (
+                    canonicalKeys[index] !==
+                    candidateKeys[index]
+                ) {
+                    return false;
+                }
             }
         }
 
@@ -5051,188 +5078,340 @@ if (dom.readerDormantObject) {
         discover(
             "object:roadmap",
             isHellion()
-                ? "You already know I hate calling this a roadmap."
-                : "Fine. Here's the part you're allowed to see."
+                ? translation(
+                    "roadmap.discover.hellion",
+                    "You already know I hate calling this a roadmap."
+                )
+                : translation(
+                    "roadmap.discover.default",
+                    "Fine. Here's the part you're allowed to see."
+                )
         );
 
         openDrawer({
             code:
-                "OBJECT // WHAT NEXT",
+                translation(
+                    "roadmap.code",
+                    "OBJECT // WHAT NEXT"
+                ),
 
             eyebrow:
-                "HARROW // CURRENT OBSESSIONS",
+                translation(
+                    "roadmap.eyebrow",
+                    "HARROW // CURRENT OBSESSIONS"
+                ),
 
             title:
-                "THE PLAN*",
+                translation(
+                    "roadmap.title",
+                    "THE PLAN*"
+                ),
 
             html: `
                 <p>
-                    I hate roadmaps.
-                    They make unfinished ideas look like appointments.
+                    ${escapeHtml(
+                        translation(
+                            "roadmap.intro",
+                            "I hate roadmaps. They make unfinished ideas look like appointments."
+                        )
+                    )}
                 </p>
 
                 <div class="roadmap-object">
 
                     <div>
-                        <span>NOW</span>
+                        <span>${escapeHtml(
+                            translation(
+                                "roadmap.now.label",
+                                "NOW"
+                            )
+                        )}</span>
 
                         <strong>
-                            BUILD THE BOX.
+                            ${escapeHtml(
+                                translation(
+                                    "roadmap.now.title",
+                                    "BUILD THE BOX."
+                                )
+                            )}
                         </strong>
 
                         <p>
-                            Publishing system.
-                            Archive.
-                            Wallet identity.
-                            The Press.
-                            Reader.
-                            Make the place feel alive.
+                            ${escapeHtml(
+                                translation(
+                                    "roadmap.now.text",
+                                    "Publishing system. Archive. Wallet identity. The Press. Reader. Make the place feel alive."
+                                )
+                            )}
                         </p>
                     </div>
 
                     <div>
-                        <span>NEXT</span>
+                        <span>${escapeHtml(
+                            translation(
+                                "roadmap.next.label",
+                                "NEXT"
+                            )
+                        )}</span>
 
                         <strong>
-                            MAKE THE COMICS HIT HARDER.
+                            ${escapeHtml(
+                                translation(
+                                    "roadmap.next.title",
+                                    "MAKE THE COMICS HIT HARDER."
+                                )
+                            )}
                         </strong>
 
                         <p>
-                            The reader becomes part theater,
-                            part comic engine,
-                            part terrible decision.
+                            ${escapeHtml(
+                                translation(
+                                    "roadmap.next.text",
+                                    "The reader becomes part theater, part comic engine, part terrible decision."
+                                )
+                            )}
                         </p>
                     </div>
 
                     <div>
-                        <span>AFTER THAT</span>
+                        <span>${escapeHtml(
+                            translation(
+                                "roadmap.after.label",
+                                "AFTER THAT"
+                            )
+                        )}</span>
 
                         <strong>
-                            PUT THINGS ONCHAIN.
+                            ${escapeHtml(
+                                translation(
+                                    "roadmap.after.title",
+                                    "PUT THINGS ONCHAIN."
+                                )
+                            )}
                         </strong>
 
                         <p>
-                            Native collectible editions.
-                            Ownership-gated reading.
-                            Supply that means something.
+                            ${escapeHtml(
+                                translation(
+                                    "roadmap.after.text",
+                                    "Native collectible editions. Ownership-gated reading. Supply that means something."
+                                )
+                            )}
                         </p>
                     </div>
 
                     <div>
-                        <span>LATER</span>
+                        <span>${escapeHtml(
+                            translation(
+                                "roadmap.later.label",
+                                "LATER"
+                            )
+                        )}</span>
 
                         <strong>
-                            THE PART I'M NOT SHOWING YOU.
+                            ${escapeHtml(
+                                translation(
+                                    "roadmap.later.title",
+                                    "THE PART I'M NOT SHOWING YOU."
+                                )
+                            )}
                         </strong>
 
                         <p>
-                            No.
+                            ${escapeHtml(
+                                translation(
+                                    "roadmap.later.text",
+                                    "No."
+                                )
+                            )}
                         </p>
                     </div>
 
                 </div>
 
                 <p>
-                    *This is not a promise.
-                    It's a glimpse at what I was thinking
-                    before you interrupted me.
+                    ${escapeHtml(
+                        translation(
+                            "roadmap.disclaimer",
+                            "*This is not a promise. It's a glimpse at what I was thinking before you interrupted me."
+                        )
+                    )}
                 </p>
             `,
 
             footnote:
-                "ROADMAP STATUS // SUBJECT TO HARROW HAVING ANOTHER IDEA."
+                translation(
+                    "roadmap.footnote",
+                    "ROADMAP STATUS // SUBJECT TO HARROW HAVING ANOTHER IDEA."
+                )
         });
     }
 
     function openManualObject() {
         discover(
             "object:manual",
-            "I call it a manual because whitepaper sounds like homework."
+            translation(
+                "manual.discover",
+                "I call it a manual because whitepaper sounds like homework."
+            )
         );
 
         openDrawer({
             code:
-                "OBJECT // MANUAL",
+                translation(
+                    "manual.code",
+                    "OBJECT // MANUAL"
+                ),
 
             eyebrow:
-                "HARROW // HOW THE BOX WORKS",
+                translation(
+                    "manual.eyebrow",
+                    "HARROW // HOW THE BOX WORKS"
+                ),
 
             title:
-                "THE MANUAL.",
+                translation(
+                    "manual.title",
+                    "THE MANUAL."
+                ),
 
             html: `
                 <p>
-                    This is where the serious questions eventually get answers
-                    without forcing the rest of Hellbox to dress like a startup.
+                    ${escapeHtml(
+                        translation(
+                            "manual.intro",
+                            "This is where the serious questions eventually get answers without forcing the rest of Hellbox to dress like a startup."
+                        )
+                    )}
                 </p>
 
                 <div class="roadmap-object">
 
                     <div>
-                        <span>PUBLICATIONS</span>
+                        <span>${escapeHtml(
+                            translation(
+                                "manual.publications.label",
+                                "PUBLICATIONS"
+                            )
+                        )}</span>
 
                         <strong>
-                            THE THING YOU ACTUALLY WANT.
+                            ${escapeHtml(
+                                translation(
+                                    "manual.publications.title",
+                                    "THE THING YOU ACTUALLY WANT."
+                                )
+                            )}
                         </strong>
 
                         <p>
-                            Comics and graphic novels exist as publications
-                            inside Hellbox.
+                            ${escapeHtml(
+                                translation(
+                                    "manual.publications.text",
+                                    "Comics and graphic novels exist as publications inside Hellbox."
+                                )
+                            )}
                         </p>
                     </div>
 
                     <div>
-                        <span>OWNERSHIP</span>
+                        <span>${escapeHtml(
+                            translation(
+                                "manual.ownership.label",
+                                "OWNERSHIP"
+                            )
+                        )}</span>
 
                         <strong>
-                            YOUR WALLET IS THE RECEIPT.
+                            ${escapeHtml(
+                                translation(
+                                    "manual.ownership.title",
+                                    "YOUR WALLET IS THE RECEIPT."
+                                )
+                            )}
                         </strong>
 
                         <p>
-                            The box recognizes onchain artifacts associated
-                            with an address.
+                            ${escapeHtml(
+                                translation(
+                                    "manual.ownership.text",
+                                    "The box recognizes onchain artifacts associated with an address."
+                                )
+                            )}
                         </p>
                     </div>
 
                     <div>
-                        <span>THE PRESS</span>
+                        <span>${escapeHtml(
+                            translation(
+                                "manual.press.label",
+                                "THE PRESS"
+                            )
+                        )}</span>
 
                         <strong>
-                            THIS MAKES THEM.
+                            ${escapeHtml(
+                                translation(
+                                    "manual.press.title",
+                                    "THIS MAKES THEM."
+                                )
+                            )}
                         </strong>
 
                         <p>
-                            Minting belongs inside the machine,
-                            not inside a generic ecommerce widget
-                            wearing a crypto costume.
+                            ${escapeHtml(
+                                translation(
+                                    "manual.press.text",
+                                    "Minting belongs inside the machine, not inside a generic ecommerce widget wearing a crypto costume."
+                                )
+                            )}
                         </p>
                     </div>
 
                     <div>
-                        <span>THE READER</span>
+                        <span>${escapeHtml(
+                            translation(
+                                "manual.reader.label",
+                                "THE READER"
+                            )
+                        )}</span>
 
                         <strong>
-                            THIS IS WHY ANY OF IT MATTERS.
+                            ${escapeHtml(
+                                translation(
+                                    "manual.reader.title",
+                                    "THIS IS WHY ANY OF IT MATTERS."
+                                )
+                            )}
                         </strong>
 
                         <p>
-                            Ownership gets you into the work.
-                            The reading experience does the rest.
+                            ${escapeHtml(
+                                translation(
+                                    "manual.reader.text",
+                                    "Ownership gets you into the work. The reading experience does the rest."
+                                )
+                            )}
                         </p>
                     </div>
 
                 </div>
 
                 <p>
-                    Economics, mechanics and deeper documentation
-                    belong inside objects like this.
-
-                    They do not get to hijack the front door.
+                    ${escapeHtml(
+                        translation(
+                            "manual.outro",
+                            "Economics, mechanics and deeper documentation belong inside objects like this. They do not get to hijack the front door."
+                        )
+                    )}
                 </p>
             `,
 
             footnote:
-                "DOCUMENT STATUS // HARROW STILL HATES DOCUMENTATION."
+                translation(
+                    "manual.footnote",
+                    "DOCUMENT STATUS // HARROW STILL HATES DOCUMENTATION."
+                )
         });
     }
 
