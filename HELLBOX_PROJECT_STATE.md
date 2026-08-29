@@ -1,8 +1,8 @@
 # HELLBOX PROJECT STATE
 
-Last updated: 2026-08-28
+Last updated: 2026-08-29
 Current production branch: `main`
-Current live checkpoint: Gate 0.1 / known-good recovery
+Current live checkpoint: Gate 0 COMPLETE — stabilization/platform foundation
 Known-good historical commit: `5373ba1460babdd3b1f577dba16137fd83ffa6a1`
 Recovery commit on `main`: `2890ab0`
 Recovery tree hash: `b19c2df2f533960305cd2aaf65fdd0842ade5e6e`
@@ -37,7 +37,7 @@ Do not use giant multi-file replacement packages by default.
 
 Work incrementally, one file at a time.
 
-For every change:
+For every code/config change:
 1. Explain why that exact file is next.
 2. Provide the complete replacement file, never a patch requiring manual splicing.
 3. User commits/deploys that one file.
@@ -45,41 +45,55 @@ For every change:
 5. Only then move to the next file.
 
 For backend/API work:
-- test the changed backend behavior immediately
+- test changed backend behavior immediately
 - isolate failures to the specific file/change that caused them
 - do not stack unverified backend changes
+
+For static assets/runtime files:
+- if CSS/JS URLs are versioned, bump the cache version when the asset changes
+- do not assume a deployed file is active until the live page is confirmed to request the new version
+
+Project-state maintenance is checkpoint-based:
+- update `HELLBOX_PROJECT_STATE.md` at completion of each established Gate
+- update it immediately for major architecture, lore, tokenomics, publication-rule, Harrow-canon, or product-direction changes
+- do NOT interrupt implementation to document every minor CSS/file change
+- the file must remain comprehensive enough that another competent AI/developer can resume without asking the user dozens of questions
+
+Localization workflow:
+- every new user-visible interaction/text added during development gets a canonical English locale key when created
+- secondary languages may temporarily fall back to English while English copy is still changing
+- after English copy freeze, run a full locale delta and final cross-language QA across every hotspot, button, link, state, drawer, error, announcement, Reader/Press/Archive state, metadata field and accessibility string
 
 Avoid unnecessary repository restructuring.
 
 Do not modify `src/index.js`, `wrangler.jsonc`, `.assetsignore`, or deployment structure casually.
 
-Update this file whenever:
-- a meaningful decision is locked
-- a file is changed
-- a bug is discovered
-- a test passes/fails
-- architecture changes
-- the exact next task changes
-
 ---
 
 ## 3. CURRENT REPOSITORY / DEPLOYMENT STATE
 
-The repository was recovered after a broken Gate 0.2 deployment.
+The repository was recovered after a broken all-at-once Gate 0.2 deployment, then Gate 0.2 was rebuilt incrementally and verified.
 
 Current production state:
-- Cloudflare rollback confirmed working
-- GitHub `main` restored to the exact same tree as known-good commit `5373ba1`
-- recovery commit on `main`: `2890ab0`
-- tree hash verified identical before push
-- current live site works
+- branch: `main`
+- Cloudflare deployment is live
+- Gate 0 foundation is complete
+- public site works in English and Spanish
+- current Gate 0.2 frontend runtime cache generation: `runtime-05`
+- current Gate 0.2 layout stylesheet cache generation: `gate0-2-04`
+- GA4 is installed with Measurement ID `G-5E9EX1RE0Z`
+- GA4 Realtime was verified; Brave Shields can block the user's own Analytics requests
+- public/backend multi-chain foundation is live
+- Press prototype is usable enough to defer, but is not final
 
-The failed Gate 0.2 state was preserved before recovery on:
-`backup-broken-gate02-20260828`
+Recovery history remains:
+- known-good historical commit: `5373ba1460babdd3b1f577dba16137fd83ffa6a1`
+- recovery commit: `2890ab0`
+- recovery tree hash: `b19c2df2f533960305cd2aaf65fdd0842ade5e6e`
+- broken backup branch: `backup-broken-gate02-20260828`
 
-Do not merge that branch into `main`.
-
-Gate 0.2 is NOT current production.
+The broken branch is forensic history only.
+Do not merge it wholesale into `main`.
 
 ---
 
@@ -579,7 +593,13 @@ Reader principles:
 
 Current Press artwork/interface is a prototype.
 
-Next Press must be redesigned around actual future functions before new artwork is approved.
+Gate 0.2 status:
+- desktop/laptop overlap regression was repaired enough to continue
+- `HARROW // MACHINE` is structurally separated from the left publication/wallet card in tested standard desktop widths
+- current Press formatting is tolerable, not polished
+- Press formatting/art is intentionally back-burnered until the dedicated Press Gate unless a regression makes the site unusable
+
+The production Press must be redesigned around real functions before final art/layout approval.
 
 Future Press zones should intentionally support:
 - ingest
@@ -596,7 +616,6 @@ Future Press zones should intentionally support:
 - classified future bay
 
 The physical real lever should be the activation control.
-
 Do not add fake CSS levers.
 
 Next Press art must contain clean dynamic screen regions for live HTML data.
@@ -641,22 +660,34 @@ No:
 
 ## 22. MULTI-CHAIN — LOCKED
 
-PulseChain is Hellbox’s root and first chain.
+PulseChain is Hellbox's root and first chain.
 
-Hellbox must be multi-chain-ready across EVM networks.
+Gate 0 foundation now includes a tested multi-chain backend registry.
 
-Future chain activation should be configuration-driven.
+Configured networks:
+- PulseChain mainnet — chain ID 369 — enabled/root
+- PulseChain Testnet V4 — chain ID 943 — development/testing configuration
+- Ethereum — configured, disabled
+- Base — configured, disabled
+- Base Sepolia — configured, disabled
+- Robinhood Chain — configured, disabled
+- Robinhood Chain Testnet — configured, disabled
 
-Possible future chains include:
-- Base
-- Robinhood Chain
-- Ethereum
-- other compatible EVM networks
+Verified backend behavior:
+- `/api/health` reports multi-chain-ready architecture
+- `/api/chains` returns seven configured networks
+- `/api/chain-status?chain=pulsechain` returns a live PulseChain block
+- `/api/chain-status?chain=base` correctly refuses Base because it is configured but inactive
+- publishing is disabled on all chains until a real Hellbox contract deployment is recorded
 
-Adding a chain should mean:
-- add/enable chain config
+Public `config/chains.js` exists as a dormant frontend foundation.
+It is intentionally NOT loaded by the current page because the first loader integration caused regressions.
+Do not re-enable it casually.
+
+Future chain activation should mean:
+- enable/add chain config
 - configure RPC
-- deploy native HellboxNFT contract
+- deploy native Hellbox NFT contract
 - record deployment
 - enable publishing
 
@@ -668,37 +699,48 @@ No NFT bridging.
 Do not display a chain selector when only one chain is active.
 The loaded publication determines the chain.
 
+Before multi-chain launch, eliminate frontend/backend registry drift with a shared/generated source of truth or automated parity validation.
+
 ---
 
 ## 23. LOCALIZATION — LOCKED DIRECTION
 
-Localization must cover the entire website experience, not just menus.
+Localization covers the entire website experience, not just menus.
 
-Must translate/adapt:
-- static copy
-- buttons
-- labels
-- wallet states
-- Press states
-- Archive states
-- drawers
-- Harrow dialogue
-- ticker
-- errors
-- accessibility text
-- live announcements
-- page metadata
+Gate 0 implementation:
+- English is canonical
+- canonical English catalog currently contains 815 semantic keys
+- Spanish contains matching 815 approved keys
+- Spanish is the Gate 0 proof/test secondary locale
+- desktop `ACCESS // LANGUAGE` control is live
+- `?lang=es` and persisted locale selection work
+- dynamic Harrow/dialogue/Press/Archive/Reader/interaction copy is keyed
+- no live Google translation runs in the visitor browser
+- no DOM-scraping translation engine
+- no arbitrary JavaScript-string extraction into locale JSON
+- deferred locales are hidden from the selector
 
-Harrow’s voice must be adapted, not translated literally.
+Google-assisted production workflow:
+- canonical English source
+- Google Cloud Translation machine draft
+- protected Hellbox terminology
+- Harrow voice/editorial adaptation
+- layout/accessibility QA
+- approved static JSON pack
 
-Publication language remains independent.
-A publication is only translated when an intentional localized edition exists.
+Build tool:
+- `tools/google_translate_locale.py`
+- API key comes from environment only
+- Google key is never stored in site/repo files
+- hard local source-character safety cap: 50,000 characters per run
 
-Language priority should be research-driven based on crypto/EVM adoption.
+Current Google Cloud note:
+- temporary account has $300 trial credit / 90-day trial
+- use only for useful temporary/build-time work that remains free or explicitly approved
+- do not move production Hellbox infrastructure onto Google merely to consume trial credit
+- verify current free-tier/pricing again before future paid-capable use
 
-Planned broad priority:
-- English canonical
-- Spanish
+Deferred until canonical English wording is near final:
 - Brazilian Portuguese
 - Vietnamese
 - Indonesian
@@ -712,9 +754,18 @@ Planned broad priority:
 - French
 - Arabic
 
-Do not expose a public locale until the full pack is complete.
+Every new user-visible string introduced after Gate 0 must receive a canonical English locale key when created.
 
-RTL support is required before Urdu/Arabic launch.
+After English copy freeze:
+1. run a locale delta against existing packs
+2. translate only added/changed keys where practical
+3. perform Harrow voice adaptation
+4. perform full interaction QA
+5. test every hotspot, button, link, drawer, state, error, notification, metadata field, Reader state, Press state, Archive state and accessibility announcement
+6. add RTL support before Urdu/Arabic launch
+
+Publication language remains independent.
+A publication is translated only when an intentional localized edition exists.
 
 ---
 
@@ -762,45 +813,60 @@ Preferred architecture:
 - lazy Reader delivery
 - event indexing + `ownerOf` verification
 
-Mainnet contract deployment is deferred until project wallet funds are available around September 2–3.
+Google Cloud:
+- temporary trial has $300 credit and a 90-day window
+- use for temporary/build-time work only when useful and free
+- current example: machine-draft localization
+- do not create a permanent production dependency on expiring trial resources
+- do not activate/upgrade paid Google Cloud use without explicit user decision
 
-PulseChain Testnet V4 may be used before then if faucet tPLS is available.
+Mainnet contract deployment belongs after product/testnet validation.
+PulseChain Testnet V4 should be used first when tPLS is available.
 
 ---
 
 ## 26. CURRENT RESPONSIVE STATUS
 
-Current live checkpoint is the recovered Gate 0.1 tree.
+Current live checkpoint: Gate 0 complete.
 
-Known later intentions that need to be re-applied carefully:
-- hidden environmental discoveries
-- no plus signs
-- improved mobile composition
-- standard laptop polish
-- full localization
-- multi-chain configuration foundation
+Verified:
+- mobile remains usable
+- standard laptop/desktop remains usable
+- full-screen standard desktop Press no longer falls back to the original overlap after removing the arbitrary 1699px Gate 0.2 ceiling
+- hidden hero/theory interactions function
+- English/Spanish switching functions
 
-Do NOT reapply all of this in one package.
+Known visual debt intentionally deferred:
+- Press prototype composition is tolerable but far from final
+- direct section anchors can land close to the fixed header
+- hero top is still partially sacrificed to fixed-header composition
+- hero copy still competes with `PUT THAT BACK`
+- transient Harrow response cards can cover nearby content
+- Harrow → Keep Up transition has excess vertical space
+- horizontal/vertical widescreen tuning remains outstanding
 
-Reapply incrementally, one file at a time, with live verification after each file.
-
-Widescreen work remains deferred until correct monitors are available.
+Do not reopen cosmetic Press work until the dedicated Press Gate unless a regression makes the prototype unusable.
 
 ---
 
 ## 27. CURRENT KNOWN RISKS
 
-- Previous Gate 0.2 multi-file package broke production.
-- Broken Gate 0.2 state is preserved as a backup branch and must not be merged.
+- Broken historical Gate 0.2 branch remains preserved and must never be merged wholesale.
 - CSS contains many historical overrides; future cleanup must be incremental.
-- Frontend JS is large and monolithic.
-- Worker/backend is large and monolithic.
+- Frontend `app.js` is large and monolithic.
+- Worker/backend `src/index.js` is large and monolithic.
 - Publication registry is still prototype/hardcoded.
 - Real minting is not implemented.
 - NFT contract is not deployed.
 - Archive ownership is not production-real.
-- Reader authentication/ownership flow needs production implementation.
-- Current local relationship system is not real Hellion authority.
+- Reader authentication/ownership flow still needs production implementation.
+- Current relationship/Hellion system is not server-authoritative.
+- Hidden hotspots make exhaustive manual QA difficult; build an internal hotspot inventory/debug mode before release candidate.
+- Frontend and backend chain registries can drift until a shared source/parity check exists.
+- Final internationalization is incomplete by design until English copy freezes.
+- GA4 can be blocked by privacy browsers/extensions; blocker behavior is not a site failure.
+- Current Press is only a visual/interaction prototype and must not dictate final Press architecture.
+- Current hero composition contains temporary hotspot-coordinate workarounds.
 
 ---
 
@@ -834,26 +900,300 @@ Widescreen work remains deferred until correct monitors are available.
 
 ## 29. EXACT NEXT STEP
 
-### NEXT FILE TO ADD:
-`HELLBOX_PROJECT_STATE.md`
+The old decimal `0.3` plan is retired.
 
-This document is that file.
+The project is rebased onto a production-style Gate 0 through Gate 9 system described in Section 31.
 
-Add it to the repository root.
+Current position:
+- Gate 0 COMPLETE
+- Gate 1 NEXT
 
-Commit it alone.
+Begin Gate 1 by inspecting current `wrangler.jsonc` and Worker storage/bindings, then create the first durable publication data/schema layer around SciVive.
 
-Verify Cloudflare deploys successfully and the live site remains unchanged.
+Do not touch final Press art, contracts, or large visual polish before the publication data model exists.
 
-Only after that verification choose the next single file.
+---
 
-Recommended next engineering action after this file:
-- inspect current recovered Gate 0.1 frontend
-- identify the smallest single-file change that restores hidden environmental hotspot presentation without breaking production
-- change only that file
-- deploy and test
 
-Do NOT jump directly back to Gate 0.2.
+## 31. PRODUCTION GATE SYSTEM — REBASED 2026-08-29
+
+The previous decimal sub-gates were useful during recovery but are no longer the right planning model.
+
+The production roadmap is now ten gates total: Gate 0 through Gate 9.
+
+This follows the practical progression for a real digital publishing product:
+foundation → durable publication platform → Reader vertical slice → identity/ownership → testnet contract → real Press/mint experience → publisher operations → relationship depth → experience/content freeze → release candidate/mainnet.
+
+### GATE 0 — STABILIZATION & PLATFORM FOUNDATION — COMPLETE
+
+Delivered:
+- recovered deployable baseline
+- safe one-file-at-a-time workflow
+- standard laptop/mobile responsive baseline
+- hidden environmental discovery system
+- accessibility baseline
+- English/Spanish localization architecture
+- Google-assisted offline translation tooling
+- GA4 integration/verification
+- backend multi-chain registry/status APIs
+- PulseChain live status
+- future chains configured but disabled
+- Press prototype made usable enough to defer
+- living source-of-truth handoff
+
+Gate 0 means the foundation is stable enough to build the actual product.
+It does NOT mean the Hellbox product loop is complete.
+
+### GATE 1 — PUBLICATION PLATFORM & DATA MODEL — NEXT
+
+Goal:
+Make a Hellbox publication a real first-class durable data object rather than hardcoded prototype data.
+
+Build:
+- D1-backed publication model
+- lifecycle records
+- chain-independent `publicationKey`
+- per-chain deployment/token identity fields
+- release/payment/supply configuration
+- public/private publication visibility
+- R2 public/private package structure
+- publication package manifest/schema
+- validation rules
+- SciVive as the first real private publication package
+- Worker publication APIs read durable data rather than hardcoded arrays
+
+Exit criteria:
+- SciVive exists as a real private publication record
+- package validates
+- public/private asset locations are defined
+- Worker returns publication metadata from durable storage
+- no contract required yet
+- no manual public-site edit required merely to represent the publication
+
+### GATE 2 — READER VERTICAL SLICE
+
+Goal:
+Make SciVive genuinely readable inside Hellbox.
+
+Build:
+- BOOK Reader production path
+- protected private R2 delivery
+- short signed Reader session
+- page/chapter manifest
+- fit page / fit width
+- paged / continuous
+- keyboard/touch
+- preloading
+- accessibility
+- honest failure states
+
+Exit criteria:
+- authorized test session opens SciVive
+- unauthorized normal app request cannot fetch protected reading assets
+- Reader works on mobile and laptop
+- Reader does not feel like an embedded PDF viewer
+
+### GATE 3 — IDENTITY, OWNERSHIP & ARCHIVE
+
+Goal:
+Make wallet identity and ownership real.
+
+Build:
+- wallet-signature authentication
+- short server session
+- chain-aware address identity
+- Transfer-event ownership index/cache
+- `ownerOf` verification
+- real Archive
+- Reader authorization using the same authority
+- privacy-safe event/history model
+
+Exit criteria:
+- wallet connects/signs
+- Archive reflects real indexed ownership
+- Archive and Reader agree
+- localStorage prototype cannot grant authority
+
+### GATE 4 — PULSECHAIN TESTNET CONTRACT
+
+Goal:
+Prove the onchain model before mainnet.
+
+Build/deploy on PulseChain Testnet V4:
+- stable Hellbox ERC-721 master contract
+- publication configuration
+- lifecycle rules
+- supply limits
+- royalty config
+- mint limits
+- event model
+- copy-number assignment baseline
+- SciVive test publication configuration
+
+Exit criteria:
+- real testnet mint succeeds
+- ownership reaches Archive
+- minted ownership opens Reader
+- native future-chain deployment model is proven without bridging
+
+### GATE 5 — PRESS V2 / REAL MINT EXPERIENCE
+
+Goal:
+Turn the Press from prototype art into the real publishing/mint machine.
+
+This is when current Press formatting/art debt is intentionally revisited.
+
+Build:
+- final Press functional map
+- new/final Press art only after functions are known
+- real lever activation
+- wallet recognition
+- publication display
+- transaction preparation/signing
+- confirmation
+- numbering
+- clear failure states
+- copy counter
+- dynamic screen regions
+- testnet mint integration
+
+Exit criteria:
+Press → wallet transaction → token → Archive → Reader works end-to-end.
+
+### GATE 6 — PUBLISHER / INGEST OPERATIONS
+
+Goal:
+Make new publications plug-and-play.
+
+Build:
+- publication package upload
+- validation
+- asset ingest
+- metadata generation
+- preview
+- release configuration
+- Press/Archive/Reader preview
+- one publication configuration transaction
+- controlled go-live
+
+Exit criteria:
+A second test publication can be onboarded without frontend code edits, manual R2 juggling, or another NFT contract.
+
+### GATE 7 — RELATIONSHIP / HELLION PRODUCT DEPTH
+
+Goal:
+Replace the local prototype with the real long-term relationship system.
+
+Build:
+- permanent history
+- current standing
+- volatile favor
+- server-authoritative events
+- discovery history
+- reading/ownership/release history
+- rare Hellion thresholding
+- certificate custody/revocation/restoration
+- alias/name behavior
+- privacy controls
+
+Exit criteria:
+Hellion cannot be cheaply earned through local clicks and persists according to real behavior.
+
+### GATE 8 — EXPERIENCE FREEZE, CONTENT FREEZE & HARDENING
+
+Goal:
+Freeze the product experience before launch.
+
+Resolve deferred work here:
+- final hero composition
+- show full hero below fixed header
+- move copy off `PUT THAT BACK`
+- restore true hotspot mapping
+- stripper-pole hotspot
+- `WHO'S NEXT?` hotspot
+- woman/crypto obsession-wall thread
+- final Press visual polish
+- widescreen/vertical layouts
+- final English wording
+- final Harrow voice pass
+- final locale delta
+- remaining languages generated/reviewed
+- accessibility audit
+- performance audit
+- privacy/consent
+- analytics event taxonomy
+- SEO/social metadata
+- legal/contact/privacy surfaces as required
+- internal hotspot inventory/test mode
+- browser/device matrix
+
+Exit criteria:
+feature freeze + content freeze + visual freeze.
+
+### GATE 9 — RELEASE CANDIDATE / MAINNET LAUNCH
+
+Goal:
+Turn the frozen product into production.
+
+Build/verify:
+- PulseChain mainnet contract deployment
+- production publication configuration
+- production secrets/bindings
+- monitoring/logging
+- rate limiting/abuse handling
+- backup/recovery plan
+- Analytics verification
+- rollback procedure
+- launch rehearsal
+- SciVive production mint
+- ownership/Archive/Reader full-path validation
+- post-launch checklist
+
+Exit criteria:
+SciVive is live and the complete Hellbox publishing loop works in production.
+
+### CURRENT CRITICAL PATH
+
+`Gate 1 publication data → Gate 2 Reader → Gate 3 ownership → Gate 4 testnet contract → Gate 5 Press`
+
+Do not spend weeks polishing prototype surfaces before this vertical slice works.
+
+---
+
+## 32. GATE 0 COMPLETION / DEFERRED BACKLOG
+
+Gate 0 was intentionally closed with known non-blocking visual debt.
+
+Deferred to later appropriate gates:
+- final Press formatting/art → Gate 5
+- hero structural composition/hotspot truth → Gate 8
+- stripper pole / `WHO'S NEXT?` / woman-crypto obsession-wall additions → Gate 8
+- widescreen/vertical layouts → Gate 8
+- all languages beyond Spanish → Gate 8 after English copy freeze
+- privacy/consent layer and final Analytics event taxonomy → Gate 8
+- mainnet contracts → Gate 9
+
+Localization permanent rule:
+Every future user-visible interaction must enter the English catalog at creation time and be included in final locale delta/QA.
+
+---
+
+## 33. EXACT NEXT ENGINEERING ACTION
+
+Begin Gate 1.
+
+First inspect:
+- current `wrangler.jsonc`
+- current D1 bindings, if any
+- current R2 bindings
+- current Worker publication registry/storage assumptions
+
+Then choose the smallest durable Gate 1 file.
+Expected first real implementation file is normally a D1 migration/schema file such as:
+`migrations/0001_publication_platform.sql`
+
+Do not modify `wrangler.jsonc` until its current state is inspected.
+Use SciVive as the concrete vertical-slice publication rather than designing an abstract platform without a real test package.
 
 ---
 
