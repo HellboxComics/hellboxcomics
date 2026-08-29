@@ -9,12 +9,29 @@ const ALLOWED_ORIGINS = new Set([
   "https://test-hellboxcomics.harrow-harrow.workers.dev",
 ]);
 
+const DEFAULT_CHAIN_KEY = "pulsechain";
+const DEVELOPMENT_CHAIN_KEY = "pulsechainTestnetV4";
+
+const CHAIN_POLICY = {
+  nativeDeploymentsOnly: true,
+  bridgeHellboxNfts: false,
+  conceptualPublicationIdentity:
+    "publicationKey",
+  onchainAssetIdentity: [
+    "chainId",
+    "contractAddress",
+    "tokenId",
+  ],
+};
+
 const CHAIN_REGISTRY = {
   pulsechain: {
     key: "pulsechain",
     chainId: 369,
     chainIdHex: "0x171",
     name: "PulseChain",
+    shortName: "PulseChain",
+    networkType: "mainnet",
 
     nativeCurrency: {
       name: "Pulse",
@@ -22,19 +39,230 @@ const CHAIN_REGISTRY = {
       decimals: 18,
     },
 
-    explorerUrl: "https://scan.pulsechain.com",
+    explorerUrl:
+      "https://scan.pulsechain.com",
 
-    primaryRpcUrl: "https://rpc.pulsechain.com",
+    primaryRpcUrl:
+      "https://rpc.pulsechain.com",
 
-    fallbackRpcEnvKey: "BYTE_RPC_URL",
+    fallbackRpcEnvKey:
+      "BYTE_RPC_URL",
+
+    faucetUrl: null,
+
+    root: true,
+    enabled: true,
+    testingEnabled: false,
+    publishingEnabled: false,
+
+    deployment: null,
 
     stablecoins: {
       dai: {
         symbol: "DAI",
-        address: "0xefD766cCb38EaF1dfd701853BFCe31359239F305",
+        address:
+          "0xefD766cCb38EaF1dfd701853BFCe31359239F305",
         decimals: 18,
       },
     },
+  },
+
+  pulsechainTestnetV4: {
+    key: "pulsechainTestnetV4",
+    chainId: 943,
+    chainIdHex: "0x3af",
+    name: "PulseChain Testnet V4",
+    shortName: "PulseChain V4",
+    networkType: "testnet",
+
+    nativeCurrency: {
+      name: "Test Pulse",
+      symbol: "tPLS",
+      decimals: 18,
+    },
+
+    explorerUrl:
+      "https://scan.v4.testnet.pulsechain.com",
+
+    primaryRpcUrl:
+      "https://rpc.v4.testnet.pulsechain.com",
+
+    fallbackRpcEnvKey: null,
+
+    faucetUrl:
+      "https://faucet.v4.testnet.pulsechain.com",
+
+    root: false,
+    enabled: false,
+    testingEnabled: true,
+    publishingEnabled: false,
+
+    deployment: null,
+
+    stablecoins: {},
+  },
+
+  ethereum: {
+    key: "ethereum",
+    chainId: 1,
+    chainIdHex: "0x1",
+    name: "Ethereum",
+    shortName: "Ethereum",
+    networkType: "mainnet",
+
+    nativeCurrency: {
+      name: "Ether",
+      symbol: "ETH",
+      decimals: 18,
+    },
+
+    explorerUrl:
+      "https://etherscan.io",
+
+    primaryRpcUrl: null,
+    fallbackRpcEnvKey: null,
+    faucetUrl: null,
+
+    root: false,
+    enabled: false,
+    testingEnabled: false,
+    publishingEnabled: false,
+
+    deployment: null,
+
+    stablecoins: {},
+  },
+
+  base: {
+    key: "base",
+    chainId: 8453,
+    chainIdHex: "0x2105",
+    name: "Base Mainnet",
+    shortName: "Base",
+    networkType: "mainnet",
+
+    nativeCurrency: {
+      name: "Ether",
+      symbol: "ETH",
+      decimals: 18,
+    },
+
+    explorerUrl:
+      "https://base.blockscout.com",
+
+    primaryRpcUrl:
+      "https://mainnet.base.org",
+
+    fallbackRpcEnvKey: null,
+    faucetUrl: null,
+
+    root: false,
+    enabled: false,
+    testingEnabled: false,
+    publishingEnabled: false,
+
+    deployment: null,
+
+    stablecoins: {},
+  },
+
+  baseSepolia: {
+    key: "baseSepolia",
+    chainId: 84532,
+    chainIdHex: "0x14a34",
+    name: "Base Sepolia",
+    shortName: "Base Sepolia",
+    networkType: "testnet",
+
+    nativeCurrency: {
+      name: "Sepolia Ether",
+      symbol: "ETH",
+      decimals: 18,
+    },
+
+    explorerUrl:
+      "https://sepolia-explorer.base.org",
+
+    primaryRpcUrl:
+      "https://sepolia.base.org",
+
+    fallbackRpcEnvKey: null,
+    faucetUrl: null,
+
+    root: false,
+    enabled: false,
+    testingEnabled: false,
+    publishingEnabled: false,
+
+    deployment: null,
+
+    stablecoins: {},
+  },
+
+  robinhoodChain: {
+    key: "robinhoodChain",
+    chainId: 4663,
+    chainIdHex: "0x1237",
+    name: "Robinhood Chain",
+    shortName: "Robinhood Chain",
+    networkType: "mainnet",
+
+    nativeCurrency: {
+      name: "Ether",
+      symbol: "ETH",
+      decimals: 18,
+    },
+
+    explorerUrl:
+      "https://robinhoodchain.blockscout.com",
+
+    primaryRpcUrl:
+      "https://rpc.mainnet.chain.robinhood.com",
+
+    fallbackRpcEnvKey: null,
+    faucetUrl: null,
+
+    root: false,
+    enabled: false,
+    testingEnabled: false,
+    publishingEnabled: false,
+
+    deployment: null,
+
+    stablecoins: {},
+  },
+
+  robinhoodChainTestnet: {
+    key: "robinhoodChainTestnet",
+    chainId: 46630,
+    chainIdHex: "0xb626",
+    name: "Robinhood Chain Testnet",
+    shortName: "Robinhood Chain Testnet",
+    networkType: "testnet",
+
+    nativeCurrency: {
+      name: "Ether",
+      symbol: "ETH",
+      decimals: 18,
+    },
+
+    explorerUrl:
+      "https://explorer.testnet.chain.robinhood.com",
+
+    primaryRpcUrl:
+      "https://rpc.testnet.chain.robinhood.com",
+
+    fallbackRpcEnvKey: null,
+    faucetUrl: null,
+
+    root: false,
+    enabled: false,
+    testingEnabled: false,
+    publishingEnabled: false,
+
+    deployment: null,
+
+    stablecoins: {},
   },
 };
 
@@ -207,6 +435,17 @@ async function handleApi(
     request.method === "GET"
   ) {
     return handleHealth(env);
+  }
+
+  // ============================================================
+  // PUBLIC CHAIN REGISTRY
+  // ============================================================
+
+  if (
+    pathname === "/api/chains" &&
+    request.method === "GET"
+  ) {
+    return handleChains();
   }
 
   // ============================================================
@@ -500,7 +739,13 @@ function handleHealth(env) {
       "multi-chain-ready",
 
     defaultChain:
-      "pulsechain",
+      DEFAULT_CHAIN_KEY,
+
+    developmentChain:
+      DEVELOPMENT_CHAIN_KEY,
+
+    chainPolicy:
+      CHAIN_POLICY,
 
     engines: {
       architecture:
@@ -526,6 +771,42 @@ function handleHealth(env) {
 
       rpc:
         "public-primary-byte-fallback",
+    },
+
+    chains: {
+      totalConfigured:
+        Object.keys(
+          CHAIN_REGISTRY
+        ).length,
+
+      enabled:
+        Object.values(
+          CHAIN_REGISTRY
+        ).filter(
+          chain =>
+            chain.enabled
+        ).length,
+
+      testingEnabled:
+        Object.values(
+          CHAIN_REGISTRY
+        ).filter(
+          chain =>
+            chain.testingEnabled
+        ).length,
+
+      publishingEnabled:
+        Object.values(
+          CHAIN_REGISTRY
+        ).filter(
+          chain =>
+            chain.publishingEnabled &&
+            Boolean(
+              chain.deployment &&
+              chain.deployment
+                .contractAddress
+            )
+        ).length,
     },
 
     registry: {
@@ -571,6 +852,107 @@ function handleHealth(env) {
 }
 
 // ============================================================
+// PUBLIC CHAIN REGISTRY
+// ============================================================
+
+function handleChains() {
+  const chains =
+    Object.values(
+      CHAIN_REGISTRY
+    ).map(
+      publicChainView
+    );
+
+  return json({
+    ok: true,
+
+    version:
+      "0.2.0-recovery.2",
+
+    defaultChainKey:
+      DEFAULT_CHAIN_KEY,
+
+    developmentChainKey:
+      DEVELOPMENT_CHAIN_KEY,
+
+    policy:
+      CHAIN_POLICY,
+
+    chains,
+
+    count:
+      chains.length,
+  });
+}
+
+function publicChainView(
+  chain
+) {
+  return {
+    key:
+      chain.key,
+
+    chainId:
+      chain.chainId,
+
+    chainIdHex:
+      chain.chainIdHex,
+
+    name:
+      chain.name,
+
+    shortName:
+      chain.shortName,
+
+    networkType:
+      chain.networkType,
+
+    nativeCurrency:
+      chain.nativeCurrency,
+
+    explorerUrl:
+      chain.explorerUrl,
+
+    rpcUrls:
+      chain.primaryRpcUrl
+        ? [
+            chain.primaryRpcUrl,
+          ]
+        : [],
+
+    faucetUrl:
+      chain.faucetUrl,
+
+    root:
+      chain.root,
+
+    enabled:
+      chain.enabled,
+
+    testingEnabled:
+      chain.testingEnabled,
+
+    publishingEnabled:
+      Boolean(
+        chain.publishingEnabled &&
+        chain.deployment &&
+        chain.deployment
+          .contractAddress
+      ),
+
+    deployment:
+      chain.deployment
+        ? {
+            contractAddress:
+              chain.deployment
+                .contractAddress ||
+              null,
+          }
+        : null,
+  };
+}
+
+// ============================================================
 // CHAIN STATUS
 // ============================================================
 
@@ -582,7 +964,7 @@ async function handleChainStatus(
     url.searchParams.get(
       "chain"
     ) ||
-    "pulsechain";
+    DEFAULT_CHAIN_KEY;
 
   const chain =
     CHAIN_REGISTRY[
@@ -600,6 +982,43 @@ async function handleChainStatus(
         chainKey,
       },
       404
+    );
+  }
+
+  if (
+    !chain.enabled &&
+    !chain.testingEnabled
+  ) {
+    return json(
+      {
+        ok: false,
+
+        error:
+          "Chain is configured but not active in Hellbox.",
+
+        chain:
+          publicChainView(
+            chain
+          ),
+      },
+      409
+    );
+  }
+
+  if (!chain.primaryRpcUrl) {
+    return json(
+      {
+        ok: false,
+
+        error:
+          "No public RPC is configured for this chain.",
+
+        chain:
+          publicChainView(
+            chain
+          ),
+      },
+      503
     );
   }
 
@@ -888,7 +1307,9 @@ async function handleWalletStatus(
     ).find(
       candidate =>
         candidate.chainId ===
-        requestedChainId
+          requestedChainId &&
+        candidate.enabled ===
+          true
     );
 
   if (!chain) {
@@ -2576,7 +2997,7 @@ async function rpcWithFallback(
       result,
 
       provider:
-        "Public PulseChain RPC",
+        `Public ${chain.shortName || chain.name} RPC`,
 
       fallbackUsed:
         false,
@@ -2585,6 +3006,8 @@ async function rpcWithFallback(
     primaryError
   ) {
     if (
+      !chain
+        .fallbackRpcEnvKey ||
       !env[
         chain
           .fallbackRpcEnvKey
