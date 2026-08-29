@@ -22,42 +22,11 @@
        CONSTANTS
        ========================================================= */
 
-    const PULSECHAIN = new Proxy(
-        {},
-        {
-            get(_target, property) {
-                const chainKey =
-                    document.body?.dataset?.chainKey ||
-                    window.HellboxChains?.DEFAULT_CHAIN_KEY ||
-                    "pulsechain";
-
-                const chain =
-                    window.HellboxRuntime?.getActiveChain?.() ||
-                    window.HellboxChains?.getChainByKey(
-                        chainKey
-                    ) || {
-                        key: "pulsechain",
-                        chainId: 369,
-                        chainIdHex: "0x171",
-                        name: "PulseChain",
-                        shortName: "PulseChain",
-                        currency: {
-                            name: "Pulse",
-                            symbol: "PLS",
-                            decimals: 18
-                        },
-                        explorerUrl:
-                            "https://scan.pulsechain.com",
-                        rpcUrls: [
-                            "https://rpc.pulsechain.com"
-                        ]
-                    };
-
-                return chain[property];
-            }
-        }
-    );
-
+    const PULSECHAIN = {
+        chainId: 369,
+        chainIdHex: "0x171",
+        name: "PulseChain"
+    };
 
     const STORAGE_KEYS = {
         discoveries: "hellbox:discoveries:v2",

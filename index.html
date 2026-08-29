@@ -1,1176 +1,2469 @@
 <!DOCTYPE html>
+<html lang="en" dir="ltr" data-ui-locale="en">
 
-<html data-ui-locale="en" dir="ltr" lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-<title>Hellbox Comics — Oh. You're Here.</title>
-<meta content="Hellbox Comics. Underground publishing from Harrow's side of PulseChain." name="description"/>
-<meta content="#020202" name="theme-color"/>
-<meta content="dark" name="color-scheme"/>
-<meta content="telephone=no" name="format-detection"/>
-<link href="https://hellboxcomics.com/" rel="canonical"/>
-<link href="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem-improved.PNG" rel="icon" type="image/png"/>
-<meta content="website" property="og:type"/>
-<meta content="Hellbox Comics" property="og:site_name"/>
-<meta content="Hellbox Comics — Oh. You're Here." property="og:title"/>
-<meta content="Harrow was working. You interrupted." property="og:description"/>
-<meta content="https://hellboxcomics.com/" property="og:url"/>
-<meta content="en_US" property="og:locale"/>
-<meta content="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.png?v=20260828-gate0-1-02" property="og:image"/>
-<meta content="summary_large_image" name="twitter:card"/>
-<meta content="Hellbox Comics — Oh. You're Here." name="twitter:title"/>
-<meta content="Harrow was working. You interrupted." name="twitter:description"/>
-<meta content="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.png?v=20260828-gate0-1-02" name="twitter:image"/>
-<link crossorigin="" href="https://cdn.hellboxcomics.com" rel="preconnect"/>
-<link as="image" fetchpriority="high" href="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.png?v=20260828-gate0-1-02" rel="preload"/>
-<link href="/style.css?v=20260828-gate0-2-01" rel="stylesheet"/>
-<link href="/gate02.css?v=20260828-gate0-2-01" rel="stylesheet"/>
-<link as="fetch" crossorigin="same-origin" href="/locales/en.json?v=20260828-gate0-2-01" rel="preload"/>
-<link as="fetch" crossorigin="same-origin" href="/locales/es.json?v=20260828-gate0-2-01" rel="preload"/>
-<link as="fetch" crossorigin="same-origin" href="/locales/pt-BR.json?v=20260828-gate0-2-01" rel="preload"/>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    >
+
+    <title>Hellbox Comics — Oh. You're Here.</title>
+
+    <meta
+        name="description"
+        content="Hellbox Comics. Underground publishing from Harrow's side of PulseChain."
+    >
+
+    <meta name="theme-color" content="#020202">
+    <meta name="color-scheme" content="dark">
+    <meta name="format-detection" content="telephone=no">
+
+    <link rel="canonical" href="https://hellboxcomics.com/">
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem-improved.PNG"
+    >
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Hellbox Comics">
+    <meta property="og:title" content="Hellbox Comics — Oh. You're Here.">
+    <meta property="og:description" content="Harrow was working. You interrupted.">
+    <meta property="og:url" content="https://hellboxcomics.com/">
+    <meta property="og:locale" content="en_US">
+
+    <meta
+        property="og:image"
+        content="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.png?v=20260828-gate0-1-02"
+    >
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Hellbox Comics — Oh. You're Here.">
+    <meta name="twitter:description" content="Harrow was working. You interrupted.">
+    <meta
+        name="twitter:image"
+        content="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.png?v=20260828-gate0-1-02"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://cdn.hellboxcomics.com"
+        crossorigin
+    >
+
+    <link
+        rel="preload"
+        as="image"
+        href="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.png?v=20260828-gate0-1-02"
+        fetchpriority="high"
+    >
+
+    <link rel="stylesheet" href="/style.css?v=20260828-gate0-1-02">
 </head>
-<body data-chain-key="pulsechain">
-<a class="skip-link" data-i18n="access.skip" href="#mainContent">
+
+
+<body>
+
+    <a
+        class="skip-link"
+        href="#mainContent"
+        data-i18n="access.skip"
+    >
         SKIP THE INTERRUPTION
     </a>
-<div aria-atomic="true" aria-live="polite" class="sr-only" id="a11yStatus" role="status"></div>
-<!-- =========================================================
+
+    <div
+        class="sr-only"
+        id="a11yStatus"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+    ></div>
+
+    <!-- =========================================================
          ATMOSPHERE
     ========================================================== -->
-<div aria-hidden="true" class="site-noise"></div>
-<div aria-hidden="true" class="site-scanlines"></div>
-<div aria-hidden="true" class="site-vignette"></div>
-<div aria-hidden="true" class="cursor-burn" id="cursorBurn"></div>
-<!-- =========================================================
+
+    <div class="site-noise" aria-hidden="true"></div>
+    <div class="site-scanlines" aria-hidden="true"></div>
+    <div class="site-vignette" aria-hidden="true"></div>
+
+    <div
+        class="cursor-burn"
+        id="cursorBurn"
+        aria-hidden="true"
+    ></div>
+
+
+    <!-- =========================================================
          HARROW WHISPER
     ========================================================== -->
-<div aria-hidden="true" aria-live="polite" class="harrow-whisper" id="harrowWhisper">
-<span>HARROW:</span>
-<strong id="harrowWhisperText"></strong>
-</div>
-<!-- =========================================================
+
+    <div
+        class="harrow-whisper"
+        id="harrowWhisper"
+        aria-live="polite"
+        aria-hidden="true"
+    >
+        <span>HARROW:</span>
+        <strong id="harrowWhisperText"></strong>
+    </div>
+
+
+    <!-- =========================================================
          HARROW ORB + DISCOVERY COUNT
     ========================================================== -->
-<button aria-label="Harrow" class="harrow-orb" id="harrowOrb" type="button">
-<img alt="" src="https://cdn.hellboxcomics.com/assets/brand/harrow/emblems/improved-harrow-emblem.PNG"/>
-<span class="harrow-orb-ping"></span>
-<span aria-label="Discovered objects" class="harrow-orb-discovery" id="discoveryCounter">
-<span>?</span>
-<strong id="discoveryCount">00</strong>
-</span>
-</button>
-<!-- =========================================================
+
+    <button
+        class="harrow-orb"
+        id="harrowOrb"
+        type="button"
+        aria-label="Harrow"
+    >
+        <img
+            src="https://cdn.hellboxcomics.com/assets/brand/harrow/emblems/improved-harrow-emblem.PNG"
+            alt=""
+        >
+
+        <span class="harrow-orb-ping"></span>
+
+        <span
+            class="harrow-orb-discovery"
+            id="discoveryCounter"
+            aria-label="Discovered objects"
+        >
+            <span>?</span>
+            <strong id="discoveryCount">00</strong>
+        </span>
+    </button>
+
+
+    <!-- =========================================================
          HARROW RESPONSE
     ========================================================== -->
-<aside aria-hidden="true" class="harrow-response" id="harrowResponse">
-<div class="harrow-response-top">
-<span>HARROW</span>
-<button aria-label="Close Harrow response" id="harrowResponseClose" type="button">
+
+    <aside
+        class="harrow-response"
+        id="harrowResponse"
+        aria-hidden="true"
+    >
+
+        <div class="harrow-response-top">
+            <span>HARROW</span>
+
+            <button
+                type="button"
+                id="harrowResponseClose"
+                aria-label="Close Harrow response"
+            >
                 ×
             </button>
-</div>
-<div class="harrow-response-body">
-<img alt="" src="https://cdn.hellboxcomics.com/assets/brand/harrow/emblems/improved-harrow-pfp.PNG"/>
-<div>
-<strong id="harrowResponseTitle">
+        </div>
+
+        <div class="harrow-response-body">
+
+            <img
+                src="https://cdn.hellboxcomics.com/assets/brand/harrow/emblems/improved-harrow-pfp.PNG"
+                alt=""
+            >
+
+            <div>
+                <strong id="harrowResponseTitle">
                     WHAT?
                 </strong>
-<p id="harrowResponseText">
+
+                <p id="harrowResponseText">
                     You clicked me.
                 </p>
-</div>
-</div>
-</aside>
-<!-- =========================================================
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =========================================================
          OBJECT / LORE DRAWER
     ========================================================== -->
-<div aria-hidden="true" aria-labelledby="drawerTitle" aria-modal="true" class="lair-drawer" id="lairDrawer" role="dialog">
-<button aria-label="Close" class="lair-drawer-backdrop" id="lairDrawerBackdrop" type="button"></button>
-<article class="lair-drawer-panel">
-<div class="lair-drawer-header">
-<span id="drawerCode">
+
+    <div
+        class="lair-drawer"
+        id="lairDrawer"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="drawerTitle"
+        aria-hidden="true"
+    >
+
+        <button
+            class="lair-drawer-backdrop"
+            id="lairDrawerBackdrop"
+            type="button"
+            aria-label="Close"
+        ></button>
+
+        <article class="lair-drawer-panel">
+
+            <div class="lair-drawer-header">
+                <span id="drawerCode">
                     OBJECT // UNKNOWN
                 </span>
-<button aria-label="Close" id="lairDrawerClose" type="button">
+
+                <button
+                    type="button"
+                    id="lairDrawerClose"
+                    aria-label="Close"
+                >
                     ×
                 </button>
-</div>
-<div class="lair-drawer-content">
-<span class="eyebrow" id="drawerEyebrow">
+            </div>
+
+            <div class="lair-drawer-content">
+
+                <span
+                    class="eyebrow"
+                    id="drawerEyebrow"
+                >
                     HARROW // NOTE
                 </span>
-<h2 id="drawerTitle">
+
+                <h2 id="drawerTitle">
                     DON'T TOUCH THAT.
                 </h2>
-<div class="drawer-copy" id="drawerCopy"></div>
-<div class="drawer-footnote" id="drawerFootnote"></div>
-</div>
-</article>
-</div>
-<!-- =========================================================
+
+                <div
+                    class="drawer-copy"
+                    id="drawerCopy"
+                ></div>
+
+                <div
+                    class="drawer-footnote"
+                    id="drawerFootnote"
+                ></div>
+
+            </div>
+
+        </article>
+
+    </div>
+
+
+    <!-- =========================================================
          ACCESSIBILITY + INTERFACE LANGUAGE
     ========================================================== -->
-<div aria-hidden="true" aria-labelledby="accessPanelTitle" aria-modal="true" class="access-panel" id="accessPanel" role="dialog">
-<button aria-label="Close accessibility settings" class="access-panel-backdrop" id="accessPanelBackdrop" tabindex="-1" type="button"></button>
-<section class="access-panel-card">
-<header class="access-panel-header">
-<div>
-<span>HELLBOX // ACCESS</span>
-<h2 data-i18n="access.title" id="accessPanelTitle">
+
+    <div
+        class="access-panel"
+        id="accessPanel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="accessPanelTitle"
+        aria-hidden="true"
+    >
+
+        <button
+            class="access-panel-backdrop"
+            id="accessPanelBackdrop"
+            type="button"
+            tabindex="-1"
+            aria-label="Close accessibility settings"
+        ></button>
+
+        <section class="access-panel-card">
+
+            <header class="access-panel-header">
+                <div>
+                    <span>HELLBOX // ACCESS</span>
+                    <h2 id="accessPanelTitle" data-i18n="access.title">
                         USE THE SITE YOUR WAY.
                     </h2>
-</div>
-<button aria-label="Close accessibility settings" class="access-panel-close" id="accessPanelClose" type="button">
+                </div>
+
+                <button
+                    class="access-panel-close"
+                    id="accessPanelClose"
+                    type="button"
+                    aria-label="Close accessibility settings"
+                >
                     ×
                 </button>
-</header>
-<div class="access-panel-body">
-<fieldset class="access-setting-group">
-<legend data-i18n="access.display">DISPLAY</legend>
-<button aria-pressed="false" class="access-setting" id="accessTextToggle" type="button">
-<span data-i18n="access.largeText">LARGER TEXT</span>
-<strong data-setting-state="">OFF</strong>
-</button>
-<button aria-pressed="false" class="access-setting" id="accessContrastToggle" type="button">
-<span data-i18n="access.highContrast">HIGH CONTRAST</span>
-<strong data-setting-state="">OFF</strong>
-</button>
-<button aria-pressed="false" class="access-setting" id="accessMotionToggle" type="button">
-<span data-i18n="access.reduceMotion">REDUCE MOTION</span>
-<strong data-setting-state="">OFF</strong>
-</button>
-</fieldset>
-<div class="access-language">
-<label data-i18n="access.interfaceLanguage" for="interfaceLanguage">
+            </header>
+
+            <div class="access-panel-body">
+
+                <fieldset class="access-setting-group">
+                    <legend data-i18n="access.display">DISPLAY</legend>
+
+                    <button
+                        class="access-setting"
+                        id="accessTextToggle"
+                        type="button"
+                        aria-pressed="false"
+                    >
+                        <span data-i18n="access.largeText">LARGER TEXT</span>
+                        <strong data-setting-state>OFF</strong>
+                    </button>
+
+                    <button
+                        class="access-setting"
+                        id="accessContrastToggle"
+                        type="button"
+                        aria-pressed="false"
+                    >
+                        <span data-i18n="access.highContrast">HIGH CONTRAST</span>
+                        <strong data-setting-state>OFF</strong>
+                    </button>
+
+                    <button
+                        class="access-setting"
+                        id="accessMotionToggle"
+                        type="button"
+                        aria-pressed="false"
+                    >
+                        <span data-i18n="access.reduceMotion">REDUCE MOTION</span>
+                        <strong data-setting-state>OFF</strong>
+                    </button>
+                </fieldset>
+
+                <div class="access-language">
+                    <label for="interfaceLanguage" data-i18n="access.interfaceLanguage">
                         INTERFACE LANGUAGE
                     </label>
-<select id="interfaceLanguage">
-<option value="en">English</option>
-<option value="es">Español</option>
-<option value="pt-BR">Português (Brasil)</option>
-</select>
-<p data-i18n="access.languageNote">
+
+                    <select id="interfaceLanguage">
+                        <option value="en">English</option>
+                        <option value="es">Español</option>
+                        <option value="pt-BR">Português (Brasil)</option>
+                    </select>
+
+                    <p data-i18n="access.languageNote">
                         Interface controls can change language. Harrow's authored voice remains in original English until each translation is rewritten by a human instead of murdered by a robot.
                     </p>
-</div>
-<p class="access-keyboard-note">
-<span data-i18n="access.keyboard">KEYBOARD</span>
-<strong>ALT + A</strong>
-</p>
-</div>
-</section>
-</div>
-<!-- =========================================================
+                </div>
+
+                <p class="access-keyboard-note">
+                    <span data-i18n="access.keyboard">KEYBOARD</span>
+                    <strong>ALT + A</strong>
+                </p>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <!-- =========================================================
          HEADER
     ========================================================== -->
-<header class="site-header">
-<a aria-label="Hellbox Comics home" class="header-brand" href="#top">
-<img alt="" class="header-emblem" src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem-improved.PNG"/>
-<span>HELLBOX COMICS // BY HARROW</span>
-</a>
-<nav aria-label="Primary navigation" class="header-nav">
-<a data-i18n="nav.archive" href="#archive">YOUR STUFF</a>
-<a data-i18n="nav.theory" href="#evidence">THEORY</a>
-<a data-i18n="nav.press" href="#press">PRESS</a>
-<a data-i18n="nav.harrow" href="#harrow">HARROW</a>
-<a data-i18n="nav.signals" href="#signals">KEEP UP</a>
-</nav>
-<div class="header-network" data-chain-label="">
-<span class="network-light"></span>
-<span data-chain-label="">PULSECHAIN // 369</span>
-</div>
-<button class="wallet-button" data-i18n="wallet.show" id="walletButton" type="button">
+
+    <header class="site-header">
+
+        <a
+            href="#top"
+            class="header-brand"
+            aria-label="Hellbox Comics home"
+        >
+
+            <img
+                src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem-improved.PNG"
+                alt=""
+                class="header-emblem"
+            >
+
+            <span>HELLBOX COMICS // BY HARROW</span>
+
+        </a>
+
+
+        <nav
+            class="header-nav"
+            aria-label="Primary navigation"
+        >
+
+            <a href="#archive" data-i18n="nav.archive">YOUR STUFF</a>
+            <a href="#evidence" data-i18n="nav.theory">THEORY</a>
+            <a href="#press" data-i18n="nav.press">PRESS</a>
+            <a href="#harrow" data-i18n="nav.harrow">HARROW</a>
+            <a href="#signals" data-i18n="nav.signals">KEEP UP</a>
+
+        </nav>
+
+
+        <div class="header-network">
+            <span class="network-light"></span>
+            <span>PULSECHAIN // 369</span>
+        </div>
+
+
+        <button
+            class="wallet-button"
+            id="walletButton"
+            type="button"
+            data-i18n="wallet.show"
+        >
             SHOW ME
         </button>
-<button aria-controls="mobileNav" aria-expanded="false" class="mobile-menu-button" data-i18n="nav.menu" id="mobileMenuButton" type="button">
+
+        <button
+            class="mobile-menu-button"
+            id="mobileMenuButton"
+            type="button"
+            aria-expanded="false"
+            aria-controls="mobileNav"
+            data-i18n="nav.menu"
+        >
             MENU
         </button>
-<nav aria-hidden="true" aria-label="Mobile navigation" class="mobile-nav" id="mobileNav">
-<a data-i18n="nav.archive" href="#archive">YOUR STUFF</a>
-<a data-i18n="nav.theory" href="#evidence">THEORY</a>
-<a data-i18n="nav.press" href="#press">PRESS</a>
-<a data-i18n="nav.harrow" href="#harrow">HARROW</a>
-<a data-i18n="nav.signals" href="#signals">KEEP UP</a>
-<button data-i18n="access.open" data-open-access="" type="button">
+
+        <nav
+            class="mobile-nav"
+            id="mobileNav"
+            aria-label="Mobile navigation"
+            aria-hidden="true"
+        >
+            <a href="#archive" data-i18n="nav.archive">YOUR STUFF</a>
+            <a href="#evidence" data-i18n="nav.theory">THEORY</a>
+            <a href="#press" data-i18n="nav.press">PRESS</a>
+            <a href="#harrow" data-i18n="nav.harrow">HARROW</a>
+            <a href="#signals" data-i18n="nav.signals">KEEP UP</a>
+            <button type="button" data-open-access data-i18n="access.open">
                 ACCESS // LANGUAGE
             </button>
-</nav>
-</header>
-<main id="mainContent" tabindex="-1">
-<!-- =====================================================
+        </nav>
+
+    </header>
+
+
+    <main id="mainContent" tabindex="-1">
+
+
+        <!-- =====================================================
              01 // HERO
         ====================================================== -->
-<section class="hero" data-zone="hero" id="top">
-<!--
+
+        <section
+            class="hero"
+            id="top"
+            data-zone="hero"
+        >
+
+            <!--
                 HERO SCENE
                 The artwork and every lore hotspot live inside the same
                 coordinate system so the hotspots stay attached to the art.
             -->
-<p class="sr-only" id="heroSceneHelp">
+
+            <p class="sr-only" id="heroSceneHelp">
                 Interactive artwork. Swipe or use the left and right arrow keys to inspect the room. Use Tab to reach discoverable objects.
             </p>
-<div aria-describedby="heroSceneHelp" aria-label="Harrow's lair" aria-roledescription="interactive artwork" class="hero-scene-viewport" id="heroSceneViewport" role="region" tabindex="0">
-<div class="hero-scene">
-<div aria-hidden="true" class="hero-art">
-<img alt="" decoding="async" fetchpriority="high" src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.png?v=20260828-gate0-1-02"/>
-</div>
-<div aria-hidden="true" class="hero-blackout"></div>
-<!-- HERO HOTSPOTS -->
-<button aria-label="Inspect Harrow's Cabal board" class="lair-hotspot hotspot-cabal" data-hotspot="cabal" type="button">
-<span class="hotspot-label">THE CABAL</span>
-</button>
-<button aria-label="Inspect Harrow's Pulse Byte infrastructure" class="lair-hotspot hotspot-monitor" data-hotspot="monitor" type="button">
-<span class="hotspot-label">PULSE BYTE</span>
-</button>
-<button aria-label="Bother Harrow" class="lair-hotspot hotspot-harrow" data-hotspot="harrow" type="button">
-<span class="hotspot-label">HARROW</span>
-</button>
-<button aria-label="Inspect Harrow's comic pages" class="lair-hotspot hotspot-pages" data-hotspot="pages" type="button">
-<span class="hotspot-label">PANELS</span>
-</button>
-<button aria-label="Inspect Harrow's motorcycle" class="lair-hotspot hotspot-bike" data-hotspot="bike" type="button">
-<span class="hotspot-label">THE BIKE</span>
-</button>
-<button aria-label="Inspect Harrow's production copy" class="lair-hotspot hotspot-redacted" data-hotspot="redacted" type="button">
-<span class="hotspot-label">PUT THAT BACK</span>
-</button>
-</div>
-</div>
-<div class="hero-inner">
-<div class="hero-brand">
-<button aria-label="Hellbox Comics" class="hero-logo-button" id="heroLogoButton" type="button">
-<img alt="Hellbox Comics" class="hero-wordmark" src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-banner-main.PNG"/>
-</button>
-</div>
-<div class="hero-content">
-<div class="hero-copy">
-<span class="system-label">
+
+            <div
+                class="hero-scene-viewport"
+                id="heroSceneViewport"
+                role="region"
+                aria-roledescription="interactive artwork"
+                tabindex="0"
+                aria-label="Harrow's lair"
+                aria-describedby="heroSceneHelp"
+            >
+
+                <div class="hero-scene">
+
+                <div class="hero-art" aria-hidden="true">
+
+                    <img
+                        src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.png?v=20260828-gate0-1-02"
+                        alt=""
+                        fetchpriority="high"
+                        decoding="async"
+                    >
+
+                </div>
+
+
+                <div
+                    class="hero-blackout"
+                    aria-hidden="true"
+                ></div>
+                <!-- HERO HOTSPOTS -->
+
+                <button
+                    class="lair-hotspot hotspot-cabal"
+                    type="button"
+                    data-hotspot="cabal"
+                    aria-label="Inspect Harrow's Cabal board"
+                >
+                    <span class="hotspot-label">THE CABAL</span>
+                </button>
+
+
+                <button
+                    class="lair-hotspot hotspot-monitor"
+                    type="button"
+                    data-hotspot="monitor"
+                    aria-label="Inspect Harrow's Pulse Byte infrastructure"
+                >
+                    <span class="hotspot-label">PULSE BYTE</span>
+                </button>
+
+
+                <button
+                    class="lair-hotspot hotspot-harrow"
+                    type="button"
+                    data-hotspot="harrow"
+                    aria-label="Bother Harrow"
+                >
+                    <span class="hotspot-label">HARROW</span>
+                </button>
+
+
+                <button
+                    class="lair-hotspot hotspot-pages"
+                    type="button"
+                    data-hotspot="pages"
+                    aria-label="Inspect Harrow's comic pages"
+                >
+                    <span class="hotspot-label">PANELS</span>
+                </button>
+
+
+                <button
+                    class="lair-hotspot hotspot-bike"
+                    type="button"
+                    data-hotspot="bike"
+                    aria-label="Inspect Harrow's motorcycle"
+                >
+                    <span class="hotspot-label">THE BIKE</span>
+                </button>
+
+
+                <button
+                    class="lair-hotspot hotspot-redacted"
+                    type="button"
+                    data-hotspot="redacted"
+                    aria-label="Inspect Harrow's production copy"
+                >
+                    <span class="hotspot-label">PUT THAT BACK</span>
+                </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="hero-inner">
+
+                <div class="hero-brand">
+
+                    <button
+                        class="hero-logo-button"
+                        id="heroLogoButton"
+                        type="button"
+                        aria-label="Hellbox Comics"
+                    >
+
+                        <img
+                            src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-banner-main.PNG"
+                            alt="Hellbox Comics"
+                            class="hero-wordmark"
+                        >
+
+                    </button>
+
+                </div>
+
+
+                <div class="hero-content">
+
+                    <div class="hero-copy">
+
+                        <span class="system-label">
                             HELLBOX COMICS // PRIVATE PROPERTY*
                         </span>
-<h1>
+
+                        <h1>
                             OH.
                             <span>YOU'RE HERE.</span>
-</h1>
-<p class="hero-description">
-                            I WAS WORKING.<br/>
-                            TRY NOT TO BREAK ANYTHING.<br/>
-<small>*PROBABLY NOT LEGALLY.</small>
-</p>
-<div class="hero-actions">
-<a class="button-primary" href="#box">
+                        </h1>
+
+                        <p class="hero-description">
+                            I WAS WORKING.<br>
+                            TRY NOT TO BREAK ANYTHING.<br>
+                            <small>*PROBABLY NOT LEGALLY.</small>
+                        </p>
+
+
+                        <div class="hero-actions">
+
+                            <a
+                                href="#box"
+                                class="button-primary"
+                            >
                                 COME IN
                                 <span>↘</span>
-</a>
-<a class="button-ghost" href="#harrow">
+                            </a>
+
+                            <a
+                                href="#harrow"
+                                class="button-ghost"
+                            >
                                 OR DON'T
                             </a>
-</div>
-</div>
-<aside class="hero-transmission">
-<div class="transmission-header">
-<span>HARROW // INTERRUPTION</span>
-<div class="transmission-header-actions">
-<span class="live-text">● LIVE</span>
-<button aria-controls="heroTransmissionDetails" aria-expanded="false" aria-label="Expand Harrow transmission" class="transmission-toggle" data-i18n="transmission.more" id="transmissionToggle" type="button">
+
+                        </div>
+
+                    </div>
+
+
+                    <aside class="hero-transmission">
+
+                        <div class="transmission-header">
+                            <span>HARROW // INTERRUPTION</span>
+
+                            <div class="transmission-header-actions">
+                                <span class="live-text">● LIVE</span>
+                                <button
+                                    class="transmission-toggle"
+                                    id="transmissionToggle"
+                                    type="button"
+                                    aria-expanded="false"
+                                    aria-controls="heroTransmissionDetails"
+                                    aria-label="Expand Harrow transmission"
+                                    data-i18n="transmission.more"
+                                >
                                     MORE
                                 </button>
-</div>
-</div>
-<div class="transmission-body" id="heroTransmissionDetails">
-<span class="transmission-label">
+                            </div>
+                        </div>
+
+
+                        <div class="transmission-body" id="heroTransmissionDetails">
+
+                            <span class="transmission-label">
                                 CURRENT THOUGHT:
                             </span>
-<strong id="heroTransmission">
+
+                            <strong id="heroTransmission">
                                 I HAD AN IDEA.
                             </strong>
-<small id="heroTransmissionSub">
+
+                            <small id="heroTransmissionSub">
                                 This has historically been expensive.
                             </small>
-</div>
-<img alt="" class="hero-harrow-signature" src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-new-wordmark-purple.PNG"/>
-</aside>
-</div>
-</div>
-<div class="hero-meta">
-<span>01 // OH. YOU'RE HERE.</span>
-<span>LOCATION // NONE OF YOUR BUSINESS</span>
-<span id="heroMetaHarrow">
+
+                        </div>
+
+
+                        <img
+                            src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-new-wordmark-purple.PNG"
+                            alt=""
+                            class="hero-harrow-signature"
+                        >
+
+                    </aside>
+
+                </div>
+
+            </div>
+
+
+            <div class="hero-meta">
+                <span>01 // OH. YOU'RE HERE.</span>
+                <span>LOCATION // NONE OF YOUR BUSINESS</span>
+
+                <span id="heroMetaHarrow">
                     HARROW // BUSY
                 </span>
-</div>
-<div class="hero-scroll-note">
+            </div>
+
+
+            <div class="hero-scroll-note">
                 WELL? // KEEP GOING
             </div>
-</section>
-<!-- =====================================================
+
+        </section>
+
+
+        <!-- =====================================================
              02 // THE PROBLEM
         ====================================================== -->
-<section class="manifesto-section" data-zone="box" id="box">
-<div class="section-shell">
-<div class="section-number">
+
+        <section
+            class="manifesto-section"
+            id="box"
+            data-zone="box"
+        >
+
+            <div class="section-shell">
+
+                <div class="section-number">
                     02 // THE PROBLEM
                 </div>
-<div class="manifesto-layout">
-<div class="manifesto-title">
-<span class="eyebrow">
+
+
+                <div class="manifesto-layout">
+
+                    <div class="manifesto-title">
+
+                        <span class="eyebrow">
                             THIS GOT OUT OF HAND
                         </span>
-<h2>
+
+                        <h2>
                             I NEEDED SOMEWHERE
                             <em>TO PUT THE PROBLEM.</em>
-</h2>
-</div>
-<div class="manifesto-body">
-<p class="manifesto-lead">
+                        </h2>
+
+                    </div>
+
+
+                    <div class="manifesto-body">
+
+                        <p class="manifesto-lead">
                             At some point crypto stopped being something
                             I watched and became something I thought about
                             while brushing my teeth.
                         </p>
-<p>
+
+                        <p>
                             PulseChain. Ethereum. Richard. Regulators.
                             Degens. Money. Ego. Tribalism. Memes.
                             Lawsuits. People becoming economists because
                             a green candle appeared.
                         </p>
-<p>
+
+                        <p>
                             Eventually the thoughts needed somewhere to go.
                         </p>
-<p>
+
+                        <p>
                             So I gave them panels.
                         </p>
-<button class="admin-note interactive-note" id="therapyNote" type="button">
-<div class="admin-note-top">
+
+
+                        <button
+                            class="admin-note interactive-note"
+                            id="therapyNote"
+                            type="button"
+                        >
+
+                            <div class="admin-note-top">
                                 HARROW // MEDICAL OPINION
                             </div>
-<strong>
+
+                            <strong>
                                 THIS IS HEALTHIER THAN THERAPY.
                             </strong>
-<span>
+
+                            <span>
                                 SIGNIFICANTLY CHEAPER TOO.
                             </span>
-<img alt="" src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-comic-gutter-wordmark-black.PNG"/>
-</button>
-</div>
-</div>
-<div class="manifesto-brand-ghost">
-<img alt="" src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-banner-alt.PNG"/>
-</div>
-</div>
-</section>
-<!-- =====================================================
+
+                            <img
+                                src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-comic-gutter-wordmark-black.PNG"
+                                alt=""
+                            >
+
+                        </button>
+                    </div>
+
+                </div>
+
+
+                <div class="manifesto-brand-ghost">
+
+                    <img
+                        src="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-banner-alt.PNG"
+                        alt=""
+                    >
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
              03 // YOUR STUFF
         ====================================================== -->
-<section class="archive-section" data-zone="archive" id="archive">
-<div class="archive-radiation"></div>
-<div class="section-shell">
-<div class="section-number">
+
+        <section
+            class="archive-section"
+            id="archive"
+            data-zone="archive"
+        >
+
+            <div class="archive-radiation"></div>
+
+
+            <div class="section-shell">
+
+                <div class="section-number">
                     03 // YOUR STUFF
                 </div>
-<div class="section-heading archive-heading">
-<div>
-<span class="eyebrow">
+
+
+                <div class="section-heading archive-heading">
+
+                    <div>
+
+                        <span class="eyebrow">
                             ALRIGHT. WHAT'D YOU BRING?
                         </span>
-<h2>
+
+                        <h2>
                             SHOW
                             <em>ME.</em>
-</h2>
-</div>
-<div class="section-intro">
-<p>
+                        </h2>
+
+                    </div>
+
+
+                    <div class="section-intro">
+
+                        <p>
                             Connect your wallet.
                             It's a public blockchain.
                             Privacy already lost this argument.
                         </p>
-<div class="archive-live-count">
-<span></span>
-<strong id="publicationCount">
+
+                        <div class="archive-live-count">
+                            <span></span>
+
+                            <strong id="publicationCount">
                                 CHECKING
                             </strong>
-</div>
-</div>
-</div>
-<div class="archive-terminal">
-<div class="terminal-top">
-<div>
-<span>WALLET</span>
-<strong id="collectionWallet">
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="archive-terminal">
+
+                    <div class="terminal-top">
+
+                        <div>
+                            <span>WALLET</span>
+
+                            <strong id="collectionWallet">
                                 NOT SHOWN
                             </strong>
-</div>
-<div class="terminal-top-right">
-<span data-chain-label="" id="collectionNetwork">
+                        </div>
+
+
+                        <div class="terminal-top-right">
+
+                            <span id="collectionNetwork">
                                 PULSECHAIN // 369
                             </span>
-<strong id="collectionAccessState">
+
+                            <strong id="collectionAccessState">
                                 WAITING
                             </strong>
-</div>
-</div>
-<div class="terminal-main">
-<button aria-label="Hellbox archive emblem" class="terminal-emblem" id="archiveEmblem" type="button">
-<img alt="" src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem-improved.PNG"/>
-</button>
-<div class="terminal-copy">
-<span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="terminal-main">
+
+                        <button
+                            class="terminal-emblem"
+                            id="archiveEmblem"
+                            type="button"
+                            aria-label="Hellbox archive emblem"
+                        >
+
+                            <img
+                                src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem-improved.PNG"
+                                alt=""
+                            >
+
+                        </button>
+
+
+                        <div class="terminal-copy">
+
+                            <span>
                                 HARROW // LOOKING AT YOUR STUFF
                             </span>
-<h3 id="terminalTitle">
+
+                            <h3 id="terminalTitle">
                                 DON'T BE SHY.
                             </h3>
-<p id="terminalMessage">
+
+                            <p id="terminalMessage">
                                 Show me the wallet.
                             </p>
-<button class="terminal-action" id="terminalAction" type="button">
+
+                            <button
+                                type="button"
+                                class="terminal-action"
+                                id="terminalAction"
+                            >
                                 SHOW ME
                             </button>
-</div>
-<button class="harrow-sticky-note" id="archiveSticky" type="button">
-<span>NOTE:</span>
-<strong id="archiveHarrowNote">
+
+                        </div>
+
+
+                        <button
+                            class="harrow-sticky-note"
+                            id="archiveSticky"
+                            type="button"
+                        >
+
+                            <span>NOTE:</span>
+
+                            <strong id="archiveHarrowNote">
                                 let's see the damage.
                             </strong>
-<img alt="" src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-comic-gutter-wordmark-black.PNG"/>
-</button>
-</div>
-<div class="collection-summary">
-<div>
-<span>EXIST</span>
-<strong id="summaryKnown">00</strong>
-</div>
-<div class="summary-owned">
-<span>YOURS</span>
-<strong id="summaryOwned">00</strong>
-</div>
-<div class="summary-missing">
-<span>MISSING</span>
-<strong id="summaryMissing">00</strong>
-</div>
-<div class="summary-altered">
-<span>WEIRD</span>
-<strong id="summaryEvolved">00</strong>
-</div>
-</div>
-<div class="collection-list" id="collectionList"></div>
-<div class="terminal-footer-row">
-<div class="terminal-footer-status" id="collectionStatus">
+
+                            <img
+                                src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-comic-gutter-wordmark-black.PNG"
+                                alt=""
+                            >
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="collection-summary">
+
+                        <div>
+                            <span>EXIST</span>
+                            <strong id="summaryKnown">00</strong>
+                        </div>
+
+
+                        <div class="summary-owned">
+                            <span>YOURS</span>
+                            <strong id="summaryOwned">00</strong>
+                        </div>
+
+
+                        <div class="summary-missing">
+                            <span>MISSING</span>
+                            <strong id="summaryMissing">00</strong>
+                        </div>
+
+
+                        <div class="summary-altered">
+                            <span>WEIRD</span>
+                            <strong id="summaryEvolved">00</strong>
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="collection-list"
+                        id="collectionList"
+                    ></div>
+
+
+                    <div class="terminal-footer-row">
+
+                        <div
+                            class="terminal-footer-status"
+                            id="collectionStatus"
+                        >
                             SHOW ME SOMETHING INTERESTING.
                         </div>
-<button aria-label="Inspect the Hellbox Reader" class="reader-dormant-object" id="readerDormantObject" type="button">
+
+                        <button
+                            class="reader-dormant-object"
+                            id="readerDormantObject"
+                            type="button"
+                            aria-label="Inspect the Hellbox Reader"
+                        >
                             READER // ASLEEP
                         </button>
-</div>
-</div>
-</div>
-</section>
-<!-- =====================================================
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
              04 // OBSESSION WALL
         ====================================================== -->
-<section class="evidence-section obsession-wall-section" data-zone="theory" id="evidence">
-<div class="section-shell">
-<div class="section-number">
+
+        <section
+            class="evidence-section obsession-wall-section"
+            id="evidence"
+            data-zone="theory"
+        >
+
+            <div class="section-shell">
+
+                <div class="section-number">
                     04 // HOLD ON, LOOK AT THIS
                 </div>
-<div class="section-heading evidence-heading">
-<div>
-<span class="eyebrow">
+
+
+                <div class="section-heading evidence-heading">
+
+                    <div>
+
+                        <span class="eyebrow">
                             I HAVE A THEORY
                         </span>
-<h2 class="theory-heading">
+
+                        <h2 class="theory-heading">
                             I HAVE
 
-                            <span class="vandalized-word" id="theorySingular">
-<span class="theory-original-a">A</span>
-<span aria-hidden="true" class="theory-strike theory-strike-one"></span>
-<span aria-hidden="true" class="theory-strike theory-strike-two"></span>
-<span aria-hidden="true" class="theory-correction" id="theoryCorrection">47</span>
-<span aria-hidden="true" class="theory-correction-arrow"></span>
-</span>
-<em>THEORY.</em>
-</h2>
-</div>
-<div class="section-intro">
-<p>
+                            <span
+                                class="vandalized-word"
+                                id="theorySingular"
+                            >
+                                <span class="theory-original-a">A</span>
+                                <span
+                                    class="theory-strike theory-strike-one"
+                                    aria-hidden="true"
+                                ></span>
+                                <span
+                                    class="theory-strike theory-strike-two"
+                                    aria-hidden="true"
+                                ></span>
+                                <span
+                                    class="theory-correction"
+                                    id="theoryCorrection"
+                                    aria-hidden="true"
+                                >47</span>
+                                <span
+                                    class="theory-correction-arrow"
+                                    aria-hidden="true"
+                                ></span>
+                            </span>
+
+                            <em>THEORY.</em>
+                        </h2>
+
+                    </div>
+
+
+                    <div class="section-intro">
+
+                        <p>
                             Actually I have 47.
                         </p>
-<p>
+
+                        <p>
                             This one has string.
                         </p>
-</div>
-</div>
-<p class="sr-only" id="theoryWallHelp">
+
+                    </div>
+
+                </div>
+
+
+                <p class="sr-only" id="theoryWallHelp">
                     Interactive theory wall. Swipe or use the left and right arrow keys to inspect it. Use Tab to reach discoverable notes.
                 </p>
-<div aria-describedby="theoryWallHelp" aria-label="Harrow's theory wall" aria-roledescription="interactive artwork" class="obsession-wall-viewport" id="obsessionWallViewport" role="region" tabindex="0">
-<div class="obsession-wall" id="obsessionWall">
-<img alt="Harrow's sprawling PulseChain obsession wall covered in notes, charts, photographs and red string" class="obsession-wall-art" decoding="async" loading="lazy" src="https://cdn.hellboxcomics.com/assets/brand/harrow/art/harrow-obssesion-wall.PNG"/>
-<button aria-label="Inspect Richard Heart notes" class="obsession-hotspot obsession-hotspot-richard case-file" data-theory="richard" type="button">
-<span>RICHARD</span>
-</button>
-<button aria-label="Inspect SEC notes" class="obsession-hotspot obsession-hotspot-sec case-file" data-theory="sec" type="button">
-<span>SEC</span>
-</button>
-<button aria-label="Inspect INTERPOL notes" class="obsession-hotspot obsession-hotspot-interpol case-file" data-theory="interpol" type="button">
-<span>INTERPOL</span>
-</button>
-<button aria-label="Inspect Cabal notes" class="obsession-hotspot obsession-hotspot-cabal case-file" data-theory="cabal" type="button">
-<span>THE CABAL</span>
-</button>
-<button aria-label="Inspect NFT culture notes" class="obsession-hotspot obsession-hotspot-nft case-file" data-theory="nft" type="button">
-<span>NFT CULTURE</span>
-</button>
-<button aria-label="Inspect sacrifice-era notes" class="obsession-hotspot obsession-hotspot-sacrifice case-file" data-theory="sacrifice" type="button">
-<span>THE SACRIFICE</span>
-</button>
-<button aria-label="Inspect influencer notes" class="obsession-hotspot obsession-hotspot-influencers case-file" data-theory="influencers" type="button">
-<span>INFLUENCERS</span>
-</button>
-<button aria-label="Inspect Harrow" class="obsession-hotspot obsession-hotspot-harrow case-file" data-theory="harrow" id="theoryCenter" type="button">
-<span>HARROW</span>
-</button>
-<div aria-hidden="true" class="obsession-wall-hint">
+
+                <div
+                    class="obsession-wall-viewport"
+                    id="obsessionWallViewport"
+                    role="region"
+                    aria-roledescription="interactive artwork"
+                    tabindex="0"
+                    aria-label="Harrow's theory wall"
+                    aria-describedby="theoryWallHelp"
+                >
+
+                    <div
+                        class="obsession-wall"
+                        id="obsessionWall"
+                    >
+
+                    <img
+                        src="https://cdn.hellboxcomics.com/assets/brand/harrow/art/harrow-obssesion-wall.PNG"
+                        alt="Harrow's sprawling PulseChain obsession wall covered in notes, charts, photographs and red string"
+                        class="obsession-wall-art"
+                        loading="lazy"
+                        decoding="async"
+                    >
+
+
+                    <button
+                        class="obsession-hotspot obsession-hotspot-richard case-file"
+                        type="button"
+                        data-theory="richard"
+                        aria-label="Inspect Richard Heart notes"
+                    >
+                        <span>RICHARD</span>
+                    </button>
+
+
+                    <button
+                        class="obsession-hotspot obsession-hotspot-sec case-file"
+                        type="button"
+                        data-theory="sec"
+                        aria-label="Inspect SEC notes"
+                    >
+                        <span>SEC</span>
+                    </button>
+
+
+                    <button
+                        class="obsession-hotspot obsession-hotspot-interpol case-file"
+                        type="button"
+                        data-theory="interpol"
+                        aria-label="Inspect INTERPOL notes"
+                    >
+                        <span>INTERPOL</span>
+                    </button>
+
+
+                    <button
+                        class="obsession-hotspot obsession-hotspot-cabal case-file"
+                        type="button"
+                        data-theory="cabal"
+                        aria-label="Inspect Cabal notes"
+                    >
+                        <span>THE CABAL</span>
+                    </button>
+
+
+                    <button
+                        class="obsession-hotspot obsession-hotspot-nft case-file"
+                        type="button"
+                        data-theory="nft"
+                        aria-label="Inspect NFT culture notes"
+                    >
+                        <span>NFT CULTURE</span>
+                    </button>
+
+
+                    <button
+                        class="obsession-hotspot obsession-hotspot-sacrifice case-file"
+                        type="button"
+                        data-theory="sacrifice"
+                        aria-label="Inspect sacrifice-era notes"
+                    >
+                        <span>THE SACRIFICE</span>
+                    </button>
+
+
+                    <button
+                        class="obsession-hotspot obsession-hotspot-influencers case-file"
+                        type="button"
+                        data-theory="influencers"
+                        aria-label="Inspect influencer notes"
+                    >
+                        <span>INFLUENCERS</span>
+                    </button>
+
+
+                    <button
+                        class="obsession-hotspot obsession-hotspot-harrow case-file"
+                        id="theoryCenter"
+                        type="button"
+                        data-theory="harrow"
+                        aria-label="Inspect Harrow"
+                    >
+                        <span>HARROW</span>
+                    </button>
+
+
+                    <div
+                        class="obsession-wall-hint"
+                        aria-hidden="true"
+                    >
                         SOME OF THIS MOVES. DON'T.
                     </div>
-</div>
-</div>
-</div>
-</section>
-<!-- =====================================================
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
              HARROW BRAIN TICKER
         ====================================================== -->
-<div aria-label="Fragments from Harrow's current train of thought" class="obsession-strip">
-<button aria-pressed="false" class="ticker-toggle" data-i18n="motion.pause" id="tickerToggle" type="button">
+
+        <div class="obsession-strip" aria-label="Fragments from Harrow's current train of thought">
+
+            <button
+                class="ticker-toggle"
+                id="tickerToggle"
+                type="button"
+                aria-pressed="false"
+                data-i18n="motion.pause"
+            >
                 PAUSE
             </button>
-<div class="obsession-track" id="obsessionTrack">
-<div class="obsession-sequence">
-<span>I HAD A POINT</span><i>//</i>
-<span>WAIT. NO. THAT'S ACTUALLY FUNNY.</span><i>//</i>
-<span>WRITE THAT DOWN</span><i>//</i>
-<span>THE CABAL HAS A GROUP CHAT</span><i>//</i>
-<span>WHO LET ETHEREUM CHARGE RENT?</span><i>//</i>
-<span>EVERYONE'S AN ECONOMIST DURING A GREEN CANDLE</span><i>//</i>
-<span>THE RPC IS FINE. YOU'RE THE PROBLEM.</span><i>//</i>
-<span>RICHARD, THIS IS WHY I HAVE NOTES</span><i>//</i>
-<span>I READ THE DOCUMENT. MOST OF IT.</span><i>//</i>
-<span>SCREENSHOTS ARE FOREVER</span><i>//</i>
-<span>PULSICANS ARE VERY NORMAL PEOPLE</span><i>//</i>
-<span>I DON'T NEED A ROADMAP. I NEED MORE WALL.</span><i>//</i>
-<span>DON'T ERASE THAT</span><i>//</i>
-<span>WHERE WAS I?</span><i>//</i>
-<span>OH RIGHT. ME.</span><i>//</i>
-<span>369</span><i>//</i>
-</div>
-<div aria-hidden="true" class="obsession-sequence">
-<span>I HAD A POINT</span><i>//</i>
-<span>WAIT. NO. THAT'S ACTUALLY FUNNY.</span><i>//</i>
-<span>WRITE THAT DOWN</span><i>//</i>
-<span>THE CABAL HAS A GROUP CHAT</span><i>//</i>
-<span>WHO LET ETHEREUM CHARGE RENT?</span><i>//</i>
-<span>EVERYONE'S AN ECONOMIST DURING A GREEN CANDLE</span><i>//</i>
-<span>THE RPC IS FINE. YOU'RE THE PROBLEM.</span><i>//</i>
-<span>RICHARD, THIS IS WHY I HAVE NOTES</span><i>//</i>
-<span>I READ THE DOCUMENT. MOST OF IT.</span><i>//</i>
-<span>SCREENSHOTS ARE FOREVER</span><i>//</i>
-<span>PULSICANS ARE VERY NORMAL PEOPLE</span><i>//</i>
-<span>I DON'T NEED A ROADMAP. I NEED MORE WALL.</span><i>//</i>
-<span>DON'T ERASE THAT</span><i>//</i>
-<span>WHERE WAS I?</span><i>//</i>
-<span>OH RIGHT. ME.</span><i>//</i>
-<span>369</span><i>//</i>
-</div>
-</div>
-</div>
-<!-- =====================================================
+
+            <div class="obsession-track" id="obsessionTrack">
+
+                <div class="obsession-sequence">
+                    <span>I HAD A POINT</span><i>//</i>
+                    <span>WAIT. NO. THAT'S ACTUALLY FUNNY.</span><i>//</i>
+                    <span>WRITE THAT DOWN</span><i>//</i>
+                    <span>THE CABAL HAS A GROUP CHAT</span><i>//</i>
+                    <span>WHO LET ETHEREUM CHARGE RENT?</span><i>//</i>
+                    <span>EVERYONE'S AN ECONOMIST DURING A GREEN CANDLE</span><i>//</i>
+                    <span>THE RPC IS FINE. YOU'RE THE PROBLEM.</span><i>//</i>
+                    <span>RICHARD, THIS IS WHY I HAVE NOTES</span><i>//</i>
+                    <span>I READ THE DOCUMENT. MOST OF IT.</span><i>//</i>
+                    <span>SCREENSHOTS ARE FOREVER</span><i>//</i>
+                    <span>PULSICANS ARE VERY NORMAL PEOPLE</span><i>//</i>
+                    <span>I DON'T NEED A ROADMAP. I NEED MORE WALL.</span><i>//</i>
+                    <span>DON'T ERASE THAT</span><i>//</i>
+                    <span>WHERE WAS I?</span><i>//</i>
+                    <span>OH RIGHT. ME.</span><i>//</i>
+                    <span>369</span><i>//</i>
+                </div>
+
+                <div class="obsession-sequence" aria-hidden="true">
+                    <span>I HAD A POINT</span><i>//</i>
+                    <span>WAIT. NO. THAT'S ACTUALLY FUNNY.</span><i>//</i>
+                    <span>WRITE THAT DOWN</span><i>//</i>
+                    <span>THE CABAL HAS A GROUP CHAT</span><i>//</i>
+                    <span>WHO LET ETHEREUM CHARGE RENT?</span><i>//</i>
+                    <span>EVERYONE'S AN ECONOMIST DURING A GREEN CANDLE</span><i>//</i>
+                    <span>THE RPC IS FINE. YOU'RE THE PROBLEM.</span><i>//</i>
+                    <span>RICHARD, THIS IS WHY I HAVE NOTES</span><i>//</i>
+                    <span>I READ THE DOCUMENT. MOST OF IT.</span><i>//</i>
+                    <span>SCREENSHOTS ARE FOREVER</span><i>//</i>
+                    <span>PULSICANS ARE VERY NORMAL PEOPLE</span><i>//</i>
+                    <span>I DON'T NEED A ROADMAP. I NEED MORE WALL.</span><i>//</i>
+                    <span>DON'T ERASE THAT</span><i>//</i>
+                    <span>WHERE WAS I?</span><i>//</i>
+                    <span>OH RIGHT. ME.</span><i>//</i>
+                    <span>369</span><i>//</i>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
              05 // THE PRESS
         ====================================================== -->
-<section class="press-section" data-zone="press" id="press">
-<div class="press-glow"></div>
-<div class="section-shell">
-<div class="section-number">
+
+        <section
+            class="press-section"
+            id="press"
+            data-zone="press"
+        >
+
+            <div class="press-glow"></div>
+
+
+            <div class="section-shell">
+
+                <div class="section-number">
                     05 // DON'T TOUCH THAT
                 </div>
-<div class="press-stage">
-<!-- =========================================
+
+
+                <div class="press-stage">
+
+
+                    <!-- =========================================
                          LEFT: HARROW / PRESS INTRO
                     ========================================== -->
-<div class="press-copy">
-<span class="eyebrow">
+
+                    <div class="press-copy">
+
+                        <span class="eyebrow">
                             HARROW // WORKING
                         </span>
-<h2>
+
+                        <h2>
                             I'M
                             <em>WORKING.</em>
-</h2>
-<p class="press-lead">
+                        </h2>
+
+                        <p class="press-lead">
                             You'll see it when I decide it's finished.
                         </p>
-<p>
+
+                        <p>
                             So never.
                         </p>
-<div class="press-object-links">
-<button class="press-object-link" id="roadmapObject" type="button">
+
+
+                        <div class="press-object-links">
+
+                            <button
+                                class="press-object-link"
+                                id="roadmapObject"
+                                type="button"
+                            >
                                 WHAT I'M DOING NEXT →
                             </button>
-<button class="press-object-link" id="manualObject" type="button">
+
+                            <button
+                                class="press-object-link"
+                                id="manualObject"
+                                type="button"
+                            >
                                 THE MANUAL →
                             </button>
-</div>
-<div class="press-mini-terminal" id="pressMiniTerminal">
-<div class="press-mini-header">
-<span>
+
+                        </div>
+
+
+                        <div
+                            class="press-mini-terminal"
+                            id="pressMiniTerminal"
+                        >
+
+                            <div class="press-mini-header">
+
+                                <span>
                                     HELLBOX PRESS // BAY 01
                                 </span>
-<strong id="pressMiniStatus">
+
+                                <strong id="pressMiniStatus">
                                     IDLE
                                 </strong>
-</div>
-<div class="press-mini-body">
-<div>
-<span>
+
+                            </div>
+
+
+                            <div class="press-mini-body">
+
+                                <div>
+                                    <span>
                                         PUBLICATION
                                     </span>
-<strong id="pressPublication">
+
+                                    <strong id="pressPublication">
                                         NONE
                                     </strong>
-</div>
-<div>
-<span>
+                                </div>
+
+
+                                <div>
+                                    <span>
                                         SUPPLY
                                     </span>
-<strong id="pressSupply">
+
+                                    <strong id="pressSupply">
                                         -- / --
                                     </strong>
-</div>
-<div>
-<span>
+                                </div>
+
+
+                                <div>
+                                    <span>
                                         WALLET
                                     </span>
-<strong id="pressWallet">
+
+                                    <strong id="pressWallet">
                                         NOT SHOWN
                                     </strong>
-</div>
-<div>
-<span>
+                                </div>
+
+
+                                <div>
+                                    <span>
                                         CHAIN
                                     </span>
-<strong>
+
+                                    <strong>
                                         369
                                     </strong>
-</div>
-</div>
-</div>
-</div>
-<!-- =========================================
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =========================================
                          PHYSICAL PRESS MACHINE
                          The original 1536 × 1024 machine art is the
                          coordinate plane. The real lever in the artwork
                          is the lever the visitor pulls.
                     ========================================== -->
-<p class="sr-only" id="pressMachineHelp">
+
+                    <p class="sr-only" id="pressMachineHelp">
                         Interactive publishing machine. Swipe or use the left and right arrow keys to inspect it. Use Tab to reach the real lever and other controls.
                     </p>
-<div aria-describedby="pressMachineHelp" aria-label="The Hellbox Press" aria-roledescription="interactive machine" class="press-machine-viewport" id="pressMachineViewport" role="region" tabindex="0">
-<div class="press-machine-zone" id="pressMachineZone">
-<div aria-hidden="true" class="machine-field machine-field-one"></div>
-<div aria-hidden="true" class="machine-field machine-field-two"></div>
-<button aria-label="Wake the Hellbox Press" class="press-machine" id="pressMachine" type="button">
-<span aria-hidden="true" class="press-machine-aura"></span>
-<img alt="Harrow's Hellbox publishing press" class="press-machine-art" decoding="async" loading="lazy" src="https://cdn.hellboxcomics.com/assets/brand/hellbox/machines/hellbox-press-machine.PNG"/>
-</button>
-<button aria-label="Inspect the PulseChain terminal on the Hellbox Press" class="press-art-hotspot press-hotspot-chain" data-press-object="chain" type="button">
-<small>CHAIN</small>
-</button>
-<button aria-label="Inspect Harrow's quality control station" class="press-art-hotspot press-hotspot-qc" data-press-object="qc" type="button">
-<small>QC</small>
-</button>
-<button aria-label="Inspect the Hellbox Press output" class="press-art-hotspot press-hotspot-output" data-press-object="output" type="button">
-<small>OUTPUT</small>
-</button>
-<div class="press-machine-status" id="pressMachineStatus">
-<span>
+
+                    <div
+                        class="press-machine-viewport"
+                        id="pressMachineViewport"
+                        role="region"
+                        aria-roledescription="interactive machine"
+                        tabindex="0"
+                        aria-label="The Hellbox Press"
+                        aria-describedby="pressMachineHelp"
+                    >
+
+                        <div
+                            class="press-machine-zone"
+                            id="pressMachineZone"
+                        >
+
+                        <div
+                            class="machine-field machine-field-one"
+                            aria-hidden="true"
+                        ></div>
+
+                        <div
+                            class="machine-field machine-field-two"
+                            aria-hidden="true"
+                        ></div>
+
+
+                        <button
+                            class="press-machine"
+                            id="pressMachine"
+                            type="button"
+                            aria-label="Wake the Hellbox Press"
+                        >
+
+                            <span
+                                class="press-machine-aura"
+                                aria-hidden="true"
+                            ></span>
+
+                            <img
+                                src="https://cdn.hellboxcomics.com/assets/brand/hellbox/machines/hellbox-press-machine.PNG"
+                                alt="Harrow's Hellbox publishing press"
+                                class="press-machine-art"
+                                loading="lazy"
+                                decoding="async"
+                            >
+
+                        </button>
+
+
+                        <button
+                            class="press-art-hotspot press-hotspot-chain"
+                            type="button"
+                            data-press-object="chain"
+                            aria-label="Inspect the PulseChain terminal on the Hellbox Press"
+                        >
+                            <small>CHAIN</small>
+                        </button>
+
+
+                        <button
+                            class="press-art-hotspot press-hotspot-qc"
+                            type="button"
+                            data-press-object="qc"
+                            aria-label="Inspect Harrow's quality control station"
+                        >
+                            <small>QC</small>
+                        </button>
+
+
+                        <button
+                            class="press-art-hotspot press-hotspot-output"
+                            type="button"
+                            data-press-object="output"
+                            aria-label="Inspect the Hellbox Press output"
+                        >
+                            <small>OUTPUT</small>
+                        </button>
+
+
+                        <div
+                            class="press-machine-status"
+                            id="pressMachineStatus"
+                        >
+
+                            <span>
                                 MACHINE // BAY 01
                             </span>
-<strong id="pressMachineState">
+
+                            <strong id="pressMachineState">
                                 ASLEEP
                             </strong>
-</div>
-<button aria-label="Pull the real lever on the Hellbox Press" class="press-lever press-real-lever" id="pressLever" type="button">
-<span aria-hidden="true" class="press-lever-sensor"></span>
-<span aria-hidden="true" aria-label="Operate the Press lever" class="press-lever-callout"></span>
-</button>
-<div class="press-warning" id="pressWarning"></div>
-</div>
-</div>
-<div class="press-machine-console" id="pressMachineConsole">
-<div class="machine-console-top">
-<span>
+
+                        </div>
+
+
+                        <button
+                            class="press-lever press-real-lever"
+                            id="pressLever"
+                            type="button"
+                            aria-label="Pull the real lever on the Hellbox Press"
+                        >
+                            <span
+                                class="press-lever-sensor"
+                                aria-hidden="true"
+                            ></span>
+
+                            <span
+                                class="press-lever-callout"
+                                aria-hidden="true"
+                            >
+                                PULL IT. I DARE YOU.
+                            </span>
+                        </button>
+
+
+                        <div
+                            class="press-warning"
+                            id="pressWarning"
+                        >
+                            DO NOT PULL THAT.
+                        </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="press-machine-console"
+                        id="pressMachineConsole"
+                    >
+
+                        <div class="machine-console-top">
+
+                            <span>
                                 HARROW // MACHINE
                             </span>
-<span class="machine-console-light" id="machineConsoleLight"></span>
-</div>
-<div class="machine-console-message">
-<span id="pressConsoleLabel">
+
+                            <span
+                                class="machine-console-light"
+                                id="machineConsoleLight"
+                            ></span>
+
+                        </div>
+
+
+                        <div class="machine-console-message">
+
+                            <span id="pressConsoleLabel">
                                 STATUS
                             </span>
-<strong id="pressConsoleTitle">
+
+                            <strong id="pressConsoleTitle">
                                 DON'T TOUCH IT.
                             </strong>
-<p id="pressConsoleText">
+
+                            <p id="pressConsoleText">
                                 I mean it.
                             </p>
-</div>
-<div class="machine-console-readouts">
-<div>
-<span>POWER</span>
-<strong id="pressPowerValue">00</strong>
-</div>
-<div>
-<span>INK</span>
-<strong id="pressInkValue">??</strong>
-</div>
-<div>
-<span>RPC</span>
-<strong data-chain-id="" id="pressRpcValue">369</strong>
-</div>
-<div>
-<span>BAD IDEA</span>
-<strong id="pressIdeaValue">YES</strong>
-</div>
-</div>
-</div>
-</div>
-<!-- =============================================
+
+                        </div>
+
+
+                        <div class="machine-console-readouts">
+
+                            <div>
+                                <span>POWER</span>
+                                <strong id="pressPowerValue">00</strong>
+                            </div>
+
+                            <div>
+                                <span>INK</span>
+                                <strong id="pressInkValue">??</strong>
+                            </div>
+
+                            <div>
+                                <span>RPC</span>
+                                <strong id="pressRpcValue">369</strong>
+                            </div>
+
+                            <div>
+                                <span>BAD IDEA</span>
+                                <strong id="pressIdeaValue">YES</strong>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =============================================
                      MACHINE STATE RAIL
                 ============================================== -->
-<div class="press-state-rail" id="pressStateRail">
-<div class="press-state active" data-state="idle">
-<span>01</span>
-<strong>IDLE</strong>
-</div>
-<div class="press-state" data-state="wallet">
-<span>02</span>
-<strong>IDENTIFY</strong>
-</div>
-<div class="press-state" data-state="ready">
-<span>03</span>
-<strong>READY</strong>
-</div>
-<div class="press-state" data-state="pressing">
-<span>04</span>
-<strong>PRESSING</strong>
-</div>
-<div class="press-state" data-state="confirmed">
-<span>05</span>
-<strong>YOURS</strong>
-</div>
-</div>
-</div>
-</section>
-<!-- =====================================================
+
+                <div
+                    class="press-state-rail"
+                    id="pressStateRail"
+                >
+
+                    <div class="press-state active" data-state="idle">
+                        <span>01</span>
+                        <strong>IDLE</strong>
+                    </div>
+
+                    <div class="press-state" data-state="wallet">
+                        <span>02</span>
+                        <strong>IDENTIFY</strong>
+                    </div>
+
+                    <div class="press-state" data-state="ready">
+                        <span>03</span>
+                        <strong>READY</strong>
+                    </div>
+
+                    <div class="press-state" data-state="pressing">
+                        <span>04</span>
+                        <strong>PRESSING</strong>
+                    </div>
+
+                    <div class="press-state" data-state="confirmed">
+                        <span>05</span>
+                        <strong>YOURS</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
              06 // HARROW
         ====================================================== -->
-<section class="harrow-section" data-zone="harrow" id="harrow">
-<div class="harrow-background-word">
+
+        <section
+            class="harrow-section"
+            id="harrow"
+            data-zone="harrow"
+        >
+
+            <div class="harrow-background-word">
                 HARROW
             </div>
-<div class="section-shell">
-<div class="section-number">
+
+
+            <div class="section-shell">
+
+                <div class="section-number">
                     06 // FINALLY
                 </div>
-<div class="harrow-layout">
-<div class="harrow-art-column">
-<button class="harrow-art-frame" id="harrowPortrait" type="button">
-<img alt="Harrow" class="harrow-concept" src="https://cdn.hellboxcomics.com/assets/brand/harrow/art/harrow-concept.PNG"/>
-<div class="surveillance-overlay">
-<span>HARROW</span>
-<span>YES, I PICKED THE PHOTO</span>
-</div>
-</button>
-<button class="harrow-profile-card" id="harrowProfileCard" type="button">
-<img alt="Harrow" src="https://cdn.hellboxcomics.com/assets/brand/harrow/emblems/improved-harrow-pfp.PNG"/>
-<div>
-<span>
+
+
+                <div class="harrow-layout">
+
+
+                    <div class="harrow-art-column">
+
+                        <button
+                            class="harrow-art-frame"
+                            id="harrowPortrait"
+                            type="button"
+                        >
+
+                            <img
+                                src="https://cdn.hellboxcomics.com/assets/brand/harrow/art/harrow-concept.PNG"
+                                alt="Harrow"
+                                class="harrow-concept"
+                            >
+
+
+                            <div class="surveillance-overlay">
+                                <span>HARROW</span>
+                                <span>YES, I PICKED THE PHOTO</span>
+                            </div>
+
+                        </button>
+
+
+                        <button
+                            class="harrow-profile-card"
+                            id="harrowProfileCard"
+                            type="button"
+                        >
+
+                            <img
+                                src="https://cdn.hellboxcomics.com/assets/brand/harrow/emblems/improved-harrow-pfp.PNG"
+                                alt="Harrow"
+                            >
+
+                            <div>
+
+                                <span>
                                     IMPORTANT PERSON
                                 </span>
-<strong>
+
+                                <strong>
                                     HARROW
                                 </strong>
-<small>
+
+                                <small>
                                     SELF APPOINTED
                                 </small>
-</div>
-</button>
-</div>
-<div class="harrow-file">
-<div class="harrow-file-top">
-<span>THE REASON YOU'RE ACTUALLY HERE</span>
-<span>OBVIOUSLY</span>
-</div>
-<button class="harrow-wordmark-button" id="harrowWordmark" type="button">
-<img alt="Harrow" class="harrow-wordmark" src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-new-wordmark-white.PNG"/>
-</button>
-<div class="harrow-role-list">
-<strong>WRITER.</strong>
-<strong>ARTIST.</strong>
-<strong>OPERATOR.</strong>
-<strong>PROBLEM.</strong>
-</div>
-<div class="harrow-authorship-declaration">
-<span>NO STUDIO. NO COMMITTEE. NO ADULT SUPERVISION.</span>
-<strong>WRITTEN // DRAWN // BUILT // OPERATED BY HARROW.</strong>
-</div>
-<p class="harrow-intro">
+
+                            </div>
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="harrow-file">
+
+                        <div class="harrow-file-top">
+                            <span>THE REASON YOU'RE ACTUALLY HERE</span>
+                            <span>OBVIOUSLY</span>
+                        </div>
+
+
+                        <button
+                            class="harrow-wordmark-button"
+                            id="harrowWordmark"
+                            type="button"
+                        >
+
+                            <img
+                                src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-new-wordmark-white.PNG"
+                                alt="Harrow"
+                                class="harrow-wordmark"
+                            >
+
+                        </button>
+
+
+                        <div class="harrow-role-list">
+                            <strong>WRITER.</strong>
+                            <strong>ARTIST.</strong>
+                            <strong>OPERATOR.</strong>
+                            <strong>PROBLEM.</strong>
+                        </div>
+
+
+                        <div class="harrow-authorship-declaration">
+                            <span>NO STUDIO. NO COMMITTEE. NO ADULT SUPERVISION.</span>
+                            <strong>WRITTEN // DRAWN // BUILT // OPERATED BY HARROW.</strong>
+                        </div>
+
+
+                        <p class="harrow-intro">
                             Harrow.
                         </p>
-<p class="harrow-intro">
+
+                        <p class="harrow-intro">
                             Obviously.
                         </p>
-<p class="harrow-intro">
+
+                        <p class="harrow-intro">
                             I make graphic fiction about crypto because
                             reality keeps writing drafts and frankly the
                             dialogue needs work.
                         </p>
-<div class="harrow-data">
-<div>
-<span>FAVORITE ARTIST</span>
-<strong>HARROW</strong>
-</div>
-<div>
-<span>FAVORITE WRITER</span>
-<strong>ALSO HARROW</strong>
-</div>
-<div>
-<span>BIGGEST INFLUENCE</span>
-<strong>HARROW, EARLIER</strong>
-</div>
-<div>
-<span>HUMILITY</span>
-<strong>DISTRACTING</strong>
-</div>
-</div>
-<button class="self-review" id="selfReview" type="button">
-<span>
+
+
+                        <div class="harrow-data">
+
+                            <div>
+                                <span>FAVORITE ARTIST</span>
+                                <strong>HARROW</strong>
+                            </div>
+
+                            <div>
+                                <span>FAVORITE WRITER</span>
+                                <strong>ALSO HARROW</strong>
+                            </div>
+
+                            <div>
+                                <span>BIGGEST INFLUENCE</span>
+                                <strong>HARROW, EARLIER</strong>
+                            </div>
+
+                            <div>
+                                <span>HUMILITY</span>
+                                <strong>DISTRACTING</strong>
+                            </div>
+
+                        </div>
+
+
+                        <button
+                            class="self-review"
+                            id="selfReview"
+                            type="button"
+                        >
+
+                            <span>
                                 COMPLETELY INDEPENDENT PERFORMANCE REVIEW
                             </span>
-<p>
+
+                            <p>
                                 “Harrow continues to exceed expectations
                                 despite being the person who established them.”
                             </p>
-<small>
+
+                            <small>
                                 REVIEWED BY // A PANEL OF HARROW
                             </small>
-</button>
-<div class="harrow-love-note">
-<span>
+
+                        </button>
+
+
+                        <div class="harrow-love-note">
+
+                            <span>
                                 FINE. ONE SINCERE THING.
                             </span>
-<strong>
+
+                            <strong>
                                 IF YOU'RE STILL READING,
                                 YOU PROBABLY GET THE JOKE.
                             </strong>
-<p>
+
+                            <p>
                                 Don't get sentimental.
                             </p>
-</div>
-<div class="harrow-social-row">
-<a href="https://x.com/SinnisterHarrow" rel="noopener noreferrer" target="_blank">
-<span>X</span>
-<strong>@SinnisterHarrow</strong>
-<i>↗</i>
-</a>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- =====================================================
+
+                        </div>
+
+
+                        <div class="harrow-social-row">
+
+                            <a
+                                href="https://x.com/SinnisterHarrow"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <span>X</span>
+                                <strong>@SinnisterHarrow</strong>
+                                <i>↗</i>
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
              07 // KEEP UP
         ====================================================== -->
-<section class="signals-section" data-zone="signals" id="signals">
-<div class="section-shell">
-<div class="section-number">
+
+        <section
+            class="signals-section"
+            id="signals"
+            data-zone="signals"
+        >
+
+            <div class="section-shell">
+
+                <div class="section-number">
                     07 // KEEP UP
                 </div>
-<div class="section-heading signal-heading">
-<div>
-<span class="eyebrow">
+
+
+                <div class="section-heading signal-heading">
+
+                    <div>
+
+                        <span class="eyebrow">
                             YOU KNOW WHERE I AM
                         </span>
-<h2>
+
+                        <h2>
                             KEEP
                             <em>UP.</em>
-</h2>
-</div>
-<div class="section-intro">
-<p>I post things.</p>
-<p>Sometimes they're even relevant.</p>
-</div>
-</div>
-<div class="signals-grid">
-<a class="signal-card" href="https://x.com/HellboxComics" rel="noopener noreferrer" target="_blank">
-<span>HELLBOX // X</span>
-<strong>
+                        </h2>
+
+                    </div>
+
+
+                    <div class="section-intro">
+
+                        <p>I post things.</p>
+                        <p>Sometimes they're even relevant.</p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="signals-grid">
+
+
+                    <a
+                        href="https://x.com/HellboxComics"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="signal-card"
+                    >
+
+                        <span>HELLBOX // X</span>
+
+                        <strong>
                             @HellboxComics
                         </strong>
-<small>
+
+                        <small>
                             OFFICIAL PROPAGANDA ↗
                         </small>
-</a>
-<a class="signal-card" href="https://x.com/SinnisterHarrow" rel="noopener noreferrer" target="_blank">
-<span>HARROW // X</span>
-<strong>
+
+                    </a>
+
+
+                    <a
+                        href="https://x.com/SinnisterHarrow"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="signal-card"
+                    >
+
+                        <span>HARROW // X</span>
+
+                        <strong>
                             @SinnisterHarrow
                         </strong>
-<small>
+
+                        <small>
                             LESS OFFICIAL PROPAGANDA ↗
                         </small>
-</a>
-<a class="signal-card" href="https://t.me/HellboxComics" rel="noopener noreferrer" target="_blank">
-<span>TELEGRAM</span>
-<strong>
+
+                    </a>
+
+
+                    <a
+                        href="https://t.me/HellboxComics"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="signal-card"
+                    >
+
+                        <span>TELEGRAM</span>
+
+                        <strong>
                             HellboxComics
                         </strong>
-<small>
+
+                        <small>
                             THE BASEMENT ↗
                         </small>
-</a>
-<button class="signal-card signal-locked" id="lockedSignal" type="button">
-<span>███████</span>
-<strong>
+
+                    </a>
+
+
+                    <button
+                        class="signal-card signal-locked"
+                        id="lockedSignal"
+                        type="button"
+                    >
+
+                        <span>███████</span>
+
+                        <strong>
                             NO.
                         </strong>
-<small>
+
+                        <small>
                             YOU DON'T NEED THIS YET.
                         </small>
-</button>
-</div>
-</div>
-</section>
-<!-- =====================================================
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
              08 // CLASSIFIED
         ====================================================== -->
-<section class="classified-section" data-zone="classified">
-<div class="section-shell">
-<div class="section-number">
+
+        <section
+            class="classified-section"
+            data-zone="classified"
+        >
+
+            <div class="section-shell">
+
+                <div class="section-number">
                     08 // I'M NOT TELLING YOU
                 </div>
-<div class="classified-layout">
-<div class="classified-copy">
-<span class="classified-label">
+
+
+                <div class="classified-layout">
+
+
+                    <div class="classified-copy">
+
+                        <span class="classified-label">
                             NONE OF YOUR BUSINESS
                         </span>
-<h2>
+
+                        <h2>
                             THERE'S
                             <em>MORE.</em>
-</h2>
-<p>Obviously.</p>
-<p>No.</p>
-<div class="redaction-lines">
-<span></span>
-<span></span>
-<span></span>
-</div>
-<div class="classified-object-list">
-<button data-classified-object="fuel" type="button">
+                        </h2>
+
+                        <p>Obviously.</p>
+                        <p>No.</p>
+
+
+                        <div class="redaction-lines">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+
+
+                        <div class="classified-object-list">
+
+                            <button
+                                type="button"
+                                data-classified-object="fuel"
+                            >
                                 FUEL SOURCE // ███████
                             </button>
-<button data-classified-object="relay" type="button">
+
+                            <button
+                                type="button"
+                                data-classified-object="relay"
+                            >
                                 REMOTE RELAY // OFFLINE
                             </button>
-<button data-classified-object="machine" type="button">
+
+                            <button
+                                type="button"
+                                data-classified-object="machine"
+                            >
                                 MACHINE // NO INPUT
                             </button>
-</div>
-</div>
-<button aria-label="Inspect the classified Hellbox system" class="classified-object" id="classifiedMainObject" type="button">
-<div class="classified-orbit orbit-one"></div>
-<div class="classified-orbit orbit-two"></div>
-<img alt="" src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem-improved.PNG"/>
-<span>
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        class="classified-object"
+                        id="classifiedMainObject"
+                        type="button"
+                        aria-label="Inspect the classified Hellbox system"
+                    >
+
+                        <div class="classified-orbit orbit-one"></div>
+                        <div class="classified-orbit orbit-two"></div>
+
+                        <img
+                            src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem-improved.PNG"
+                            alt=""
+                        >
+
+                        <span>
                             ████████████
                         </span>
-<strong>
+
+                        <strong>
                             YET.
                         </strong>
-</button>
-</div>
-</div>
-</section>
-<!-- =====================================================
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
              09 // EXIT
         ====================================================== -->
-<section class="exit-section" data-zone="exit">
-<div class="exit-background">
+
+        <section
+            class="exit-section"
+            data-zone="exit"
+        >
+
+            <div class="exit-background">
                 GO
             </div>
-<div class="section-shell">
-<div class="exit-content">
-<span>
+
+
+            <div class="section-shell">
+
+                <div class="exit-content">
+
+                    <span>
                         09 // THAT'S IT
                     </span>
-<h2>
+
+                    <h2>
                         GO
                         <em>AWAY.</em>
-</h2>
-<p>
+                    </h2>
+
+                    <p>
                         I have work to do.
                     </p>
-<a href="#top">
+
+                    <a href="#top">
                         MAKE THE SAME MISTAKE AGAIN
                     </a>
-<small class="exit-afterthought" id="exitAfterthought">
+
+                    <small
+                        class="exit-afterthought"
+                        id="exitAfterthought"
+                    >
                         you'll be back.
                     </small>
-</div>
-</div>
-</section>
-</main>
-<!-- =========================================================
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================================================
          FOOTER
     ========================================================== -->
-<footer class="site-footer" data-zone="footer">
-<div class="footer-status">
-<span>END OF CURRENT INTERRUPTION</span>
-<span>HARROW RETURNED TO WORK</span>
-</div>
-<div class="footer-main">
-<div class="footer-block">
-<span>
+
+    <footer
+        class="site-footer"
+        data-zone="footer"
+    >
+
+        <div class="footer-status">
+            <span>END OF CURRENT INTERRUPTION</span>
+            <span>HARROW RETURNED TO WORK</span>
+        </div>
+
+
+        <div class="footer-main">
+
+
+            <div class="footer-block">
+
+                <span>
                     EVERYTHING BY
                 </span>
-<img alt="Harrow" class="footer-harrow" src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-new-wordmark-white.PNG"/>
-</div>
-<div class="footer-block">
-<span>
+
+                <img
+                    src="https://cdn.hellboxcomics.com/assets/brand/harrow/wordmarks/harrow-new-wordmark-white.PNG"
+                    alt="Harrow"
+                    class="footer-harrow"
+                >
+
+            </div>
+
+
+            <div class="footer-block">
+
+                <span>
                     INFRASTRUCTURE
                 </span>
-<button aria-label="Inspect Hellbox infrastructure" class="footer-object-button" id="bytesInfrastructureObject" type="button">
-<img alt="Backed by Bytes" class="footer-bytes" src="https://cdn.hellboxcomics.com/assets/brand/footer/backed-by-bytes-footer.PNG"/>
-</button>
-</div>
-<div class="footer-block">
-<span>NEXT</span>
-<strong class="footer-redacted">
+
+                <button
+                    class="footer-object-button"
+                    id="bytesInfrastructureObject"
+                    type="button"
+                    aria-label="Inspect Hellbox infrastructure"
+                >
+                    <img
+                        src="https://cdn.hellboxcomics.com/assets/brand/footer/backed-by-bytes-footer.PNG"
+                        alt="Backed by Bytes"
+                        class="footer-bytes"
+                    >
+                </button>
+
+            </div>
+
+
+            <div class="footer-block">
+
+                <span>NEXT</span>
+
+                <strong class="footer-redacted">
                     NONE OF YOUR BUSINESS.
                 </strong>
-<small>— H</small>
-</div>
-</div>
-<div class="footer-bottom">
-<span>HELLBOX COMICS // A HARROW PRODUCTION</span>
-<span>HELLBOXCOMICS.COM</span>
-<button data-i18n="access.open" data-open-access="" type="button">
+
+                <small>— H</small>
+
+            </div>
+
+        </div>
+
+
+        <div class="footer-bottom">
+
+            <span>HELLBOX COMICS // A HARROW PRODUCTION</span>
+            <span>HELLBOXCOMICS.COM</span>
+            <button type="button" data-open-access data-i18n="access.open">
                 ACCESS // LANGUAGE
             </button>
-<span>WRITTEN // DRAWN // BUILT // OPERATED BY HARROW</span>
-</div>
-</footer>
-<!-- =========================================================
+            <span>WRITTEN // DRAWN // BUILT // OPERATED BY HARROW</span>
+
+        </div>
+
+    </footer>
+
+
+    <!-- =========================================================
          PROTECTED READER
     ========================================================== -->
-<section aria-hidden="true" aria-labelledby="readerTitle" aria-modal="true" class="hellbox-reader" id="hellboxReader" role="dialog">
-<header class="reader-header">
-<div class="reader-brand">
-<img alt="" src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem-improved.PNG"/>
-<div>
-<span>HARROW // READER</span>
-<strong id="readerTitle">
+
+    <section
+        class="hellbox-reader"
+        id="hellboxReader"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="readerTitle"
+        aria-hidden="true"
+    >
+
+        <header class="reader-header">
+
+
+            <div class="reader-brand">
+
+                <img
+                    src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem-improved.PNG"
+                    alt=""
+                >
+
+                <div>
+                    <span>HARROW // READER</span>
+
+                    <strong id="readerTitle">
                         HELLBOX PUBLICATION
                     </strong>
-</div>
-</div>
-<div class="reader-counter">
-<span>PAGE</span>
-<strong id="readerPageNumber">
+                </div>
+
+            </div>
+
+
+            <div class="reader-counter">
+
+                <span>PAGE</span>
+
+                <strong id="readerPageNumber">
                     00
                 </strong>
-<span>/</span>
-<strong id="readerPageCount">
+
+                <span>/</span>
+
+                <strong id="readerPageCount">
                     00
                 </strong>
-</div>
-<div class="reader-controls">
-<button id="readerFitPage" type="button">
+
+            </div>
+
+
+            <div class="reader-controls">
+
+                <button
+                    id="readerFitPage"
+                    type="button"
+                >
                     FIT PAGE
                 </button>
-<button id="readerFitWidth" type="button">
+
+                <button
+                    id="readerFitWidth"
+                    type="button"
+                >
                     FIT WIDTH
                 </button>
-<button id="readerLayoutToggle" type="button">
+
+                <button
+                    id="readerLayoutToggle"
+                    type="button"
+                >
                     CONTINUOUS
                 </button>
-<button aria-label="Close reader" id="readerClose" type="button">
+
+                <button
+                    id="readerClose"
+                    type="button"
+                    aria-label="Close reader"
+                >
                     ×
                 </button>
-</div>
-</header>
-<div class="reader-stage">
-<div class="reader-session-status" id="readerSessionStatus">
+
+            </div>
+
+        </header>
+
+
+        <div class="reader-stage">
+
+
+            <div
+                class="reader-session-status"
+                id="readerSessionStatus"
+            >
                 FINE // IT'S YOU
             </div>
-<div class="reader-paged" id="readerPaged">
-<div class="reader-page-frame">
-<img alt="" class="reader-page-image fit-page" id="readerPageImage"/>
-</div>
-</div>
-<button aria-label="Previous page" class="reader-arrow reader-arrow-left" id="readerPrevious" type="button">
+
+
+            <div
+                class="reader-paged"
+                id="readerPaged"
+            >
+
+                <div class="reader-page-frame">
+
+                    <img
+                        id="readerPageImage"
+                        class="reader-page-image fit-page"
+                        alt=""
+                    >
+
+                </div>
+
+            </div>
+
+
+            <button
+                id="readerPrevious"
+                class="reader-arrow reader-arrow-left"
+                type="button"
+                aria-label="Previous page"
+            >
                 ‹
             </button>
-<button aria-label="Next page" class="reader-arrow reader-arrow-right" id="readerNext" type="button">
+
+
+            <button
+                id="readerNext"
+                class="reader-arrow reader-arrow-right"
+                type="button"
+                aria-label="Next page"
+            >
                 ›
             </button>
-<div class="reader-continuous" id="readerContinuous"></div>
-<div class="reader-bottom" id="readerBottom">
-<button id="readerFirst" type="button">
+
+
+            <div
+                class="reader-continuous"
+                id="readerContinuous"
+            ></div>
+
+
+            <div
+                class="reader-bottom"
+                id="readerBottom"
+            >
+
+                <button
+                    id="readerFirst"
+                    type="button"
+                >
                     FIRST
                 </button>
-<button id="readerPreviousBottom" type="button">
+
+                <button
+                    id="readerPreviousBottom"
+                    type="button"
+                >
                     ←
                 </button>
-<span id="readerBottomLabel">
+
+                <span id="readerBottomLabel">
                     00 / 00
                 </span>
-<button id="readerNextBottom" type="button">
+
+                <button
+                    id="readerNextBottom"
+                    type="button"
+                >
                     →
                 </button>
-<button id="readerLast" type="button">
+
+                <button
+                    id="readerLast"
+                    type="button"
+                >
                     LAST
                 </button>
-</div>
-<div class="reader-loading active" id="readerLoading">
-<div>
-<span>HARROW // WAIT</span>
-<h3>
+
+            </div>
+
+
+            <div
+                class="reader-loading active"
+                id="readerLoading"
+            >
+
+                <div>
+                    <span>HARROW // WAIT</span>
+
+                    <h3>
                         HOLD ON.
                     </h3>
-<p id="readerLoadingText">
+
+                    <p id="readerLoadingText">
                         The machine is doing something expensive.
                     </p>
-</div>
-</div>
-<div class="reader-error" id="readerError">
-<div>
-<span>HARROW // NO</span>
-<h3>
+                </div>
+
+            </div>
+
+
+            <div
+                class="reader-error"
+                id="readerError"
+            >
+
+                <div>
+                    <span>HARROW // NO</span>
+
+                    <h3>
                         NOT THIS ONE.
                     </h3>
-<p id="readerErrorText">
+
+                    <p id="readerErrorText">
                         You don't own this one.
                     </p>
-<button id="readerErrorClose" type="button">
+
+                    <button
+                        id="readerErrorClose"
+                        type="button"
+                    >
                         FINE
                     </button>
-</div>
-</div>
-</div>
-</section>
-<!-- =========================================================
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================================
          FRONTEND APPLICATION
     ========================================================== -->
-<script src="/config/chains.js?v=20260828-gate0-2-01"></script>
-<script src="/app.js?v=20260828-gate0-2-01"></script>
-<script src="/gate02.js?v=20260828-gate0-2-01"></script>
+
+    <script src="/app.js?v=20260828-gate0-1-02"></script>
+
 </body>
+
 </html>
