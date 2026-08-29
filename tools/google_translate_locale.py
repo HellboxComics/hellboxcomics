@@ -55,6 +55,11 @@ API_URL = "https://translation.googleapis.com/language/translate/v2"
 MAX_ITEMS_PER_BATCH = 100
 MAX_CHARS_PER_BATCH = 20_000
 
+# Hard local safety cap: refuse to send more than 50,000 source characters
+# to Google in any single invocation. This is intentionally conservative
+# for Gate 0.2 and keeps accidental runaway translation jobs from occurring.
+HARD_SOURCE_CHAR_LIMIT = 50_000
+
 SUPPORTED_GATE02_TARGETS = {
     "es": "Spanish",
     "pt-BR": "Brazilian Portuguese",
@@ -289,10 +294,24 @@ def build_draft(target: str, api_key: str, model: str | None) -> Path:
         pending.append((key, protected))
         token_maps[key] = replacements
 
+    total_source_chars = sum(len(value) for _, value in pending)
+
+    if total_source_chars > HARD_SOURCE_CHAR_LIMIT:
+        die(
+            "Local safety cap exceeded: "
+            f"{total_source_chars:,} source characters would be sent to Google, "
+            f"but this Gate 0.2 tool allows at most "
+            f"{HARD_SOURCE_CHAR_LIMIT:,} per run."
+        )
+
     batches = list(batch_entries(pending))
     print(
         f"Translating {len(pending)} strings from en -> {target} "
         f"in {len(batches)} request batch(es)..."
+    )
+    print(
+        f"Source characters this run: {total_source_chars:,} "
+        f"(hard cap: {HARD_SOURCE_CHAR_LIMIT:,})"
     )
 
     for batch_index, batch in enumerate(batches, start=1):
@@ -435,11 +454,28 @@ def main() -> None:
         print(f"Canonical source: {SOURCE_PATH}")
         print(f"Canonical keys: {len(source_keys)}")
         print(f"Target: {args.target} ({SUPPORTED_GATE02_TARGETS[args.target]})")
+        source_characters = sum(
+            len(value)
+            for key, value in source.items()
+            if key != "_meta" and isinstance(value, str)
+        )
+
         print(
             "Google API key: "
             + ("present in environment" if api_key else "NOT SET")
         )
         print(f"Model: {model or 'Google default'}")
+        print(
+            f"Canonical source characters: {source_characters:,} "
+            f"(hard cap per run: {HARD_SOURCE_CHAR_LIMIT:,})"
+        )
+
+        if source_characters > HARD_SOURCE_CHAR_LIMIT:
+            die(
+                "Canonical catalog exceeds the local per-run safety cap. "
+                "Do not translate until the catalog is intentionally split."
+            )
+
         print("No files changed.")
         return
 
