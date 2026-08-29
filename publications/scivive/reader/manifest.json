@@ -1,0 +1,3285 @@
+{
+  "schemaVersion": "1.0.0",
+  "manifestVersion": 1,
+  "publicationKey": "scivive",
+  "title": "SciVive",
+  "presentationClass": "book",
+  "renderMode": "facsimile",
+  "status": "draft",
+  "layout": "paged",
+  "fit": "page",
+  "pageCount": 461,
+  "source": {
+    "logicalAssetKey": "source-pdf",
+    "contentType": "application/pdf",
+    "pageCount": 461,
+    "byteSize": 8433084,
+    "sha256": "d105e16e991944b63d8e696c8236f5b4497d3c959119a87e580f46f2181bc548",
+    "verifiedIpfsCid": "QmWKTwYfhMDksDwz5eMwsw8YFJC8yYwPLFZxWAbUyDS2EH"
+  },
+  "delivery": {
+    "accessClass": "reader_gated",
+    "provider": "r2_private",
+    "manifestKey": "comics/scivive/001/reader/manifest.json",
+    "assetPrefix": "comics/scivive/001/reader/pages/",
+    "pageMediaType": "image/webp",
+    "pageNaming": "page-{pageNumber:04d}.webp",
+    "sourceBytesRemainPublic": true,
+    "notes": "The verified PDF/EPUB source remains independently public. These private R2 objects are Hellbox Reader presentation assets used to prove protected Reader delivery; Hellbox does not claim the underlying SciVive source bytes are secret."
+  },
+  "behavior": {
+    "allowedLayouts": [
+      "paged",
+      "continuous"
+    ],
+    "allowedFits": [
+      "page",
+      "width"
+    ],
+    "preload": {
+      "ahead": 2,
+      "behind": 1
+    },
+    "keyboardNavigation": true,
+    "touchNavigation": true
+  },
+  "navigation": {
+    "chapterIndexStatus": "pending-source-mapping",
+    "chapters": [],
+    "notes": "Do not invent chapter page boundaries. Populate chapter anchors only after they are derived from the verified source content."
+  },
+  "accessibility": {
+    "pageAltStrategy": "generated-page-label",
+    "textLayerStatus": "pending-source-extraction",
+    "notes": "Generic page labels are a temporary facsimile baseline. Gate 2 cannot close until usable accessible text/navigation is derived from the source and the Reader is verified with keyboard and assistive-technology behavior."
+  },
+  "pages": [
+    {
+      "id": "1",
+      "pageNumber": 1,
+      "storageKey": "page-0001.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 1"
+    },
+    {
+      "id": "2",
+      "pageNumber": 2,
+      "storageKey": "page-0002.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 2"
+    },
+    {
+      "id": "3",
+      "pageNumber": 3,
+      "storageKey": "page-0003.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 3"
+    },
+    {
+      "id": "4",
+      "pageNumber": 4,
+      "storageKey": "page-0004.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 4"
+    },
+    {
+      "id": "5",
+      "pageNumber": 5,
+      "storageKey": "page-0005.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 5"
+    },
+    {
+      "id": "6",
+      "pageNumber": 6,
+      "storageKey": "page-0006.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 6"
+    },
+    {
+      "id": "7",
+      "pageNumber": 7,
+      "storageKey": "page-0007.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 7"
+    },
+    {
+      "id": "8",
+      "pageNumber": 8,
+      "storageKey": "page-0008.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 8"
+    },
+    {
+      "id": "9",
+      "pageNumber": 9,
+      "storageKey": "page-0009.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 9"
+    },
+    {
+      "id": "10",
+      "pageNumber": 10,
+      "storageKey": "page-0010.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 10"
+    },
+    {
+      "id": "11",
+      "pageNumber": 11,
+      "storageKey": "page-0011.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 11"
+    },
+    {
+      "id": "12",
+      "pageNumber": 12,
+      "storageKey": "page-0012.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 12"
+    },
+    {
+      "id": "13",
+      "pageNumber": 13,
+      "storageKey": "page-0013.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 13"
+    },
+    {
+      "id": "14",
+      "pageNumber": 14,
+      "storageKey": "page-0014.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 14"
+    },
+    {
+      "id": "15",
+      "pageNumber": 15,
+      "storageKey": "page-0015.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 15"
+    },
+    {
+      "id": "16",
+      "pageNumber": 16,
+      "storageKey": "page-0016.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 16"
+    },
+    {
+      "id": "17",
+      "pageNumber": 17,
+      "storageKey": "page-0017.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 17"
+    },
+    {
+      "id": "18",
+      "pageNumber": 18,
+      "storageKey": "page-0018.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 18"
+    },
+    {
+      "id": "19",
+      "pageNumber": 19,
+      "storageKey": "page-0019.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 19"
+    },
+    {
+      "id": "20",
+      "pageNumber": 20,
+      "storageKey": "page-0020.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 20"
+    },
+    {
+      "id": "21",
+      "pageNumber": 21,
+      "storageKey": "page-0021.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 21"
+    },
+    {
+      "id": "22",
+      "pageNumber": 22,
+      "storageKey": "page-0022.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 22"
+    },
+    {
+      "id": "23",
+      "pageNumber": 23,
+      "storageKey": "page-0023.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 23"
+    },
+    {
+      "id": "24",
+      "pageNumber": 24,
+      "storageKey": "page-0024.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 24"
+    },
+    {
+      "id": "25",
+      "pageNumber": 25,
+      "storageKey": "page-0025.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 25"
+    },
+    {
+      "id": "26",
+      "pageNumber": 26,
+      "storageKey": "page-0026.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 26"
+    },
+    {
+      "id": "27",
+      "pageNumber": 27,
+      "storageKey": "page-0027.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 27"
+    },
+    {
+      "id": "28",
+      "pageNumber": 28,
+      "storageKey": "page-0028.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 28"
+    },
+    {
+      "id": "29",
+      "pageNumber": 29,
+      "storageKey": "page-0029.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 29"
+    },
+    {
+      "id": "30",
+      "pageNumber": 30,
+      "storageKey": "page-0030.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 30"
+    },
+    {
+      "id": "31",
+      "pageNumber": 31,
+      "storageKey": "page-0031.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 31"
+    },
+    {
+      "id": "32",
+      "pageNumber": 32,
+      "storageKey": "page-0032.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 32"
+    },
+    {
+      "id": "33",
+      "pageNumber": 33,
+      "storageKey": "page-0033.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 33"
+    },
+    {
+      "id": "34",
+      "pageNumber": 34,
+      "storageKey": "page-0034.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 34"
+    },
+    {
+      "id": "35",
+      "pageNumber": 35,
+      "storageKey": "page-0035.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 35"
+    },
+    {
+      "id": "36",
+      "pageNumber": 36,
+      "storageKey": "page-0036.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 36"
+    },
+    {
+      "id": "37",
+      "pageNumber": 37,
+      "storageKey": "page-0037.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 37"
+    },
+    {
+      "id": "38",
+      "pageNumber": 38,
+      "storageKey": "page-0038.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 38"
+    },
+    {
+      "id": "39",
+      "pageNumber": 39,
+      "storageKey": "page-0039.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 39"
+    },
+    {
+      "id": "40",
+      "pageNumber": 40,
+      "storageKey": "page-0040.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 40"
+    },
+    {
+      "id": "41",
+      "pageNumber": 41,
+      "storageKey": "page-0041.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 41"
+    },
+    {
+      "id": "42",
+      "pageNumber": 42,
+      "storageKey": "page-0042.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 42"
+    },
+    {
+      "id": "43",
+      "pageNumber": 43,
+      "storageKey": "page-0043.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 43"
+    },
+    {
+      "id": "44",
+      "pageNumber": 44,
+      "storageKey": "page-0044.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 44"
+    },
+    {
+      "id": "45",
+      "pageNumber": 45,
+      "storageKey": "page-0045.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 45"
+    },
+    {
+      "id": "46",
+      "pageNumber": 46,
+      "storageKey": "page-0046.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 46"
+    },
+    {
+      "id": "47",
+      "pageNumber": 47,
+      "storageKey": "page-0047.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 47"
+    },
+    {
+      "id": "48",
+      "pageNumber": 48,
+      "storageKey": "page-0048.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 48"
+    },
+    {
+      "id": "49",
+      "pageNumber": 49,
+      "storageKey": "page-0049.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 49"
+    },
+    {
+      "id": "50",
+      "pageNumber": 50,
+      "storageKey": "page-0050.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 50"
+    },
+    {
+      "id": "51",
+      "pageNumber": 51,
+      "storageKey": "page-0051.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 51"
+    },
+    {
+      "id": "52",
+      "pageNumber": 52,
+      "storageKey": "page-0052.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 52"
+    },
+    {
+      "id": "53",
+      "pageNumber": 53,
+      "storageKey": "page-0053.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 53"
+    },
+    {
+      "id": "54",
+      "pageNumber": 54,
+      "storageKey": "page-0054.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 54"
+    },
+    {
+      "id": "55",
+      "pageNumber": 55,
+      "storageKey": "page-0055.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 55"
+    },
+    {
+      "id": "56",
+      "pageNumber": 56,
+      "storageKey": "page-0056.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 56"
+    },
+    {
+      "id": "57",
+      "pageNumber": 57,
+      "storageKey": "page-0057.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 57"
+    },
+    {
+      "id": "58",
+      "pageNumber": 58,
+      "storageKey": "page-0058.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 58"
+    },
+    {
+      "id": "59",
+      "pageNumber": 59,
+      "storageKey": "page-0059.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 59"
+    },
+    {
+      "id": "60",
+      "pageNumber": 60,
+      "storageKey": "page-0060.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 60"
+    },
+    {
+      "id": "61",
+      "pageNumber": 61,
+      "storageKey": "page-0061.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 61"
+    },
+    {
+      "id": "62",
+      "pageNumber": 62,
+      "storageKey": "page-0062.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 62"
+    },
+    {
+      "id": "63",
+      "pageNumber": 63,
+      "storageKey": "page-0063.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 63"
+    },
+    {
+      "id": "64",
+      "pageNumber": 64,
+      "storageKey": "page-0064.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 64"
+    },
+    {
+      "id": "65",
+      "pageNumber": 65,
+      "storageKey": "page-0065.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 65"
+    },
+    {
+      "id": "66",
+      "pageNumber": 66,
+      "storageKey": "page-0066.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 66"
+    },
+    {
+      "id": "67",
+      "pageNumber": 67,
+      "storageKey": "page-0067.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 67"
+    },
+    {
+      "id": "68",
+      "pageNumber": 68,
+      "storageKey": "page-0068.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 68"
+    },
+    {
+      "id": "69",
+      "pageNumber": 69,
+      "storageKey": "page-0069.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 69"
+    },
+    {
+      "id": "70",
+      "pageNumber": 70,
+      "storageKey": "page-0070.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 70"
+    },
+    {
+      "id": "71",
+      "pageNumber": 71,
+      "storageKey": "page-0071.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 71"
+    },
+    {
+      "id": "72",
+      "pageNumber": 72,
+      "storageKey": "page-0072.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 72"
+    },
+    {
+      "id": "73",
+      "pageNumber": 73,
+      "storageKey": "page-0073.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 73"
+    },
+    {
+      "id": "74",
+      "pageNumber": 74,
+      "storageKey": "page-0074.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 74"
+    },
+    {
+      "id": "75",
+      "pageNumber": 75,
+      "storageKey": "page-0075.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 75"
+    },
+    {
+      "id": "76",
+      "pageNumber": 76,
+      "storageKey": "page-0076.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 76"
+    },
+    {
+      "id": "77",
+      "pageNumber": 77,
+      "storageKey": "page-0077.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 77"
+    },
+    {
+      "id": "78",
+      "pageNumber": 78,
+      "storageKey": "page-0078.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 78"
+    },
+    {
+      "id": "79",
+      "pageNumber": 79,
+      "storageKey": "page-0079.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 79"
+    },
+    {
+      "id": "80",
+      "pageNumber": 80,
+      "storageKey": "page-0080.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 80"
+    },
+    {
+      "id": "81",
+      "pageNumber": 81,
+      "storageKey": "page-0081.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 81"
+    },
+    {
+      "id": "82",
+      "pageNumber": 82,
+      "storageKey": "page-0082.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 82"
+    },
+    {
+      "id": "83",
+      "pageNumber": 83,
+      "storageKey": "page-0083.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 83"
+    },
+    {
+      "id": "84",
+      "pageNumber": 84,
+      "storageKey": "page-0084.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 84"
+    },
+    {
+      "id": "85",
+      "pageNumber": 85,
+      "storageKey": "page-0085.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 85"
+    },
+    {
+      "id": "86",
+      "pageNumber": 86,
+      "storageKey": "page-0086.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 86"
+    },
+    {
+      "id": "87",
+      "pageNumber": 87,
+      "storageKey": "page-0087.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 87"
+    },
+    {
+      "id": "88",
+      "pageNumber": 88,
+      "storageKey": "page-0088.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 88"
+    },
+    {
+      "id": "89",
+      "pageNumber": 89,
+      "storageKey": "page-0089.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 89"
+    },
+    {
+      "id": "90",
+      "pageNumber": 90,
+      "storageKey": "page-0090.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 90"
+    },
+    {
+      "id": "91",
+      "pageNumber": 91,
+      "storageKey": "page-0091.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 91"
+    },
+    {
+      "id": "92",
+      "pageNumber": 92,
+      "storageKey": "page-0092.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 92"
+    },
+    {
+      "id": "93",
+      "pageNumber": 93,
+      "storageKey": "page-0093.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 93"
+    },
+    {
+      "id": "94",
+      "pageNumber": 94,
+      "storageKey": "page-0094.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 94"
+    },
+    {
+      "id": "95",
+      "pageNumber": 95,
+      "storageKey": "page-0095.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 95"
+    },
+    {
+      "id": "96",
+      "pageNumber": 96,
+      "storageKey": "page-0096.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 96"
+    },
+    {
+      "id": "97",
+      "pageNumber": 97,
+      "storageKey": "page-0097.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 97"
+    },
+    {
+      "id": "98",
+      "pageNumber": 98,
+      "storageKey": "page-0098.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 98"
+    },
+    {
+      "id": "99",
+      "pageNumber": 99,
+      "storageKey": "page-0099.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 99"
+    },
+    {
+      "id": "100",
+      "pageNumber": 100,
+      "storageKey": "page-0100.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 100"
+    },
+    {
+      "id": "101",
+      "pageNumber": 101,
+      "storageKey": "page-0101.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 101"
+    },
+    {
+      "id": "102",
+      "pageNumber": 102,
+      "storageKey": "page-0102.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 102"
+    },
+    {
+      "id": "103",
+      "pageNumber": 103,
+      "storageKey": "page-0103.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 103"
+    },
+    {
+      "id": "104",
+      "pageNumber": 104,
+      "storageKey": "page-0104.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 104"
+    },
+    {
+      "id": "105",
+      "pageNumber": 105,
+      "storageKey": "page-0105.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 105"
+    },
+    {
+      "id": "106",
+      "pageNumber": 106,
+      "storageKey": "page-0106.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 106"
+    },
+    {
+      "id": "107",
+      "pageNumber": 107,
+      "storageKey": "page-0107.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 107"
+    },
+    {
+      "id": "108",
+      "pageNumber": 108,
+      "storageKey": "page-0108.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 108"
+    },
+    {
+      "id": "109",
+      "pageNumber": 109,
+      "storageKey": "page-0109.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 109"
+    },
+    {
+      "id": "110",
+      "pageNumber": 110,
+      "storageKey": "page-0110.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 110"
+    },
+    {
+      "id": "111",
+      "pageNumber": 111,
+      "storageKey": "page-0111.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 111"
+    },
+    {
+      "id": "112",
+      "pageNumber": 112,
+      "storageKey": "page-0112.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 112"
+    },
+    {
+      "id": "113",
+      "pageNumber": 113,
+      "storageKey": "page-0113.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 113"
+    },
+    {
+      "id": "114",
+      "pageNumber": 114,
+      "storageKey": "page-0114.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 114"
+    },
+    {
+      "id": "115",
+      "pageNumber": 115,
+      "storageKey": "page-0115.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 115"
+    },
+    {
+      "id": "116",
+      "pageNumber": 116,
+      "storageKey": "page-0116.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 116"
+    },
+    {
+      "id": "117",
+      "pageNumber": 117,
+      "storageKey": "page-0117.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 117"
+    },
+    {
+      "id": "118",
+      "pageNumber": 118,
+      "storageKey": "page-0118.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 118"
+    },
+    {
+      "id": "119",
+      "pageNumber": 119,
+      "storageKey": "page-0119.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 119"
+    },
+    {
+      "id": "120",
+      "pageNumber": 120,
+      "storageKey": "page-0120.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 120"
+    },
+    {
+      "id": "121",
+      "pageNumber": 121,
+      "storageKey": "page-0121.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 121"
+    },
+    {
+      "id": "122",
+      "pageNumber": 122,
+      "storageKey": "page-0122.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 122"
+    },
+    {
+      "id": "123",
+      "pageNumber": 123,
+      "storageKey": "page-0123.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 123"
+    },
+    {
+      "id": "124",
+      "pageNumber": 124,
+      "storageKey": "page-0124.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 124"
+    },
+    {
+      "id": "125",
+      "pageNumber": 125,
+      "storageKey": "page-0125.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 125"
+    },
+    {
+      "id": "126",
+      "pageNumber": 126,
+      "storageKey": "page-0126.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 126"
+    },
+    {
+      "id": "127",
+      "pageNumber": 127,
+      "storageKey": "page-0127.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 127"
+    },
+    {
+      "id": "128",
+      "pageNumber": 128,
+      "storageKey": "page-0128.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 128"
+    },
+    {
+      "id": "129",
+      "pageNumber": 129,
+      "storageKey": "page-0129.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 129"
+    },
+    {
+      "id": "130",
+      "pageNumber": 130,
+      "storageKey": "page-0130.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 130"
+    },
+    {
+      "id": "131",
+      "pageNumber": 131,
+      "storageKey": "page-0131.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 131"
+    },
+    {
+      "id": "132",
+      "pageNumber": 132,
+      "storageKey": "page-0132.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 132"
+    },
+    {
+      "id": "133",
+      "pageNumber": 133,
+      "storageKey": "page-0133.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 133"
+    },
+    {
+      "id": "134",
+      "pageNumber": 134,
+      "storageKey": "page-0134.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 134"
+    },
+    {
+      "id": "135",
+      "pageNumber": 135,
+      "storageKey": "page-0135.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 135"
+    },
+    {
+      "id": "136",
+      "pageNumber": 136,
+      "storageKey": "page-0136.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 136"
+    },
+    {
+      "id": "137",
+      "pageNumber": 137,
+      "storageKey": "page-0137.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 137"
+    },
+    {
+      "id": "138",
+      "pageNumber": 138,
+      "storageKey": "page-0138.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 138"
+    },
+    {
+      "id": "139",
+      "pageNumber": 139,
+      "storageKey": "page-0139.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 139"
+    },
+    {
+      "id": "140",
+      "pageNumber": 140,
+      "storageKey": "page-0140.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 140"
+    },
+    {
+      "id": "141",
+      "pageNumber": 141,
+      "storageKey": "page-0141.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 141"
+    },
+    {
+      "id": "142",
+      "pageNumber": 142,
+      "storageKey": "page-0142.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 142"
+    },
+    {
+      "id": "143",
+      "pageNumber": 143,
+      "storageKey": "page-0143.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 143"
+    },
+    {
+      "id": "144",
+      "pageNumber": 144,
+      "storageKey": "page-0144.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 144"
+    },
+    {
+      "id": "145",
+      "pageNumber": 145,
+      "storageKey": "page-0145.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 145"
+    },
+    {
+      "id": "146",
+      "pageNumber": 146,
+      "storageKey": "page-0146.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 146"
+    },
+    {
+      "id": "147",
+      "pageNumber": 147,
+      "storageKey": "page-0147.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 147"
+    },
+    {
+      "id": "148",
+      "pageNumber": 148,
+      "storageKey": "page-0148.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 148"
+    },
+    {
+      "id": "149",
+      "pageNumber": 149,
+      "storageKey": "page-0149.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 149"
+    },
+    {
+      "id": "150",
+      "pageNumber": 150,
+      "storageKey": "page-0150.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 150"
+    },
+    {
+      "id": "151",
+      "pageNumber": 151,
+      "storageKey": "page-0151.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 151"
+    },
+    {
+      "id": "152",
+      "pageNumber": 152,
+      "storageKey": "page-0152.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 152"
+    },
+    {
+      "id": "153",
+      "pageNumber": 153,
+      "storageKey": "page-0153.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 153"
+    },
+    {
+      "id": "154",
+      "pageNumber": 154,
+      "storageKey": "page-0154.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 154"
+    },
+    {
+      "id": "155",
+      "pageNumber": 155,
+      "storageKey": "page-0155.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 155"
+    },
+    {
+      "id": "156",
+      "pageNumber": 156,
+      "storageKey": "page-0156.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 156"
+    },
+    {
+      "id": "157",
+      "pageNumber": 157,
+      "storageKey": "page-0157.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 157"
+    },
+    {
+      "id": "158",
+      "pageNumber": 158,
+      "storageKey": "page-0158.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 158"
+    },
+    {
+      "id": "159",
+      "pageNumber": 159,
+      "storageKey": "page-0159.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 159"
+    },
+    {
+      "id": "160",
+      "pageNumber": 160,
+      "storageKey": "page-0160.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 160"
+    },
+    {
+      "id": "161",
+      "pageNumber": 161,
+      "storageKey": "page-0161.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 161"
+    },
+    {
+      "id": "162",
+      "pageNumber": 162,
+      "storageKey": "page-0162.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 162"
+    },
+    {
+      "id": "163",
+      "pageNumber": 163,
+      "storageKey": "page-0163.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 163"
+    },
+    {
+      "id": "164",
+      "pageNumber": 164,
+      "storageKey": "page-0164.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 164"
+    },
+    {
+      "id": "165",
+      "pageNumber": 165,
+      "storageKey": "page-0165.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 165"
+    },
+    {
+      "id": "166",
+      "pageNumber": 166,
+      "storageKey": "page-0166.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 166"
+    },
+    {
+      "id": "167",
+      "pageNumber": 167,
+      "storageKey": "page-0167.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 167"
+    },
+    {
+      "id": "168",
+      "pageNumber": 168,
+      "storageKey": "page-0168.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 168"
+    },
+    {
+      "id": "169",
+      "pageNumber": 169,
+      "storageKey": "page-0169.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 169"
+    },
+    {
+      "id": "170",
+      "pageNumber": 170,
+      "storageKey": "page-0170.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 170"
+    },
+    {
+      "id": "171",
+      "pageNumber": 171,
+      "storageKey": "page-0171.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 171"
+    },
+    {
+      "id": "172",
+      "pageNumber": 172,
+      "storageKey": "page-0172.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 172"
+    },
+    {
+      "id": "173",
+      "pageNumber": 173,
+      "storageKey": "page-0173.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 173"
+    },
+    {
+      "id": "174",
+      "pageNumber": 174,
+      "storageKey": "page-0174.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 174"
+    },
+    {
+      "id": "175",
+      "pageNumber": 175,
+      "storageKey": "page-0175.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 175"
+    },
+    {
+      "id": "176",
+      "pageNumber": 176,
+      "storageKey": "page-0176.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 176"
+    },
+    {
+      "id": "177",
+      "pageNumber": 177,
+      "storageKey": "page-0177.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 177"
+    },
+    {
+      "id": "178",
+      "pageNumber": 178,
+      "storageKey": "page-0178.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 178"
+    },
+    {
+      "id": "179",
+      "pageNumber": 179,
+      "storageKey": "page-0179.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 179"
+    },
+    {
+      "id": "180",
+      "pageNumber": 180,
+      "storageKey": "page-0180.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 180"
+    },
+    {
+      "id": "181",
+      "pageNumber": 181,
+      "storageKey": "page-0181.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 181"
+    },
+    {
+      "id": "182",
+      "pageNumber": 182,
+      "storageKey": "page-0182.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 182"
+    },
+    {
+      "id": "183",
+      "pageNumber": 183,
+      "storageKey": "page-0183.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 183"
+    },
+    {
+      "id": "184",
+      "pageNumber": 184,
+      "storageKey": "page-0184.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 184"
+    },
+    {
+      "id": "185",
+      "pageNumber": 185,
+      "storageKey": "page-0185.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 185"
+    },
+    {
+      "id": "186",
+      "pageNumber": 186,
+      "storageKey": "page-0186.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 186"
+    },
+    {
+      "id": "187",
+      "pageNumber": 187,
+      "storageKey": "page-0187.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 187"
+    },
+    {
+      "id": "188",
+      "pageNumber": 188,
+      "storageKey": "page-0188.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 188"
+    },
+    {
+      "id": "189",
+      "pageNumber": 189,
+      "storageKey": "page-0189.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 189"
+    },
+    {
+      "id": "190",
+      "pageNumber": 190,
+      "storageKey": "page-0190.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 190"
+    },
+    {
+      "id": "191",
+      "pageNumber": 191,
+      "storageKey": "page-0191.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 191"
+    },
+    {
+      "id": "192",
+      "pageNumber": 192,
+      "storageKey": "page-0192.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 192"
+    },
+    {
+      "id": "193",
+      "pageNumber": 193,
+      "storageKey": "page-0193.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 193"
+    },
+    {
+      "id": "194",
+      "pageNumber": 194,
+      "storageKey": "page-0194.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 194"
+    },
+    {
+      "id": "195",
+      "pageNumber": 195,
+      "storageKey": "page-0195.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 195"
+    },
+    {
+      "id": "196",
+      "pageNumber": 196,
+      "storageKey": "page-0196.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 196"
+    },
+    {
+      "id": "197",
+      "pageNumber": 197,
+      "storageKey": "page-0197.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 197"
+    },
+    {
+      "id": "198",
+      "pageNumber": 198,
+      "storageKey": "page-0198.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 198"
+    },
+    {
+      "id": "199",
+      "pageNumber": 199,
+      "storageKey": "page-0199.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 199"
+    },
+    {
+      "id": "200",
+      "pageNumber": 200,
+      "storageKey": "page-0200.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 200"
+    },
+    {
+      "id": "201",
+      "pageNumber": 201,
+      "storageKey": "page-0201.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 201"
+    },
+    {
+      "id": "202",
+      "pageNumber": 202,
+      "storageKey": "page-0202.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 202"
+    },
+    {
+      "id": "203",
+      "pageNumber": 203,
+      "storageKey": "page-0203.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 203"
+    },
+    {
+      "id": "204",
+      "pageNumber": 204,
+      "storageKey": "page-0204.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 204"
+    },
+    {
+      "id": "205",
+      "pageNumber": 205,
+      "storageKey": "page-0205.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 205"
+    },
+    {
+      "id": "206",
+      "pageNumber": 206,
+      "storageKey": "page-0206.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 206"
+    },
+    {
+      "id": "207",
+      "pageNumber": 207,
+      "storageKey": "page-0207.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 207"
+    },
+    {
+      "id": "208",
+      "pageNumber": 208,
+      "storageKey": "page-0208.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 208"
+    },
+    {
+      "id": "209",
+      "pageNumber": 209,
+      "storageKey": "page-0209.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 209"
+    },
+    {
+      "id": "210",
+      "pageNumber": 210,
+      "storageKey": "page-0210.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 210"
+    },
+    {
+      "id": "211",
+      "pageNumber": 211,
+      "storageKey": "page-0211.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 211"
+    },
+    {
+      "id": "212",
+      "pageNumber": 212,
+      "storageKey": "page-0212.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 212"
+    },
+    {
+      "id": "213",
+      "pageNumber": 213,
+      "storageKey": "page-0213.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 213"
+    },
+    {
+      "id": "214",
+      "pageNumber": 214,
+      "storageKey": "page-0214.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 214"
+    },
+    {
+      "id": "215",
+      "pageNumber": 215,
+      "storageKey": "page-0215.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 215"
+    },
+    {
+      "id": "216",
+      "pageNumber": 216,
+      "storageKey": "page-0216.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 216"
+    },
+    {
+      "id": "217",
+      "pageNumber": 217,
+      "storageKey": "page-0217.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 217"
+    },
+    {
+      "id": "218",
+      "pageNumber": 218,
+      "storageKey": "page-0218.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 218"
+    },
+    {
+      "id": "219",
+      "pageNumber": 219,
+      "storageKey": "page-0219.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 219"
+    },
+    {
+      "id": "220",
+      "pageNumber": 220,
+      "storageKey": "page-0220.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 220"
+    },
+    {
+      "id": "221",
+      "pageNumber": 221,
+      "storageKey": "page-0221.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 221"
+    },
+    {
+      "id": "222",
+      "pageNumber": 222,
+      "storageKey": "page-0222.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 222"
+    },
+    {
+      "id": "223",
+      "pageNumber": 223,
+      "storageKey": "page-0223.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 223"
+    },
+    {
+      "id": "224",
+      "pageNumber": 224,
+      "storageKey": "page-0224.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 224"
+    },
+    {
+      "id": "225",
+      "pageNumber": 225,
+      "storageKey": "page-0225.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 225"
+    },
+    {
+      "id": "226",
+      "pageNumber": 226,
+      "storageKey": "page-0226.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 226"
+    },
+    {
+      "id": "227",
+      "pageNumber": 227,
+      "storageKey": "page-0227.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 227"
+    },
+    {
+      "id": "228",
+      "pageNumber": 228,
+      "storageKey": "page-0228.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 228"
+    },
+    {
+      "id": "229",
+      "pageNumber": 229,
+      "storageKey": "page-0229.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 229"
+    },
+    {
+      "id": "230",
+      "pageNumber": 230,
+      "storageKey": "page-0230.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 230"
+    },
+    {
+      "id": "231",
+      "pageNumber": 231,
+      "storageKey": "page-0231.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 231"
+    },
+    {
+      "id": "232",
+      "pageNumber": 232,
+      "storageKey": "page-0232.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 232"
+    },
+    {
+      "id": "233",
+      "pageNumber": 233,
+      "storageKey": "page-0233.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 233"
+    },
+    {
+      "id": "234",
+      "pageNumber": 234,
+      "storageKey": "page-0234.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 234"
+    },
+    {
+      "id": "235",
+      "pageNumber": 235,
+      "storageKey": "page-0235.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 235"
+    },
+    {
+      "id": "236",
+      "pageNumber": 236,
+      "storageKey": "page-0236.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 236"
+    },
+    {
+      "id": "237",
+      "pageNumber": 237,
+      "storageKey": "page-0237.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 237"
+    },
+    {
+      "id": "238",
+      "pageNumber": 238,
+      "storageKey": "page-0238.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 238"
+    },
+    {
+      "id": "239",
+      "pageNumber": 239,
+      "storageKey": "page-0239.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 239"
+    },
+    {
+      "id": "240",
+      "pageNumber": 240,
+      "storageKey": "page-0240.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 240"
+    },
+    {
+      "id": "241",
+      "pageNumber": 241,
+      "storageKey": "page-0241.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 241"
+    },
+    {
+      "id": "242",
+      "pageNumber": 242,
+      "storageKey": "page-0242.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 242"
+    },
+    {
+      "id": "243",
+      "pageNumber": 243,
+      "storageKey": "page-0243.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 243"
+    },
+    {
+      "id": "244",
+      "pageNumber": 244,
+      "storageKey": "page-0244.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 244"
+    },
+    {
+      "id": "245",
+      "pageNumber": 245,
+      "storageKey": "page-0245.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 245"
+    },
+    {
+      "id": "246",
+      "pageNumber": 246,
+      "storageKey": "page-0246.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 246"
+    },
+    {
+      "id": "247",
+      "pageNumber": 247,
+      "storageKey": "page-0247.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 247"
+    },
+    {
+      "id": "248",
+      "pageNumber": 248,
+      "storageKey": "page-0248.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 248"
+    },
+    {
+      "id": "249",
+      "pageNumber": 249,
+      "storageKey": "page-0249.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 249"
+    },
+    {
+      "id": "250",
+      "pageNumber": 250,
+      "storageKey": "page-0250.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 250"
+    },
+    {
+      "id": "251",
+      "pageNumber": 251,
+      "storageKey": "page-0251.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 251"
+    },
+    {
+      "id": "252",
+      "pageNumber": 252,
+      "storageKey": "page-0252.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 252"
+    },
+    {
+      "id": "253",
+      "pageNumber": 253,
+      "storageKey": "page-0253.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 253"
+    },
+    {
+      "id": "254",
+      "pageNumber": 254,
+      "storageKey": "page-0254.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 254"
+    },
+    {
+      "id": "255",
+      "pageNumber": 255,
+      "storageKey": "page-0255.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 255"
+    },
+    {
+      "id": "256",
+      "pageNumber": 256,
+      "storageKey": "page-0256.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 256"
+    },
+    {
+      "id": "257",
+      "pageNumber": 257,
+      "storageKey": "page-0257.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 257"
+    },
+    {
+      "id": "258",
+      "pageNumber": 258,
+      "storageKey": "page-0258.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 258"
+    },
+    {
+      "id": "259",
+      "pageNumber": 259,
+      "storageKey": "page-0259.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 259"
+    },
+    {
+      "id": "260",
+      "pageNumber": 260,
+      "storageKey": "page-0260.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 260"
+    },
+    {
+      "id": "261",
+      "pageNumber": 261,
+      "storageKey": "page-0261.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 261"
+    },
+    {
+      "id": "262",
+      "pageNumber": 262,
+      "storageKey": "page-0262.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 262"
+    },
+    {
+      "id": "263",
+      "pageNumber": 263,
+      "storageKey": "page-0263.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 263"
+    },
+    {
+      "id": "264",
+      "pageNumber": 264,
+      "storageKey": "page-0264.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 264"
+    },
+    {
+      "id": "265",
+      "pageNumber": 265,
+      "storageKey": "page-0265.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 265"
+    },
+    {
+      "id": "266",
+      "pageNumber": 266,
+      "storageKey": "page-0266.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 266"
+    },
+    {
+      "id": "267",
+      "pageNumber": 267,
+      "storageKey": "page-0267.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 267"
+    },
+    {
+      "id": "268",
+      "pageNumber": 268,
+      "storageKey": "page-0268.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 268"
+    },
+    {
+      "id": "269",
+      "pageNumber": 269,
+      "storageKey": "page-0269.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 269"
+    },
+    {
+      "id": "270",
+      "pageNumber": 270,
+      "storageKey": "page-0270.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 270"
+    },
+    {
+      "id": "271",
+      "pageNumber": 271,
+      "storageKey": "page-0271.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 271"
+    },
+    {
+      "id": "272",
+      "pageNumber": 272,
+      "storageKey": "page-0272.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 272"
+    },
+    {
+      "id": "273",
+      "pageNumber": 273,
+      "storageKey": "page-0273.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 273"
+    },
+    {
+      "id": "274",
+      "pageNumber": 274,
+      "storageKey": "page-0274.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 274"
+    },
+    {
+      "id": "275",
+      "pageNumber": 275,
+      "storageKey": "page-0275.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 275"
+    },
+    {
+      "id": "276",
+      "pageNumber": 276,
+      "storageKey": "page-0276.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 276"
+    },
+    {
+      "id": "277",
+      "pageNumber": 277,
+      "storageKey": "page-0277.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 277"
+    },
+    {
+      "id": "278",
+      "pageNumber": 278,
+      "storageKey": "page-0278.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 278"
+    },
+    {
+      "id": "279",
+      "pageNumber": 279,
+      "storageKey": "page-0279.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 279"
+    },
+    {
+      "id": "280",
+      "pageNumber": 280,
+      "storageKey": "page-0280.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 280"
+    },
+    {
+      "id": "281",
+      "pageNumber": 281,
+      "storageKey": "page-0281.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 281"
+    },
+    {
+      "id": "282",
+      "pageNumber": 282,
+      "storageKey": "page-0282.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 282"
+    },
+    {
+      "id": "283",
+      "pageNumber": 283,
+      "storageKey": "page-0283.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 283"
+    },
+    {
+      "id": "284",
+      "pageNumber": 284,
+      "storageKey": "page-0284.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 284"
+    },
+    {
+      "id": "285",
+      "pageNumber": 285,
+      "storageKey": "page-0285.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 285"
+    },
+    {
+      "id": "286",
+      "pageNumber": 286,
+      "storageKey": "page-0286.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 286"
+    },
+    {
+      "id": "287",
+      "pageNumber": 287,
+      "storageKey": "page-0287.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 287"
+    },
+    {
+      "id": "288",
+      "pageNumber": 288,
+      "storageKey": "page-0288.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 288"
+    },
+    {
+      "id": "289",
+      "pageNumber": 289,
+      "storageKey": "page-0289.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 289"
+    },
+    {
+      "id": "290",
+      "pageNumber": 290,
+      "storageKey": "page-0290.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 290"
+    },
+    {
+      "id": "291",
+      "pageNumber": 291,
+      "storageKey": "page-0291.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 291"
+    },
+    {
+      "id": "292",
+      "pageNumber": 292,
+      "storageKey": "page-0292.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 292"
+    },
+    {
+      "id": "293",
+      "pageNumber": 293,
+      "storageKey": "page-0293.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 293"
+    },
+    {
+      "id": "294",
+      "pageNumber": 294,
+      "storageKey": "page-0294.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 294"
+    },
+    {
+      "id": "295",
+      "pageNumber": 295,
+      "storageKey": "page-0295.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 295"
+    },
+    {
+      "id": "296",
+      "pageNumber": 296,
+      "storageKey": "page-0296.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 296"
+    },
+    {
+      "id": "297",
+      "pageNumber": 297,
+      "storageKey": "page-0297.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 297"
+    },
+    {
+      "id": "298",
+      "pageNumber": 298,
+      "storageKey": "page-0298.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 298"
+    },
+    {
+      "id": "299",
+      "pageNumber": 299,
+      "storageKey": "page-0299.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 299"
+    },
+    {
+      "id": "300",
+      "pageNumber": 300,
+      "storageKey": "page-0300.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 300"
+    },
+    {
+      "id": "301",
+      "pageNumber": 301,
+      "storageKey": "page-0301.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 301"
+    },
+    {
+      "id": "302",
+      "pageNumber": 302,
+      "storageKey": "page-0302.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 302"
+    },
+    {
+      "id": "303",
+      "pageNumber": 303,
+      "storageKey": "page-0303.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 303"
+    },
+    {
+      "id": "304",
+      "pageNumber": 304,
+      "storageKey": "page-0304.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 304"
+    },
+    {
+      "id": "305",
+      "pageNumber": 305,
+      "storageKey": "page-0305.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 305"
+    },
+    {
+      "id": "306",
+      "pageNumber": 306,
+      "storageKey": "page-0306.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 306"
+    },
+    {
+      "id": "307",
+      "pageNumber": 307,
+      "storageKey": "page-0307.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 307"
+    },
+    {
+      "id": "308",
+      "pageNumber": 308,
+      "storageKey": "page-0308.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 308"
+    },
+    {
+      "id": "309",
+      "pageNumber": 309,
+      "storageKey": "page-0309.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 309"
+    },
+    {
+      "id": "310",
+      "pageNumber": 310,
+      "storageKey": "page-0310.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 310"
+    },
+    {
+      "id": "311",
+      "pageNumber": 311,
+      "storageKey": "page-0311.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 311"
+    },
+    {
+      "id": "312",
+      "pageNumber": 312,
+      "storageKey": "page-0312.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 312"
+    },
+    {
+      "id": "313",
+      "pageNumber": 313,
+      "storageKey": "page-0313.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 313"
+    },
+    {
+      "id": "314",
+      "pageNumber": 314,
+      "storageKey": "page-0314.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 314"
+    },
+    {
+      "id": "315",
+      "pageNumber": 315,
+      "storageKey": "page-0315.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 315"
+    },
+    {
+      "id": "316",
+      "pageNumber": 316,
+      "storageKey": "page-0316.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 316"
+    },
+    {
+      "id": "317",
+      "pageNumber": 317,
+      "storageKey": "page-0317.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 317"
+    },
+    {
+      "id": "318",
+      "pageNumber": 318,
+      "storageKey": "page-0318.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 318"
+    },
+    {
+      "id": "319",
+      "pageNumber": 319,
+      "storageKey": "page-0319.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 319"
+    },
+    {
+      "id": "320",
+      "pageNumber": 320,
+      "storageKey": "page-0320.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 320"
+    },
+    {
+      "id": "321",
+      "pageNumber": 321,
+      "storageKey": "page-0321.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 321"
+    },
+    {
+      "id": "322",
+      "pageNumber": 322,
+      "storageKey": "page-0322.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 322"
+    },
+    {
+      "id": "323",
+      "pageNumber": 323,
+      "storageKey": "page-0323.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 323"
+    },
+    {
+      "id": "324",
+      "pageNumber": 324,
+      "storageKey": "page-0324.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 324"
+    },
+    {
+      "id": "325",
+      "pageNumber": 325,
+      "storageKey": "page-0325.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 325"
+    },
+    {
+      "id": "326",
+      "pageNumber": 326,
+      "storageKey": "page-0326.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 326"
+    },
+    {
+      "id": "327",
+      "pageNumber": 327,
+      "storageKey": "page-0327.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 327"
+    },
+    {
+      "id": "328",
+      "pageNumber": 328,
+      "storageKey": "page-0328.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 328"
+    },
+    {
+      "id": "329",
+      "pageNumber": 329,
+      "storageKey": "page-0329.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 329"
+    },
+    {
+      "id": "330",
+      "pageNumber": 330,
+      "storageKey": "page-0330.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 330"
+    },
+    {
+      "id": "331",
+      "pageNumber": 331,
+      "storageKey": "page-0331.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 331"
+    },
+    {
+      "id": "332",
+      "pageNumber": 332,
+      "storageKey": "page-0332.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 332"
+    },
+    {
+      "id": "333",
+      "pageNumber": 333,
+      "storageKey": "page-0333.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 333"
+    },
+    {
+      "id": "334",
+      "pageNumber": 334,
+      "storageKey": "page-0334.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 334"
+    },
+    {
+      "id": "335",
+      "pageNumber": 335,
+      "storageKey": "page-0335.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 335"
+    },
+    {
+      "id": "336",
+      "pageNumber": 336,
+      "storageKey": "page-0336.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 336"
+    },
+    {
+      "id": "337",
+      "pageNumber": 337,
+      "storageKey": "page-0337.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 337"
+    },
+    {
+      "id": "338",
+      "pageNumber": 338,
+      "storageKey": "page-0338.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 338"
+    },
+    {
+      "id": "339",
+      "pageNumber": 339,
+      "storageKey": "page-0339.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 339"
+    },
+    {
+      "id": "340",
+      "pageNumber": 340,
+      "storageKey": "page-0340.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 340"
+    },
+    {
+      "id": "341",
+      "pageNumber": 341,
+      "storageKey": "page-0341.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 341"
+    },
+    {
+      "id": "342",
+      "pageNumber": 342,
+      "storageKey": "page-0342.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 342"
+    },
+    {
+      "id": "343",
+      "pageNumber": 343,
+      "storageKey": "page-0343.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 343"
+    },
+    {
+      "id": "344",
+      "pageNumber": 344,
+      "storageKey": "page-0344.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 344"
+    },
+    {
+      "id": "345",
+      "pageNumber": 345,
+      "storageKey": "page-0345.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 345"
+    },
+    {
+      "id": "346",
+      "pageNumber": 346,
+      "storageKey": "page-0346.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 346"
+    },
+    {
+      "id": "347",
+      "pageNumber": 347,
+      "storageKey": "page-0347.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 347"
+    },
+    {
+      "id": "348",
+      "pageNumber": 348,
+      "storageKey": "page-0348.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 348"
+    },
+    {
+      "id": "349",
+      "pageNumber": 349,
+      "storageKey": "page-0349.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 349"
+    },
+    {
+      "id": "350",
+      "pageNumber": 350,
+      "storageKey": "page-0350.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 350"
+    },
+    {
+      "id": "351",
+      "pageNumber": 351,
+      "storageKey": "page-0351.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 351"
+    },
+    {
+      "id": "352",
+      "pageNumber": 352,
+      "storageKey": "page-0352.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 352"
+    },
+    {
+      "id": "353",
+      "pageNumber": 353,
+      "storageKey": "page-0353.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 353"
+    },
+    {
+      "id": "354",
+      "pageNumber": 354,
+      "storageKey": "page-0354.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 354"
+    },
+    {
+      "id": "355",
+      "pageNumber": 355,
+      "storageKey": "page-0355.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 355"
+    },
+    {
+      "id": "356",
+      "pageNumber": 356,
+      "storageKey": "page-0356.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 356"
+    },
+    {
+      "id": "357",
+      "pageNumber": 357,
+      "storageKey": "page-0357.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 357"
+    },
+    {
+      "id": "358",
+      "pageNumber": 358,
+      "storageKey": "page-0358.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 358"
+    },
+    {
+      "id": "359",
+      "pageNumber": 359,
+      "storageKey": "page-0359.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 359"
+    },
+    {
+      "id": "360",
+      "pageNumber": 360,
+      "storageKey": "page-0360.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 360"
+    },
+    {
+      "id": "361",
+      "pageNumber": 361,
+      "storageKey": "page-0361.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 361"
+    },
+    {
+      "id": "362",
+      "pageNumber": 362,
+      "storageKey": "page-0362.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 362"
+    },
+    {
+      "id": "363",
+      "pageNumber": 363,
+      "storageKey": "page-0363.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 363"
+    },
+    {
+      "id": "364",
+      "pageNumber": 364,
+      "storageKey": "page-0364.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 364"
+    },
+    {
+      "id": "365",
+      "pageNumber": 365,
+      "storageKey": "page-0365.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 365"
+    },
+    {
+      "id": "366",
+      "pageNumber": 366,
+      "storageKey": "page-0366.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 366"
+    },
+    {
+      "id": "367",
+      "pageNumber": 367,
+      "storageKey": "page-0367.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 367"
+    },
+    {
+      "id": "368",
+      "pageNumber": 368,
+      "storageKey": "page-0368.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 368"
+    },
+    {
+      "id": "369",
+      "pageNumber": 369,
+      "storageKey": "page-0369.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 369"
+    },
+    {
+      "id": "370",
+      "pageNumber": 370,
+      "storageKey": "page-0370.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 370"
+    },
+    {
+      "id": "371",
+      "pageNumber": 371,
+      "storageKey": "page-0371.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 371"
+    },
+    {
+      "id": "372",
+      "pageNumber": 372,
+      "storageKey": "page-0372.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 372"
+    },
+    {
+      "id": "373",
+      "pageNumber": 373,
+      "storageKey": "page-0373.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 373"
+    },
+    {
+      "id": "374",
+      "pageNumber": 374,
+      "storageKey": "page-0374.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 374"
+    },
+    {
+      "id": "375",
+      "pageNumber": 375,
+      "storageKey": "page-0375.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 375"
+    },
+    {
+      "id": "376",
+      "pageNumber": 376,
+      "storageKey": "page-0376.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 376"
+    },
+    {
+      "id": "377",
+      "pageNumber": 377,
+      "storageKey": "page-0377.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 377"
+    },
+    {
+      "id": "378",
+      "pageNumber": 378,
+      "storageKey": "page-0378.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 378"
+    },
+    {
+      "id": "379",
+      "pageNumber": 379,
+      "storageKey": "page-0379.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 379"
+    },
+    {
+      "id": "380",
+      "pageNumber": 380,
+      "storageKey": "page-0380.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 380"
+    },
+    {
+      "id": "381",
+      "pageNumber": 381,
+      "storageKey": "page-0381.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 381"
+    },
+    {
+      "id": "382",
+      "pageNumber": 382,
+      "storageKey": "page-0382.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 382"
+    },
+    {
+      "id": "383",
+      "pageNumber": 383,
+      "storageKey": "page-0383.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 383"
+    },
+    {
+      "id": "384",
+      "pageNumber": 384,
+      "storageKey": "page-0384.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 384"
+    },
+    {
+      "id": "385",
+      "pageNumber": 385,
+      "storageKey": "page-0385.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 385"
+    },
+    {
+      "id": "386",
+      "pageNumber": 386,
+      "storageKey": "page-0386.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 386"
+    },
+    {
+      "id": "387",
+      "pageNumber": 387,
+      "storageKey": "page-0387.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 387"
+    },
+    {
+      "id": "388",
+      "pageNumber": 388,
+      "storageKey": "page-0388.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 388"
+    },
+    {
+      "id": "389",
+      "pageNumber": 389,
+      "storageKey": "page-0389.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 389"
+    },
+    {
+      "id": "390",
+      "pageNumber": 390,
+      "storageKey": "page-0390.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 390"
+    },
+    {
+      "id": "391",
+      "pageNumber": 391,
+      "storageKey": "page-0391.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 391"
+    },
+    {
+      "id": "392",
+      "pageNumber": 392,
+      "storageKey": "page-0392.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 392"
+    },
+    {
+      "id": "393",
+      "pageNumber": 393,
+      "storageKey": "page-0393.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 393"
+    },
+    {
+      "id": "394",
+      "pageNumber": 394,
+      "storageKey": "page-0394.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 394"
+    },
+    {
+      "id": "395",
+      "pageNumber": 395,
+      "storageKey": "page-0395.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 395"
+    },
+    {
+      "id": "396",
+      "pageNumber": 396,
+      "storageKey": "page-0396.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 396"
+    },
+    {
+      "id": "397",
+      "pageNumber": 397,
+      "storageKey": "page-0397.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 397"
+    },
+    {
+      "id": "398",
+      "pageNumber": 398,
+      "storageKey": "page-0398.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 398"
+    },
+    {
+      "id": "399",
+      "pageNumber": 399,
+      "storageKey": "page-0399.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 399"
+    },
+    {
+      "id": "400",
+      "pageNumber": 400,
+      "storageKey": "page-0400.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 400"
+    },
+    {
+      "id": "401",
+      "pageNumber": 401,
+      "storageKey": "page-0401.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 401"
+    },
+    {
+      "id": "402",
+      "pageNumber": 402,
+      "storageKey": "page-0402.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 402"
+    },
+    {
+      "id": "403",
+      "pageNumber": 403,
+      "storageKey": "page-0403.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 403"
+    },
+    {
+      "id": "404",
+      "pageNumber": 404,
+      "storageKey": "page-0404.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 404"
+    },
+    {
+      "id": "405",
+      "pageNumber": 405,
+      "storageKey": "page-0405.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 405"
+    },
+    {
+      "id": "406",
+      "pageNumber": 406,
+      "storageKey": "page-0406.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 406"
+    },
+    {
+      "id": "407",
+      "pageNumber": 407,
+      "storageKey": "page-0407.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 407"
+    },
+    {
+      "id": "408",
+      "pageNumber": 408,
+      "storageKey": "page-0408.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 408"
+    },
+    {
+      "id": "409",
+      "pageNumber": 409,
+      "storageKey": "page-0409.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 409"
+    },
+    {
+      "id": "410",
+      "pageNumber": 410,
+      "storageKey": "page-0410.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 410"
+    },
+    {
+      "id": "411",
+      "pageNumber": 411,
+      "storageKey": "page-0411.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 411"
+    },
+    {
+      "id": "412",
+      "pageNumber": 412,
+      "storageKey": "page-0412.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 412"
+    },
+    {
+      "id": "413",
+      "pageNumber": 413,
+      "storageKey": "page-0413.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 413"
+    },
+    {
+      "id": "414",
+      "pageNumber": 414,
+      "storageKey": "page-0414.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 414"
+    },
+    {
+      "id": "415",
+      "pageNumber": 415,
+      "storageKey": "page-0415.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 415"
+    },
+    {
+      "id": "416",
+      "pageNumber": 416,
+      "storageKey": "page-0416.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 416"
+    },
+    {
+      "id": "417",
+      "pageNumber": 417,
+      "storageKey": "page-0417.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 417"
+    },
+    {
+      "id": "418",
+      "pageNumber": 418,
+      "storageKey": "page-0418.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 418"
+    },
+    {
+      "id": "419",
+      "pageNumber": 419,
+      "storageKey": "page-0419.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 419"
+    },
+    {
+      "id": "420",
+      "pageNumber": 420,
+      "storageKey": "page-0420.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 420"
+    },
+    {
+      "id": "421",
+      "pageNumber": 421,
+      "storageKey": "page-0421.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 421"
+    },
+    {
+      "id": "422",
+      "pageNumber": 422,
+      "storageKey": "page-0422.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 422"
+    },
+    {
+      "id": "423",
+      "pageNumber": 423,
+      "storageKey": "page-0423.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 423"
+    },
+    {
+      "id": "424",
+      "pageNumber": 424,
+      "storageKey": "page-0424.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 424"
+    },
+    {
+      "id": "425",
+      "pageNumber": 425,
+      "storageKey": "page-0425.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 425"
+    },
+    {
+      "id": "426",
+      "pageNumber": 426,
+      "storageKey": "page-0426.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 426"
+    },
+    {
+      "id": "427",
+      "pageNumber": 427,
+      "storageKey": "page-0427.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 427"
+    },
+    {
+      "id": "428",
+      "pageNumber": 428,
+      "storageKey": "page-0428.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 428"
+    },
+    {
+      "id": "429",
+      "pageNumber": 429,
+      "storageKey": "page-0429.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 429"
+    },
+    {
+      "id": "430",
+      "pageNumber": 430,
+      "storageKey": "page-0430.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 430"
+    },
+    {
+      "id": "431",
+      "pageNumber": 431,
+      "storageKey": "page-0431.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 431"
+    },
+    {
+      "id": "432",
+      "pageNumber": 432,
+      "storageKey": "page-0432.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 432"
+    },
+    {
+      "id": "433",
+      "pageNumber": 433,
+      "storageKey": "page-0433.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 433"
+    },
+    {
+      "id": "434",
+      "pageNumber": 434,
+      "storageKey": "page-0434.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 434"
+    },
+    {
+      "id": "435",
+      "pageNumber": 435,
+      "storageKey": "page-0435.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 435"
+    },
+    {
+      "id": "436",
+      "pageNumber": 436,
+      "storageKey": "page-0436.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 436"
+    },
+    {
+      "id": "437",
+      "pageNumber": 437,
+      "storageKey": "page-0437.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 437"
+    },
+    {
+      "id": "438",
+      "pageNumber": 438,
+      "storageKey": "page-0438.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 438"
+    },
+    {
+      "id": "439",
+      "pageNumber": 439,
+      "storageKey": "page-0439.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 439"
+    },
+    {
+      "id": "440",
+      "pageNumber": 440,
+      "storageKey": "page-0440.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 440"
+    },
+    {
+      "id": "441",
+      "pageNumber": 441,
+      "storageKey": "page-0441.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 441"
+    },
+    {
+      "id": "442",
+      "pageNumber": 442,
+      "storageKey": "page-0442.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 442"
+    },
+    {
+      "id": "443",
+      "pageNumber": 443,
+      "storageKey": "page-0443.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 443"
+    },
+    {
+      "id": "444",
+      "pageNumber": 444,
+      "storageKey": "page-0444.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 444"
+    },
+    {
+      "id": "445",
+      "pageNumber": 445,
+      "storageKey": "page-0445.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 445"
+    },
+    {
+      "id": "446",
+      "pageNumber": 446,
+      "storageKey": "page-0446.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 446"
+    },
+    {
+      "id": "447",
+      "pageNumber": 447,
+      "storageKey": "page-0447.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 447"
+    },
+    {
+      "id": "448",
+      "pageNumber": 448,
+      "storageKey": "page-0448.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 448"
+    },
+    {
+      "id": "449",
+      "pageNumber": 449,
+      "storageKey": "page-0449.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 449"
+    },
+    {
+      "id": "450",
+      "pageNumber": 450,
+      "storageKey": "page-0450.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 450"
+    },
+    {
+      "id": "451",
+      "pageNumber": 451,
+      "storageKey": "page-0451.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 451"
+    },
+    {
+      "id": "452",
+      "pageNumber": 452,
+      "storageKey": "page-0452.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 452"
+    },
+    {
+      "id": "453",
+      "pageNumber": 453,
+      "storageKey": "page-0453.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 453"
+    },
+    {
+      "id": "454",
+      "pageNumber": 454,
+      "storageKey": "page-0454.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 454"
+    },
+    {
+      "id": "455",
+      "pageNumber": 455,
+      "storageKey": "page-0455.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 455"
+    },
+    {
+      "id": "456",
+      "pageNumber": 456,
+      "storageKey": "page-0456.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 456"
+    },
+    {
+      "id": "457",
+      "pageNumber": 457,
+      "storageKey": "page-0457.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 457"
+    },
+    {
+      "id": "458",
+      "pageNumber": 458,
+      "storageKey": "page-0458.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 458"
+    },
+    {
+      "id": "459",
+      "pageNumber": 459,
+      "storageKey": "page-0459.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 459"
+    },
+    {
+      "id": "460",
+      "pageNumber": 460,
+      "storageKey": "page-0460.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 460"
+    },
+    {
+      "id": "461",
+      "pageNumber": 461,
+      "storageKey": "page-0461.webp",
+      "mediaType": "image/webp",
+      "alt": "SciVive — page 461"
+    }
+  ]
+}
