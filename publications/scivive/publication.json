@@ -1,0 +1,207 @@
+{
+  "schemaVersion": "1.0.0",
+  "publication": {
+    "publicationKey": "scivive",
+    "title": "SciVive",
+    "slug": "scivive",
+    "kind": "standalone",
+    "seriesKey": null,
+    "seriesTitle": null,
+    "issueNumber": null,
+    "lifecycle": "private",
+    "publicVisible": false,
+    "presentationClass": "book",
+    "canonicalLocale": "en",
+    "externalUrl": "https://hellboxcomics.com",
+    "coverAssetKey": "cover"
+  },
+  "features": {
+    "readerEnabled": true,
+    "readerAccessPolicy": "ownership",
+    "sealedEnabled": false,
+    "vaultEnabled": false,
+    "sinEnabled": false,
+    "evolutionEnabled": false,
+    "easterEggsEnabled": false,
+    "hellforgeEnabled": false,
+    "tokenBoundAccountEnabled": false
+  },
+  "chains": [
+    {
+      "chainKey": "pulsechain",
+      "chainId": 369,
+      "tokenStandard": "ERC721",
+      "contractAddress": null,
+      "publicationId": null,
+      "publishingEnabled": false,
+      "maxSupply": 5555,
+      "payment": {
+        "type": "free",
+        "tokenAddress": null,
+        "tokenSymbol": null,
+        "priceBaseUnits": "0",
+        "priceDisplay": "Free"
+      },
+      "maxPrimaryMintsPerWallet": 1,
+      "maxPerTransaction": 1,
+      "royaltyBps": 369,
+      "royaltyReceiver": null
+    }
+  ],
+  "package": {
+    "packageVersion": 1,
+    "status": "draft",
+    "publicPrefix": "comics/scivive/001/",
+    "privatePrefix": null,
+    "readerManifestAssetKey": null,
+    "packageManifestAssetKey": null,
+    "sourceSha256": null,
+    "packageSha256": null
+  },
+  "provenance": {
+    "author": "Richard Heart",
+    "hellboxRole": "publisher_only",
+    "sourceNotes": "SciVive is being preserved as the existing source work. Hellbox will not rewrite, finish, sanitize, or claim authorship of the source text. Public source availability and Hellbox Reader access policy are intentionally separate.",
+    "sources": [
+      {
+        "sourceType": "internet_archive",
+        "locator": "https://archive.org/details/SciViveBookOutline_201802",
+        "publicRetrievable": true,
+        "uploadedBy": "RichardHeart",
+        "observedAt": null,
+        "notes": "Canonical public-source record currently tracked by Hellbox. Use as provenance/fallback; record content-addressed IPFS CIDs before the package advances from draft to validated."
+      }
+    ]
+  },
+  "license": {
+    "status": "public_source_unverified",
+    "licenseName": null,
+    "licenseUrl": null,
+    "evidence": [
+      {
+        "locator": "https://archive.org/details/SciViveBookOutline_201802",
+        "description": "Publicly retrievable source record. This establishes public availability, not by itself a specific reuse license."
+      }
+    ],
+    "notes": "The project currently treats SciVive as a publicly available source work and the user identifies it as open-source. Hellbox will not encode a specific legal license as verified until explicit license evidence is captured."
+  },
+  "reader": {
+    "sourceFormat": "mixed",
+    "manifestVersion": "pending-gate2",
+    "notes": "Ownership gates the Hellbox Reader experience. For publicly retrievable SciVive source bytes, prefer durable public IPFS/external delivery and use Hellbox public R2 only as a mirror/cache where useful. Do not move the entire public work into hellbox-private."
+  },
+  "assets": [
+    {
+      "logicalKey": "cover",
+      "role": "cover",
+      "accessClass": "public",
+      "contentType": "image/jpeg",
+      "byteSize": null,
+      "sha256": null,
+      "sortOrder": 0,
+      "metadata": {
+        "sourceFileName": "cover.jpg"
+      },
+      "locations": [
+        {
+          "provider": "r2_public",
+          "locationRole": "delivery",
+          "locator": "comics/scivive/001/images/cover/cover.jpg",
+          "gatewayUrl": "https://cdn.hellboxcomics.com/comics/scivive/001/images/cover/cover.jpg",
+          "publicRetrievable": true,
+          "primary": true,
+          "priority": 10
+        }
+      ]
+    },
+    {
+      "logicalKey": "source-pdf",
+      "role": "reader_source",
+      "accessClass": "reader_gated",
+      "contentType": "application/pdf",
+      "byteSize": 8433084,
+      "sha256": "d105e16e991944b63d8e696c8236f5b4497d3c959119a87e580f46f2181bc548",
+      "sortOrder": 10,
+      "metadata": {
+        "sourceFileName": "sciVive.pdf",
+        "pageCount": 461
+      },
+      "locations": [
+        {
+          "provider": "https",
+          "locationRole": "source",
+          "locator": "https://archive.org/details/SciViveBookOutline_201802",
+          "gatewayUrl": null,
+          "publicRetrievable": true,
+          "primary": true,
+          "priority": 10
+        },
+        {
+          "provider": "r2_public",
+          "locationRole": "mirror",
+          "locator": "comics/scivive/001/book/sciVive.pdf",
+          "gatewayUrl": "https://cdn.hellboxcomics.com/comics/scivive/001/book/sciVive.pdf",
+          "publicRetrievable": true,
+          "primary": false,
+          "priority": 100
+        }
+      ]
+    },
+    {
+      "logicalKey": "source-epub",
+      "role": "reader_source",
+      "accessClass": "reader_gated",
+      "contentType": "application/epub+zip",
+      "byteSize": 187192050,
+      "sha256": "a6bbaadbb31eb8baecd0ba156fbeafbd9528d8cd93e38023fa144131bffa67d3",
+      "sortOrder": 20,
+      "metadata": {
+        "sourceFileName": "sciVive.epub",
+        "zipEntryCount": 741
+      },
+      "locations": [
+        {
+          "provider": "https",
+          "locationRole": "source",
+          "locator": "https://archive.org/details/SciViveBookOutline_201802",
+          "gatewayUrl": null,
+          "publicRetrievable": true,
+          "primary": true,
+          "priority": 10
+        },
+        {
+          "provider": "r2_public",
+          "locationRole": "mirror",
+          "locator": "comics/scivive/001/book/sciVive.epub",
+          "gatewayUrl": "https://cdn.hellboxcomics.com/comics/scivive/001/book/sciVive.epub",
+          "publicRetrievable": true,
+          "primary": false,
+          "priority": 100
+        }
+      ]
+    }
+  ],
+  "extensions": {
+    "hellbox": {
+      "storagePolicy": {
+        "publicIpfsPreferred": true,
+        "ipfsPinRequiredBeforeValidated": true,
+        "ipfsCidsRecorded": false,
+        "privateOriginalAssets": false,
+        "publicR2Role": "presentation-assets-and-fallback-mirror",
+        "privateR2Role": "reserved-for-original-in-house-protected-assets"
+      },
+      "sourceIntegrity": {
+        "pdfPageCount": 461,
+        "pdfSha256": "d105e16e991944b63d8e696c8236f5b4497d3c959119a87e580f46f2181bc548",
+        "epubByteSize": 187192050,
+        "epubSha256": "a6bbaadbb31eb8baecd0ba156fbeafbd9528d8cd93e38023fa144131bffa67d3"
+      },
+      "activationBlockers": [
+        "Record durable pinned IPFS CID(s) for the public SciVive source material.",
+        "Capture explicit license/reuse evidence if a specific open license is to be claimed.",
+        "Gate 2 must create the production Reader manifest before package validation."
+      ]
+    }
+  }
+}
