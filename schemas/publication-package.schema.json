@@ -1,0 +1,908 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hellboxcomics.com/schemas/publication-package.schema.json",
+  "title": "Hellbox Comics Publication Package",
+  "description": "Canonical Gate 1 manifest contract for a Hellbox publication package. Product access policy is intentionally separate from physical asset location.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "publication",
+    "features",
+    "chains",
+    "package",
+    "provenance",
+    "license",
+    "assets"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "publicationKey",
+        "title",
+        "slug",
+        "kind",
+        "lifecycle",
+        "publicVisible",
+        "presentationClass",
+        "canonicalLocale"
+      ],
+      "properties": {
+        "publicationKey": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{1,127}$"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "standalone",
+            "serial"
+          ]
+        },
+        "seriesKey": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"
+        },
+        "seriesTitle": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
+        },
+        "issueNumber": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "lifecycle": {
+          "type": "string",
+          "enum": [
+            "private",
+            "announced",
+            "mint_live",
+            "circulating"
+          ]
+        },
+        "publicVisible": {
+          "type": "boolean"
+        },
+        "presentationClass": {
+          "type": "string",
+          "enum": [
+            "book",
+            "comic",
+            "enhanced"
+          ]
+        },
+        "canonicalLocale": {
+          "type": "string",
+          "pattern": "^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$"
+        },
+        "externalUrl": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "coverAssetKey": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "standalone"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "seriesKey": {
+                "type": "null"
+              },
+              "seriesTitle": {
+                "type": "null"
+              },
+              "issueNumber": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "serial"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "required": [
+              "seriesKey",
+              "issueNumber"
+            ],
+            "properties": {
+              "seriesKey": {
+                "type": "string",
+                "minLength": 1
+              },
+              "issueNumber": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "lifecycle": {
+                "const": "private"
+              }
+            },
+            "required": [
+              "lifecycle"
+            ]
+          },
+          "then": {
+            "properties": {
+              "publicVisible": {
+                "const": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "readerEnabled",
+        "readerAccessPolicy",
+        "sealedEnabled",
+        "vaultEnabled",
+        "sinEnabled",
+        "evolutionEnabled",
+        "easterEggsEnabled",
+        "hellforgeEnabled",
+        "tokenBoundAccountEnabled"
+      ],
+      "properties": {
+        "readerEnabled": {
+          "type": "boolean"
+        },
+        "readerAccessPolicy": {
+          "type": "string",
+          "enum": [
+            "public",
+            "ownership"
+          ]
+        },
+        "sealedEnabled": {
+          "type": "boolean"
+        },
+        "vaultEnabled": {
+          "type": "boolean"
+        },
+        "sinEnabled": {
+          "type": "boolean"
+        },
+        "evolutionEnabled": {
+          "type": "boolean"
+        },
+        "easterEggsEnabled": {
+          "type": "boolean"
+        },
+        "hellforgeEnabled": {
+          "type": "boolean"
+        },
+        "tokenBoundAccountEnabled": {
+          "type": "boolean"
+        }
+      }
+    },
+    "chains": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/chainConfig"
+      }
+    },
+    "package": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "packageVersion",
+        "status",
+        "publicPrefix",
+        "privatePrefix",
+        "readerManifestAssetKey",
+        "packageManifestAssetKey"
+      ],
+      "properties": {
+        "packageVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "validated",
+            "active",
+            "retired",
+            "invalid"
+          ]
+        },
+        "publicPrefix": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 500
+        },
+        "privatePrefix": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 500
+        },
+        "readerManifestAssetKey": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
+        },
+        "packageManifestAssetKey": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
+        },
+        "sourceSha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "packageSha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-fA-F0-9]{64}$"
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "author",
+        "hellboxRole",
+        "sources"
+      ],
+      "properties": {
+        "author": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "hellboxRole": {
+          "type": "string",
+          "enum": [
+            "original_publisher_creator",
+            "publisher_only",
+            "adapter",
+            "archive_mirror"
+          ]
+        },
+        "sourceNotes": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 4000
+        },
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/provenanceSource"
+          }
+        }
+      }
+    },
+    "license": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "verified_open_license",
+            "permission_obtained",
+            "public_source_unverified",
+            "restricted",
+            "unknown"
+          ]
+        },
+        "licenseName": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
+        },
+        "licenseUrl": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/licenseEvidence"
+          }
+        },
+        "notes": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 4000
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "verified_open_license"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "licenseName",
+              "licenseUrl"
+            ],
+            "properties": {
+              "licenseName": {
+                "type": "string",
+                "minLength": 1
+              },
+              "licenseUrl": {
+                "type": "string",
+                "format": "uri"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "reader": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sourceFormat": {
+          "type": "string",
+          "enum": [
+            "epub",
+            "pdf",
+            "html",
+            "images",
+            "mixed"
+          ]
+        },
+        "manifestVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "notes": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 4000
+        }
+      }
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/asset"
+      }
+    },
+    "extensions": {
+      "type": "object",
+      "description": "Namespaced escape hatch for future versioned data.",
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "chainConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "chainKey",
+        "chainId",
+        "tokenStandard",
+        "publishingEnabled",
+        "maxSupply",
+        "payment",
+        "maxPrimaryMintsPerWallet",
+        "maxPerTransaction",
+        "royaltyBps"
+      ],
+      "properties": {
+        "chainKey": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{1,63}$"
+        },
+        "chainId": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "tokenStandard": {
+          "type": "string",
+          "const": "ERC721"
+        },
+        "contractAddress": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^0x[a-fA-F0-9]{40}$"
+        },
+        "publicationId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
+        },
+        "publishingEnabled": {
+          "type": "boolean"
+        },
+        "maxSupply": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "payment": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "priceBaseUnits"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "free",
+                "erc20",
+                "native"
+              ]
+            },
+            "tokenAddress": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^0x[a-fA-F0-9]{40}$"
+            },
+            "tokenSymbol": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 32
+            },
+            "priceBaseUnits": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
+            "priceDisplay": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 100
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "erc20"
+                  }
+                },
+                "required": [
+                  "type"
+                ]
+              },
+              "then": {
+                "required": [
+                  "tokenAddress"
+                ],
+                "properties": {
+                  "tokenAddress": {
+                    "type": "string",
+                    "pattern": "^0x[a-fA-F0-9]{40}$"
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "not": {
+                  "properties": {
+                    "type": {
+                      "const": "erc20"
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ]
+                }
+              },
+              "then": {
+                "properties": {
+                  "tokenAddress": {
+                    "type": "null"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "maxPrimaryMintsPerWallet": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxPerTransaction": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "royaltyBps": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "royaltyReceiver": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^0x[a-fA-F0-9]{40}$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "publishingEnabled": {
+                "const": true
+              }
+            },
+            "required": [
+              "publishingEnabled"
+            ]
+          },
+          "then": {
+            "required": [
+              "contractAddress"
+            ],
+            "properties": {
+              "contractAddress": {
+                "type": "string",
+                "pattern": "^0x[a-fA-F0-9]{40}$"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "provenanceSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceType",
+        "locator",
+        "publicRetrievable"
+      ],
+      "properties": {
+        "sourceType": {
+          "type": "string",
+          "enum": [
+            "internet_archive",
+            "github",
+            "ipfs",
+            "https",
+            "creator_supplied",
+            "hellbox_original"
+          ]
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "publicRetrievable": {
+          "type": "boolean"
+        },
+        "uploadedBy": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
+        },
+        "observedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "notes": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 2000
+        }
+      }
+    },
+    "licenseEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "locator",
+        "description"
+      ],
+      "properties": {
+        "locator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "logicalKey",
+        "role",
+        "accessClass",
+        "locations"
+      ],
+      "properties": {
+        "logicalKey": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]{0,199}$"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "cover",
+            "metadata",
+            "package_manifest",
+            "reader_manifest",
+            "reader_source",
+            "reader_page",
+            "thumbnail",
+            "preview",
+            "supplement",
+            "other"
+          ]
+        },
+        "accessClass": {
+          "type": "string",
+          "enum": [
+            "public",
+            "reader_gated",
+            "private"
+          ]
+        },
+        "contentType": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
+        },
+        "byteSize": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "sortOrder": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "metadata": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": true
+        },
+        "locations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/assetLocation"
+          }
+        }
+      }
+    },
+    "assetLocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "locationRole",
+        "locator",
+        "publicRetrievable",
+        "primary",
+        "priority"
+      ],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": [
+            "r2_public",
+            "r2_private",
+            "ipfs",
+            "https"
+          ]
+        },
+        "locationRole": {
+          "type": "string",
+          "enum": [
+            "source",
+            "delivery",
+            "mirror",
+            "cache"
+          ]
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "gatewayUrl": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "publicRetrievable": {
+          "type": "boolean"
+        },
+        "primary": {
+          "type": "boolean"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "provider": {
+                "const": "r2_private"
+              }
+            },
+            "required": [
+              "provider"
+            ]
+          },
+          "then": {
+            "properties": {
+              "publicRetrievable": {
+                "const": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "provider": {
+                "enum": [
+                  "r2_public",
+                  "ipfs"
+                ]
+              }
+            },
+            "required": [
+              "provider"
+            ]
+          },
+          "then": {
+            "properties": {
+              "publicRetrievable": {
+                "const": true
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
