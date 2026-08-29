@@ -266,90 +266,6 @@ const CHAIN_REGISTRY = {
   },
 };
 
-const PUBLICATION_REGISTRY = {
-  scivive: {
-    publicationKey: "scivive",
-
-    title: "SciVive",
-
-    subtitle: null,
-
-    publicationType: "standalone",
-
-    contentType: "ebook",
-
-    series: null,
-
-    issue: null,
-
-    lifecycle: "private",
-
-    publicVisible: false,
-
-    chainKey: "pulsechain",
-
-    chainId: 369,
-
-    token: {
-      standard: "ERC721",
-
-      contractAddress: null,
-
-      publicationId: null,
-
-      tokenBoundAccountCompatible: true,
-    },
-
-    mint: {
-      enabled: false,
-
-      paymentType: "FREE",
-
-      paymentToken: null,
-
-      price: null,
-
-      maxSupply: 5555,
-
-      maxPrimaryMintsPerWallet: 1,
-
-      maxPerTransaction: 1,
-
-      royaltyBps: 369,
-    },
-
-    reader: {
-      enabled: true,
-
-      source: "private",
-
-      manifestKey: "comics/scivive/private/reader/manifest.json",
-
-      assetPrefix: "comics/scivive/private/",
-    },
-
-    features: {
-      sealed: false,
-
-      vaulting: false,
-
-      evolution: false,
-
-      hellforge: false,
-
-      sin: false,
-
-      easterEggs: false,
-    },
-
-    media: {
-      cover: null,
-
-      press: null,
-    },
-  },
-};
-
 const LEGACY_SLUG_MAP = {};
 
 export default {
@@ -481,7 +397,7 @@ async function handleApi(
     pathname === "/api/publications" &&
     request.method === "GET"
   ) {
-    return handlePublications();
+    return handlePublications(env);
   }
 
   // ============================================================
@@ -498,6 +414,7 @@ async function handleApi(
     request.method === "GET"
   ) {
     return handlePublication(
+      env,
       publicationMatch[1]
     );
   }
@@ -510,7 +427,7 @@ async function handleApi(
     pathname === "/api/press" &&
     request.method === "GET"
   ) {
-    return handlePress();
+    return handlePress(env);
   }
 
   // ============================================================
@@ -714,16 +631,10 @@ async function handleApi(
 // HEALTH
 // ============================================================
 
-function handleHealth(env) {
-  const publicPublications =
-    getPublicPublications();
-
-  const privatePublications =
-    Object.values(
-      PUBLICATION_REGISTRY
-    ).filter(
-      publication =>
-        !publication.publicVisible
+async function handleHealth(env) {
+  const registry =
+    await getPublicationRegistrySummary(
+      env
     );
 
   return json({
@@ -752,7 +663,7 @@ function handleHealth(env) {
         "token-gated-publishing",
 
       publicationEngine:
-        "publication-key-v2",
+        "publication-key-d1-v1",
 
       pressEngine:
         "release-bay-v2",
@@ -809,20 +720,14 @@ function handleHealth(env) {
         ).length,
     },
 
-    registry: {
-      totalConfigured:
-        Object.keys(
-          PUBLICATION_REGISTRY
-        ).length,
-
-      publicCount:
-        publicPublications.length,
-
-      privateCount:
-        privatePublications.length,
-    },
+    registry,
 
     bindings: {
+      database:
+        Boolean(
+          env.DB
+        ),
+
       publicBucket:
         Boolean(
           env.PUBLIC_BUCKET
@@ -1176,18 +1081,26 @@ async function handleNodeHealth(
 // PUBLICATIONS
 // ============================================================
 
-function handlePublications() {
+async function handlePublications(
+  env
+) {
   const publications =
-    getPublicPublications()
-      .map(
-        publicPublicationView
-      );
+    (
+      await getPublicPublications(
+        env
+      )
+    ).map(
+      publicPublicationView
+    );
 
   return json({
     ok: true,
 
     apiVersion:
       API_VERSION,
+
+    source:
+      "d1",
 
     publications,
 
@@ -1200,18 +1113,17 @@ function handlePublications() {
 // INDIVIDUAL PUBLICATION
 // ============================================================
 
-function handlePublication(
+async function handlePublication(
+  env,
   publicationKey
 ) {
   const publication =
-    getPublication(
+    await getPublicPublication(
+      env,
       publicationKey
     );
 
-  if (
-    !publication ||
-    !publication.publicVisible
-  ) {
+  if (!publication) {
     return json(
       {
         ok: false,
@@ -1226,6 +1138,9 @@ function handlePublication(
   return json({
     ok: true,
 
+    source:
+      "d1",
+
     publication:
       publicPublicationView(
         publication
@@ -1237,9 +1152,15 @@ function handlePublication(
 // PRESS
 // ============================================================
 
-function handlePress() {
+async function handlePress(
+  env
+) {
   const publications =
-    getPublicPublications()
+    (
+      await getPublicPublications(
+        env
+      )
+    )
       .filter(
         publication =>
           [
@@ -1258,6 +1179,9 @@ function handlePress() {
 
     engine:
       "release-bay-v2",
+
+    source:
+      "d1",
 
     publications,
 
@@ -1328,7 +1252,11 @@ async function handleWalletStatus(
   }
 
   const publicPublications =
-    getPublicPublications()
+    (
+      await getPublicPublications(
+        env
+      )
+    )
       .filter(
         publication =>
           publication.chainId ===
@@ -1472,7 +1400,8 @@ async function handleMintStatus(
   publicationKey
 ) {
   const publication =
-    getPublicPublication(
+    await getPublicPublication(
+      env,
       publicationKey
     );
 
@@ -1537,7 +1466,8 @@ async function handleMintPrepare(
   publicationKey
 ) {
   const publication =
-    getPublicPublication(
+    await getPublicPublication(
+      env,
       publicationKey
     );
 
@@ -1723,7 +1653,8 @@ async function handleMintConfirm(
   publicationKey
 ) {
   const publication =
-    getPublicPublication(
+    await getPublicPublication(
+      env,
       publicationKey
     );
 
@@ -2229,7 +2160,8 @@ async function handleReaderManifest(
   publicationKey
 ) {
   const publication =
-    getPublicPublication(
+    await getPublicPublication(
+      env,
       publicationKey
     );
 
@@ -2343,7 +2275,8 @@ async function handleReaderAsset(
   assetId
 ) {
   const publication =
-    getPublicPublication(
+    await getPublicPublication(
+      env,
       publicationKey
     );
 
@@ -2521,43 +2454,644 @@ async function handleReaderAsset(
 // PUBLICATION HELPERS
 // ============================================================
 
-function getPublicPublications() {
-  return Object.values(
-    PUBLICATION_REGISTRY
-  ).filter(
-    publication =>
-      publication.publicVisible
+function requireDatabase(
+  env
+) {
+  if (
+    !env ||
+    !env.DB
+  ) {
+    throw new Error(
+      "Publication database binding unavailable."
+    );
+  }
+
+  return env.DB;
+}
+
+async function getPublicationRegistrySummary(
+  env
+) {
+  const row =
+    await requireDatabase(
+      env
+    )
+      .prepare(
+        `
+          SELECT
+            COUNT(*) AS total_configured,
+            SUM(CASE WHEN public_visible = 1 THEN 1 ELSE 0 END) AS public_count,
+            SUM(CASE WHEN public_visible = 0 THEN 1 ELSE 0 END) AS private_count
+          FROM publications
+        `
+      )
+      .first();
+
+  return {
+    source:
+      "d1",
+
+    totalConfigured:
+      Number(
+        row?.total_configured ||
+        0
+      ),
+
+    publicCount:
+      Number(
+        row?.public_count ||
+        0
+      ),
+
+    privateCount:
+      Number(
+        row?.private_count ||
+        0
+      ),
+  };
+}
+
+async function getPublicPublications(
+  env
+) {
+  return getPublications(
+    env,
+    true
   );
 }
 
-function getPublication(
+async function getPublication(
+  env,
   publicationKey
 ) {
-  return (
-    PUBLICATION_REGISTRY[
-      String(
-        publicationKey ||
-        ""
-      ).toLowerCase()
-    ] ||
-    null
-  );
-}
-
-function getPublicPublication(
-  publicationKey
-) {
-  const publication =
-    getPublication(
+  const normalizedKey =
+    normalizePublicationKey(
       publicationKey
     );
 
-  return (
-    publication &&
-    publication.publicVisible
+  if (!normalizedKey) {
+    return null;
+  }
+
+  const publications =
+    await queryPublications(
+      env,
+      {
+        publicationKey:
+          normalizedKey,
+
+        publicOnly:
+          false,
+      }
+    );
+
+  return publications[0] ||
+    null;
+}
+
+async function getPublicPublication(
+  env,
+  publicationKey
+) {
+  const normalizedKey =
+    normalizePublicationKey(
+      publicationKey
+    );
+
+  if (!normalizedKey) {
+    return null;
+  }
+
+  const publications =
+    await queryPublications(
+      env,
+      {
+        publicationKey:
+          normalizedKey,
+
+        publicOnly:
+          true,
+      }
+    );
+
+  return publications[0] ||
+    null;
+}
+
+async function getPublications(
+  env,
+  publicOnly = false
+) {
+  return queryPublications(
+    env,
+    {
+      publicOnly,
+    }
+  );
+}
+
+async function queryPublications(
+  env,
+  {
+    publicationKey = null,
+    publicOnly = false,
+  } = {}
+) {
+  const db =
+    requireDatabase(
+      env
+    );
+
+  const filters =
+    [];
+
+  const bindings =
+    [];
+
+  if (publicationKey) {
+    filters.push(
+      "p.publication_key = ?"
+    );
+
+    bindings.push(
+      publicationKey
+    );
+  }
+
+  if (publicOnly) {
+    filters.push(
+      "p.public_visible = 1"
+    );
+  }
+
+  const whereClause =
+    filters.length > 0
+      ? `WHERE ${filters.join(" AND ")}`
+      : "";
+
+  let statement =
+    db.prepare(
+      `
+        SELECT
+          p.publication_key,
+          p.title,
+          p.slug,
+          p.kind,
+          p.series_key,
+          p.series_title,
+          p.issue_number,
+          p.lifecycle,
+          p.public_visible,
+          p.presentation_class,
+          p.canonical_locale,
+          p.external_url,
+
+          f.reader_enabled,
+          f.reader_access_policy,
+          f.sealed_enabled,
+          f.vault_enabled,
+          f.sin_enabled,
+          f.evolution_enabled,
+          f.easter_eggs_enabled,
+          f.hellforge_enabled,
+          f.token_bound_account_enabled,
+
+          c.chain_key,
+          c.chain_id,
+          c.token_standard,
+          c.contract_address,
+          c.publication_id,
+          c.publishing_enabled,
+          c.max_supply,
+          c.payment_type,
+          c.payment_token_address,
+          c.payment_token_symbol,
+          c.price_base_units,
+          c.price_display,
+          c.max_primary_mints_per_wallet,
+          c.max_per_transaction,
+          c.royalty_bps,
+          c.royalty_receiver
+
+        FROM publications p
+
+        LEFT JOIN publication_features f
+          ON f.publication_key =
+            p.publication_key
+
+        LEFT JOIN publication_chain_configs c
+          ON c.publication_key =
+            p.publication_key
+
+        ${whereClause}
+
+        ORDER BY
+          CASE p.lifecycle
+            WHEN 'mint_live' THEN 0
+            WHEN 'announced' THEN 1
+            WHEN 'circulating' THEN 2
+            ELSE 3
+          END,
+          p.publication_key ASC,
+          CASE
+            WHEN c.chain_key = '${DEFAULT_CHAIN_KEY}'
+            THEN 0
+            ELSE 1
+          END,
+          c.chain_id ASC,
+          c.chain_key ASC
+      `
+    );
+
+  if (bindings.length > 0) {
+    statement =
+      statement.bind(
+        ...bindings
+      );
+  }
+
+  const result =
+    await statement.all();
+
+  return hydratePublicationRows(
+    Array.isArray(
+      result?.results
+    )
+      ? result.results
+      : []
+  );
+}
+
+function hydratePublicationRows(
+  rows
+) {
+  const publications =
+    new Map();
+
+  for (
+    const row
+    of rows
+  ) {
+    let publication =
+      publications.get(
+        row.publication_key
+      );
+
+    if (!publication) {
+      publication =
+        publicationFromD1Row(
+          row
+        );
+
+      publications.set(
+        row.publication_key,
+        publication
+      );
+    }
+
+    if (row.chain_key) {
+      publication.chains.push(
+        chainFromD1Row(
+          row,
+          publication
+        )
+      );
+    }
+  }
+
+  for (
+    const publication
+    of publications.values()
+  ) {
+    const primaryChain =
+      publication.chains[0] ||
+      null;
+
+    publication.chainKey =
+      primaryChain?.chainKey ||
+      null;
+
+    publication.chainId =
+      primaryChain?.chainId ||
+      null;
+
+    publication.token =
+      primaryChain?.token ||
+      emptyPublicationToken();
+
+    publication.mint =
+      primaryChain?.mint ||
+      emptyPublicationMint();
+  }
+
+  return Array.from(
+    publications.values()
+  );
+}
+
+function publicationFromD1Row(
+  row
+) {
+  return {
+    publicationKey:
+      row.publication_key,
+
+    title:
+      row.title,
+
+    subtitle:
+      null,
+
+    publicationType:
+      row.kind,
+
+    contentType:
+      row.presentation_class ===
+      "book"
+        ? "ebook"
+        : row.presentation_class,
+
+    series:
+      row.kind ===
+      "serial"
+        ? {
+            key:
+              row.series_key,
+
+            title:
+              row.series_title,
+          }
+        : null,
+
+    issue:
+      row.issue_number,
+
+    lifecycle:
+      row.lifecycle,
+
+    publicVisible:
+      d1Boolean(
+        row.public_visible
+      ),
+
+    canonicalLocale:
+      row.canonical_locale,
+
+    externalUrl:
+      row.external_url,
+
+    chainKey:
+      null,
+
+    chainId:
+      null,
+
+    token:
+      emptyPublicationToken(),
+
+    mint:
+      emptyPublicationMint(),
+
+    chains:
+      [],
+
+    reader: {
+      enabled:
+        d1Boolean(
+          row.reader_enabled
+        ),
+
+      accessPolicy:
+        row.reader_access_policy ||
+        "ownership",
+
+      source:
+        "unconfigured",
+
+      manifestKey:
+        null,
+
+      assetPrefix:
+        null,
+    },
+
+    features: {
+      sealed:
+        d1Boolean(
+          row.sealed_enabled
+        ),
+
+      vaulting:
+        d1Boolean(
+          row.vault_enabled
+        ),
+
+      evolution:
+        d1Boolean(
+          row.evolution_enabled
+        ),
+
+      hellforge:
+        d1Boolean(
+          row.hellforge_enabled
+        ),
+
+      sin:
+        d1Boolean(
+          row.sin_enabled
+        ),
+
+      easterEggs:
+        d1Boolean(
+          row.easter_eggs_enabled
+        ),
+
+      tokenBoundAccount:
+        d1Boolean(
+          row.token_bound_account_enabled
+        ),
+    },
+
+    media: {
+      cover:
+        null,
+
+      press:
+        null,
+    },
+  };
+}
+
+function chainFromD1Row(
+  row,
+  publication
+) {
+  const paymentType =
+    String(
+      row.payment_type ||
+      ""
+    ).toUpperCase();
+
+  return {
+    chainKey:
+      row.chain_key,
+
+    chainId:
+      Number(
+        row.chain_id
+      ),
+
+    token: {
+      standard:
+        row.token_standard,
+
+      contractAddress:
+        row.contract_address,
+
+      publicationId:
+        row.publication_id,
+
+      tokenBoundAccountCompatible:
+        publication
+          .features
+          .tokenBoundAccount,
+    },
+
+    mint: {
+      enabled:
+        d1Boolean(
+          row.publishing_enabled
+        ),
+
+      paymentType,
+
+      paymentToken:
+        row.payment_type ===
+        "erc20"
+          ? {
+              address:
+                row.payment_token_address,
+
+              symbol:
+                row.payment_token_symbol,
+            }
+          : null,
+
+      price:
+        row.payment_type ===
+          "free"
+          ? null
+          : {
+              baseUnits:
+                String(
+                  row.price_base_units ||
+                  "0"
+                ),
+
+              display:
+                row.price_display ||
+                null,
+            },
+
+      maxSupply:
+        Number(
+          row.max_supply
+        ),
+
+      maxPrimaryMintsPerWallet:
+        Number(
+          row.max_primary_mints_per_wallet
+        ),
+
+      maxPerTransaction:
+        Number(
+          row.max_per_transaction
+        ),
+
+      royaltyBps:
+        Number(
+          row.royalty_bps
+        ),
+
+      royaltyReceiver:
+        row.royalty_receiver ||
+        null,
+    },
+  };
+}
+
+function normalizePublicationKey(
+  publicationKey
+) {
+  const normalized =
+    String(
+      publicationKey ||
+      ""
+    )
+      .trim()
+      .toLowerCase();
+
+  return /^[a-z0-9-]+$/.test(
+    normalized
   )
-    ? publication
+    ? normalized
     : null;
+}
+
+function d1Boolean(
+  value
+) {
+  return Number(
+    value ||
+    0
+  ) === 1;
+}
+
+function emptyPublicationToken() {
+  return {
+    standard:
+      "ERC721",
+
+    contractAddress:
+      null,
+
+    publicationId:
+      null,
+
+    tokenBoundAccountCompatible:
+      false,
+  };
+}
+
+function emptyPublicationMint() {
+  return {
+    enabled:
+      false,
+
+    paymentType:
+      null,
+
+    paymentToken:
+      null,
+
+    price:
+      null,
+
+    maxSupply:
+      null,
+
+    maxPrimaryMintsPerWallet:
+      null,
+
+    maxPerTransaction:
+      null,
+
+    royaltyBps:
+      null,
+
+    royaltyReceiver:
+      null,
+  };
 }
 
 function publicPublicationView(
@@ -2591,6 +3125,14 @@ function publicPublicationView(
     lifecycle:
       publication.lifecycle,
 
+    canonicalLocale:
+      publication
+        .canonicalLocale,
+
+    externalUrl:
+      publication
+        .externalUrl,
+
     chainKey:
       publication.chainKey,
 
@@ -2605,11 +3147,35 @@ function publicPublicationView(
       ...publication.mint,
     },
 
+    chains:
+      publication.chains.map(
+        chain => ({
+          chainKey:
+            chain.chainKey,
+
+          chainId:
+            chain.chainId,
+
+          token: {
+            ...chain.token,
+          },
+
+          mint: {
+            ...chain.mint,
+          },
+        })
+      ),
+
     reader: {
       enabled:
         publication
           .reader
           .enabled,
+
+      accessPolicy:
+        publication
+          .reader
+          .accessPolicy,
     },
 
     features: {
@@ -2649,9 +3215,9 @@ function resolveLegacyPublication(
     ];
 
   return publicationKey
-    ? getPublication(
-        publicationKey
-      )
+    ? {
+        publicationKey,
+      }
     : {
         publicationKey:
           null,
