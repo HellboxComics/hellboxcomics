@@ -1,6 +1,6 @@
 /* ============================================================
    HELLBOX COMICS
-   FRONTEND APPLICATION V9 — GATE 0.1 ACCESSIBLE MOBILE/LAPTOP
+   FRONTEND APPLICATION V10 — GATE 0.2 LOCALIZATION RUNTIME
    HARROW'S NERVOUS SYSTEM
    ------------------------------------------------------------
    - Relationship / Hellion memory
@@ -231,6 +231,13 @@
         ui: {
             locale: "en",
             translations: {},
+            canonicalTranslations: {},
+            translationReverseIndex: new Map(),
+            localeManifest: null,
+            localePacks: new Map(),
+            supportedLocales: new Map(),
+            runtimeCanonical: null,
+            localeRequestId: 0,
             heroTransmissionInterval: null,
             lastFocusedElement: null,
             mobileMenuOpen: false,
@@ -978,7 +985,7 @@
         );
 
         dom.whisperText.textContent =
-            message;
+            localizeRuntimeText(message);
 
         dom.whisper.classList.add(
             "active"
@@ -1026,10 +1033,10 @@
         );
 
         dom.harrowResponseTitle.textContent =
-            title;
+            localizeRuntimeText(title);
 
         dom.harrowResponseText.textContent =
-            text;
+            localizeRuntimeText(text);
 
         dom.harrowResponse.inert = false;
 
@@ -1584,14 +1591,20 @@
 
         if (isHellion()) {
             dom.exitAfterthought.textContent =
-                "you always come back.";
+                translation(
+                    "exit.afterthought.hellion",
+                    "you always come back."
+                );
 
             return;
         }
 
         if (isFamiliar()) {
             dom.exitAfterthought.textContent =
-                "See you again.";
+                translation(
+                    "exit.afterthought.familiar",
+                    "See you again."
+                );
 
             return;
         }
@@ -1600,13 +1613,19 @@
             state.relationship.visits >= 2
         ) {
             dom.exitAfterthought.textContent =
-                "See? Back already.";
+                translation(
+                    "exit.afterthought.repeat",
+                    "See? Back already."
+                );
 
             return;
         }
 
         dom.exitAfterthought.textContent =
-            "you'll be back.";
+            translation(
+                "exit.afterthought.default",
+                "you'll be back."
+            );
     }
 
 
@@ -1840,17 +1859,17 @@
 
         if (dom.drawerCode) {
             dom.drawerCode.textContent =
-                code;
+                localizeRuntimeText(code);
         }
 
         if (dom.drawerEyebrow) {
             dom.drawerEyebrow.textContent =
-                eyebrow;
+                localizeRuntimeText(eyebrow);
         }
 
         if (dom.drawerTitle) {
             dom.drawerTitle.textContent =
-                title;
+                localizeRuntimeText(title);
         }
 
         if (dom.drawerCopy) {
@@ -2531,10 +2550,20 @@
        ACCESSIBILITY, INTERFACE LANGUAGE, AND MOBILE CONTROL
        ========================================================= */
 
+    const FALLBACK_UI_LOCALE = "en";
+    const LOCALE_MANIFEST_URL =
+        "/locales/manifest.json?v=20260829-gate0-2-runtime-02";
+    const LOCALE_CACHE_VERSION =
+        "20260829-gate0-2-runtime-02";
+
+    /*
+     * Gate 0.2 validates the production localization runtime with English
+     * and Spanish only. The manifest remains authoritative and additional
+     * languages stay private until canonical English copy is near final.
+     */
     const SUPPORTED_UI_LOCALES = new Set([
         "en",
-        "es",
-        "pt-BR"
+        "es"
     ]);
 
     function announceStatus(message) {
@@ -2551,22 +2580,124 @@
     }
 
     function translation(key, fallback = "") {
+        const localized =
+            state.ui.translations?.[key];
+
+        if (typeof localized === "string") {
+            return localized;
+        }
+
+        const canonical =
+            state.ui.canonicalTranslations?.[key];
+
+        if (typeof canonical === "string") {
+            return canonical;
+        }
+
+        return fallback || key;
+    }
+
+    function buildTranslationReverseIndex() {
+        const index = new Map();
+
+        Object.entries(
+            state.ui.canonicalTranslations || {}
+        ).forEach(([key, value]) => {
+            if (
+                key === "_meta" ||
+                typeof value !== "string" ||
+                value === ""
+            ) {
+                return;
+            }
+
+            const existing =
+                index.get(value) || [];
+
+            existing.push(key);
+            index.set(value, existing);
+        });
+
+        state.ui.translationReverseIndex =
+            index;
+    }
+
+    function localizeRuntimeText(value) {
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return value;
+        }
+
+        const textValue = String(value);
+
+        if (state.ui.locale === "en") {
+            return textValue;
+        }
+
+        const keys =
+            state.ui.translationReverseIndex.get(
+                textValue
+            );
+
+        if (!keys || keys.length === 0) {
+            return textValue;
+        }
+
+        const candidates = [
+            ...new Set(
+                keys
+                    .map((key) => {
+                        return state.ui.translations?.[key];
+                    })
+                    .filter((item) => {
+                        return typeof item === "string";
+                    })
+            )
+        ];
+
+        return candidates.length === 1
+            ? candidates[0]
+            : textValue;
+    }
+
+    function localeRecord(locale) {
         return (
-            state.ui.translations?.[key] ||
-            fallback ||
-            key
+            state.ui.supportedLocales.get(locale) ||
+            null
         );
     }
 
-    async function loadUiLocale(locale) {
-        const nextLocale =
-            SUPPORTED_UI_LOCALES.has(locale)
-                ? locale
-                : "en";
+    function normalizeUiLocale(locale) {
+        const raw = safeText(locale).trim();
+
+        if (!raw) {
+            return FALLBACK_UI_LOCALE;
+        }
+
+        if (SUPPORTED_UI_LOCALES.has(raw)) {
+            return raw;
+        }
+
+        const base =
+            raw.split("-")[0];
+
+        if (SUPPORTED_UI_LOCALES.has(base)) {
+            return base;
+        }
+
+        return FALLBACK_UI_LOCALE;
+    }
+
+    async function loadLocaleManifest() {
+        if (state.ui.localeManifest) {
+            return state.ui.localeManifest;
+        }
 
         try {
             const response = await fetch(
-                `/locales/${encodeURIComponent(nextLocale)}.json?v=20260828-gate0-1-02`,
+                LOCALE_MANIFEST_URL,
                 {
                     cache: "force-cache"
                 }
@@ -2574,34 +2705,307 @@
 
             if (!response.ok) {
                 throw new Error(
-                    `Locale ${nextLocale} unavailable.`
+                    "Locale manifest unavailable."
                 );
             }
 
-            state.ui.translations =
+            const manifest =
                 await response.json();
 
-            state.ui.locale =
-                nextLocale;
+            const publicLocales =
+                Array.isArray(manifest?.locales)
+                    ? manifest.locales.filter(
+                        (item) => {
+                            return Boolean(
+                                item &&
+                                item.public === true &&
+                                item.status === "complete" &&
+                                typeof item.code === "string" &&
+                                typeof item.pack === "string"
+                            );
+                        }
+                    )
+                    : [];
 
-        } catch (error) {
-            if (nextLocale !== "en") {
-                return loadUiLocale("en");
+            if (
+                !publicLocales.some(
+                    (item) => item.code === "en"
+                )
+            ) {
+                throw new Error(
+                    "Canonical English locale missing from manifest."
+                );
             }
 
-            state.ui.locale = "en";
-            state.ui.translations = {};
+            state.ui.localeManifest =
+                manifest;
+
+            state.ui.supportedLocales =
+                new Map(
+                    publicLocales.map(
+                        (item) => [
+                            item.code,
+                            item
+                        ]
+                    )
+                );
+
+            SUPPORTED_UI_LOCALES.clear();
+
+            state.ui.supportedLocales.forEach(
+                (_, code) => {
+                    SUPPORTED_UI_LOCALES.add(code);
+                }
+            );
+
+            return manifest;
+
+        } catch (error) {
+            /*
+             * Resilient fallback: the site remains usable in English even
+             * if the optional manifest cannot be fetched.
+             */
+            state.ui.localeManifest = {
+                defaultLocale: "en",
+                fallbackLocale: "en",
+                locales: [
+                    {
+                        code: "en",
+                        name: "English",
+                        nativeName: "English",
+                        direction: "ltr",
+                        status: "complete",
+                        public: true,
+                        pack: "/locales/en.json"
+                    }
+                ]
+            };
+
+            state.ui.supportedLocales =
+                new Map([
+                    [
+                        "en",
+                        state.ui.localeManifest.locales[0]
+                    ]
+                ]);
+
+            SUPPORTED_UI_LOCALES.clear();
+            SUPPORTED_UI_LOCALES.add("en");
+
+            return state.ui.localeManifest;
         }
+    }
+
+    async function loadLocalePack(locale) {
+        if (state.ui.localePacks.has(locale)) {
+            return state.ui.localePacks.get(locale);
+        }
+
+        const record =
+            localeRecord(locale);
+
+        const path =
+            record?.pack ||
+            `/locales/${encodeURIComponent(locale)}.json`;
+
+        const separator =
+            path.includes("?")
+                ? "&"
+                : "?";
+
+        const response = await fetch(
+            `${path}${separator}v=${LOCALE_CACHE_VERSION}`,
+            {
+                cache: "force-cache"
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                `Locale ${locale} unavailable.`
+            );
+        }
+
+        const pack =
+            await response.json();
+
+        state.ui.localePacks.set(
+            locale,
+            pack
+        );
+
+        return pack;
+    }
+
+    function localeStringKeys(pack) {
+        return Object.keys(pack || {})
+            .filter((key) => key !== "_meta")
+            .sort();
+    }
+
+    function validateLocalePack(
+        pack,
+        locale,
+        canonicalPack
+    ) {
+        if (!pack || typeof pack !== "object") {
+            return false;
+        }
+
+        if (pack?._meta?.locale !== locale) {
+            return false;
+        }
+
+        const canonicalKeys =
+            localeStringKeys(canonicalPack);
+
+        const candidateKeys =
+            localeStringKeys(pack);
+
+        if (
+            canonicalKeys.length !==
+            candidateKeys.length
+        ) {
+            return false;
+        }
+
+        for (
+            let index = 0;
+            index < canonicalKeys.length;
+            index += 1
+        ) {
+            if (
+                canonicalKeys[index] !==
+                candidateKeys[index]
+            ) {
+                return false;
+            }
+        }
+
+        if (locale !== "en") {
+            return Boolean(
+                pack?._meta?.complete === true &&
+                pack?._meta?.machineDraft === false &&
+                pack?._meta?.harrowVoiceApproved === true
+            );
+        }
+
+        return pack?._meta?.complete !== false;
+    }
+
+    function populateLanguageSelector() {
+        if (!dom.interfaceLanguage) {
+            return;
+        }
+
+        dom.interfaceLanguage.innerHTML = "";
+
+        const records = [
+            ...state.ui.supportedLocales.values()
+        ];
+
+        records.forEach((record) => {
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                record.code;
+
+            option.textContent =
+                record.nativeName ||
+                record.name ||
+                record.code;
+
+            dom.interfaceLanguage.appendChild(
+                option
+            );
+        });
+
+        dom.interfaceLanguage.value =
+            state.ui.locale;
+    }
+
+    function applyDocumentLocale() {
+        const record =
+            localeRecord(state.ui.locale);
+
+        document.documentElement.lang =
+            state.ui.locale;
+
+        document.documentElement.dir =
+            record?.direction ||
+            state.ui.translations?._meta?.direction ||
+            "ltr";
 
         document.documentElement.dataset.uiLocale =
             state.ui.locale;
 
+        document.title =
+            translation(
+                "document.title",
+                document.title
+            );
+
+        const metaBindings = [
+            [
+                'meta[name="description"]',
+                "content",
+                "document.description"
+            ],
+            [
+                'meta[property="og:title"]',
+                "content",
+                "document.title"
+            ],
+            [
+                'meta[property="og:description"]',
+                "content",
+                "document.ogDescription"
+            ],
+            [
+                'meta[name="twitter:title"]',
+                "content",
+                "document.title"
+            ],
+            [
+                'meta[name="twitter:description"]',
+                "content",
+                "document.ogDescription"
+            ]
+        ];
+
+        metaBindings.forEach(
+            ([selector, attribute, key]) => {
+                const element =
+                    $(selector);
+
+                if (!element) {
+                    return;
+                }
+
+                element.setAttribute(
+                    attribute,
+                    translation(
+                        key,
+                        element.getAttribute(attribute) || ""
+                    )
+                );
+            }
+        );
+    }
+
+    function applyDeclaredTranslations() {
         $$('[data-i18n]').forEach((element) => {
             const key =
                 element.dataset.i18n;
 
             const nextText =
-                state.ui.translations?.[key];
+                translation(
+                    key,
+                    element.textContent || ""
+                );
 
             if (typeof nextText === "string") {
                 element.textContent =
@@ -2609,10 +3013,462 @@
             }
         });
 
-        if (dom.interfaceLanguage) {
-            dom.interfaceLanguage.value =
-                state.ui.locale;
+        $$('[data-i18n-attr]').forEach(
+            (element) => {
+                const bindings =
+                    safeText(
+                        element.dataset.i18nAttr
+                    )
+                        .split(";")
+                        .map((item) => item.trim())
+                        .filter(Boolean);
+
+                bindings.forEach((binding) => {
+                    const separator =
+                        binding.indexOf(":");
+
+                    if (separator <= 0) {
+                        return;
+                    }
+
+                    const attribute =
+                        binding.slice(0, separator).trim();
+
+                    const key =
+                        binding.slice(separator + 1).trim();
+
+                    if (!attribute || !key) {
+                        return;
+                    }
+
+                    element.setAttribute(
+                        attribute,
+                        translation(
+                            key,
+                            element.getAttribute(attribute) || ""
+                        )
+                    );
+                });
+            }
+        );
+    }
+
+    function cloneRuntimeValue(value) {
+        return JSON.parse(
+            JSON.stringify(value)
+        );
+    }
+
+    function ensureRuntimeCanonicalSnapshot() {
+        if (state.ui.runtimeCanonical) {
+            return state.ui.runtimeCanonical;
         }
+
+        state.ui.runtimeCanonical = {
+            dialogue:
+                cloneRuntimeValue(DIALOGUE),
+            heroThoughts:
+                cloneRuntimeValue(HERO_THOUGHTS),
+            hellionHeroThoughts:
+                cloneRuntimeValue(HELLION_HERO_THOUGHTS),
+            heroDrawers:
+                cloneRuntimeValue(HOTSPOT_CONTENT),
+            theoryDrawers:
+                cloneRuntimeValue(THEORY_CONTENT),
+            classifiedDrawers:
+                cloneRuntimeValue(CLASSIFIED_OBJECTS),
+            pressDrawers:
+                cloneRuntimeValue(PRESS_OBJECT_CONTENT)
+        };
+
+        return state.ui.runtimeCanonical;
+    }
+
+    function applyDialogueLocale(
+        target,
+        canonical,
+        path = []
+    ) {
+        if (
+            Array.isArray(target) &&
+            Array.isArray(canonical)
+        ) {
+            target.forEach((entry, index) => {
+                const source =
+                    canonical[index];
+
+                if (!entry || !source) {
+                    return;
+                }
+
+                if (
+                    typeof source.title === "string" &&
+                    typeof source.text === "string"
+                ) {
+                    const base = [
+                        "dialogue",
+                        ...path,
+                        String(index + 1).padStart(2, "0")
+                    ].join(".");
+
+                    entry.title =
+                        translation(
+                            `${base}.title`,
+                            source.title
+                        );
+
+                    entry.text =
+                        translation(
+                            `${base}.text`,
+                            source.text
+                        );
+
+                    return;
+                }
+
+                applyDialogueLocale(
+                    entry,
+                    source,
+                    [
+                        ...path,
+                        String(index + 1).padStart(2, "0")
+                    ]
+                );
+            });
+
+            return;
+        }
+
+        if (
+            !target ||
+            !canonical ||
+            typeof target !== "object" ||
+            typeof canonical !== "object"
+        ) {
+            return;
+        }
+
+        Object.keys(canonical).forEach((key) => {
+            if (
+                target[key] === undefined
+            ) {
+                return;
+            }
+
+            applyDialogueLocale(
+                target[key],
+                canonical[key],
+                [
+                    ...path,
+                    key
+                ]
+            );
+        });
+    }
+
+    function applyThoughtLocale(
+        target,
+        canonical,
+        prefix
+    ) {
+        target.forEach((item, index) => {
+            const source =
+                canonical[index];
+
+            if (!item || !source) {
+                return;
+            }
+
+            const base =
+                `${prefix}.${String(index + 1).padStart(2, "0")}`;
+
+            item.title =
+                translation(
+                    `${base}.title`,
+                    source.title
+                );
+
+            item.sub =
+                translation(
+                    `${base}.sub`,
+                    source.sub
+                );
+        });
+    }
+
+    function paragraphTextFromHtml(htmlValue) {
+        const template =
+            document.createElement(
+                "template"
+            );
+
+        template.innerHTML =
+            safeText(htmlValue);
+
+        return $$('p', template.content)
+            .map((paragraph) => {
+                return safeText(
+                    paragraph.textContent
+                )
+                    .replace(/\s+/g, " ")
+                    .trim();
+            });
+    }
+
+    function localizedParagraphHtml(
+        prefix,
+        sourceHtml
+    ) {
+        const paragraphs =
+            paragraphTextFromHtml(
+                sourceHtml
+            );
+
+        return paragraphs
+            .map((paragraph, index) => {
+                const key =
+                    `${prefix}.body.${String(index + 1).padStart(2, "0")}`;
+
+                return `\n                <p>${escapeHtml(
+                    translation(
+                        key,
+                        paragraph
+                    )
+                )}</p>`;
+            })
+            .join("\n");
+    }
+
+    function applyDrawerLibraryLocale(
+        target,
+        canonical,
+        prefix
+    ) {
+        Object.keys(canonical).forEach(
+            (itemKey) => {
+                const source =
+                    canonical[itemKey];
+
+                const item =
+                    target[itemKey];
+
+                if (!source || !item) {
+                    return;
+                }
+
+                const base =
+                    `${prefix}.${itemKey}`;
+
+                [
+                    "code",
+                    "eyebrow",
+                    "title",
+                    "footnote"
+                ].forEach((field) => {
+                    item[field] =
+                        translation(
+                            `${base}.${field}`,
+                            source[field] || ""
+                        );
+                });
+
+                item.html =
+                    localizedParagraphHtml(
+                        base,
+                        source.html
+                    );
+            }
+        );
+    }
+
+    function applyRuntimeLibrariesLocale() {
+        const canonical =
+            ensureRuntimeCanonicalSnapshot();
+
+        applyDialogueLocale(
+            DIALOGUE,
+            canonical.dialogue
+        );
+
+        applyThoughtLocale(
+            HERO_THOUGHTS,
+            canonical.heroThoughts,
+            "hero.thought"
+        );
+
+        applyThoughtLocale(
+            HELLION_HERO_THOUGHTS,
+            canonical.hellionHeroThoughts,
+            "hero.thoughtHellion"
+        );
+
+        applyDrawerLibraryLocale(
+            HOTSPOT_CONTENT,
+            canonical.heroDrawers,
+            "drawer.hero"
+        );
+
+        applyDrawerLibraryLocale(
+            THEORY_CONTENT,
+            canonical.theoryDrawers,
+            "drawer.theory"
+        );
+
+        applyDrawerLibraryLocale(
+            CLASSIFIED_OBJECTS,
+            canonical.classifiedDrawers,
+            "drawer.classified"
+        );
+
+        applyDrawerLibraryLocale(
+            PRESS_OBJECT_CONTENT,
+            canonical.pressDrawers,
+            "drawer.press"
+        );
+    }
+
+    function updateLocaleQueryParameter(locale) {
+        try {
+            const url =
+                new URL(window.location.href);
+
+            if (locale === FALLBACK_UI_LOCALE) {
+                url.searchParams.delete("lang");
+            } else {
+                url.searchParams.set(
+                    "lang",
+                    locale
+                );
+            }
+
+            window.history.replaceState(
+                {},
+                "",
+                url
+            );
+        } catch (error) {
+            // URL state is a convenience, not a blocker.
+        }
+    }
+
+    function refreshLocalizedRuntimeUi() {
+        updateExitAfterthought();
+        rotateHeroTransmission();
+        renderWalletState();
+        updatePressPublication();
+        setPressState(state.press.state);
+
+        if (state.publications.length > 0) {
+            renderCollection(
+                state.publications
+            );
+        }
+
+        if (state.reader.open) {
+            renderReader();
+        }
+    }
+
+    async function loadUiLocale(
+        locale,
+        {
+            updateUrl = false,
+            announce = false
+        } = {}
+    ) {
+        const requestId =
+            state.ui.localeRequestId + 1;
+
+        state.ui.localeRequestId =
+            requestId;
+
+        await loadLocaleManifest();
+
+        const nextLocale =
+            normalizeUiLocale(locale);
+
+        let canonicalPack;
+
+        try {
+            canonicalPack =
+                await loadLocalePack("en");
+
+        } catch (error) {
+            state.ui.locale = "en";
+            state.ui.translations = {};
+            state.ui.canonicalTranslations = {};
+            applyDocumentLocale();
+            populateLanguageSelector();
+            return;
+        }
+
+        if (
+            !validateLocalePack(
+                canonicalPack,
+                "en",
+                canonicalPack
+            )
+        ) {
+            throw new Error(
+                "Canonical English locale failed validation."
+            );
+        }
+
+        let chosenLocale =
+            nextLocale;
+
+        let chosenPack =
+            canonicalPack;
+
+        if (nextLocale !== "en") {
+            try {
+                const candidate =
+                    await loadLocalePack(
+                        nextLocale
+                    );
+
+                if (
+                    !validateLocalePack(
+                        candidate,
+                        nextLocale,
+                        canonicalPack
+                    )
+                ) {
+                    throw new Error(
+                        `Locale ${nextLocale} failed approval validation.`
+                    );
+                }
+
+                chosenPack =
+                    candidate;
+
+            } catch (error) {
+                chosenLocale = "en";
+                chosenPack = canonicalPack;
+            }
+        }
+
+        if (
+            requestId !==
+            state.ui.localeRequestId
+        ) {
+            return;
+        }
+
+        state.ui.canonicalTranslations =
+            canonicalPack;
+
+        state.ui.translations =
+            chosenPack;
+
+        state.ui.locale =
+            chosenLocale;
+
+        buildTranslationReverseIndex();
+        applyRuntimeLibrariesLocale();
+        applyDocumentLocale();
+        applyDeclaredTranslations();
+        populateLanguageSelector();
 
         if (storageAvailable("localStorage")) {
             try {
@@ -2625,12 +3481,52 @@
             }
         }
 
+        if (updateUrl) {
+            updateLocaleQueryParameter(
+                state.ui.locale
+            );
+        }
+
         updateAccessSettingLabels();
         updateTickerControl();
         updateTransmissionDisclosure();
+        refreshLocalizedRuntimeUi();
+
+        if (announce) {
+            announceStatus(
+                translation(
+                    "access.announce.languageChanged",
+                    "Interface language updated."
+                )
+            );
+        }
     }
 
     function preferredUiLocale() {
+        try {
+            const requested =
+                new URL(
+                    window.location.href
+                ).searchParams.get("lang");
+
+            if (requested) {
+                const normalized =
+                    normalizeUiLocale(
+                        requested
+                    );
+
+                if (
+                    SUPPORTED_UI_LOCALES.has(
+                        normalized
+                    )
+                ) {
+                    return normalized;
+                }
+            }
+        } catch (error) {
+            // Continue to stored/browser preference.
+        }
+
         if (storageAvailable("localStorage")) {
             try {
                 const stored =
@@ -2638,8 +3534,19 @@
                         STORAGE_KEYS.uiLocale
                     );
 
-                if (SUPPORTED_UI_LOCALES.has(stored)) {
-                    return stored;
+                if (stored) {
+                    const normalized =
+                        normalizeUiLocale(
+                            stored
+                        );
+
+                    if (
+                        SUPPORTED_UI_LOCALES.has(
+                            normalized
+                        )
+                    ) {
+                        return normalized;
+                    }
                 }
             } catch (error) {
                 // Fall back to browser language.
@@ -2651,26 +3558,21 @@
             [navigator.language || "en"];
 
         for (const item of browserLanguages) {
-            if (SUPPORTED_UI_LOCALES.has(item)) {
-                return item;
-            }
-
-            const base =
-                String(item).split("-")[0];
-
-            if (SUPPORTED_UI_LOCALES.has(base)) {
-                return base;
-            }
+            const normalized =
+                normalizeUiLocale(
+                    item
+                );
 
             if (
-                base === "pt" &&
-                SUPPORTED_UI_LOCALES.has("pt-BR")
+                SUPPORTED_UI_LOCALES.has(
+                    normalized
+                )
             ) {
-                return "pt-BR";
+                return normalized;
             }
         }
 
-        return "en";
+        return FALLBACK_UI_LOCALE;
     }
 
     function readAccessibilityPreferences() {
@@ -2770,13 +3672,24 @@
 
         if (announce) {
             const label = {
-                largeText: "Larger text",
-                highContrast: "High contrast",
-                reduceMotion: "Reduced motion"
+                largeText: translation(
+                    "access.announce.largeText",
+                    "Larger text"
+                ),
+                highContrast: translation(
+                    "access.announce.highContrast",
+                    "High contrast"
+                ),
+                reduceMotion: translation(
+                    "access.announce.reduceMotion",
+                    "Reduced motion"
+                )
             }[name];
 
             announceStatus(
-                `${label} ${enabled ? "on" : "off"}.`
+                `${label} ${enabled
+                    ? translation("access.announce.on", "on")
+                    : translation("access.announce.off", "off")}.`
             );
         }
     }
@@ -3001,13 +3914,13 @@
 
         dom.interfaceLanguage?.addEventListener(
             "change",
-            () => {
-                loadUiLocale(
-                    dom.interfaceLanguage.value
-                );
-
-                announceStatus(
-                    "Interface language updated."
+            async () => {
+                await loadUiLocale(
+                    dom.interfaceLanguage.value,
+                    {
+                        updateUrl: true,
+                        announce: true
+                    }
                 );
             }
         );
@@ -4408,25 +5321,37 @@ if (dom.readerDormantObject) {
         );
 
         let miniStatus =
-            "IDLE";
+            translation(
+                "press.state.idle.status",
+                "IDLE"
+            );
 
         let machineState =
-            "ASLEEP";
+            translation(
+                "press.state.idle.machine",
+                "ASLEEP"
+            );
 
         let consoleLabel =
-            "STATUS";
+            translation(
+                "press.state.idle.label",
+                "STATUS"
+            );
 
         let consoleTitle =
-            "DON'T TOUCH IT.";
+            translation(
+                "press.state.idle.title",
+                "DON'T TOUCH IT."
+            );
 
         let consoleText =
-            "I mean it.";
+            translation(
+                "press.state.idle.text",
+                "I mean it."
+            );
 
-        let power =
-            "00";
-
-        let ink =
-            "??";
+        let power = "00";
+        let ink = "??";
 
         switch (nextState) {
             case "awake":
@@ -4434,27 +5359,28 @@ if (dom.readerDormantObject) {
                     "machine-awake"
                 );
 
-                miniStatus =
-                    "AWAKE";
-
-                machineState =
-                    "AWAKE";
-
-                consoleLabel =
-                    "HARROW // YOU DID THIS";
-
-                consoleTitle =
-                    "NOW IT'S AWAKE.";
-
-                consoleText =
-                    "Try pretending this wasn't exactly what you wanted.";
-
-                power =
-                    "37";
-
-                ink =
-                    "??";
-
+                miniStatus = translation(
+                    "press.state.awake.status",
+                    "AWAKE"
+                );
+                machineState = translation(
+                    "press.state.awake.machine",
+                    "AWAKE"
+                );
+                consoleLabel = translation(
+                    "press.state.awake.label",
+                    "HARROW // YOU DID THIS"
+                );
+                consoleTitle = translation(
+                    "press.state.awake.title",
+                    "NOW IT'S AWAKE."
+                );
+                consoleText = translation(
+                    "press.state.awake.text",
+                    "Try pretending this wasn't exactly what you wanted."
+                );
+                power = "37";
+                ink = "??";
                 break;
 
             case "wallet":
@@ -4462,27 +5388,28 @@ if (dom.readerDormantObject) {
                     "machine-awake"
                 );
 
-                miniStatus =
-                    "IDENTIFY";
-
-                machineState =
-                    "WAITING";
-
-                consoleLabel =
-                    "IDENTIFICATION";
-
-                consoleTitle =
-                    "SHOW ME THE WALLET.";
-
-                consoleText =
-                    "Chaos still requires an address.";
-
-                power =
-                    "62";
-
-                ink =
-                    "??";
-
+                miniStatus = translation(
+                    "press.state.wallet.status",
+                    "IDENTIFY"
+                );
+                machineState = translation(
+                    "press.state.wallet.machine",
+                    "WAITING"
+                );
+                consoleLabel = translation(
+                    "press.state.wallet.label",
+                    "IDENTIFICATION"
+                );
+                consoleTitle = translation(
+                    "press.state.wallet.title",
+                    "SHOW ME THE WALLET."
+                );
+                consoleText = translation(
+                    "press.state.wallet.text",
+                    "Chaos still requires an address."
+                );
+                power = "62";
+                ink = "??";
                 break;
 
             case "ready":
@@ -4490,31 +5417,38 @@ if (dom.readerDormantObject) {
                     "machine-awake"
                 );
 
-                miniStatus =
-                    "READY";
-
-                machineState =
-                    "READY";
-
-                consoleLabel =
-                    "PRESS // READY";
-
-                consoleTitle =
-                    isHellion()
-                        ? "YOU KNOW WHAT THIS DOES."
-                        : "DON'T GET EXCITED.";
-
-                consoleText =
-                    isHellion()
-                        ? "No public release loaded. You're going to pull it anyway."
-                        : "The machine is ready. The publication isn't.";
-
-                power =
-                    "91";
-
-                ink =
-                    "OK";
-
+                miniStatus = translation(
+                    "press.state.ready.status",
+                    "READY"
+                );
+                machineState = translation(
+                    "press.state.ready.machine",
+                    "READY"
+                );
+                consoleLabel = translation(
+                    "press.state.ready.label",
+                    "PRESS // READY"
+                );
+                consoleTitle = isHellion()
+                    ? translation(
+                        "press.state.ready.titleHellion",
+                        "YOU KNOW WHAT THIS DOES."
+                    )
+                    : translation(
+                        "press.state.ready.title",
+                        "DON'T GET EXCITED."
+                    );
+                consoleText = isHellion()
+                    ? translation(
+                        "press.state.ready.textHellion",
+                        "No public release loaded. You're going to pull it anyway."
+                    )
+                    : translation(
+                        "press.state.ready.text",
+                        "The machine is ready. The publication isn't."
+                    );
+                power = "91";
+                ink = "OK";
                 break;
 
             case "pressing":
@@ -4524,27 +5458,28 @@ if (dom.readerDormantObject) {
                     "machine-alert"
                 );
 
-                miniStatus =
-                    "WORKING";
-
-                machineState =
-                    "WORKING";
-
-                consoleLabel =
-                    "PRESS // ACTIVE";
-
-                consoleTitle =
-                    "SEE WHAT YOU DID?";
-
-                consoleText =
-                    "Now the machine thinks it has a job.";
-
-                power =
-                    "99";
-
-                ink =
-                    "RUN";
-
+                miniStatus = translation(
+                    "press.state.pressing.status",
+                    "WORKING"
+                );
+                machineState = translation(
+                    "press.state.pressing.machine",
+                    "WORKING"
+                );
+                consoleLabel = translation(
+                    "press.state.pressing.label",
+                    "PRESS // ACTIVE"
+                );
+                consoleTitle = translation(
+                    "press.state.pressing.title",
+                    "SEE WHAT YOU DID?"
+                );
+                consoleText = translation(
+                    "press.state.pressing.text",
+                    "Now the machine thinks it has a job."
+                );
+                power = "99";
+                ink = "RUN";
                 break;
 
             case "confirmed":
@@ -4552,27 +5487,28 @@ if (dom.readerDormantObject) {
                     "machine-awake"
                 );
 
-                miniStatus =
-                    "YOURS";
-
-                machineState =
-                    "DONE";
-
-                consoleLabel =
-                    "PRESS // COMPLETE";
-
-                consoleTitle =
-                    "THERE. HAPPY?";
-
-                consoleText =
-                    "Reserved for an actual confirmed mint.";
-
-                power =
-                    "44";
-
-                ink =
-                    "OK";
-
+                miniStatus = translation(
+                    "press.state.confirmed.status",
+                    "YOURS"
+                );
+                machineState = translation(
+                    "press.state.confirmed.machine",
+                    "DONE"
+                );
+                consoleLabel = translation(
+                    "press.state.confirmed.label",
+                    "PRESS // COMPLETE"
+                );
+                consoleTitle = translation(
+                    "press.state.confirmed.title",
+                    "THERE. HAPPY?"
+                );
+                consoleText = translation(
+                    "press.state.confirmed.text",
+                    "Reserved for an actual confirmed mint."
+                );
+                power = "44";
+                ink = "OK";
                 break;
 
             case "error":
@@ -4581,27 +5517,28 @@ if (dom.readerDormantObject) {
                     "machine-alert"
                 );
 
-                miniStatus =
-                    "NO";
-
-                machineState =
-                    "NO";
-
-                consoleLabel =
-                    "HARROW // NO";
-
-                consoleTitle =
-                    "THERE'S NOTHING TO MINT.";
-
-                consoleText =
-                    "Stop trying to brute-force unfinished art.";
-
-                power =
-                    "13";
-
-                ink =
-                    "--";
-
+                miniStatus = translation(
+                    "press.state.error.status",
+                    "NO"
+                );
+                machineState = translation(
+                    "press.state.error.machine",
+                    "NO"
+                );
+                consoleLabel = translation(
+                    "press.state.error.label",
+                    "HARROW // NO"
+                );
+                consoleTitle = translation(
+                    "press.state.error.title",
+                    "THERE'S NOTHING TO MINT."
+                );
+                consoleText = translation(
+                    "press.state.error.text",
+                    "Stop trying to brute-force unfinished art."
+                );
+                power = "13";
+                ink = "--";
                 break;
 
             case "idle":
@@ -4821,7 +5758,10 @@ if (dom.readerDormantObject) {
                     ? truncateAddress(
                         state.wallet.address
                     )
-                    : "NOT SHOWN";
+                    : translation(
+                        "wallet.notShown",
+                        "NOT SHOWN"
+                    );
         }
 
         if (!state.press.awake) {
@@ -4849,7 +5789,10 @@ if (dom.readerDormantObject) {
 
         if (!publication) {
             dom.pressPublication.textContent =
-                "NONE";
+                translation(
+                    "press.publication.none",
+                    "NONE"
+                );
 
             dom.pressSupply.textContent =
                 "-- / --";
@@ -4862,7 +5805,10 @@ if (dom.readerDormantObject) {
                 publication.title,
                 safeText(
                     publication.publicationKey,
-                    "UNKNOWN"
+                    translation(
+                        "press.publication.unknown",
+                        "UNKNOWN"
+                    )
                 )
             );
 
@@ -5004,8 +5950,14 @@ if (dom.readerDormantObject) {
 
         if (!provider) {
             showHarrowResponse(
-                "NO WALLET.",
-                "Install an EVM wallet first. I'm talented, not supernatural.",
+                translation(
+                    "wallet.noWallet.title",
+                    "NO WALLET."
+                ),
+                translation(
+                    "wallet.noWallet.text",
+                    "Install an EVM wallet first. I'm talented, not supernatural."
+                ),
                 {
                     importance:
                         "important"
@@ -5023,7 +5975,10 @@ if (dom.readerDormantObject) {
                     true;
 
                 dom.walletButton.textContent =
-                    "LOOKING...";
+                    translation(
+                        "wallet.looking",
+                        "LOOKING..."
+                    );
             }
 
             const accounts =
@@ -5098,8 +6053,14 @@ if (dom.readerDormantObject) {
 
         } catch (error) {
             showHarrowResponse(
-                "NEVER MIND.",
-                "You either rejected it or your wallet decided today was its day to become performance art.",
+                translation(
+                    "wallet.rejected.title",
+                    "NEVER MIND."
+                ),
+                translation(
+                    "wallet.rejected.text",
+                    "You either rejected it or your wallet decided today was its day to become performance art."
+                ),
                 {
                     importance:
                         "important"
@@ -5152,17 +6113,20 @@ if (dom.readerDormantObject) {
                     ? truncateAddress(
                         state.wallet.address
                     )
-                    : "NOT SHOWN";
+                    : translation(
+                        "wallet.notShown",
+                        "NOT SHOWN"
+                    );
         }
 
         if (dom.collectionNetwork) {
             if (!connected) {
                 dom.collectionNetwork.textContent =
-                    "PULSECHAIN // 369";
+                    translation("wallet.network.pulsechain", "PULSECHAIN // 369");
 
             } else if (onPulseChain) {
                 dom.collectionNetwork.textContent =
-                    "PULSECHAIN // 369";
+                    translation("wallet.network.pulsechain", "PULSECHAIN // 369");
 
             } else {
                 dom.collectionNetwork.textContent =
@@ -5180,18 +6144,18 @@ if (dom.readerDormantObject) {
                         onPulseChain
                             ? (
                                 isHellion()
-                                    ? "HELLION"
-                                    : "SEEN"
+                                    ? translation("wallet.state.hellion", "HELLION")
+                                    : translation("wallet.state.seen", "SEEN")
                             )
-                            : "WRONG CHAIN"
+                            : translation("wallet.state.wrongChain", "WRONG CHAIN")
                     )
-                    : "WAITING";
+                    : translation("wallet.state.waiting", "WAITING");
         }
 
         if (dom.terminalAction) {
             dom.terminalAction.textContent =
                 connected
-                    ? "LOOK AGAIN"
+                    ? translation("wallet.lookAgain", "LOOK AGAIN")
                     : (
                         isHellion()
                             ? translation(
@@ -5879,7 +6843,10 @@ if (dom.readerDormantObject) {
 
     function showReaderLoading(
         message =
-            "The machine is doing something expensive."
+            translation(
+                "reader.loading.default",
+                "The machine is doing something expensive."
+            )
     ) {
         if (!dom.readerLoading) {
             return;
@@ -5891,7 +6858,7 @@ if (dom.readerDormantObject) {
 
         if (dom.readerLoadingText) {
             dom.readerLoadingText.textContent =
-                message;
+                localizeRuntimeText(message);
         }
     }
 
@@ -5914,7 +6881,7 @@ if (dom.readerDormantObject) {
 
         if (dom.readerErrorText) {
             dom.readerErrorText.textContent =
-                message;
+                localizeRuntimeText(message);
         }
 
         dom.readerError.classList.add(
@@ -6065,8 +7032,8 @@ if (dom.readerDormantObject) {
 
         showReaderLoading(
             isHellion()
-                ? "Checking your key, Hellion."
-                : "Checking whether the box is going to let you in."
+                ? translation("reader.loading.checkingHellion", "Checking your key, Hellion.")
+                : translation("reader.loading.checking", "Checking whether the box is going to let you in.")
         );
 
         try {
@@ -6088,7 +7055,7 @@ if (dom.readerDormantObject) {
                 pages.length === 0
             ) {
                 throw new Error(
-                    "The reader returned no pages."
+                    translation("reader.error.noPages", "The reader returned no pages.")
                 );
             }
 
@@ -6102,8 +7069,8 @@ if (dom.readerDormantObject) {
             discover(
                 `reader:${publicationKey}`,
                 isHellion()
-                    ? "Back inside."
-                    : "There. Now read it."
+                    ? translation("reader.discovery.openedHellion", "Back inside.")
+                    : translation("reader.discovery.opened", "There. Now read it.")
             );
 
         } catch (error) {
@@ -6116,13 +7083,13 @@ if (dom.readerDormantObject) {
                 status === 403
             ) {
                 showReaderError(
-                    "The box doesn't recognize this wallet as an owner yet."
+                    translation("reader.error.owner", "The box doesn't recognize this wallet as an owner yet.")
                 );
 
             } else {
                 showReaderError(
                     error?.message ||
-                    "The reader refused to cooperate."
+                    translation("reader.error.refused", "The reader refused to cooperate.")
                 );
             }
         }
@@ -6291,7 +7258,10 @@ if (dom.readerDormantObject) {
                     );
 
                 label.textContent =
-                    `PAGE ${String(index + 1).padStart(2, "0")}`;
+                    `${translation(
+                        "reader.page",
+                        "PAGE"
+                    )} ${String(index + 1).padStart(2, "0")}`;
 
                 const image =
                     document.createElement(
@@ -6453,8 +7423,14 @@ if (dom.readerDormantObject) {
                     dom.readerLayoutToggle.textContent =
                         state.reader.mode ===
                         "paged"
-                            ? "CONTINUOUS"
-                            : "PAGED";
+                            ? translation(
+                                "reader.continuous",
+                                "CONTINUOUS"
+                            )
+                            : translation(
+                                "reader.paged",
+                                "PAGED"
+                            );
 
                     renderReader();
                 }
@@ -7189,6 +8165,8 @@ if (dom.readerDormantObject) {
         });
 
         updateExitAfterthought();
+
+        await loadLocaleManifest();
 
         await loadUiLocale(
             preferredUiLocale()
