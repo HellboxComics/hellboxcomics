@@ -1,0 +1,7 @@
+# Foundry generated output
+out/
+cache/
+broadcast/
+
+# Local secrets
+.env
