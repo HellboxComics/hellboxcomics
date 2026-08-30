@@ -292,16 +292,43 @@
       display: inline-block;
     }
 
+    /* A red mark can feel manic without contradicting the word itself.
+       Keep the gesture UNDER the word, never through it. */
     .closed-word::after {
       content: "";
       position: absolute;
-      left: -.02em;
-      right: -.04em;
-      top: 52%;
-      height: .055em;
+      left: .01em;
+      right: -.02em;
+      bottom: -.09em;
+      height: .035em;
       background: var(--red);
-      transform: rotate(-1.5deg);
-      box-shadow: 0 0 18px rgba(218,49,44,.22);
+      transform: rotate(-1deg);
+      transform-origin: left center;
+      box-shadow: 0 0 16px rgba(218,49,44,.18);
+    }
+
+    .title-annotation {
+      width: fit-content;
+      max-width: min(100%, 31rem);
+      margin: clamp(1rem, 2.5vw, 1.45rem) 0 0;
+      padding: .18rem .1rem;
+      color: var(--red);
+      font-size: clamp(.68rem, 1.2vw, .82rem);
+      font-weight: 950;
+      letter-spacing: .11em;
+      line-height: 1.35;
+      text-transform: uppercase;
+      transform: rotate(-1.1deg);
+    }
+
+    .title-annotation span {
+      display: inline-block;
+      border-bottom: 1px solid rgba(218,49,44,.45);
+    }
+
+    .title-annotation em {
+      color: rgba(236,231,220,.68);
+      font-style: normal;
     }
 
     .lede {
@@ -636,6 +663,11 @@
         font-size: clamp(3.1rem, 18vw, 5.1rem);
       }
 
+      .title-annotation {
+        margin-top: 1.15rem;
+        padding-right: .8rem;
+      }
+
       .socials {
         grid-template-columns: 1fr;
       }
@@ -696,6 +728,10 @@
             THE PRESS<br>
             IS <span class="closed-word">CLOSED.</span>
           </h1>
+
+          <div class="title-annotation" aria-label="Harrow annotation">
+            <span>YES. CLOSED. <em>THIS WAS NOT A RIDDLE.</em> — H</span>
+          </div>
 
           <p class="lede">
             <strong>You found it early.</strong><br>
