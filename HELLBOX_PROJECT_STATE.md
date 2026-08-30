@@ -1,9 +1,9 @@
 # HELLBOX PROJECT STATE
 
-Last updated: 2026-08-29
+Last updated: 2026-08-30
 Current production branch: `main`
-Current live checkpoint: Gate 3 COMPLETE — wallet identity, ownership authority, Archive integration, and Reader authority wiring proven
-Current roadmap position: Gate 4 NEXT — PulseChain Testnet publication contract + factory
+Current live checkpoint: Gate 3 core authority COMPLETE + Gate 3.1 SEALED PRESS COMPLETE + THE 30-MACHINE PROBLEM campaign COMPLETE; one permanent public-entry/onboarding integration remains before formal Gate 3 close
+Current roadmap position: Gate 3 FINALIZATION — wire first-visit campaign completion/replay routing, validate live behavior, then close Gate 3 and begin Gate 4
 Public repository identity: `Harrow <noreply@hellboxcomics.com>`
 Repository privacy status: scrubbed and verified after Gate 2; no personal identity references remain in commit identity, tracked content, commit messages, or historical paths
 Checkpoint-reference rule: use Gate/checkpoint names plus live validation results; do not treat commit hashes as durable handoff identifiers
@@ -137,11 +137,12 @@ Creative-canon handoff rule — locked:
 - generated art does not silently create or change canon
 
 File handoff rules:
-- direct `.js` downloads are unreliable for the user, so deliver JavaScript replacement files inside ZIP archives
-- for ordinary text/config files such as `.md`, `.json`, `.sql`, `.py`, or `.html`, provide both a direct file and ZIP when practical
+- every replacement artifact/file must be delivered in **both** forms: a direct file and a ZIP copy
+- direct `.js` downloads have been unreliable for the user, so the ZIP is especially important for JavaScript, but still provide both
 - the user normally drops delivered items into the repository root
-- when a destination folder does not already exist in the repository root, include the required folder structure inside the ZIP so extracting from the correct parent/root creates the right path automatically
-- when the destination folder already exists, do not nest a duplicate project folder; state the exact target path
+- if the destination folder already exists in the repository, the ZIP contains only the replacement file(s) being handed off; do not recreate/nest the existing folder structure inside the archive
+- if the destination folder is new, include only the folder structure required so extraction from the repository root creates the correct new path
+- always state the exact destination path for every delivered file
 - always print the complete current terminal/deploy/verification command needed for the immediate step
 - never tell the user to look back at an earlier message for required commands
 
@@ -181,6 +182,95 @@ Current production state:
 - the temporary Gate 2 preview route was removed after testing
 - temporary Cloudflare secret `HELLBOX_GATE2_READER_KEY` was permanently deleted after testing
 - Press prototype is usable enough to defer, but is not final
+
+### Gate 3.1 — SEALED PRESS — COMPLETE
+
+The launched-but-incomplete site is intentionally hidden behind a Harrow-themed prelaunch surface while development continues.
+
+Current sealed-surface facts:
+- public document navigation is intercepted Worker-first and serves `prelaunch.html`
+- `wrangler.jsonc` uses `assets.run_worker_first: true` so the Worker wins before static `index.html`
+- `HELLBOX_PRELAUNCH_MODE` is `sealed`
+- public sealed document responses use no-store/cache-eviction headers so stale Cloudflare/browser HTML cannot expose the old homepage
+- private owner/developer entry is `/__harrow`
+- reseal route is `/__harrow/reseal`
+- public status route is `/api/prelaunch/status`
+- private access uses Cloudflare secret `HELLBOX_PRELAUNCH_ACCESS_KEY`
+- the bypass cookie is secure/HttpOnly/SameSite=Strict and separate from all wallet/Reader/ownership authority
+- the secret is never placed in URLs, localStorage, tracked files, or public HTML
+- `.assetsignore` was tightened after static deployment was found capable of exposing repository internals
+- live `/.git/config` was verified HTTP `404`
+- a fresh outside mobile visit was verified to see `THE PRESS IS CLOSED`
+- a valid Harrow bypass session was verified to see the real development site
+- resealing was verified to restore the closed surface
+- this private Harrow bypass must remain higher-priority than any future public onboarding redirect
+
+### THE 30-MACHINE PROBLEM — CAMPAIGN COMPLETE; PERMANENT ONBOARDING INTEGRATION PENDING
+
+The marketing campaign is complete as a 30-transmission linear interactive comic distributed across thirty Pulse Bytes owned/controlled for the project. HairyLabs page caching/propagation is expected before the public-entry redirect is enabled.
+
+Permanent product decision:
+- **THE 30-MACHINE PROBLEM is Hellbox Comics' permanent first-introduction medium, not a disposable prelaunch stunt**
+- while the site is in development, first-time/outside visitors will be sent to Byte #6 before they see the sealed Press screen
+- after the full site launches, the same first-introduction path remains; its story is revised over time to reflect Hellbox's current status and the completion destination becomes the live Hellbox experience
+- visitors who have completed it can deliberately replay it as many times as they want
+- the sealed screen must gain an in-world replay control that clears only the campaign-completion marker and returns to Byte #6
+- campaign completion/replay state is **not authorization** and must never grant wallet identity, ownership, Reader access, Harrow bypass, or other privileged state
+
+Locked transmission sequence:
+
+`#6 → #11 → #13 → #19 → #20 → #23 → #27 → #39 → #41 → #44 → #55 → #62 → #64 → #67 → #77 → #82 → #84 → #85 → #100 → #103 → #104 → #122 → #145 → #149 → #219 → #223 → #237 → #238 → #282 → #333 → Hellbox`
+
+Campaign production rules:
+- TX01 / Byte #6, beginning `ONE OF MINE FOUND YOU.`, is the canonical creative/technical template
+- every transmission is introduced/created/narrated by Harrow from inside his world
+- every Byte is a distinct subordinate machine/servant/accomplice carrying a real Hellbox job
+- the actual Byte art is loaded from HairyLabs using the chain/contract/token thumbnail endpoint
+- each page is a comic page/panel experience, not a generic campaign landing page
+- every transmission explicitly inherits a consequence/clue/order from the prior Byte and routes to the next actual Byte
+- humor is mandatory; clues, riddles, lore and project explanation are delivered through Harrow/Byte behavior rather than brochure copy
+- HairyLabs Byte pages currently use **zero JavaScript** as the deployment-safe baseline; interactivity uses native HTML such as `<details>/<summary>` plus CSS
+- HairyLabs page payload ceiling is approximately `32,768` bytes; canonical campaign pages were kept comfortably below it
+- Byte #333 is the final reveal/exit and must route through Hellbox campaign completion rather than merely linking to `/`
+
+Campaign day architecture:
+- Day 1 / TX01–06 — **BREACH**: what are these machines and why did one find me?
+- Day 2 / TX07–12 — **PROOF**: Hellbox is a comics-first publisher; Reader/Archive/finite publication proof
+- Day 3 / TX13–18 — **MACHINERY**: pooled Byte infrastructure, RPC, Chain ID 369, identity, provenance, native-chain discipline
+- Day 4 / TX19–24 — **OPERATOR**: Harrow himself; sleepless obsession, outlaw posture, music, bike, earned recognition
+- Day 5 / TX25–30 — **IGNITION**: artifact history, Press, detail/calibration, manifest, final distributed-comic reveal
+
+Locked final narrative principle:
+> **DO NOT MARKET HELLBOX. DEMONSTRATE WHAT HELLBOX DOES. MAKE THE MACHINERY TELL THE STORY.**
+
+Rejected/superseded campaign work:
+- the earlier generic 29-page package that treated transmissions as loosely related marketing pages is invalid and must never be reused
+- the canonical remaining 29 pages were rebuilt from TX01's approved Byte #6 grammar
+- JavaScript-dependent campaign buttons are not the baseline while HairyLabs deployment behavior remains unreliable
+
+### Permanent first-visit flow — LOCKED, NOT YET IMPLEMENTED
+
+Target public behavior:
+
+`new visitor → hellboxcomics.com → Byte #6 → linear 30-Byte story → Byte #333 → /campaign-complete → current Hellbox experience`
+
+During development, the current Hellbox experience after completion is `THE PRESS IS CLOSED`.
+
+Replay behavior:
+
+`current Hellbox experience → EXPERIENCE THE STORY AGAIN → /campaign-reset → Byte #6`
+
+Implementation requirements:
+- ordinary outside document navigation without campaign-completion state redirects to `https://hairylabs.io/page/6`
+- `/campaign-complete` sets a secure, non-authoritative completion cookie/state and redirects to `/`
+- `/campaign-reset` clears that completion state and redirects to Byte #6
+- exact completion-cookie TTL is an implementation detail still open; it must be replayable at any time
+- Harrow's valid `/__harrow` bypass remains separate and takes priority over the public redirect
+- API routes and ordinary static asset requests must not be trapped in the campaign redirect
+- completion/reset responses and public redirect responses must not be cacheable
+- Byte #333's final link must be changed to `https://hellboxcomics.com/campaign-complete`
+- `prelaunch.html` must gain the in-world replay control pointing to `/campaign-reset`
+- once the site is live, completion returns to the live site rather than the sealed page; the first-introduction story itself remains permanent
 
 Production D1 migrations applied:
 - `0001_publication_platform.sql`
@@ -870,9 +960,9 @@ Browser acceptance at Gate 2 close:
 
 Important current boundary:
 - Gate 2 proves Reader delivery and UI
-- production wallet identity is now implemented/proven in Gate 3
-- publication ownership authority is the active Gate 3 work
-- until Gate 3, SciVive must remain private/non-public and cannot be considered a production collector-access release
+- Gate 3 now proves production wallet identity plus shared Archive/Reader ownership authority
+- SciVive still has no deployed publication contract, so positive real ownership cannot exist until Gate 4
+- SciVive remains private/non-public and cannot be considered a production collector-access release until the testnet/mainnet publication path is deliberately advanced
 
 ## 20. PRESS — CURRENT / FUTURE
 
@@ -1116,7 +1206,7 @@ PulseChain Testnet V4 should be used first when tPLS is available.
 
 ## 26. CURRENT RESPONSIVE STATUS
 
-Current live checkpoint: Gate 3 complete — identity and shared ownership authority are wired; Gate 4 supplies the first real publication contract.
+Current live checkpoint: Gate 3 core authority and Gate 3.1 sealed Press are complete; the permanent 30-machine first-visit onboarding route is the one remaining finalization item before Gate 4.
 
 Verified:
 - standard laptop/desktop remains usable
@@ -1147,12 +1237,12 @@ Do not reopen cosmetic Press work until the dedicated Press Gate unless a regres
 - CSS contains many historical overrides; future cleanup must be incremental.
 - Frontend `app.js` is large and monolithic.
 - Worker/backend `src/index.js` is large and monolithic.
-- D1 publication/Reader delivery and production wallet identity are live; publication ownership authority is being implemented in Gate 3 and has not yet been positively proven because SciVive has no deployed contract.
+- D1 publication/Reader delivery, wallet identity, and shared Archive/Reader ownership authority are live; positive minted-owner proof remains legitimately unavailable because SciVive has no deployed contract until Gate 4.
 - SciVive package remains intentionally `draft` with 0 validation errors and 1 non-blocking warning.
 - SciVive remains intentionally private/non-public until real ownership authorization exists.
 - Real minting is not implemented.
 - NFT contract is not deployed.
-- Archive ownership is not production-real yet; wallet identity is real, but publication ownership still awaits chain-backed Worker integration and the Gate 4 test contract.
+- Archive ownership logic is production-authoritative and chain-backed by design; it currently returns no positive SciVive ownership because Gate 4 has not yet supplied a real publication contract/mint.
 - Gate 2 used a temporary preview authorization solely for proof; it has been removed and its Cloudflare secret deleted. Do not resurrect it as production auth.
 - Reader browser transport now consumes the same Gate 3 wallet/session/ownership authority as Archive; positive collector access awaits Gate 4's first real contract/mint.
 - Current relationship/Hellion system is not server-authoritative.
@@ -1164,6 +1254,9 @@ Do not reopen cosmetic Press work until the dedicated Press Gate unless a regres
 - Current hero composition contains temporary hotspot-coordinate workarounds.
 - Cloudflare static-asset edge cache may briefly serve an older unversioned asset after deployment. Keep versioned JS/CSS references and verify the normal path after propagation.
 - Browser acceptance currently validates the Reader UI with mocked publication/Reader API responses so it cannot mutate production ownership state. Production private-byte delivery is separately proven through the Worker/R2 Gate 2 verification.
+- Public first-visit campaign routing is **not yet implemented**; the live site currently still goes directly to the sealed Press surface for outside visitors.
+- HairyLabs campaign pages require their platform-side cache/propagation before Hellbox should begin redirecting first-time public traffic to Byte #6.
+- The campaign-completion marker must remain non-authoritative and isolated from Harrow bypass, wallet session, ownership, Reader, and publication security state.
 
 ## 28. FILES THAT MUST NOT BE CHANGED CASUALLY
 
@@ -1203,28 +1296,43 @@ Current position:
 - Gate 0 COMPLETE
 - Gate 1 COMPLETE
 - Gate 2 COMPLETE
-- Gate 3 COMPLETE
-- Gate 4 NEXT
+- Gate 3 core identity/ownership/Archive/Reader authority COMPLETE
+- Gate 3.1 SEALED PRESS COMPLETE
+- THE 30-MACHINE PROBLEM campaign authoring COMPLETE
+- **Gate 3 final public-entry integration is NEXT**
+- Gate 4 follows immediately after that integration is live-validated and Gate 3 is formally closed
 
-Gate 3 identity is already production-proven. Continue by making publication ownership authoritative without disturbing the proven Reader vertical slice.
+### Exact immediate handoff action
 
-Before changing code, inspect:
-- current wallet connect/signature paths in `app.js`
-- current session/authentication helpers and Reader authorization paths in `src/index.js`
-- current Archive data source and any localStorage/prototype ownership behavior
-- current chain/RPC helpers used for PulseChain reads
-- the D1 schema fields that can support identity/session/ownership indexing
+Before changing code, obtain the **current production** `src/index.js`. Do not reconstruct it from stale Gate 3.1 copies.
 
-Then choose the smallest single-file Gate 3 step.
+Then make the smallest Worker-only onboarding boundary first:
 
-Do not deploy SciVive's publication contract yet; standardized implementation/factory deployment belongs to Gate 4 after Gate 3 ownership authority is ready to consume it.
+1. preserve `/__harrow` private bypass priority
+2. add a non-authoritative campaign completion marker
+3. add `/campaign-complete`
+4. add `/campaign-reset`
+5. redirect ordinary outside document navigation without completion state to `https://hairylabs.io/page/6`
+6. leave API/static-asset requests alone
+7. preserve all existing prelaunch, wallet, ownership, Archive and Reader behavior
+8. make redirect/completion/reset responses non-cacheable
 
-Do not make SciVive public merely to test Gate 3.
+Validate that Worker change live before touching another file.
 
-Do not resurrect the removed Gate 2 preview key/routes as a shortcut.
+After Worker acceptance:
+- update `prelaunch.html` with the in-world replay button/link to `/campaign-reset`
+- update Byte #333's final route to `https://hellboxcomics.com/campaign-complete`
+- verify the entire fresh-visitor → campaign → sealed-screen → replay loop
+- re-verify `/__harrow` still bypasses public onboarding
+- re-verify `/api/health`, `/api/prelaunch/status`, wallet/session behavior and public Reader protection are unaffected
+- then perform the **formal Gate 3 close** documentation pass and begin Gate 4
 
-Gate 3 target authority:
-wallet signature → short server session → chain-aware identity → indexed/verified ownership → Archive and Reader use the same authority.
+Do not:
+- begin Gate 4 contracts before this public-entry loop is finished and validated
+- use the campaign cookie as authorization
+- allow a homepage redirect to trap APIs/assets
+- remove the permanent campaign after main launch; revise its story instead
+- resurrect the rejected generic campaign package
 
 ## 31. PRODUCTION GATE SYSTEM — REBASED 2026-08-29
 
@@ -1389,9 +1497,9 @@ Exit criteria status:
 - temporary test authorization removed after proof: PASS
 
 Important boundary:
-Gate 2 proves delivery and Reader UX. Production wallet identity is now proven; publication ownership authorization remains active Gate 3 work.
+Gate 2 proves delivery and Reader UX. Gate 3 now proves wallet identity plus shared Archive/Reader ownership authority. Positive real collector ownership remains impossible until Gate 4 deploys and mints the first publication contract.
 
-### GATE 3 — IDENTITY, OWNERSHIP & ARCHIVE — COMPLETE
+### GATE 3 — IDENTITY, OWNERSHIP & ARCHIVE — CORE COMPLETE; FINAL PUBLIC-ENTRY ADDITION OPEN
 
 Goal:
 Make wallet identity and publication ownership authoritative without allowing client claims, localStorage, or arbitrary database insertion to grant collector access.
@@ -1455,7 +1563,22 @@ Gate 3 exit criteria:
 - positive minted-owner proof: intentionally belongs to Gate 4, because Gate 3 correctly does not deploy or fabricate a contract
 
 Important Gate boundary:
-Gate 3 builds and proves the authority system that will consume a real publication contract. Gate 4 supplies the first real SciVive testnet contract/mint, which is the first legitimate opportunity to turn the ownership result from zero/unconfigured into `owned`.
+The identity/ownership/Archive/Reader authority work is complete. The creator then explicitly added Gate 3.1 SEALED PRESS plus THE 30-MACHINE PROBLEM permanent first-introduction campaign before allowing Gate 3 to close. Gate 4 must not start until the final campaign-entry/completion/replay integration is live-validated.
+
+#### Gate 3.1 / final-addition status
+
+**SEALED PRESS — COMPLETE**
+- public incomplete site is blinded behind `THE PRESS IS CLOSED`
+- Harrow has a private secure bypass/reseal path
+- static deployment leakage was hardened
+- cache-resistant sealed delivery was live-proven
+
+**THE 30-MACHINE PROBLEM — CAMPAIGN COMPLETE**
+- thirty owned Pulse Bytes carry one continuous Harrow-hosted comic/story
+- TX01 Byte #6 is the approved standard
+- all remaining transmissions were rebuilt to follow that standard
+- campaign remains the permanent first introduction to Hellbox after launch
+- public first-visit redirect/completion/replay plumbing remains the one implementation item before formal Gate 3 close
 
 ### GATE 4 — PULSECHAIN TESTNET PUBLICATION CONTRACT + FACTORY
 
@@ -1603,7 +1726,7 @@ SciVive is live and the complete Hellbox publishing loop works in production.
 
 ### CURRENT CRITICAL PATH
 
-`Gate 3 ownership authority → Gate 4 testnet publication factory/contracts → Gate 5 Press → Gate 6 publisher operations`
+`Gate 3 permanent onboarding integration → Gate 4 testnet publication factory/contracts → Gate 5 Press → Gate 6 publisher operations`
 
 Do not spend weeks polishing prototype surfaces before the ownership → testnet mint → Archive → Reader loop works.
 
@@ -1629,54 +1752,63 @@ Every future user-visible interaction must enter the English catalog at creation
 
 ## 33. EXACT NEXT ENGINEERING ACTION
 
-Begin Gate 4 — PulseChain Testnet Publication Contract + Factory.
+**Do not begin Gate 4 yet.**
 
-Gate 3 is complete.
-Do not reopen Gate 3 architecture unless Gate 4 integration exposes a concrete defect.
+One explicitly added Gate 3 finalization item remains: make THE 30-MACHINE PROBLEM the permanent public first-introduction path while preserving the completed sealed-Press and private-Harrow behavior.
 
-Current authority ready for Gate 4:
-- D1-backed wallet identity/session is production-proven
-- Archive uses authenticated `/api/wallet-status`
-- Reader and Archive share `verifyPublicationOwnership()`
-- ownership cache/evidence is D1-backed but blockchain-authoritative
-- per-release publication-contract architecture is locked
-- no browser/localStorage ownership shortcut exists
-- SciVive remains private and has no contract address yet
-- no positive ownership row has been fabricated
+### First file
 
-Exact Gate 4 starting objective:
-Build the standardized/auditable `HellboxPublication` ERC-721 implementation plus `HellboxPublicationFactory` for PulseChain Testnet V4.
+`src/index.js`
 
-Required Gate 4 properties:
-1. each publication/release deploys as its own native ERC-721 collection
-2. the factory/template is standardized so releases are not bespoke hand-written contracts
-3. immutable publication identity/configuration after initialization where appropriate
-4. max supply cannot be increased after configuration
-5. burns may reduce surviving supply but never raise the cap
-6. SciVive test configuration: free mint, max supply `5555`, max 1 primary mint per wallet, max 1 per transaction, royalty `369` bps
-7. normal Hellbox issue baseline remains max supply `216`, planned royalty `666` bps, and future publication-specific mint rules
-8. emit the events Gate 3/Archive/indexing will need
-9. deploy on PulseChain Testnet V4 before any mainnet contract
-10. record the deployed test contract address back into durable publication configuration only after deployment is verified
+Why:
+- the redirect/completion/reset boundary belongs at the Worker edge
+- the current Worker contains the proven prelaunch, wallet/session, publication, ownership, Archive and Reader authority and must be modified from the **actual current production file**, not reconstructed from an older chat artifact
+- changing the Worker first allows the security/routing boundary to be validated before UI copy changes
 
-Gate 4 acceptance path:
-factory deploys SciVive test collection → test wallet mints → Gate 3 ownership authority observes `balanceOf(wallet) > 0` → Archive shows owned → Reader opens → token-level Transfer/`ownerOf` evidence identifies the copy.
+Required Worker behavior:
+1. valid Harrow private bypass wins first
+2. `/campaign-complete` records only that the introduction was completed and returns the visitor to `/`
+3. `/campaign-reset` clears only that marker and sends the visitor to `https://hairylabs.io/page/6`
+4. ordinary outside HTML/document navigation without completion state redirects to Byte #6
+5. API and static-asset requests are unaffected
+6. existing sealed mode continues to serve `prelaunch.html` after campaign completion
+7. redirect/completion/reset responses are `no-store`
+8. campaign state cannot grant identity, ownership, Reader access or Harrow bypass
 
-Do not:
-- deploy mainnet contracts
-- make SciVive mainnet/public-release ready merely because testnet works
-- bridge Hellbox NFTs
-- introduce one endlessly growing master collection
-- hand-code a different contract for every publication
-- let max supply increase after release configuration
-- bypass Gate 3 ownership authority with frontend contract reads
-- change Archive and Reader to separate ownership sources
+### Second file after Worker live acceptance
 
-Documentation procedure when Gate 4 closes:
-- update this file
-- update `README.md`
-- provide macro progress based on actual product maturity/remaining risk
+`prelaunch.html`
 
+Add an in-world replay control such as:
+- `START ANOTHER INCIDENT`
+- `EXPERIENCE THE 30-MACHINE PROBLEM AGAIN`
+
+The control must be a normal accessible link to `/campaign-reset`, not JavaScript-dependent.
+
+### Final external campaign edit
+
+Byte #333's final Hellbox link must become:
+
+`https://hellboxcomics.com/campaign-complete`
+
+### Acceptance path before formal Gate 3 close
+
+`fresh/no campaign state → hellboxcomics.com → HTTP redirect to Byte #6 → #6 … #333 → /campaign-complete → sealed Press → replay link → /campaign-reset → Byte #6`
+
+Also prove:
+- valid `/__harrow` still opens the real development site directly
+- `/__harrow/reseal` still works
+- `/api/health` remains healthy
+- `/api/prelaunch/status` remains correct
+- unauthenticated/public SciVive Reader remains HTTP `404`
+- wallet/session/ownership behavior is unchanged
+- repository internals remain non-public
+- no cache causes a visitor to skip or become stuck in the onboarding state
+
+After that:
+1. formally close Gate 3
+2. refresh all three living docs one final time with the live acceptance result
+3. begin Gate 4 standardized `HellboxPublication` + `HellboxPublicationFactory` work on PulseChain Testnet V4
 
 ## 30. RECOVERY AND PRIVACY RECORD
 

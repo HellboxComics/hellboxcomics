@@ -1,8 +1,9 @@
 # HARROW — CHARACTER + CREATOR BIBLE
 
-**Status:** Living creative source of truth.  
-**Consolidation:** Gate 3 close — 2026-08-29.  
-**Next required review:** Gate 4 close.  
+**Status:** Living creative source of truth.
+**Consolidation:** Gate 3 living review — 2026-08-30.
+**Reviewed through:** Gate 3.1 SEALED PRESS + THE 30-MACHINE PROBLEM campaign completion.
+**Next required review:** final Gate 3 onboarding integration acceptance, then Gate 4 close.
 **Purpose:** Keep Harrow visually, psychologically, verbally, narratively, environmentally, socially, and artistically consistent across the website, comics, Reader, Press, Archive, social posts, conventions, lore, marketing, and future publications.
 
 **Repository role:** This file is the Harrow creative-canon companion to `HELLBOX_PROJECT_STATE.md` and `README.md`.
@@ -162,11 +163,11 @@ In practice, he is:
 
 The audience's intended progression:
 
-> This guy needs help.  
-> This guy is hilarious.  
-> This guy is disturbingly right.  
-> This guy made all of this?  
-> Why is he my favorite person?  
+> This guy needs help.
+> This guy is hilarious.
+> This guy is disturbingly right.
+> This guy made all of this?
+> Why is he my favorite person?
 > What is he doing next?
 
 # 5. Harrow does not perform insanity
@@ -499,6 +500,102 @@ Established interaction language includes:
 - `GO AWAY.`
 
 Environmental interactions should be **discovered**. Avoid cheesy plus signs, map pins, glowing tutorial hotspots, “click here” overlays, or gamified onboarding that explains Harrow's room to the visitor.
+
+## Permanent first-introduction medium — THE 30-MACHINE PROBLEM
+
+### LOCKED
+
+**THE 30-MACHINE PROBLEM is the permanent first introduction to Hellbox Comics.**
+
+It is not a disposable prelaunch advertisement. During development it leads the visitor into the sealed Press. After full launch it remains in place and is revised so the story reflects the current project while still functioning as the visitor's first encounter with Hellbox.
+
+The creative thesis is:
+
+> **DO NOT MARKET HELLBOX. DEMONSTRATE WHAT HELLBOX DOES. MAKE THE MACHINERY TELL THE STORY.**
+
+Harrow uses thirty Pulse Bytes as a distributed comic medium. Every Byte is one of his little nonhuman servants/accomplices—useful infrastructure with enough personality to become a cast member. The Bytes help keep Hellbox connected to the chain, distribute/protect the work, handle backend/RPC/publishing machinery, and wreak controlled havoc while Harrow remains the author/operator above them.
+
+The campaign must always read as **Harrow's work**:
+- Harrow is active writer, host, narrator and operator from the first transmission
+- the Bytes answer to him, argue with him, misunderstand orders, expose machinery and carry consequences forward
+- humor is paramount
+- mania remains decipherable
+- clues/riddles/lore/project mechanics arise from character behavior and visual storytelling
+- the machines never replace Harrow as the personality of Hellbox
+- the blockchain never replaces the comic as the product
+
+### Canonical opening
+
+TX01 on Byte #6 is the approved grammar:
+
+> **ONE OF MINE FOUND YOU.**
+
+Harrow sends the visibly armed machine to find the first witness, then routes the witness into the next machine.
+
+The approved linear Byte order is:
+
+`#6 → #11 → #13 → #19 → #20 → #23 → #27 → #39 → #41 → #44 → #55 → #62 → #64 → #67 → #77 → #82 → #84 → #85 → #100 → #103 → #104 → #122 → #145 → #149 → #219 → #223 → #237 → #238 → #282 → #333`
+
+Each transmission:
+- uses the actual Byte as the actor
+- reflects that Byte's visible design when assigning its job/personality
+- avoids inventing formal NFT trait names when those traits were not verified
+- refers to the prior transmission's event/order/consequence
+- gives Harrow a current order or reaction
+- reveals something useful, funny, suspicious, or emotionally cumulative
+- routes prominently to the next actual Byte
+- remains independently capable of pointing back to Hellbox/social channels
+- behaves like a page in one comic rather than a standalone marketing microsite
+
+### Five-day dramatic architecture
+
+- **Day 1 / BREACH:** “What the hell are these machines?”
+- **Day 2 / PROOF:** the audience sees that Hellbox is a comics-first publisher and why Reader/Archive/finite publications matter
+- **Day 3 / MACHINERY:** the infrastructure starts doing impressive work—Bytes, pooled resources, RPC, Chain ID 369, identity, provenance and native-chain discipline
+- **Day 4 / OPERATOR:** the audience realizes Harrow coordinated the whole thing; sleepless obsession, outlaw posture, broad music influences, motorcycle, earned recognition
+- **Day 5 / IGNITION:** artifact history, the future Press, calibration/detail, coordinated manifest and the final distributed-comic reveal
+
+TX30 / Byte #333 is the culmination. Its purpose is to make the visitor realize the campaign itself demonstrated Hellbox's publishing philosophy: they just read one coordinated interactive comic across thirty machines.
+
+### HairyLabs production grammar
+
+Current HairyLabs campaign pages use the real Pulse Byte artwork and remain below the platform's approximately 32KB page ceiling.
+
+Because deployed JavaScript controls proved unreliable, the campaign's stable interactive baseline is:
+- semantic HTML
+- native `<details>/<summary>` disclosure/interactions
+- CSS state
+- normal links
+- no JavaScript dependency for required progression
+
+This limitation became a useful creative constraint: the interaction should feel like opening drawers, reports, evidence packets, controls and comic panels—not like a generic app dashboard.
+
+### Permanent replay behavior
+
+A visitor who completes the 30-machine introduction must be able to **experience the story again indefinitely**.
+
+During development:
+- first-time outside visitor → Byte #6
+- complete all thirty transmissions → sealed Press
+- sealed Press contains an in-world replay link that returns the visitor to Byte #6
+
+After launch:
+- first-time outside visitor → Byte #6
+- completion → live Hellbox
+- live Hellbox continues to provide a deliberate replay path
+- campaign copy/story can evolve with current project status, but the introduction medium remains
+
+Replay/completion state is product routing only. It must never become identity, ownership, Hellion status, Reader authorization, or privileged Harrow access.
+
+### REJECTED / SUPERSEDED campaign grammar
+
+Do not revive:
+- thirty unrelated “marketing pages”
+- generic terminals that explain the campaign instead of letting Harrow perform it
+- brochure-like Web3 explanations
+- the rejected generic remaining-29 package created before the TX01 grammar was enforced
+- JavaScript-dependent required controls on HairyLabs while those deployed interactions are unreliable
+- treating the Bytes as decorative NFT thumbnails rather than actual cast/infrastructure
 
 ## Social behavior
 
@@ -1345,6 +1442,7 @@ Keep rejected ideas here so they do not return through context loss.
 - generic police-evidence-board replacement for the canonical obsession wall;
 - `$SIN` inserted into Harrow imagery when the specific asset/scene does not call for it;
 - fake issue numbers or fake live data inserted merely to make a composition look busier.
+- the rejected generic 29-page Byte campaign package / standalone marketing-page grammar that did not build linearly from approved TX01 Byte #6.
 
 ## SUPERSEDED
 
@@ -1372,10 +1470,22 @@ At the close of every Gate:
 | Gate 0 | REVIEWED RETROACTIVELY | Core Harrow/Hellbox direction preserved in consolidated bible. |
 | Gate 1 | REVIEWED RETROACTIVELY | Publishing/Reader architecture context incorporated where it affects Harrow. |
 | Gate 2 | REVIEWED RETROACTIVELY | Reader/product language and protected-publication behavior incorporated. |
-| Gate 3 | REVIEWED — 2026-08-29 | Consolidated visual canon, lair/obsession wall, social/site voice, Hellion clarification, product posture, ownership/Reader language boundary, rejected-decision register, and mandatory Gate-close maintenance. |
-| Gate 4 | NEXT REVIEW | Update only if contract/mint behavior creates new Harrow/Press/public-facing canon. |
+| Gate 3 | REVIEWED — 2026-08-30; final routing implementation pending | Added SEALED PRESS public posture, THE 30-MACHINE PROBLEM as Harrow's permanent first-introduction medium, 30-Byte servant/cast grammar, linear comic continuity, native HairyLabs interaction constraint, permanent replay behavior, and rejected generic-campaign register. |
+| Gate 4 | NEXT REVIEW AFTER GATE 3 FINALIZATION | Update when contract/mint behavior creates new Harrow/Press/public-facing canon. |
 
 # 38. Change log
+
+## 2026-08-30 — Gate 3 campaign / onboarding edition
+
+- locked THE 30-MACHINE PROBLEM as Hellbox's permanent first-introduction medium rather than temporary marketing;
+- locked Harrow as active writer/host/operator across all thirty Byte transmissions;
+- locked the Bytes as subordinate machine characters/infrastructure rather than decorative NFT thumbnails;
+- recorded the exact 30-Byte linear sequence and five-day BREACH → PROOF → MACHINERY → OPERATOR → IGNITION escalation;
+- locked TX01 Byte #6 `ONE OF MINE FOUND YOU.` as the campaign grammar reference;
+- recorded the distributed-comic / Order Zero thesis: demonstrate Hellbox by making the machinery tell the story;
+- recorded the no-JavaScript/native-HTML interaction baseline for HairyLabs campaign pages;
+- locked permanent replay behavior before and after site launch;
+- rejected the earlier generic/standalone 29-page campaign package.
 
 ## 2026-08-29 — Gate 3 consolidated edition
 

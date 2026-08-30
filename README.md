@@ -17,7 +17,7 @@ Blockchain is infrastructure underneath the publishing experience, not the produ
 Before changing this repository, read:
 
 - `HELLBOX_PROJECT_STATE.md` — authoritative project handoff/bible, current production truth, locked decisions, known risks, exact next step
-- `docs/HARROW_CHARACTER_BIBLE_V1.md` — Harrow character, voice, visual and lore direction
+- `HARROW_CHARACTER_BIBLE.md` — authoritative Harrow character, voice, visual, lore, satire and campaign canon
 - `docs/ACCESSIBILITY_AND_LOCALIZATION_STANDARD.md` — accessibility/localization requirements
 
 If this README conflicts with `HELLBOX_PROJECT_STATE.md`, the project-state bible wins.
@@ -47,14 +47,16 @@ The public character should feel like a real outlaw creator inside the audience'
 
 > **The machinery is disciplined. The operator is not.**
 
-Detailed characterization and visual canon live in `docs/HARROW_CHARACTER_BIBLE_V1.md` and `HELLBOX_PROJECT_STATE.md`.
+Detailed characterization and visual canon live in `HARROW_CHARACTER_BIBLE.md` and `HELLBOX_PROJECT_STATE.md`.
 
 ## Current production checkpoint
 
-**Gate 3 COMPLETE — Identity, Ownership & Archive**  
-**Gate 4 NEXT — PulseChain Testnet Publication Contract + Factory**
+**Gate 3 CORE COMPLETE + Gate 3.1 SEALED PRESS COMPLETE**
+**THE 30-MACHINE PROBLEM campaign COMPLETE**
+**ONE FINAL GATE 3 INTEGRATION NEXT — permanent first-visit campaign routing/replay**
+**Gate 4 AFTER FINALIZATION — PulseChain Testnet Publication Contract + Factory**
 
-The site is live at `hellboxcomics.com` and deploys from `main` through Cloudflare.
+The site is deployed at `hellboxcomics.com` from `main` through Cloudflare. The unfinished development site is intentionally hidden behind the sealed `THE PRESS IS CLOSED` surface for outside visitors; Harrow has a separate private bypass.
 
 ### Completed
 
@@ -125,6 +127,45 @@ The site is live at `hellboxcomics.com` and deploys from `main` through Cloudfla
 - Reader regression still passes on laptop, tablet and phone under authoritative ownership fixtures
 - SciVive still has no contract, so no positive real owner is fabricated before Gate 4
 
+**Gate 3.1 — SEALED PRESS**
+
+- unfinished public site is intentionally blinded by `prelaunch.html`
+- Worker-first static routing ensures the sealed surface wins before `index.html`
+- public document responses are non-cacheable/cache-evicting
+- private Harrow entry: `/__harrow`
+- private reseal: `/__harrow/reseal`
+- public status: `/api/prelaunch/status`
+- secure bypass secret/cookie is separate from wallet/ownership/Reader authority
+- `.assetsignore` protects repository internals from static publication
+- live `/.git/config` was verified `404`
+
+**THE 30-MACHINE PROBLEM — permanent first introduction**
+
+- 30 owned Pulse Bytes carry one linear Harrow-hosted interactive comic
+- canonical opening: Byte #6 / TX01 / `ONE OF MINE FOUND YOU.`
+- sequence ends at Byte #333
+- every page uses the real Byte as a subordinate machine character and routes to the next actual Byte
+- HairyLabs-required progression currently uses native HTML/CSS interaction with zero JavaScript dependency
+- campaign remains the first-introduction medium after main launch; its story will be updated to reflect current Hellbox status rather than removed
+- visitors can deliberately replay it indefinitely
+
+Locked sequence:
+
+```text
+#6 → #11 → #13 → #19 → #20 → #23
+→ #27 → #39 → #41 → #44 → #55 → #62
+→ #64 → #67 → #77 → #82 → #84 → #85
+→ #100 → #103 → #104 → #122 → #145 → #149
+→ #219 → #223 → #237 → #238 → #282 → #333
+→ Hellbox
+```
+
+One integration item remains before formal Gate 3 close:
+- first outside visit to `hellboxcomics.com` must redirect to Byte #6
+- Byte #333 must return through `/campaign-complete`
+- sealed/current Hellbox experience must offer `/campaign-reset` to replay from Byte #6
+- campaign completion state is routing only and can never grant privileged access
+
 ## Reader product direction
 
 Website first.
@@ -164,6 +205,13 @@ hellbox-private/
 ## Architecture
 
 ```text
+First outside visit
+  │
+  └── THE 30-MACHINE PROBLEM
+      Byte #6 → ... → Byte #333
+      │
+      └── /campaign-complete → current Hellbox experience
+
 Browser
   │
   ├── Static frontend
@@ -225,9 +273,10 @@ Never bridge Hellbox NFTs.
 
 ```text
 index.html                         public DOM / application shell
+prelaunch.html                     sealed public development surface
 style.css                         primary visual system
 app.js                            browser runtime / Reader transport
-src/index.js                      Cloudflare Worker / API
+src/index.js                      Cloudflare Worker / API + prelaunch/onboarding boundary
 wrangler.jsonc                    Cloudflare runtime bindings
 migrations/                       D1 schema + durable data migrations
 publications/scivive/             SciVive publication package
@@ -239,8 +288,10 @@ tools/build_scivive_reader.py     reproducible Reader asset builder
 tools/upload_scivive_reader.py    private R2 upload + remote verification
 tools/test_reader_ui.py           Reader/ownership browser regression test
 tools/test_wallet_auth_ui.py      live wallet identity/security acceptance test
-docs/                             product/canon standards
-HELLBOX_PROJECT_STATE.md          authoritative living handoff
+docs/                             supporting product/canon standards
+HELLBOX_PROJECT_STATE.md          authoritative living project/engineering handoff
+HARROW_CHARACTER_BIBLE.md         authoritative living Harrow creative canon
+README.md                         concise repository orientation
 ```
 
 Generated 461-page Reader output is intentionally kept outside Git under the local Hellbox build directory.
@@ -351,17 +402,58 @@ At every Gate close:
 
 1. finish technical acceptance
 2. update `HELLBOX_PROJECT_STATE.md`
-3. update `README.md`
-4. commit/verify each incrementally
-5. give a macro-progress report based on actual scope/remaining risk
-6. then begin the next Gate
+3. review/update `HARROW_CHARACTER_BIBLE.md`
+4. update `README.md`
+5. keep all three mutually consistent and remove stale contradictions
+6. commit/verify
+7. give a macro-progress report based on actual scope/remaining risk
+8. then begin the next Gate
 
 ## File handoff convention
 
-- `.js` replacements are delivered as ZIP files because direct JavaScript downloads have been unreliable
-- ordinary `.md`, `.json`, `.sql`, `.py`, `.html`, etc. should generally be offered both directly and zipped
-- if the destination folder already exists, the exact destination path is stated
-- if a required folder does not exist, the delivered archive includes the needed folder structure
+- every replacement artifact is delivered as both a direct file and a ZIP copy
+- JavaScript still gets both; the ZIP is especially important because direct `.js` downloads have been unreliable
+- if the destination folder already exists, the ZIP contains only the replacement file(s), without recreating that existing folder hierarchy
+- if a required folder does not exist, the ZIP includes only the structure needed to create it
+- the exact destination path is always stated
+
+## Exact next action before Gate 4
+
+Do **not** start contract work yet. One explicit Gate 3 finalization item remains.
+
+Start from the actual current production `src/index.js` and implement the permanent onboarding boundary:
+
+```text
+fresh outside visitor
+    ↓
+hellboxcomics.com
+    ↓
+Byte #6 → ... → Byte #333
+    ↓
+/campaign-complete
+    ↓
+current Hellbox experience
+    ↓
+/campaign-reset (user chooses replay)
+    ↓
+Byte #6
+```
+
+Requirements:
+- valid `/__harrow` private bypass always has priority
+- `/campaign-complete` stores only non-authoritative campaign completion state
+- `/campaign-reset` clears only that state and returns to `https://hairylabs.io/page/6`
+- ordinary APIs/assets must not be redirected into the story
+- redirect/completion/reset responses are non-cacheable
+- during development completion lands on the sealed Press
+- after launch completion lands on the live site, while the campaign remains permanent
+
+After Worker validation:
+1. add the replay link to `prelaunch.html`
+2. change Byte #333's final link to `https://hellboxcomics.com/campaign-complete`
+3. live-test fresh visit, completion, replay, Harrow bypass, health, prelaunch status, wallet authority and Reader protection
+4. formally close Gate 3
+5. then begin Gate 4
 
 ## Next Gate
 
