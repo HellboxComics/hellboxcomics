@@ -2,8 +2,8 @@
 
 Last updated: 2026-08-29
 Current production branch: `main`
-Current live checkpoint: Gate 2 COMPLETE — SciVive Reader vertical slice proven end-to-end
-Current roadmap position: Gate 3 NEXT — identity, ownership & Archive
+Current live checkpoint: Gate 3 IN PROGRESS — durable wallet identity proven; ownership authority layer under construction
+Current roadmap position: Gate 3 ACTIVE — identity proven, ownership/Archive/Reader authority next
 Public repository identity: `Harrow <noreply@hellboxcomics.com>`
 Repository privacy status: scrubbed and verified after Gate 2; no personal identity references remain in commit identity, tracked content, commit messages, or historical paths
 Checkpoint-reference rule: use Gate/checkpoint names plus live validation results; do not treat commit hashes as durable handoff identifiers
@@ -133,10 +133,11 @@ Current production state:
 - Gate 1 publication platform/data model is complete
 - Gate 2 SciVive Reader vertical slice is complete
 - Gate 2 closeout state bible and README are complete
+- Gate 3 wallet identity is live and production-proven; ownership authority is in progress
 - public Git history was privacy-rewritten after Gate 2; old pre-rewrite SHAs are intentionally obsolete
 - identify implementation checkpoints by commit subject/Gate rather than hard-coded SHA in handoff documentation
 - public site works in English and Spanish
-- current main frontend runtime query version: `20260829-gate2-reader-5e26336`
+- current main frontend runtime query version: `20260829-gate3-identity-8f9fb7d`
 - current Gate 0.2 layout stylesheet cache generation remains `gate0-2-04`
 - GA4 is installed with Measurement ID `G-5E9EX1RE0Z`
 - GA4 Realtime was verified; Brave Shields can block the user's own Analytics requests
@@ -146,6 +147,7 @@ Current production state:
 - SciVive protected Reader delivery is stored in `hellbox-private`
 - Worker publication APIs read D1 rather than a hardcoded publication registry
 - Worker Reader delivery pointers (`reader_manifest_key` and `private_prefix`) come from D1
+- Worker wallet authentication authority is D1-backed (`wallet-signature-d1-session`)
 - live health reports publication engine `publication-key-d1-v1`, registry source `d1`, and `readerConfiguredCount: 1`
 - SciVive remains intentionally private and not publicly enumerable
 - normal unauthenticated/public `/api/reader/scivive` returns HTTP `404` by design
@@ -158,6 +160,29 @@ Production D1 migrations applied:
 - `0002_refine_asset_location_identity.sql`
 - `0003_seed_scivive.sql`
 - `0004_connect_scivive_reader.sql`
+- `0005_wallet_identity.sql`
+- `0006_ownership_index.sql`
+
+Gate 3 durable wallet identity checkpoint:
+- wallet signing challenges are stored in D1 (`wallet_auth_challenges`)
+- challenges are single-use via durable `consumed_at`
+- wallet sessions are stored in D1 (`wallet_sessions`)
+- sessions are chain-aware, expiring, and revocable
+- live production test proved challenge → `personal_sign` → verify → D1 session → session restore → revocation → HTTP `401`
+- challenge replay returned HTTP `409`
+- live browser acceptance proved the real homepage can reach `VERIFIED` using a throwaway wallet and real production auth endpoints
+- identity remains separate from ownership (`VERIFIED` identity did not create an owned publication)
+- account/chain changes clear browser-side authenticated state
+- throwaway challenge/session records were deleted after testing
+- live browser acceptance tool: `tools/test_wallet_auth_ui.py`
+
+Gate 3 ownership-index checkpoint:
+- `wallet_publication_holdings` exists in production D1
+- `ownership_verification_events` exists in production D1
+- `active_wallet_publication_ownerships` view exists in production D1
+- D1 ownership records are evidence/cache only; blockchain state remains authoritative
+- migration `0006` remains valid under the now-locked one-publication-contract-per-release model
+- no SciVive ownership can be positively verified until Gate 4 deploys its publication contract
 
 SciVive durable Reader binding:
 - package status: `draft`
@@ -484,15 +509,74 @@ Preferred standard:
 - ERC-721 / PRC-721 style individual copies
 - each copy is a unique token
 
-One stable Hellbox NFT collection/master contract per chain.
-Do not deploy a new NFT contract for every publication.
+### Publication-contract model — LOCKED
+
+Each Hellbox publication/release gets its own native ERC-721 collection contract per chain.
+
+Examples:
+- SciVive → its own SciVive ERC-721 collection
+- Comic Issue A → its own finite ERC-721 collection
+- Comic Issue B → its own finite ERC-721 collection
+- one-shots/special releases → their own publication collections
+
+Reason:
+- every release should feel like a finished collectible object, not another token added forever to one giant Hellbox collection
+- each release gets its own marketplace collection identity, owners, volume, floor/history, finite supply, and contract address
+- Hellbox.com is the publisher/library that unifies these separate release collections
+
+The old "one master Hellbox NFT collection contract per chain" rule is retired and must not be reintroduced.
+
+### Standardized deployment — LOCKED
+
+Do NOT hand-code a unique smart-contract implementation for every release.
+
+Use:
+- one standardized/audited `HellboxPublication` implementation
+- one `HellboxPublicationFactory` per supported chain
+- fresh publication contracts deployed from that common factory/template
+- minimal-proxy/clone deployment is preferred if security, tooling, and marketplace compatibility remain appropriate after Gate 4 testing
+
+Each publication contract owns its release-specific configuration, including as applicable:
+- publication key
+- collection name/symbol
+- max supply
+- mint price/payment mode
+- wallet/transaction mint limits
+- royalty configuration
+- metadata/base URI/configuration
+- lifecycle/publishing controls
+
+For a normal finite issue, max supply must become immutable once the publication contract is initialized/configured.
+Burns may reduce surviving supply; nothing may increase the cap afterward.
+
+### Identity across Hellbox / chains
+
+Conceptual publication identity remains:
+`publicationKey`
+
+A native blockchain edition is identified by:
+`(chainId, contractAddress)`
+
+An individual collectible is identified by:
+`(chainId, contractAddress, tokenId)`
+
+A publication may later have a separate native deployment on another supported EVM chain, but Hellbox NFTs are never bridged.
+
+### Ownership/indexing
+
+Because one contract maps to one publication on a given chain:
+- `balanceOf(wallet)` is a valid fast on-chain answer to "does this wallet own at least one copy of this publication?"
+- D1 may cache that successful on-chain observation for a short bounded freshness window
+- D1 can never create/grant ownership by database insertion; chain state remains authoritative
+
+Token-level indexing is still required for collectible detail and advanced publication mechanics:
+- index `Transfer` events
+- verify specific token ownership with `ownerOf(tokenId)` where token-level certainty is required
+- maintain token/copy provenance and history
+- support copy-number mapping
+- support future sealed/unsealed state, special copies, burns, Hellforge/evolution, and other token-specific behavior
 
 Do not use ERC721Enumerable as the core ownership index.
-
-Preferred ownership/indexing:
-- index `Transfer` events
-- verify with `ownerOf`
-- maintain fast backend cache/index
 
 Publication lifecycle:
 `private → announced → mint_live → circulating`
@@ -749,8 +833,8 @@ Browser acceptance at Gate 2 close:
 
 Important current boundary:
 - Gate 2 proves Reader delivery and UI
-- production wallet identity + ownership authority are intentionally NOT complete yet
-- real ownership authorization begins in Gate 3
+- production wallet identity is now implemented/proven in Gate 3
+- publication ownership authority is the active Gate 3 work
 - until Gate 3, SciVive must remain private/non-public and cannot be considered a production collector-access release
 
 ## 20. PRESS — CURRENT / FUTURE
@@ -810,12 +894,15 @@ Desired workflow for a new issue:
 3. review automatic validation
 4. preview Press/Archive/Reader/metadata
 5. approve
-6. sign one publication configuration transaction
+6. sign one factory deployment/configuration transaction that creates the release's standardized publication contract
 7. choose when Press goes live
+
+A fresh contract per release is expected.
+What is forbidden is bespoke contract development/deployment ceremony for every issue.
 
 No:
 - manual site code edits
-- new contract per issue
+- hand-coded one-off contract implementation per issue
 - manual R2 file juggling
 - hand-written metadata for every launch
 - complicated deployment ceremony
@@ -851,9 +938,10 @@ Do not re-enable it casually.
 Future chain activation should mean:
 - enable/add chain config
 - configure RPC
-- deploy native Hellbox NFT contract
-- record deployment
-- enable publishing
+- deploy/record that chain's standardized `HellboxPublication` implementation + `HellboxPublicationFactory`
+- deploy each publication as its own native release contract through the factory
+- record each publication's `(chainId, contractAddress)` deployment
+- enable publishing only for configured/validated native publication deployments
 
 No frontend fork.
 No new Reader.
@@ -991,7 +1079,7 @@ PulseChain Testnet V4 should be used first when tPLS is available.
 
 ## 26. CURRENT RESPONSIVE STATUS
 
-Current live checkpoint: Gate 2 complete.
+Current live checkpoint: Gate 3 in progress — wallet identity proven; ownership authority active.
 
 Verified:
 - standard laptop/desktop remains usable
@@ -1022,12 +1110,12 @@ Do not reopen cosmetic Press work until the dedicated Press Gate unless a regres
 - CSS contains many historical overrides; future cleanup must be incremental.
 - Frontend `app.js` is large and monolithic.
 - Worker/backend `src/index.js` is large and monolithic.
-- D1 publication and Reader delivery storage are live, but production wallet identity/ownership authority is not implemented yet.
+- D1 publication/Reader delivery and production wallet identity are live; publication ownership authority is being implemented in Gate 3 and has not yet been positively proven because SciVive has no deployed contract.
 - SciVive package remains intentionally `draft` with 0 validation errors and 1 non-blocking warning.
 - SciVive remains intentionally private/non-public until real ownership authorization exists.
 - Real minting is not implemented.
 - NFT contract is not deployed.
-- Archive ownership is not production-real.
+- Archive ownership is not production-real yet; wallet identity is real, but publication ownership still awaits chain-backed Worker integration and the Gate 4 test contract.
 - Gate 2 used a temporary preview authorization solely for proof; it has been removed and its Cloudflare secret deleted. Do not resurrect it as production auth.
 - Reader browser transport is production-capable, but real collector authorization must come from Gate 3 identity/ownership rather than localStorage or a test secret.
 - Current relationship/Hellion system is not server-authoritative.
@@ -1078,9 +1166,9 @@ Current position:
 - Gate 0 COMPLETE
 - Gate 1 COMPLETE
 - Gate 2 COMPLETE
-- Gate 3 NEXT
+- Gate 3 IN PROGRESS
 
-Begin Gate 3 by making wallet identity and ownership authoritative without disturbing the proven Reader vertical slice.
+Gate 3 identity is already production-proven. Continue by making publication ownership authoritative without disturbing the proven Reader vertical slice.
 
 Before changing code, inspect:
 - current wallet connect/signature paths in `app.js`
@@ -1091,7 +1179,7 @@ Before changing code, inspect:
 
 Then choose the smallest single-file Gate 3 step.
 
-Do not deploy the NFT contract yet; contract deployment belongs to Gate 4 after identity/ownership architecture is ready to consume it.
+Do not deploy SciVive's publication contract yet; standardized implementation/factory deployment belongs to Gate 4 after Gate 3 ownership authority is ready to consume it.
 
 Do not make SciVive public merely to test Gate 3.
 
@@ -1263,49 +1351,78 @@ Exit criteria status:
 - temporary test authorization removed after proof: PASS
 
 Important boundary:
-Gate 2 proves delivery and Reader UX. Production wallet identity and ownership authorization remain Gate 3 work.
+Gate 2 proves delivery and Reader UX. Production wallet identity is now proven; publication ownership authorization remains active Gate 3 work.
 
-### GATE 3 — IDENTITY, OWNERSHIP & ARCHIVE — NEXT
-
-Goal:
-Make wallet identity and ownership real.
-
-Build:
-- wallet-signature authentication
-- short server session
-- chain-aware address identity
-- Transfer-event ownership index/cache
-- `ownerOf` verification
-- real Archive
-- Reader authorization using the same authority
-- privacy-safe event/history model
-
-Exit criteria:
-- wallet connects/signs
-- Archive reflects real indexed ownership
-- Archive and Reader agree
-- localStorage prototype cannot grant authority
-
-### GATE 4 — PULSECHAIN TESTNET CONTRACT
+### GATE 3 — IDENTITY, OWNERSHIP & ARCHIVE — IN PROGRESS
 
 Goal:
-Prove the onchain model before mainnet.
+Make wallet identity and ownership authority real without granting ownership from client claims or database insertion.
+
+Delivered/proven so far:
+- D1-backed wallet-signature challenge model
+- durable single-use challenge consumption
+- short D1-backed wallet sessions
+- chain-aware identity
+- session expiration/revocation boundary
+- live wallet browser flow against production challenge/verify/session endpoints
+- browser reload restores identity only after server session validation
+- identity remains separate from ownership
+- durable D1 ownership verification/cache schema (`0006_ownership_index.sql`)
+- immutable ownership verification-event audit layer
+
+Ownership model under the locked per-release contract architecture:
+- publication contract address identifies the publication's native chain edition
+- `balanceOf(wallet)` is the fast publication-level ownership check
+- successful on-chain observations may be cached in D1 for a bounded freshness window
+- D1 never grants ownership independently of chain verification
+- `Transfer` events + `ownerOf(tokenId)` remain the token-level authority/index path for individual copies and future advanced mechanics
+
+Remaining Gate 3 work:
+- Worker ownership refresh/read API against configured publication contracts
+- honest `unconfigured` behavior while a publication has no contract
+- Archive consumes authoritative ownership state rather than prototype/local state
+- Reader consumes the exact same ownership authority
+- privacy-safe ownership/history responses
+
+Important Gate boundary:
+- SciVive currently has `contract_address = null`
+- Gate 3 must build the authority path without fabricating a positive owner
+- Gate 4 provides the first standardized testnet publication contract and therefore the first positive mint/ownership proof
+
+Gate 3 exit criteria:
+- wallet connects/signs through server-authoritative identity: PASS
+- localStorage/client claims cannot grant identity: PASS
+- ownership authority/cache model is durable and chain-backed by design: IN PROGRESS
+- Archive and Reader are wired to the same ownership authority: PENDING
+- unconfigured publication cannot falsely grant ownership: PENDING
+- positive minted-owner proof: intentionally deferred to Gate 4 testnet deployment
+
+### GATE 4 — PULSECHAIN TESTNET PUBLICATION CONTRACT + FACTORY
+
+Goal:
+Prove the standardized one-contract-per-publication on-chain model before mainnet.
 
 Build/deploy on PulseChain Testnet V4:
-- stable Hellbox ERC-721 master contract
-- publication configuration
-- lifecycle rules
-- supply limits
-- royalty config
-- mint limits
+- standardized/auditable `HellboxPublication` ERC-721 implementation
+- `HellboxPublicationFactory`
+- fresh native contract deployment per publication/release
+- immutable max-supply enforcement after initialization/configuration
+- publication lifecycle rules
+- royalty configuration
+- mint/payment limits
 - event model
 - copy-number assignment baseline
-- SciVive test publication configuration
+- SciVive test publication contract deployed through the factory
+- factory/deployment metadata recorded back into Hellbox durable publication configuration
 
 Exit criteria:
+- factory deploys a fresh SciVive publication collection
 - real testnet mint succeeds
+- publication-level `balanceOf` ownership reaches the Gate 3 ownership authority
+- token-level Transfer/`ownerOf` evidence can identify the minted copy
 - ownership reaches Archive
 - minted ownership opens Reader
+- a second dummy/test publication can be deployed from the same standard without bespoke Solidity changes
 - native future-chain deployment model is proven without bridging
 
 ### GATE 5 — PRESS V2 / REAL MINT EXPERIENCE
@@ -1349,7 +1466,7 @@ Build:
 - controlled go-live
 
 Exit criteria:
-A second test publication can be onboarded without frontend code edits, manual R2 juggling, or another NFT contract.
+A second test publication can be onboarded without frontend code edits, manual R2 juggling, or bespoke contract development; onboarding may deploy a fresh standardized publication contract through the factory as part of the normal release workflow.
 
 ### GATE 7 — RELATIONSHIP / HELLION PRODUCT DEPTH
 
@@ -1426,7 +1543,7 @@ SciVive is live and the complete Hellbox publishing loop works in production.
 
 ### CURRENT CRITICAL PATH
 
-`Gate 3 ownership → Gate 4 testnet contract → Gate 5 Press → Gate 6 publisher operations`
+`Gate 3 ownership authority → Gate 4 testnet publication factory/contracts → Gate 5 Press → Gate 6 publisher operations`
 
 Do not spend weeks polishing prototype surfaces before the ownership → testnet mint → Archive → Reader loop works.
 
@@ -1452,38 +1569,53 @@ Every future user-visible interaction must enter the English catalog at creation
 
 ## 33. EXACT NEXT ENGINEERING ACTION
 
-Begin Gate 3 — Identity, Ownership & Archive.
+Continue Gate 3 — Identity, Ownership & Archive.
 
 Gate 2 is closed and its proven Reader path must be preserved.
+Gate 3 wallet identity is already production-proven.
 
-First inspect, without changing multiple files at once:
-- `src/index.js`: current wallet/session/auth helpers, Reader authorization, chain/RPC reads
-- `app.js`: wallet connect/sign behavior, Reader session usage, Archive rendering/data source
-- D1 schema/migrations: what already exists for ownership/event/history/session data
-- current Archive prototype and any localStorage-derived ownership state
-- PulseChain RPC configuration and fallback behavior
+Current implementation state:
+- `0005_wallet_identity.sql` is applied
+- D1-backed challenge/session auth is live
+- frontend wallet connection performs challenge → `personal_sign` → verify → session
+- live browser acceptance passes using a throwaway wallet and real production endpoints
+- `0006_ownership_index.sql` is applied
+- ownership tables/view exist, but SciVive has no contract yet
+- per-release publication-contract architecture is now locked
 
-The first Gate 3 implementation should establish a real server-verifiable wallet identity/session boundary before building ownership indexing.
+Exact next engineering action:
+Update `src/index.js` so authenticated ownership requests use the publication's configured native `(chainId, contractAddress)` as authority.
 
-Recommended sequence:
-1. wallet challenge/nonce model
-2. wallet signature verification
-3. short server session
-4. chain-aware address identity
-5. authoritative ownership read/index model
-6. Archive consumes authoritative ownership
-7. Reader consumes the exact same ownership authority
+Required Worker behavior:
+1. validate the D1-backed wallet session
+2. resolve the requested publication and its chain-specific contract configuration
+3. if no contract is configured, return an explicit `unconfigured`/not-verifiable state — never `owned`
+4. when a contract exists, verify publication-level ownership on-chain via `balanceOf(wallet)`
+5. record only successful owned/not-owned observations in `wallet_publication_holdings` with a bounded freshness window
+6. append immutable verification events in `ownership_verification_events`
+7. RPC errors must record an error event and must NOT silently turn a previously verified owner into `not_owned`
+8. expose one ownership result that both Archive and Reader will consume
+9. preserve token-level `Transfer` + `ownerOf(tokenId)` indexing as the later copy/provenance authority
+
+Then, one file at a time:
+- wire Archive to the authoritative ownership API
+- wire Reader authorization to the exact same ownership authority
+- verify SciVive honestly reports ownership as unconfigured until Gate 4 deploys its contract
 
 Do not:
-- deploy the main NFT contract yet (Gate 4)
+- deploy SciVive's testnet publication contract yet (Gate 4)
+- create fake ownership rows to simulate success
 - make SciVive public
 - treat localStorage as authority
 - resurrect the Gate 2 preview secret or preview routes
 - couple Archive and Reader to different ownership sources
 - edit `app.js` and `src/index.js` in one unverified step
 
-Current acceptance target for the first Gate 3 slice:
-A wallet can prove control of an address, receive a short server-side/verifiable session, and the server can identify that address consistently without granting publication ownership merely because the client claims it.
+First Gate 3 identity slice acceptance — COMPLETE:
+A wallet can prove control of an address, receive a short D1-backed server session, and the server can identify that address consistently without granting publication ownership merely because the client claims it.
+
+Current Gate 3 ownership slice acceptance target:
+An authenticated wallet can request ownership for a publication; the Worker uses that publication's configured native contract as the chain authority, returns an honest unconfigured state when no contract exists, caches only successful bounded on-chain observations, and exposes one ownership authority consumed consistently by Archive and Reader.
 
 Documentation procedure when Gate 3 closes:
 - update this file
