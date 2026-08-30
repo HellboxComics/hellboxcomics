@@ -3,6 +3,16 @@ const SESSION_TTL_SECONDS = 15 * 60;
 const CHALLENGE_TTL_SECONDS = 5 * 60;
 const OWNERSHIP_CACHE_TTL_SECONDS = 60;
 
+// Gate 3.1 — Sealed Press prelaunch boundary.
+// The public blinder remains DORMANT until wrangler.jsonc explicitly routes
+// document requests through this Worker and HELLBOX_PRELAUNCH_MODE is "sealed".
+const PRELAUNCH_ACCESS_TTL_SECONDS = 7 * 24 * 60 * 60;
+const PRELAUNCH_ACCESS_SCOPE = "prelaunch_bypass";
+const PRELAUNCH_COOKIE_NAME = "__Host-hellbox_prelaunch";
+const PRELAUNCH_SURFACE_PATH = "/prelaunch.html";
+const HARROW_ACCESS_PATH = "/__harrow";
+const HARROW_RESEAL_PATH = "/__harrow/reseal";
+
 const ALLOWED_ORIGINS = new Set([
   "https://hellboxcomics.com",
   "https://www.hellboxcomics.com",
@@ -293,6 +303,17 @@ export default {
         );
       }
 
+      const prelaunchResponse =
+        await handlePrelaunchRequest(
+          request,
+          env,
+          url
+        );
+
+      if (prelaunchResponse) {
+        return prelaunchResponse;
+      }
+
       if (
         env.ASSETS &&
         typeof env.ASSETS.fetch === "function"
@@ -334,6 +355,956 @@ export default {
   },
 };
 
+// ============================================================
+// GATE 3.1 — SEALED PRESS PRELAUNCH BOUNDARY
+// ============================================================
+
+async function handlePrelaunchRequest(
+  request,
+  env,
+  url
+) {
+  if (
+    url.pathname ===
+      HARROW_ACCESS_PATH
+  ) {
+    return handleHarrowAccessPage(
+      request,
+      env,
+      url
+    );
+  }
+
+  if (
+    url.pathname ===
+      HARROW_RESEAL_PATH
+  ) {
+    return handleHarrowResealPage(
+      url
+    );
+  }
+
+  if (!isPrelaunchSealed(env)) {
+    return null;
+  }
+
+  if (
+    await hasValidPrelaunchBypass(
+      request,
+      env
+    )
+  ) {
+    return null;
+  }
+
+  if (
+    (
+      request.method === "GET" ||
+      request.method === "HEAD"
+    ) &&
+    isDocumentNavigation(
+      request
+    )
+  ) {
+    return servePrelaunchSurface(
+      request,
+      env,
+      url
+    );
+  }
+
+  return null;
+}
+
+function isPrelaunchSealed(env) {
+  return String(
+    env?.HELLBOX_PRELAUNCH_MODE ||
+    ""
+  )
+    .trim()
+    .toLowerCase() ===
+    "sealed";
+}
+
+function hasPrelaunchAccessSecret(
+  env
+) {
+  return typeof env
+    ?.HELLBOX_PRELAUNCH_ACCESS_KEY ===
+      "string" &&
+    env
+      .HELLBOX_PRELAUNCH_ACCESS_KEY
+      .length >=
+        24;
+}
+
+function requirePrelaunchAccessSecret(
+  env
+) {
+  if (
+    !hasPrelaunchAccessSecret(
+      env
+    )
+  ) {
+    throw new Error(
+      "HELLBOX_PRELAUNCH_ACCESS_KEY is unavailable or too short."
+    );
+  }
+}
+
+function isDocumentNavigation(
+  request
+) {
+  const destination =
+    String(
+      request.headers.get(
+        "Sec-Fetch-Dest"
+      ) ||
+      ""
+    ).toLowerCase();
+
+  if (
+    destination ===
+      "document" ||
+    destination ===
+      "iframe"
+  ) {
+    return true;
+  }
+
+  const accept =
+    String(
+      request.headers.get(
+        "Accept"
+      ) ||
+      ""
+    ).toLowerCase();
+
+  return accept.includes(
+    "text/html"
+  );
+}
+
+async function servePrelaunchSurface(
+  request,
+  env,
+  url
+) {
+  if (
+    !env.ASSETS ||
+    typeof env.ASSETS.fetch !==
+      "function"
+  ) {
+    return new Response(
+      "The press is closed.",
+      {
+        status: 503,
+        headers: {
+          "Content-Type":
+            "text/plain; charset=utf-8",
+          "Cache-Control":
+            "no-store",
+        },
+      }
+    );
+  }
+
+  const assetUrl =
+    new URL(
+      PRELAUNCH_SURFACE_PATH,
+      url.origin
+    );
+
+  const assetRequest =
+    new Request(
+      assetUrl.toString(),
+      {
+        method:
+          request.method === "HEAD"
+            ? "HEAD"
+            : "GET",
+
+        headers: {
+          "Accept":
+            "text/html",
+        },
+      }
+    );
+
+  const response =
+    await env.ASSETS.fetch(
+      assetRequest
+    );
+
+  const headers =
+    new Headers(
+      response.headers
+    );
+
+  headers.set(
+    "Cache-Control",
+    "no-store, max-age=0"
+  );
+
+  headers.set(
+    "X-Content-Type-Options",
+    "nosniff"
+  );
+
+  headers.set(
+    "Referrer-Policy",
+    "strict-origin-when-cross-origin"
+  );
+
+  headers.set(
+    "X-Hellbox-Prelaunch",
+    "sealed"
+  );
+
+  return new Response(
+    response.body,
+    {
+      status:
+        response.status,
+      statusText:
+        response.statusText,
+      headers,
+    }
+  );
+}
+
+async function handlePrelaunchStatusApi(
+  request,
+  env
+) {
+  const authorized =
+    await hasValidPrelaunchBypass(
+      request,
+      env
+    );
+
+  return json({
+    ok: true,
+    gate:
+      "3.1",
+    mode:
+      isPrelaunchSealed(env)
+        ? "sealed"
+        : "open",
+    accessSecretConfigured:
+      hasPrelaunchAccessSecret(
+        env
+      ),
+    authorized,
+  });
+}
+
+async function handlePrelaunchAccessApi(
+  request,
+  env
+) {
+  if (
+    !isSameOriginWrite(
+      request
+    )
+  ) {
+    return json(
+      {
+        ok: false,
+        authorized: false,
+        error:
+          "Cross-origin access attempt rejected.",
+      },
+      403
+    );
+  }
+
+  if (
+    !hasPrelaunchAccessSecret(
+      env
+    )
+  ) {
+    return json(
+      {
+        ok: false,
+        authorized: false,
+        error:
+          "Private prelaunch access is not configured.",
+      },
+      503
+    );
+  }
+
+  const body =
+    await readJson(
+      request
+    );
+
+  const secret =
+    typeof body?.secret ===
+      "string"
+      ? body.secret
+      : "";
+
+  const accepted =
+    await verifyPrelaunchAccessSecret(
+      env,
+      secret
+    );
+
+  if (!accepted) {
+    return json(
+      {
+        ok: false,
+        authorized: false,
+        error:
+          "Access denied.",
+      },
+      401
+    );
+  }
+
+  const token =
+    await signPrelaunchAccessToken(
+      env
+    );
+
+  return jsonWithExtraHeaders(
+    {
+      ok: true,
+      authorized: true,
+      expiresIn:
+        PRELAUNCH_ACCESS_TTL_SECONDS,
+    },
+    200,
+    {
+      "Set-Cookie":
+        buildPrelaunchCookie(
+          token,
+          PRELAUNCH_ACCESS_TTL_SECONDS
+        ),
+    }
+  );
+}
+
+function handlePrelaunchRevokeApi() {
+  return jsonWithExtraHeaders(
+    {
+      ok: true,
+      authorized: false,
+    },
+    200,
+    {
+      "Set-Cookie":
+        clearPrelaunchCookie(),
+    }
+  );
+}
+
+async function handleHarrowAccessPage(
+  request,
+  env,
+  url
+) {
+  if (
+    request.method === "POST"
+  ) {
+    if (
+      !isSameOriginWrite(
+        request
+      )
+    ) {
+      return renderHarrowAccessPage(
+        false,
+        "Cross-origin access attempt rejected.",
+        403
+      );
+    }
+
+    if (
+      !hasPrelaunchAccessSecret(
+        env
+      )
+    ) {
+      return renderHarrowAccessPage(
+        false,
+        "Private access is not configured.",
+        503
+      );
+    }
+
+    const body =
+      await request.text();
+
+    const params =
+      new URLSearchParams(
+        body
+      );
+
+    const accepted =
+      await verifyPrelaunchAccessSecret(
+        env,
+        params.get(
+          "secret"
+        ) ||
+        ""
+      );
+
+    if (!accepted) {
+      return renderHarrowAccessPage(
+        false,
+        "No.",
+        401
+      );
+    }
+
+    const token =
+      await signPrelaunchAccessToken(
+        env
+      );
+
+    return new Response(
+      null,
+      {
+        status: 303,
+        headers: {
+          "Location":
+            "/",
+          "Set-Cookie":
+            buildPrelaunchCookie(
+              token,
+              PRELAUNCH_ACCESS_TTL_SECONDS
+            ),
+          "Cache-Control":
+            "no-store",
+          "Referrer-Policy":
+            "no-referrer",
+        },
+      }
+    );
+  }
+
+  if (
+    request.method !== "GET" &&
+    request.method !== "HEAD"
+  ) {
+    return new Response(
+      "Method Not Allowed",
+      {
+        status: 405,
+        headers: {
+          "Allow":
+            "GET, HEAD, POST",
+          "Cache-Control":
+            "no-store",
+        },
+      }
+    );
+  }
+
+  const authorized =
+    await hasValidPrelaunchBypass(
+      request,
+      env
+    );
+
+  return renderHarrowAccessPage(
+    authorized,
+    null,
+    200,
+    request.method === "HEAD"
+  );
+}
+
+function handleHarrowResealPage(
+  url
+) {
+  return new Response(
+    null,
+    {
+      status: 303,
+      headers: {
+        "Location":
+          HARROW_ACCESS_PATH,
+        "Set-Cookie":
+          clearPrelaunchCookie(),
+        "Cache-Control":
+          "no-store",
+        "Referrer-Policy":
+          "no-referrer",
+      },
+    }
+  );
+}
+
+function renderHarrowAccessPage(
+  authorized,
+  error = null,
+  status = 200,
+  headOnly = false
+) {
+  const stateMarkup =
+    authorized
+      ? `
+        <p class="state ok">PRIVATE ACCESS // HELD</p>
+        <p class="copy">The public sees the shutter. You don't.</p>
+        <div class="actions">
+          <a class="button primary" href="/">ENTER THE REAL SITE</a>
+          <a class="button" href="${HARROW_RESEAL_PATH}">RESEAL</a>
+        </div>
+      `
+      : `
+        <p class="state">PRIVATE ACCESS // LOCKED</p>
+        <p class="copy">${error || "This door is not for them."}</p>
+        <form method="post" action="${HARROW_ACCESS_PATH}" autocomplete="off">
+          <label for="secret">ACCESS KEY</label>
+          <input
+            id="secret"
+            name="secret"
+            type="password"
+            minlength="24"
+            required
+            autocomplete="current-password"
+            autofocus
+          >
+          <button type="submit">UNSEAL FOR ME</button>
+        </form>
+      `;
+
+  const body = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="color-scheme" content="dark">
+  <title>Harrow // Private Access</title>
+  <style>
+    :root{color-scheme:dark;background:#020202;color:#ece7dc;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    *{box-sizing:border-box}
+    body{min-height:100vh;margin:0;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 20%,rgba(139,72,255,.09),transparent 28rem),#020202}
+    main{width:min(100%,520px);border:1px solid #292929;background:#080808;padding:clamp(28px,7vw,52px);box-shadow:0 28px 90px rgba(0,0,0,.75)}
+    .eyebrow{margin:0 0 14px;color:#f05a22;font-size:11px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}
+    h1{margin:0;font-size:clamp(38px,9vw,70px);line-height:.9;letter-spacing:-.055em;text-transform:uppercase}
+    .state{margin:32px 0 8px;color:#da312c;font-size:11px;font-weight:900;letter-spacing:.15em;text-transform:uppercase}
+    .state.ok{color:#8b48ff}
+    .copy{margin:0 0 22px;color:#aaa;line-height:1.5}
+    label{display:block;margin-bottom:8px;color:#777;font-size:10px;font-weight:900;letter-spacing:.15em}
+    input{width:100%;height:50px;border:1px solid #353535;background:#020202;color:#fff;padding:0 14px;font:inherit;outline:none}
+    input:focus{border-color:#8b48ff;box-shadow:0 0 0 2px rgba(139,72,255,.14)}
+    button,.button{min-height:48px;margin-top:12px;border:1px solid #444;background:#111;color:#eee;display:inline-flex;align-items:center;justify-content:center;padding:0 18px;font:inherit;font-size:11px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;text-decoration:none;cursor:pointer}
+    button:hover,.button:hover{border-color:#888;background:#171717}
+    .button.primary{border-color:#8b48ff}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">HELLBOX // HARROW ONLY</p>
+    <h1>WRONG<br>DOOR.</h1>
+    ${stateMarkup}
+  </main>
+</body>
+</html>`;
+
+  const headers =
+    new Headers({
+      "Content-Type":
+        "text/html; charset=utf-8",
+      "Cache-Control":
+        "private, no-store, max-age=0",
+      "X-Robots-Tag":
+        "noindex, nofollow, noarchive",
+      "X-Content-Type-Options":
+        "nosniff",
+      "X-Frame-Options":
+        "DENY",
+      "Referrer-Policy":
+        "no-referrer",
+      "Content-Security-Policy":
+        "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+    });
+
+  return new Response(
+    headOnly
+      ? null
+      : body,
+    {
+      status,
+      headers,
+    }
+  );
+}
+
+function isSameOriginWrite(
+  request
+) {
+  const origin =
+    request.headers.get(
+      "Origin"
+    );
+
+  if (!origin) {
+    return true;
+  }
+
+  try {
+    return (
+      new URL(
+        origin
+      ).origin ===
+      new URL(
+        request.url
+      ).origin
+    );
+  } catch {
+    return false;
+  }
+}
+
+async function verifyPrelaunchAccessSecret(
+  env,
+  presentedSecret
+) {
+  requirePrelaunchAccessSecret(
+    env
+  );
+
+  const presented =
+    String(
+      presentedSecret ||
+      ""
+    );
+
+  if (
+    presented.length <
+      24
+  ) {
+    return false;
+  }
+
+  const message =
+    "hellbox-prelaunch-access-proof-v1";
+
+  const expected =
+    await hmacSha256(
+      env
+        .HELLBOX_PRELAUNCH_ACCESS_KEY,
+      message
+    );
+
+  const actual =
+    await hmacSha256(
+      presented,
+      message
+    );
+
+  return timingSafeEqual(
+    expected,
+    actual
+  );
+}
+
+async function signPrelaunchAccessToken(
+  env
+) {
+  requirePrelaunchAccessSecret(
+    env
+  );
+
+  const issuedAt =
+    unixNow();
+
+  const payload = {
+    scope:
+      PRELAUNCH_ACCESS_SCOPE,
+    issuedAt,
+    expiresAt:
+      issuedAt +
+      PRELAUNCH_ACCESS_TTL_SECONDS,
+    nonce:
+      randomHex(
+        16
+      ),
+  };
+
+  const encodedPayload =
+    base64UrlEncodeString(
+      JSON.stringify(
+        payload
+      )
+    );
+
+  const signature =
+    await hmacSha256(
+      env
+        .HELLBOX_PRELAUNCH_ACCESS_KEY,
+      `prelaunch.${encodedPayload}`
+    );
+
+  return `${encodedPayload}.${base64UrlEncodeBytes(
+    signature
+  )}`;
+}
+
+async function verifyPrelaunchAccessToken(
+  env,
+  token
+) {
+  if (
+    !hasPrelaunchAccessSecret(
+      env
+    )
+  ) {
+    return null;
+  }
+
+  const parts =
+    String(
+      token ||
+      ""
+    ).split(
+      "."
+    );
+
+  if (
+    parts.length !==
+      2
+  ) {
+    return null;
+  }
+
+  const [
+    encodedPayload,
+    encodedSignature,
+  ] = parts;
+
+  let actual;
+
+  try {
+    actual =
+      base64UrlDecodeBytes(
+        encodedSignature
+      );
+  } catch {
+    return null;
+  }
+
+  const expected =
+    await hmacSha256(
+      env
+        .HELLBOX_PRELAUNCH_ACCESS_KEY,
+      `prelaunch.${encodedPayload}`
+    );
+
+  if (
+    !timingSafeEqual(
+      expected,
+      actual
+    )
+  ) {
+    return null;
+  }
+
+  let payload;
+
+  try {
+    payload =
+      JSON.parse(
+        base64UrlDecodeString(
+          encodedPayload
+        )
+      );
+  } catch {
+    return null;
+  }
+
+  if (
+    payload?.scope !==
+      PRELAUNCH_ACCESS_SCOPE ||
+    !Number.isInteger(
+      Number(
+        payload?.issuedAt
+      )
+    ) ||
+    !Number.isInteger(
+      Number(
+        payload?.expiresAt
+      )
+    ) ||
+    Number(
+      payload.expiresAt
+    ) <=
+      unixNow()
+  ) {
+    return null;
+  }
+
+  return {
+    scope:
+      PRELAUNCH_ACCESS_SCOPE,
+    issuedAt:
+      Number(
+        payload.issuedAt
+      ),
+    expiresAt:
+      Number(
+        payload.expiresAt
+      ),
+  };
+}
+
+async function hasValidPrelaunchBypass(
+  request,
+  env
+) {
+  const token =
+    getCookieValue(
+      request,
+      PRELAUNCH_COOKIE_NAME
+    );
+
+  if (!token) {
+    return false;
+  }
+
+  return Boolean(
+    await verifyPrelaunchAccessToken(
+      env,
+      token
+    )
+  );
+}
+
+function getCookieValue(
+  request,
+  name
+) {
+  const header =
+    request.headers.get(
+      "Cookie"
+    ) ||
+    "";
+
+  const pairs =
+    header.split(
+      ";"
+    );
+
+  for (
+    const pair
+    of pairs
+  ) {
+    const separator =
+      pair.indexOf(
+        "="
+      );
+
+    if (
+      separator <
+        0
+    ) {
+      continue;
+    }
+
+    const key =
+      pair
+        .slice(
+          0,
+          separator
+        )
+        .trim();
+
+    if (key !== name) {
+      continue;
+    }
+
+    return pair
+      .slice(
+        separator +
+        1
+      )
+      .trim();
+  }
+
+  return null;
+}
+
+function buildPrelaunchCookie(
+  token,
+  maxAge
+) {
+  return [
+    `${PRELAUNCH_COOKIE_NAME}=${token}`,
+    "Path=/",
+    `Max-Age=${maxAge}`,
+    "Secure",
+    "HttpOnly",
+    "SameSite=Strict",
+    "Priority=High",
+  ].join(
+    "; "
+  );
+}
+
+function clearPrelaunchCookie() {
+  return [
+    `${PRELAUNCH_COOKIE_NAME}=`,
+    "Path=/",
+    "Max-Age=0",
+    "Expires=Thu, 01 Jan 1970 00:00:00 GMT",
+    "Secure",
+    "HttpOnly",
+    "SameSite=Strict",
+    "Priority=High",
+  ].join(
+    "; "
+  );
+}
+
+function jsonWithExtraHeaders(
+  data,
+  status,
+  extraHeaders
+) {
+  const response =
+    json(
+      data,
+      status
+    );
+
+  const headers =
+    new Headers(
+      response.headers
+    );
+
+  for (
+    const [
+      key,
+      value,
+    ] of Object.entries(
+      extraHeaders ||
+      {}
+    )
+  ) {
+    headers.set(
+      key,
+      value
+    );
+  }
+
+  return new Response(
+    response.body,
+    {
+      status:
+        response.status,
+      statusText:
+        response.statusText,
+      headers,
+    }
+  );
+}
+
 async function handleApi(
   request,
   env,
@@ -342,6 +1313,41 @@ async function handleApi(
   const {
     pathname,
   } = url;
+
+  // ============================================================
+  // GATE 3.1 PRELAUNCH STATUS
+  // ============================================================
+
+  if (
+    pathname === "/api/prelaunch/status" &&
+    request.method === "GET"
+  ) {
+    return handlePrelaunchStatusApi(
+      request,
+      env
+    );
+  }
+
+  // ============================================================
+  // GATE 3.1 PRIVATE ACCESS
+  // ============================================================
+
+  if (
+    pathname === "/api/prelaunch/access" &&
+    request.method === "POST"
+  ) {
+    return handlePrelaunchAccessApi(
+      request,
+      env
+    );
+  }
+
+  if (
+    pathname === "/api/prelaunch/access" &&
+    request.method === "DELETE"
+  ) {
+    return handlePrelaunchRevokeApi();
+  }
 
   // ============================================================
   // HEALTH
@@ -725,6 +1731,18 @@ async function handleHealth(env) {
     },
 
     registry,
+
+    prelaunch: {
+      mode:
+        isPrelaunchSealed(env)
+          ? "sealed"
+          : "open",
+
+      accessSecretConfigured:
+        hasPrelaunchAccessSecret(
+          env
+        ),
+    },
 
     bindings: {
       database:
