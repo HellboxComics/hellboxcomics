@@ -365,6 +365,106 @@
       box-shadow: inset 0 0 0 2px rgba(218,49,44,.08);
     }
 
+    .story-return {
+      position: relative;
+      width: min(100%, 36rem);
+      margin-top: 2.25rem;
+      padding: 1rem;
+      border: 1px solid rgba(139,72,255,.34);
+      background:
+        linear-gradient(
+          135deg,
+          rgba(139,72,255,.08),
+          rgba(4,4,4,.56)
+        );
+      box-shadow:
+        inset 0 0 36px rgba(139,72,255,.025);
+    }
+
+    .story-return::before {
+      content: "";
+      position: absolute;
+      top: -.34rem;
+      left: 1rem;
+      width: 3.1rem;
+      height: .58rem;
+      background: rgba(240,90,34,.62);
+      transform: rotate(-2deg);
+      opacity: .72;
+    }
+
+    .story-return-label {
+      margin: 0 0 .42rem;
+      color: var(--violet);
+      font-size: .62rem;
+      font-weight: 950;
+      letter-spacing: .17em;
+      text-transform: uppercase;
+    }
+
+    .story-return-copy {
+      margin: 0 0 .9rem;
+      color: #aaa69d;
+      font-size: .82rem;
+      line-height: 1.48;
+    }
+
+    .story-replay {
+      min-height: 3.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: .82rem 1rem;
+      border: 1px solid rgba(236,231,220,.28);
+      background: #080808;
+      color: var(--paper);
+      text-decoration: none;
+      transition:
+        border-color .15s ease,
+        background .15s ease,
+        transform .15s ease;
+    }
+
+    .story-replay:hover {
+      transform: translateY(-2px);
+      border-color: var(--violet);
+      background: #101012;
+    }
+
+    .story-replay:focus-visible {
+      outline: 2px solid var(--paper);
+      outline-offset: 4px;
+      border-color: var(--violet);
+    }
+
+    .story-replay strong {
+      display: block;
+      font-size: .76rem;
+      font-weight: 950;
+      letter-spacing: .12em;
+      line-height: 1.22;
+      text-transform: uppercase;
+    }
+
+    .story-replay small {
+      display: block;
+      margin-top: .28rem;
+      color: var(--muted);
+      font-size: .6rem;
+      font-weight: 850;
+      letter-spacing: .08em;
+      line-height: 1.35;
+      text-transform: uppercase;
+    }
+
+    .story-replay-arrow {
+      flex: 0 0 auto;
+      color: var(--ember);
+      font-size: 1.25rem;
+      font-weight: 900;
+    }
+
     .machine-card {
       position: relative;
       padding: 1.1rem;
@@ -743,6 +843,29 @@
 
           <div class="proof-stamp" aria-label="Proofs not for release">
             PROOFS NOT FOR RELEASE
+          </div>
+
+          <div class="story-return" aria-labelledby="storyReturnLabel">
+            <p class="story-return-label" id="storyReturnLabel">
+              FOUND THE MACHINES ALREADY?
+            </p>
+
+            <p class="story-return-copy">
+              Fine. Go bother them again.
+              They were getting comfortable.
+            </p>
+
+            <a
+              class="story-replay"
+              href="/campaign-reset"
+            >
+              <span>
+                <strong>START ANOTHER INCIDENT</strong>
+                <small>Experience the 30-machine problem again</small>
+              </span>
+
+              <span class="story-replay-arrow" aria-hidden="true">→</span>
+            </a>
           </div>
         </div>
 
