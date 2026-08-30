@@ -1,27 +1,40 @@
 # HELLBOX PUBLICATION CONFIGURATION BLUEPRINT
 
-**Status:** PROPOSED FOR CREATOR APPROVAL — Gate 4 pre-implementation deliverable
+**Status:** APPROVED — Gate 4 implementation-synchronized architecture artifact
 **Gate:** Gate 4 — HELLBOX ARTIFACT KERNEL + VERSIONED PUBLICATION FACTORY
-**Implementation state:** No Foundry/Solidity/tooling implementation has begun
+**Implementation state:** IN PROGRESS — tooling, V1 kernel checkpoint, kernel tests, Press release-fingerprint calculator, and Solidity↔JavaScript golden-vector parity are implemented and verified
 **Repository destination:** `PUBLICATION_CONFIGURATION_BLUEPRINT.md`
-**Authority:** Derived from the current repo-root `HELLBOX_PROJECT_STATE.md`, `HARROW_CHARACTER_BIBLE.md`, and `README.md`. Those living documents remain authoritative if a conflict is discovered.
+**Authority:** Derived from the repo-root living documents and creator-approved Gate 4 decisions. The three living documents remain the architecture/canon authority; verified implementation evidence may advance within the active Gate and is reconciled back into all three living documents at Gate 4 close.
 **Purpose:** Define the complete release configuration Harrow's gated private Press must collect, validate, preview, cryptographically commit, and freeze before `PUBLISH`, and define the boundary between immutable release promises and legitimate mutable artifact state.
 
 ---
 
 # 0. GATE 4 BOUNDARY
 
-This blueprint is architecture, not implementation.
+This blueprint was creator-approved before Gate 4 implementation began and now remains the implementation-facing architecture contract for the Gate.
 
-Until the creator approves this file:
+Current proven Gate 4 implementation constraints:
 
-- do **not** install Foundry;
-- do **not** create Solidity files;
-- do **not** create contract-tooling directories;
-- do **not** deploy a publication;
-- do **not** use HairyLabs Byte pages for acceptance/regression testing.
+- Solidity source lives in `contracts/`; existing `src/` remains Cloudflare Worker territory;
+- Foundry directories are `contracts/`, `test/`, `script/`, `lib/`, and generated `out/`;
+- dependencies are pinned, never floating;
+- Solidity compiler is exactly `0.8.36` for Hellbox-authored Solidity;
+- Hellbox-authored Solidity uses exact `pragma solidity 0.8.36;`;
+- EVM target is explicitly `shanghai` for PulseChain Testnet V4 compatibility;
+- optimizer settings, optimizer runs, and `via_ir` remain deliberately **OPEN** pending test-backed evaluation;
+- OpenZeppelin Contracts is pinned to `v5.1.0` at commit `69c8def5f222ff96f2b5beff05dfba996368aa79`;
+- OpenZeppelin `v5.7.0` is **SUPERSEDED for Gate 4** because its `Bytes.sol` uses `MCOPY`, which does not compile for the locked Shanghai EVM target;
+- OpenZeppelin source is consumed as installed and is not copied, modified, or replaced with custom implementations of solved primitives;
+- `HellboxPublication V1` uses **FULL_DEPLOYMENT** with constructor initialization;
+- V1 uses no initializer, no proxy, no delegatecall architecture, and no upgrades;
+- "immutable release configuration" means no post-freeze mutation path; not every frozen field must use Solidity's `immutable` keyword;
+- release-specific Solidity `immutable` values may produce different runtime bytecode hashes between publications without changing the reviewed V1 logic architecture;
+- `HELLBOX_ABI_V1` release-fingerprint encoding is implemented independently in Solidity and JavaScript and verified by a shared golden vector;
+- current kernel/fingerprint checkpoint passes 17 Solidity tests total, including the JavaScript↔Solidity golden-vector match;
+- no publication has been deployed to mainnet; Gate 4 remains PulseChain Testnet V4 only;
+- do **not** use HairyLabs Byte pages for acceptance/regression testing until the creator explicitly clears the Byte lane.
 
-Gate 4 implementation begins only after this blueprint is approved.
+If implementation discovers a material conflict with this blueprint, stop and synchronize/re-review this file before silently changing the architecture.
 
 ---
 
@@ -244,12 +257,12 @@ These are not arbitrary per-publication values. Harrow selects an approved regis
 |---|---|---|---|---|---|
 | `template.templateId` | stable identifier, e.g. `HELLBOX_PUBLICATION` | `F P D U I` | `REGISTRY/FREEZE selection` | `ROOT/DIRECT` | Each release records the exact template identity. |
 | `template.templateVersion` | explicit immutable version | `F C P D U I` | `REGISTRY/FREEZE selection` | `ROOT/DIRECT` | Never silently redefine an old version. |
-| `template.implementationAddress` | implementation code address | `F C P D I` | `REGISTRY/FREEZE selection` | `ROOT/DIRECT` | Exact implementation used for release. |
-| `template.implementationCodeHash` | code hash | `F P I` | `REGISTRY/FREEZE selection` | `ROOT/SUB` | Provenance against implementation substitution. |
+| `template.implementationAddress` | shared implementation address or `null` | `F P D I` | `REGISTRY/FREEZE selection` | `ROOT` when applicable | **V1 FULL_DEPLOYMENT uses no shared implementation address.** Reserved for a future version that deliberately adopts a shared implementation/proxy architecture. |
+| `template.implementationCodeHash` | optional implementation/runtime code hash evidence | `F P I` | `REGISTRY/FREEZE selection` | `SUB` when applicable | Do **not** assume identical V1 runtime code hashes across publications: Solidity `immutable` values can embed release-specific values into runtime bytecode. V1 provenance is template/version/factory/config-commitment based; exact factory verification fingerprint remains a Gate 4 implementation decision. |
 | `template.factoryVersion` | factory generation | `F P D I` | `REGISTRY/FREEZE selection` | `ROOT` | Records deployment machinery generation. |
 | `template.configSchemaVersion` | blueprint/config schema version | `F P D I` | `REGISTRY/FREEZE selection` | `ROOT` | Defines exact normalized config field/encoding expectations. |
 | `template.commitmentSchemeVersion` | commitment/encoding generation | `F P D I` | `REGISTRY/FREEZE selection` | `ROOT` | Prevents hash ambiguity across future versions. |
-| `template.deploymentMode` | `CLONE` or `FULL_DEPLOYMENT` | `F P D I` | `REGISTRY/FREEZE selection` | `ROOT` | Clone remains preferred only if Gate 4 compatibility testing passes; full deploy is fallback. |
+| `template.deploymentMode` | `FULL_DEPLOYMENT` for V1 | `F P D I` | `REGISTRY/FREEZE selection` | `ROOT` | **LOCKED for HellboxPublication V1:** constructor initialization; no initializer, proxy, delegatecall architecture, or upgrades. V2/V3 may reconsider ERC-1167 only as an explicitly new reviewed version with demonstrated benefit. |
 | `template.supportedCapabilityMask` | machine-readable capability set | `F P D` | `REGISTRY` | selected capabilities in `ROOT` | Builder must prevent selecting unsupported capabilities. |
 | `template.supportedInterfaces` | ERC/interface IDs | `F P D` | `REGISTRY` | support proof | Includes required publication/metadata/protocol interfaces. |
 | `template.activeForNewDeployments` | bool | `F D` | `REGISTRY` | `NO` | Can be disabled for future releases without affecting old releases. |
@@ -1112,19 +1125,70 @@ treasury/royalty route policy digest(s) when applicable
 
 If a field is part of a public release promise but exists only in D1/package form, it still must be covered by the frozen root.
 
-## 36.3 Encoding/version rule
+## 36.3 Encoding/version rule — HELLBOX_ABI_V1 LOCKED
 
-The exact canonical serialization/hash encoding belongs to the selected `commitmentSchemeVersion`.
+Gate 4 implementation has now frozen the first release-fingerprint encoding as **`HELLBOX_ABI_V1`**.
 
-Gate 4 implementation should prefer an EVM-verifiable deterministic scheme, such as a versioned canonical struct encoding with a `keccak256` root, while preserving existing per-file SHA-256 evidence where already useful.
+Protocol constants:
 
-The critical requirement is not a particular spelling of the hash function; it is:
+```text
+COMMITMENT_SCHEME_VERSION = 1
+CONFIG_SCHEMA_VERSION     = 1
+PUBLICATION_VERSION       = 1
+TEMPLATE_ID               = keccak256("HELLBOX_PUBLICATION")
+RELEASE_CONFIG_DOMAIN     = keccak256("HELLBOX_ABI_V1:RELEASE_CONFIG")
+```
 
-- deterministic encoding;
-- explicit scheme version;
-- no ambiguous field omission;
-- reproducible off-chain verification;
-- on-chain binding to the exact release configuration.
+`CommitmentSet` contains the exact ordered 18 `bytes32` sub-commitments defined by the V1 kernel. Reordering, omitting, or reinterpreting those fields requires a new version.
+
+Aggregate commitment digest:
+
+```text
+commitmentsDigest = keccak256(abi.encode(commitments))
+```
+
+Frozen release fingerprint:
+
+```text
+releaseConfigDigest = keccak256(
+  abi.encode(
+    RELEASE_CONFIG_DOMAIN,
+    COMMITMENT_SCHEME_VERSION,
+    CONFIG_SCHEMA_VERSION,
+    PUBLICATION_VERSION,
+    TEMPLATE_ID,
+    chainId,
+    factoryAddress,
+    releaseConfig,
+    commitments
+  )
+)
+```
+
+Rules:
+
+- use standard ABI encoding; **never packed encoding** for this V1 fingerprint;
+- constructor deployment uses the actual `block.chainid` and actual deploying factory address (`msg.sender`);
+- the private Press computes the expected digest before deployment;
+- constructor validation recomputes the digest and reverts on mismatch;
+- Press-side JavaScript uses pinned `viem` `2.55.19` to reproduce the exact Solidity ABI encoding;
+- JavaScript does not silently normalize or rewrite release text at fingerprint time; canonicalization belongs to earlier Press validation;
+- existing per-file SHA-256 evidence may remain useful for package/file integrity, but the V1 release fingerprint is the versioned EVM-verifiable `keccak256(abi.encode(...))` scheme above.
+
+### 36.3.1 Cross-language golden-vector proof
+
+The committed golden vector independently verifies that the JavaScript and Solidity encoders agree on:
+
+```text
+chainId                 = 943
+golden factory          = 0x5555555555555555555555555555555555555555
+TEMPLATE_ID             = 0xa90f1cffe90023915c9a1a9852bcc46202522e86f77973f82c4235e837abdfba
+RELEASE_CONFIG_DOMAIN   = 0x2bc593326bff52216bd201a52f68bc01b8a51a43c6b742788d138a7abe94ca25
+commitmentsDigest       = 0xb6a0722a62b0309c6a082152ddff7e1ffc544669e8d690047a7516799081ecf6
+releaseConfigDigest     = 0x66e6697d8fde60531eebed0882030a1c6beecf086b04926599a39878d4e0d15d
+```
+
+Current proof status: `testJavascriptAndSolidityGoldenVectorMatch()` passes, and the current kernel/fingerprint suite is `17 passed / 0 failed`.
 
 ## 36.4 No plaintext secret-map requirement
 
@@ -1891,15 +1955,15 @@ These are explicitly not silently resolved as creator canon by this file.
    - quote freshness;
    - manipulation/failure behavior.
 
-3. **Clone vs full deployment**
-   - preferred clone/minimal proxy only if PulseChain explorer, wallet, marketplace, verification and tooling compatibility pass;
-   - full deployment remains valid fallback.
+3. **V1 factory deployment-verification fingerprint**
+   - V1 deployment mode itself is resolved as `FULL_DEPLOYMENT`;
+   - the factory/registry still needs an explicit provenance/verification strategy that proves an instance came from the approved V1 architecture;
+   - do not rely on identical runtime bytecode hashes because constructor-set Solidity `immutable` values can legitimately make runtime bytecode release-specific.
 
-4. **Exact commitment encoding**
-   - versioned deterministic encoding;
-   - on-chain root format;
-   - off-chain manifest hashing;
-   - must remain reproducible.
+4. **Optimizer/compiler optimization policy**
+   - Solidity `0.8.36` and EVM `shanghai` are locked;
+   - optimizer on/off, optimizer runs, `via_ir`, deployment bytecode size and gas behavior remain open;
+   - lock only after test-backed comparison on the actual Hellbox kernel/factory path.
 
 5. **Metadata renderer transport**
    - exact Gate 4 interface and test renderer;
@@ -1925,9 +1989,9 @@ None of these gaps permits Gate 4 to build an architecture that makes the future
 
 ---
 
-# 49. GATE 4 IMPLEMENTATION BOUNDARY AFTER APPROVAL
+# 49. GATE 4 IMPLEMENTATION BOUNDARY — ACTIVE
 
-After this blueprint is approved, Gate 4 may implement/test:
+This blueprint is approved. Gate 4 may continue to implement/test:
 
 - the versioned `HellboxPublication` kernel/template;
 - approved template/version registry;
@@ -1948,6 +2012,22 @@ After this blueprint is approved, Gate 4 may implement/test:
 - SciVive Testnet V4 deployment;
 - second dummy publication deployment;
 - a real Testnet V4 mint that reaches Gate 3 ownership → Archive/library recognition → protected Reader.
+
+Already proven at this synchronization checkpoint:
+
+- Foundry layout and generated-output boundaries;
+- Solidity `0.8.36` + explicit Shanghai target;
+- PulseChain-compatible OpenZeppelin Contracts `v5.1.0` pin;
+- constructor-frozen `HellboxPublication V1` kernel checkpoint;
+- ERC-721 + ERC-2981 baseline/interface support;
+- release-config validation and digest-mismatch rejection;
+- Native 216 configuration shape acceptance;
+- SciVive configuration shape acceptance;
+- 16 kernel tests passing;
+- Press-side release-fingerprint calculator using pinned `viem`;
+- JavaScript golden vector;
+- Solidity golden-vector test proving identical HELLBOX_ABI_V1 digest output;
+- 17 total Solidity tests passing at the current checkpoint.
 
 Gate 4 must **not** pretend to finish:
 
@@ -2113,49 +2193,60 @@ That is mandatory proof that Hellbox is building a publishing platform, not one 
 
 ---
 
-# 53. CREATOR APPROVAL CHECKLIST
+# 53. CREATOR APPROVAL / IMPLEMENTATION-SYNC CHECKLIST
 
-Before Foundry is installed, confirm this blueprint is approved on these points:
+The blueprint was approved before Foundry/Solidity implementation began. This checklist now records the approved architecture plus unresolved technical items that remain intentionally open:
 
-- [ ] `PUBLISH` is the irreversible release-config freeze/deploy boundary.
-- [ ] Public Press opening may occur later under the frozen phase schedule.
-- [ ] One publication/release deploys one native ERC-721 collection per chain.
-- [ ] `tokenId = copy number`.
-- [ ] Native standard supply baseline = `216`.
-- [ ] Harrow immediate #001–#006 rules are correct.
-- [ ] Harrow true-mintout final-three tail rule is correct.
-- [ ] #066 remains a public randomized HELLBOUND grail.
-- [ ] PRESS MARK counts/vocabulary are correct.
-- [ ] PRESS DEFECT counts/vocabulary are correct.
-- [ ] MARK/DEFECT are independent overlapping birth axes.
-- [ ] Creator DEFECT remains random.
-- [ ] Standard wallet lifetime cap = `6`.
-- [ ] Standard max per transaction = `1`.
-- [ ] Mint phases can use different predeclared frozen pricing policies.
-- [ ] Public live odds use the actual remaining drawable pool.
+- [x] `PUBLISH` is the irreversible release-config freeze/deploy boundary.
+- [x] Public Press opening may occur later under the frozen phase schedule.
+- [x] One publication/release deploys one native ERC-721 collection per chain.
+- [x] `tokenId = copy number`.
+- [x] Native standard supply baseline = `216`.
+- [x] Harrow immediate #001–#006 rules are correct.
+- [x] Harrow true-mintout final-three tail rule is correct.
+- [x] #066 remains a public randomized HELLBOUND grail.
+- [x] PRESS MARK counts/vocabulary are correct.
+- [x] PRESS DEFECT counts/vocabulary are correct.
+- [x] MARK/DEFECT are independent overlapping birth axes.
+- [x] Creator DEFECT remains random.
+- [x] Standard wallet lifetime cap = `6`.
+- [x] Standard max per transaction = `1`.
+- [x] Mint phases can use different predeclared frozen pricing policies.
+- [x] Public live odds use the actual remaining drawable pool.
 - [ ] Exact randomness provider remains Gate 4 technical research/testing.
 - [ ] Exact PulseChain price adapter/oracle remains Gate 4 technical research/testing.
-- [ ] Canonical content/art/renderer bytes/rules are committed by digest.
-- [ ] Storage delivery pointers may migrate only when committed bytes remain identical.
-- [ ] Release config can be partly on-chain + partly committed package data, but the root binds all immutable promises.
-- [ ] Dynamic metadata remains allowed under frozen renderer/state rules.
-- [ ] SEALED/ARCHIVED/UNSEALED boundaries are preserved.
-- [ ] ERC-6551 compatibility is preserved without publisher sweep authority.
-- [ ] Official Archive rewards remain separate from arbitrary TBA assets.
-- [ ] Hellforge/burn/evolution always requires owner authorization.
-- [ ] No publisher seizure/forced transfer/arbitrary burn/blacklist ownership override exists.
-- [ ] Early permanent close forfeits Harrow's unearned tail reserve.
-- [ ] SciVive remains a narrower proving exception.
-- [ ] Gate 4 stays Testnet V4 only.
-- [ ] HairyLabs Byte pages remain excluded from testing until the creator explicitly clears the Byte lane.
+- [x] Canonical content/art/renderer bytes/rules are committed by digest.
+- [x] Storage delivery pointers may migrate only when committed bytes remain identical.
+- [x] Release config can be partly on-chain + partly committed package data, but the root binds all immutable promises.
+- [x] Dynamic metadata remains allowed under frozen renderer/state rules.
+- [x] SEALED/ARCHIVED/UNSEALED boundaries are preserved.
+- [x] ERC-6551 compatibility is preserved without publisher sweep authority.
+- [x] Official Archive rewards remain separate from arbitrary TBA assets.
+- [x] Hellforge/burn/evolution always requires owner authorization.
+- [x] No publisher seizure/forced transfer/arbitrary burn/blacklist ownership override exists.
+- [x] Early permanent close forfeits Harrow's unearned tail reserve.
+- [x] SciVive remains a narrower proving exception.
+- [x] Gate 4 stays Testnet V4 only.
+- [x] HairyLabs Byte pages remain excluded from testing until the creator explicitly clears the Byte lane.
 
-If approved, the next action is to install/initialize the chosen contract toolchain under the locked one-file-at-a-time workflow. The working recommendation remains Foundry.
+Additional implementation decisions now synchronized here:
+
+- [x] Solidity source is isolated in `contracts/`; Worker `src/` remains untouched by Foundry source layout.
+- [x] Solidity `0.8.36`, exact Hellbox pragma `0.8.36`, and EVM `shanghai` are locked.
+- [x] OpenZeppelin Contracts `v5.1.0` is pinned at commit `69c8def5f222ff96f2b5beff05dfba996368aa79` for Shanghai compatibility.
+- [x] OpenZeppelin `v5.7.0` is superseded for Gate 4 because its `MCOPY` use requires Cancun-compatible compilation.
+- [x] V1 uses full deployment + constructor initialization; no proxy/initializer/delegatecall/upgrades.
+- [x] HELLBOX_ABI_V1 exact commitment encoding is implemented and cross-language golden-vector verified.
+- [ ] Optimizer / runs / `via_ir` policy remains open pending test-backed comparison.
+- [ ] V1 factory deployment-verification fingerprint remains open; it must account for release-specific immutable bytecode differences.
+
+After this synchronization is committed, the next implementation frontier is `HellboxPublicationFactory.sol`, subject to the locked one-file-at-a-time workflow and the remaining factory-specific decisions above.
 
 ---
 
 # 54. CHANGE CONTROL FOR THIS BLUEPRINT
 
-Before `PUBLISH` exists in production, this file is a living Gate 4 architecture artifact.
+Throughout Gate 4, this file is the approved living architecture artifact for publication configuration and implementation synchronization.
 
 After creator approval:
 
