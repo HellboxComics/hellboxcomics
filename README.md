@@ -51,10 +51,8 @@ Detailed characterization and visual canon live in `HARROW_CHARACTER_BIBLE.md` a
 
 ## Current production checkpoint
 
-**Gate 3 CORE COMPLETE + Gate 3.1 SEALED PRESS COMPLETE**
-**THE 30-MACHINE PROBLEM campaign COMPLETE**
-**ONE FINAL GATE 3 INTEGRATION NEXT — permanent first-visit campaign routing/replay**
-**Gate 4 AFTER FINALIZATION — PulseChain Testnet Publication Contract + Factory**
+**Gate 3 COMPLETE — Identity, Ownership, Archive, SEALED PRESS & Permanent Public Entry**
+**Gate 4 NEXT — PulseChain Testnet Publication Contract + Factory**
 
 The site is deployed at `hellboxcomics.com` from `main` through Cloudflare. The unfinished development site is intentionally hidden behind the sealed `THE PRESS IS CLOSED` surface for outside visitors; Harrow has a separate private bypass.
 
@@ -110,7 +108,7 @@ The site is deployed at `hellboxcomics.com` from `main` through Cloudflare. The 
 - pre-scrub local backup and filter-repo temporary data removed
 - old pre-rewrite commit SHAs are intentionally obsolete and should not be used as handoff anchors
 
-**Gate 3 — Identity, Ownership & Archive**
+**Gate 3 — Identity, Ownership, Archive & Permanent Public Entry**
 
 - durable D1-backed wallet-signature challenges
 - single-use challenge consumption and replay rejection
@@ -160,11 +158,36 @@ Locked sequence:
 → Hellbox
 ```
 
-One integration item remains before formal Gate 3 close:
-- first outside visit to `hellboxcomics.com` must redirect to Byte #6
-- Byte #333 must return through `/campaign-complete`
-- sealed/current Hellbox experience must offer `/campaign-reset` to replay from Byte #6
-- campaign completion state is routing only and can never grant privileged access
+Permanent onboarding integration is now live:
+- first outside document visit to `hellboxcomics.com` redirects to Byte #6
+- Byte #333 returns through `/campaign-complete`
+- completion lands on the current public Hellbox experience; during development this is `THE PRESS IS CLOSED`
+- the sealed surface offers `START ANOTHER INCIDENT` through `/campaign-reset`
+- Harrow's valid `/__harrow` access bypasses both campaign completion and the sealed public surface
+- campaign completion state is routing only and never grants privileged access
+
+Current external dependency:
+- HairyLabs may temporarily show stale historical versions of Bytes `#6, #11, #13, #19, #20, #23, #104, #223, #333`
+- this does not block Gate 4
+- no Byte pages are used in testing until the creator explicitly confirms the lane is refreshed
+- at every upcoming Gate close, ask whether the HairyLabs refresh has completed
+
+## Gate 3 final live acceptance
+
+Verified 2026-08-30:
+
+- public root → HTTP `302` → `https://hairylabs.io/page/6`
+- public redirect is `no-store` and marked `X-Hellbox-Campaign: first-introduction`
+- `/campaign-complete` → HTTP `200` sealed Press with replay control
+- `/campaign-reset` → HTTP `303` → Byte #6 and clears the completion cookie
+- valid `/__harrow` session enters the real development site directly
+- `/api/health`: healthy
+- auth engine: `wallet-signature-d1-session`
+- ownership engine: `publication-contract-balance-d1-cache-v1`
+- `/api/prelaunch/status`: sealed, campaign start Byte #6
+- unauthenticated `/api/reader/scivive`: HTTP `404`
+- `/.git/config`: HTTP `404`
+- full 30-Byte traversal: external HairyLabs cache pending / intentionally excluded from testing
 
 ## Reader product direction
 
@@ -417,43 +440,21 @@ At every Gate close:
 - if a required folder does not exist, the ZIP includes only the structure needed to create it
 - the exact destination path is always stated
 
-## Exact next action before Gate 4
+## Exact next action
 
-Do **not** start contract work yet. One explicit Gate 3 finalization item remains.
+**Gate 4 is open.**
 
-Start from the actual current production `src/index.js` and implement the permanent onboarding boundary:
+Before creating contract files, inspect the repository for existing Solidity tooling (`package.json`, lockfiles, `foundry.toml`, `hardhat.config.*`, `contracts/`, test directories). Do not invent a second toolchain if one already exists.
 
-```text
-fresh outside visitor
-    ↓
-hellboxcomics.com
-    ↓
-Byte #6 → ... → Byte #333
-    ↓
-/campaign-complete
-    ↓
-current Hellbox experience
-    ↓
-/campaign-reset (user chooses replay)
-    ↓
-Byte #6
-```
+Then begin the smallest one-file step toward:
+- standardized `HellboxPublication` ERC-721 implementation
+- `HellboxPublicationFactory`
+- PulseChain Testnet V4 deployment
+- SciVive test configuration: supply `5555`, free mint, max 1/wallet, max 1/transaction, royalty `369` bps
+- a second dummy publication deployed from the same standard
+- real mint → Gate 3 ownership authority → Archive → Reader proof
 
-Requirements:
-- valid `/__harrow` private bypass always has priority
-- `/campaign-complete` stores only non-authoritative campaign completion state
-- `/campaign-reset` clears only that state and returns to `https://hairylabs.io/page/6`
-- ordinary APIs/assets must not be redirected into the story
-- redirect/completion/reset responses are non-cacheable
-- during development completion lands on the sealed Press
-- after launch completion lands on the live site, while the campaign remains permanent
-
-After Worker validation:
-1. add the replay link to `prelaunch.html`
-2. change Byte #333's final link to `https://hellboxcomics.com/campaign-complete`
-3. live-test fresh visit, completion, replay, Harrow bypass, health, prelaunch status, wallet authority and Reader protection
-4. formally close Gate 3
-5. then begin Gate 4
+Do not include HairyLabs Bytes in Gate 4 testing until the creator says the cache lane is clear.
 
 ## Next Gate
 

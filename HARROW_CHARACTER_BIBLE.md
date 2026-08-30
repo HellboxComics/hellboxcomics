@@ -1,9 +1,9 @@
 # HARROW — CHARACTER + CREATOR BIBLE
 
 **Status:** Living creative source of truth.
-**Consolidation:** Gate 3 living review — 2026-08-30.
-**Reviewed through:** Gate 3.1 SEALED PRESS + THE 30-MACHINE PROBLEM campaign completion.
-**Next required review:** final Gate 3 onboarding integration acceptance, then Gate 4 close.
+**Consolidation:** Gate 3 formal close — 2026-08-30.
+**Reviewed through:** Gate 3 COMPLETE, including SEALED PRESS + THE 30-MACHINE PROBLEM permanent onboarding integration.
+**Next required review:** Gate 4 close.
 **Purpose:** Keep Harrow visually, psychologically, verbally, narratively, environmentally, socially, and artistically consistent across the website, comics, Reader, Press, Archive, social posts, conventions, lore, marketing, and future publications.
 
 **Repository role:** This file is the Harrow creative-canon companion to `HELLBOX_PROJECT_STATE.md` and `README.md`.
@@ -586,6 +586,18 @@ After launch:
 - campaign copy/story can evolve with current project status, but the introduction medium remains
 
 Replay/completion state is product routing only. It must never become identity, ownership, Hellion status, Reader authorization, or privileged Harrow access.
+
+### Live onboarding behavior — LOCKED
+
+As of Gate 3 close:
+- a new outside Hellbox document visit is routed to Byte #6
+- Byte #333 returns through Hellbox campaign completion
+- completion reaches the current Hellbox public experience
+- during development that public experience is the sealed Press
+- the sealed Press offers `START ANOTHER INCIDENT` to replay the story
+- Harrow's private `/__harrow` route bypasses both the campaign-completion requirement and the sealed Press so the operator can work directly on the real site
+
+The HairyLabs cache/history layer may temporarily show older Byte inscriptions. That is not a creative rewrite and must not cause Hellbox to change the approved campaign grammar. Until the creator confirms the Byte lane is clear, Byte pages are excluded from testing; the full 30-machine traversal is resumed only after external refresh.
 
 ### REJECTED / SUPERSEDED campaign grammar
 
@@ -1470,10 +1482,20 @@ At the close of every Gate:
 | Gate 0 | REVIEWED RETROACTIVELY | Core Harrow/Hellbox direction preserved in consolidated bible. |
 | Gate 1 | REVIEWED RETROACTIVELY | Publishing/Reader architecture context incorporated where it affects Harrow. |
 | Gate 2 | REVIEWED RETROACTIVELY | Reader/product language and protected-publication behavior incorporated. |
-| Gate 3 | REVIEWED — 2026-08-30; final routing implementation pending | Added SEALED PRESS public posture, THE 30-MACHINE PROBLEM as Harrow's permanent first-introduction medium, 30-Byte servant/cast grammar, linear comic continuity, native HairyLabs interaction constraint, permanent replay behavior, and rejected generic-campaign register. |
-| Gate 4 | NEXT REVIEW AFTER GATE 3 FINALIZATION | Update when contract/mint behavior creates new Harrow/Press/public-facing canon. |
+| Gate 3 | REVIEWED / CLOSED — 2026-08-30 | Added SEALED PRESS public posture, THE 30-MACHINE PROBLEM as Harrow's permanent first-introduction medium, 30-Byte servant/cast grammar, linear comic continuity, native HairyLabs interaction constraint, live completion/replay behavior, Harrow private-bypass behavior, and rejected generic-campaign register. Full Byte traversal remains externally cache-pending without changing canon. |
+| Gate 4 | NEXT REVIEW | Update when contract/mint behavior creates new Harrow/Press/public-facing canon; also ask whether HairyLabs has refreshed the pending Byte pages. |
 
 # 38. Change log
+
+## 2026-08-30 — Gate 3 formal-close addendum
+
+- live-proven first outside visit → Byte #6 routing;
+- live-proven completion → sealed Press behavior;
+- live-proven `START ANOTHER INCIDENT` replay/reset route;
+- live-proven Harrow private bypass that ignores campaign completion and the public sealed surface;
+- recorded HairyLabs stale-page/cache state as external and non-canonical;
+- locked the rule that Byte pages are excluded from testing until the creator confirms the lane is fully refreshed;
+- Gate 3 creative review formally closed; Gate 4 is the next review point.
 
 ## 2026-08-30 — Gate 3 campaign / onboarding edition
 
