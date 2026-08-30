@@ -68,16 +68,25 @@ For static assets/runtime files:
 
 Gate-close documentation procedure — mandatory:
 1. Finish technical acceptance for the Gate.
-2. Update `HELLBOX_PROJECT_STATE.md` as the authoritative handoff/bible.
-3. Update `README.md` as the concise project-facing overview/setup/status document.
-4. Commit and verify each documentation file incrementally.
-5. Give the user a short macro-progress report that reflects actual project effort and risk, not simple gate-count percentages.
-6. Only then begin the next Gate.
+2. Update `HELLBOX_PROJECT_STATE.md` as the authoritative project/engineering/product handoff.
+3. Review and update `HARROW_CHARACTER_BIBLE.md` as the authoritative Harrow creative-canon handoff. If no Harrow canon changed during the Gate, still advance its Gate maintenance record.
+4. Update `README.md` as the concise project-facing overview/setup/status document.
+5. Keep all three living documents mutually consistent and remove superseded/contradictory statements rather than merely appending new ones.
+6. Commit and verify each documentation file incrementally.
+7. Give the user a short macro-progress report that reflects actual project effort and risk, not simple gate-count percentages.
+8. Only then begin the next Gate.
+
+Living-document authority:
+- `HELLBOX_PROJECT_STATE.md` = exhaustive project, product, architecture, infrastructure, workflow, validation, risk, and exact-next-action authority
+- `HARROW_CHARACTER_BIBLE.md` = exhaustive Harrow visual, psychological, verbal, narrative, environmental, satire, social, and creative-canon authority
+- `README.md` = concise repository orientation and current operating status
+- important product/Harrow intersections must be reflected in both relevant authority documents so either handoff path preserves the decision
+- chat history is not an acceptable substitute for any of these files
 
 `HELLBOX_PROJECT_STATE.md` must be comprehensive enough that a new ChatGPT thread, Claude session, or competent human developer can continue immediately without asking the user to re-explain:
 - what Hellbox Comics is
 - product purpose and end goal
-- Harrow identity/voice/visual canon
+- enough Harrow identity/voice/visual direction to understand the product, with full creative canon delegated to `HARROW_CHARACTER_BIBLE.md`
 - architecture and infrastructure
 - publication/Reader/Press/Archive model
 - locked decisions and non-goals
@@ -87,10 +96,18 @@ Gate-close documentation procedure — mandatory:
 - known risks/debt
 - exact next engineering action
 
+`HARROW_CHARACTER_BIBLE.md` maintenance:
+- it is a mandatory living repository document, not a one-time creative brief
+- review it at every Gate close
+- update it immediately when a meaningful Harrow canon, visual-reference, voice, lore, satire, social, website-host, environmental, or rejected/superseded creative decision changes
+- authoritative supplied visual references outrank older generated variations
+- preserve `LOCKED`, `STRONG DIRECTION`, `OPEN`, `CLASSIFIED`, `SUPERSEDED`, and `REJECTED` distinctions
+- do not let creative canon survive only in conversation history
+
 README maintenance:
 - keep `README.md` current between Gates
-- it is not a substitute for this state bible
-- README should stay concise enough for repository orientation while this file carries the exhaustive handoff context
+- it is not a substitute for either living bible
+- README should stay concise enough for repository orientation while the two bibles carry exhaustive project and creative handoff context
 
 Repository privacy workflow — locked:
 - public Git identity is `Harrow <noreply@hellboxcomics.com>`
@@ -100,8 +117,10 @@ Repository privacy workflow — locked:
 - prefer Gate/checkpoint names, commit subjects, filenames, migrations, durable data state, and live acceptance results
 - old pre-privacy clones/history must never be merged back into `main`
 
-Project-state maintenance between formal Gate closes:
-- update this file immediately for major architecture, lore, tokenomics, publication-rule, Harrow-canon, or product-direction changes
+Living-document maintenance between formal Gate closes:
+- update this file immediately for major architecture, tokenomics, publication-rule, platform, security, ownership, deployment, or product-direction changes
+- update `HARROW_CHARACTER_BIBLE.md` immediately for meaningful Harrow canon, visual, voice, lore, environment, satire, social, or creative-direction changes
+- when a Harrow decision changes product behavior, record the consequence here as well
 - do NOT interrupt implementation to document every minor CSS/file change
 
 Localization workflow:
@@ -110,6 +129,12 @@ Localization workflow:
 - after English copy freeze, run a full locale delta and final cross-language QA across every hotspot, button, link, state, drawer, error, announcement, Reader/Press/Archive state, metadata field and accessibility string
 
 Avoid unnecessary repository restructuring.
+
+Creative-canon handoff rule — locked:
+- `HARROW_CHARACTER_BIBLE.md` is the canonical creative reference for Harrow
+- do not reconstruct Harrow from chat memory when the bible or authoritative supplied reference assets answer the question
+- if a new explicit creator decision conflicts with the bible, the new decision wins and the bible must be updated
+- generated art does not silently create or change canon
 
 File handoff rules:
 - direct `.js` downloads are unreliable for the user, so deliver JavaScript replacement files inside ZIP archives
@@ -134,6 +159,8 @@ Current production state:
 - Gate 2 SciVive Reader vertical slice is complete
 - Gate 2 closeout state bible and README are complete
 - Gate 3 identity, ownership authority, Archive integration, and Reader authority wiring are complete
+- Gate 3 introduced the permanent repo-root `HARROW_CHARACTER_BIBLE.md` creative-canon authority
+- Gate closeout now requires all three living documents: `HELLBOX_PROJECT_STATE.md`, `HARROW_CHARACTER_BIBLE.md`, and `README.md`
 - public Git history was privacy-rewritten after Gate 2; old pre-rewrite SHAs are intentionally obsolete
 - identify implementation checkpoints by commit subject/Gate rather than hard-coded SHA in handoff documentation
 - public site works in English and Spanish
