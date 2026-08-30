@@ -675,7 +675,7 @@ async function handleHealth(env) {
         "protected-assets-v2",
 
       authentication:
-        "wallet-signature-short-session",
+        "wallet-signature-d1-session",
 
       payments:
         "free-erc20-native",
@@ -1795,9 +1795,10 @@ async function handleAuthChallenge(
   request,
   env
 ) {
-  requirePrivateBucket(
-    env
-  );
+  const db =
+    requireDatabase(
+      env
+    );
 
   const body =
     await readJson(
@@ -1809,6 +1810,25 @@ async function handleAuthChallenge(
       body?.address
     );
 
+  const requestedChainId =
+    Number(
+      body?.chainId ??
+      CHAIN_REGISTRY[
+        DEFAULT_CHAIN_KEY
+      ].chainId
+    );
+
+  const chain =
+    Object.values(
+      CHAIN_REGISTRY
+    ).find(
+      candidate =>
+        candidate.chainId ===
+          requestedChainId &&
+        candidate.enabled ===
+          true
+    );
+
   if (!address) {
     return json(
       {
@@ -1816,6 +1836,21 @@ async function handleAuthChallenge(
 
         error:
           "Valid wallet address required.",
+      },
+      400
+    );
+  }
+
+  if (!chain) {
+    return json(
+      {
+        ok: false,
+
+        error:
+          "Unsupported chain.",
+
+        chainId:
+          requestedChainId,
       },
       400
     );
@@ -1844,6 +1879,10 @@ async function handleAuthChallenge(
 
       `Wallet: ${address}`,
 
+      `Chain: ${chain.name}`,
+
+      `Chain ID: ${chain.chainId}`,
+
       `Nonce: ${nonce}`,
 
       `Issued At: ${new Date(
@@ -1861,35 +1900,32 @@ async function handleAuthChallenge(
       "\n"
     );
 
-  const record = {
-    id,
-
-    address,
-
-    message,
-
-    nonce,
-
-    issuedAt:
+  await db
+    .prepare(
+      `
+        INSERT INTO wallet_auth_challenges (
+          challenge_id,
+          wallet_address,
+          chain_id,
+          nonce,
+          message,
+          issued_at,
+          expires_at,
+          consumed_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, NULL)
+      `
+    )
+    .bind(
+      id,
+      address,
+      chain.chainId,
+      nonce,
+      message,
       now,
-
-    expiresAt,
-  };
-
-  await env
-    .PRIVATE_BUCKET
-    .put(
-      `auth/challenges/${id}.json`,
-      JSON.stringify(
-        record
-      ),
-      {
-        httpMetadata: {
-          contentType:
-            "application/json",
-        },
-      }
-    );
+      expiresAt
+    )
+    .run();
 
   return json({
     ok: true,
@@ -1898,6 +1934,9 @@ async function handleAuthChallenge(
       id,
 
       message,
+
+      chainId:
+        chain.chainId,
 
       expiresAt,
     },
@@ -1912,9 +1951,10 @@ async function handleAuthVerify(
   request,
   env
 ) {
-  requirePrivateBucket(
-    env
-  );
+  const db =
+    requireDatabase(
+      env
+    );
 
   requireSessionSecret(
     env
@@ -1957,53 +1997,97 @@ async function handleAuthVerify(
     );
   }
 
-  const key =
-    `auth/challenges/${challengeId}.json`;
+  const challenge =
+    await db
+      .prepare(
+        `
+          SELECT
+            challenge_id,
+            wallet_address,
+            chain_id,
+            nonce,
+            message,
+            issued_at,
+            expires_at,
+            consumed_at
+          FROM wallet_auth_challenges
+          WHERE challenge_id = ?
+          LIMIT 1
+        `
+      )
+      .bind(
+        challengeId
+      )
+      .first();
 
-  const object =
-    await env
-      .PRIVATE_BUCKET
-      .get(
-        key
-      );
-
-  if (!object) {
+  if (!challenge) {
     return json(
       {
         ok: false,
 
         error:
-          "Challenge not found or already used.",
+          "Challenge not found.",
       },
       404
     );
   }
 
-  const challenge =
-    await object.json();
+  const now =
+    unixNow();
 
   if (
-    challenge.address !==
+    normalizeAddress(
+      challenge.wallet_address
+    ) !==
       address ||
-    challenge.expiresAt <=
-      unixNow() ||
+    Number(
+      challenge.expires_at
+    ) <=
+      now ||
+    challenge.consumed_at !==
+      null ||
     typeof challenge.message !==
       "string"
   ) {
-    await env
-      .PRIVATE_BUCKET
-      .delete(
-        key
-      );
-
     return json(
       {
         ok: false,
 
         error:
-          "Challenge is invalid or expired.",
+          challenge.consumed_at !==
+          null
+            ? "Challenge has already been used."
+            : "Challenge is invalid or expired.",
       },
-      401
+      challenge.consumed_at !==
+        null
+        ? 409
+        : 401
+    );
+  }
+
+  const chain =
+    Object.values(
+      CHAIN_REGISTRY
+    ).find(
+      candidate =>
+        candidate.chainId ===
+          Number(
+            challenge.chain_id
+          ) &&
+        candidate.enabled ===
+          true
+    );
+
+  if (!chain) {
+    return json(
+      {
+        ok: false,
+
+        error:
+          "Challenge chain is no longer supported.",
+      },
+      409
     );
   }
 
@@ -2048,28 +2132,99 @@ async function handleAuthVerify(
     );
   }
 
-  await env
-    .PRIVATE_BUCKET
-    .delete(
-      key
+  const consumed =
+    await db
+      .prepare(
+        `
+          UPDATE wallet_auth_challenges
+          SET consumed_at = ?
+          WHERE challenge_id = ?
+            AND wallet_address = ?
+            AND consumed_at IS NULL
+            AND expires_at > ?
+          RETURNING
+            challenge_id,
+            wallet_address,
+            chain_id,
+            expires_at,
+            consumed_at
+        `
+      )
+      .bind(
+        now,
+        challengeId,
+        address,
+        now
+      )
+      .first();
+
+  if (!consumed) {
+    return json(
+      {
+        ok: false,
+
+        error:
+          "Challenge was already used or expired.",
+      },
+      409
     );
+  }
 
   const issuedAt =
-    unixNow();
+    now;
 
   const expiresAt =
     issuedAt +
     SESSION_TTL_SECONDS;
 
+  const sessionId =
+    crypto.randomUUID();
+
+  const scope =
+    "wallet_identity";
+
+  await db
+    .prepare(
+      `
+        INSERT INTO wallet_sessions (
+          session_id,
+          wallet_address,
+          chain_id,
+          scope,
+          issued_at,
+          expires_at,
+          revoked_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, NULL)
+      `
+    )
+    .bind(
+      sessionId,
+      address,
+      Number(
+        consumed.chain_id
+      ),
+      scope,
+      issuedAt,
+      expiresAt
+    )
+    .run();
+
   const token =
     await signSessionToken(
       env,
       {
+        sessionId,
+
         wallet:
           address,
 
         chainId:
-          369,
+          Number(
+            consumed.chain_id
+          ),
+
+        scope,
 
         issuedAt,
 
@@ -2142,6 +2297,11 @@ async function handleAuthSession(
           .payload
           .chainId,
     },
+
+    scope:
+      session
+        .payload
+        .scope,
 
     expiresAt:
       session
@@ -4126,28 +4286,126 @@ async function verifySessionToken(
     return null;
   }
 
-  if (
-    !normalizeAddress(
+  const sessionId =
+    typeof payload.sessionId ===
+      "string"
+      ? payload.sessionId.trim()
+      : "";
+
+  const wallet =
+    normalizeAddress(
       payload.wallet
-    ) ||
+    );
+
+  const chainId =
     Number(
       payload.chainId
-    ) !==
-      369 ||
+    );
+
+  const issuedAt =
+    Number(
+      payload.issuedAt
+    );
+
+  const expiresAt =
     Number(
       payload.expiresAt
-    ) <=
+    );
+
+  const scope =
+    String(
+      payload.scope ||
+      ""
+    );
+
+  if (
+    !sessionId ||
+    !wallet ||
+    !Number.isInteger(
+      chainId
+    ) ||
+    scope !==
+      "wallet_identity" ||
+    !Number.isInteger(
+      issuedAt
+    ) ||
+    !Number.isInteger(
+      expiresAt
+    ) ||
+    expiresAt <=
       unixNow()
   ) {
     return null;
   }
 
-  payload.wallet =
-    normalizeAddress(
-      payload.wallet
-    );
+  const row =
+    await requireDatabase(
+      env
+    )
+      .prepare(
+        `
+          SELECT
+            session_id,
+            wallet_address,
+            chain_id,
+            scope,
+            issued_at,
+            expires_at,
+            revoked_at
+          FROM wallet_sessions
+          WHERE session_id = ?
+            AND revoked_at IS NULL
+            AND expires_at > ?
+          LIMIT 1
+        `
+      )
+      .bind(
+        sessionId,
+        unixNow()
+      )
+      .first();
 
-  return payload;
+  if (
+    !row ||
+    row.session_id !==
+      sessionId ||
+    normalizeAddress(
+      row.wallet_address
+    ) !==
+      wallet ||
+    Number(
+      row.chain_id
+    ) !==
+      chainId ||
+    String(
+      row.scope
+    ) !==
+      scope ||
+    Number(
+      row.issued_at
+    ) !==
+      issuedAt ||
+    Number(
+      row.expires_at
+    ) !==
+      expiresAt
+  ) {
+    return null;
+  }
+
+  return {
+    sessionId,
+
+    wallet,
+
+    chainId,
+
+    scope,
+
+    issuedAt,
+
+    expiresAt,
+  };
 }
 
 // ============================================================
