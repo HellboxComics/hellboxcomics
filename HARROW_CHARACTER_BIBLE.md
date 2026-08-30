@@ -1461,9 +1461,194 @@ Keep rejected ideas here so they do not return through context loss.
 - treating `HELLION` as an automatic generic label for every Hellbox follower. Current architecture reserves HELLION for earned hidden recognition.
 - treating `NO CONSENSUS` as the canon name of the 14-page / 64-frame production format. That title was a fill-in; the format belongs to Hellbox generally.
 
-# 37. Gate-close maintenance protocol
+# 37. Native Hellbox artifact / Press canon
+
+## LOCKED creative rule
+
+Every collector-facing trait, state, Press screen, warning, rarity label, metadata attribute and artifact description must sound like **Harrow published it**.
+
+Internal schemas may use boring technical names. Public artifact language may not.
+
+## Birth editions — PRESS MARK
+
+Standard native 216-copy issues use:
+- `HELLBOUND` — 6
+- `PRESS PROOF` — 12
+- `GOLD` — 18
+- `STANDARD` — 180
+
+HELLBOUND is the top birth rarity.
+
+Do not add generic `Legendary`, `Mythic`, `Diamond`, `Super Rare`, etc. merely to create more tiers.
+
+## Birth anomalies — PRESS DEFECT
+
+Standard native 216-copy issues use:
+- `REDACTED` — 6
+- `CORRUPTED PLATE` — 12
+- `BLED OUT` — 18
+- `OFF REGISTER` — 24
+- `NONE` — 156
+
+PRESS DEFECT is not simply another rarity tier. It represents the machine producing an anomalous copy.
+
+MARK + DEFECT combinations are allowed and should create emergent collector desirability without Hellbox declaring generic rank scores.
+
+Superseded development vocabulary includes MISPRINT, DAMAGED, ERROR COPY, generic INK BLEED and generic rarity soup.
+
+## Harrow's creator pull
+
+Immediate every standard native issue:
+- #001 HELLBOUND — Harrow intends to open it
+- #002 HELLBOUND — preserve sealed
+- #003 PRESS PROOF — open
+- #004 PRESS PROOF — sealed
+- #005 GOLD — open
+- #006 GOLD — sealed
+
+Harrow gets no guaranteed PRESS DEFECT. Even his own machine can disappoint him.
+
+The final three creator copies are only whatever is left after a **true mint-out**. Harrow does not know their IDs/MARKS/DEFECTS beforehand. If the Press is permanently closed early, he does not simply confiscate three unminted copies.
+
+Public grail:
+- #066 is HELLBOUND
+- it remains in the randomized collector pool
+
+## Rule of three
+
+Harrow's collector guidance:
+- rule of 3s
+- experience at least one sealed and one unsealed copy
+- one may be the practical sell/double
+- one may be the ridiculous moonshot
+- one may be the forever copy
+
+This is Harrow advice, not contractual enforcement. He may still disapprove of whatever the collector does.
+
+## Single-pull chaos
+
+Standard native mint behavior:
+- max 6 primary copies per wallet
+- one copy per transaction
+- no batch mint
+
+This friction is intentional. PulseChain's low fees let the Press turn every mint into a separate event.
+
+The public machine should recalculate and display supply, wallet allowance, MARK counts/odds, DEFECT counts/odds and phase state after every successful copy.
+
+Do not misrepresent the wallet limit as Sybil protection.
+
+## Live odds / Press theater
+
+The Press should expose what is still somewhere inside the machine without exposing which hidden token ID contains it.
+
+Good language:
+- `HELLBOUND // 2 REMAIN`
+- percentage from actual remaining drawable pool
+- `GOLD // 7 REMAIN`
+- `REDACTED // GONE.`
+- `HARROW PULL // 6 TAKEN`
+- `3 STILL IN THE MACHINE`
+
+The odds/countdown are not decorative marketing numbers. They must be computed from real remaining issuance state.
+
+## Private Press as Harrow's publication compiler
+
+Harrow supplies:
+- canonical cover
+- actual comic/Reader package
+- approved MARK visual layers/rules
+- approved DEFECT visual layers/rules
+
+The Press validates, commits the rules/package, randomizes according to the approved fairness mechanism, reproducibly composites/renders variants, generates metadata and prepares/deploys the edition.
+
+Default production method is deterministic/reproducible compositing from Harrow-authored source art/layers, **not AI image generation**.
+
+Harrow should not know the complete random trait map beforehand. The machine is allowed to surprise its operator.
+
+## Public metadata vocabulary
+
+Current locked/strong grammar:
+- `PRESS MARK`
+- `PRESS DEFECT`
+- `SEAL`
+- `ARCHIVE`
+- `ARCHIVE BALANCE`
+- `SET STATUS`
+- `PRESS VERSION`
+
+Do not use `DAMAGE REPORT` as the permanent-history headline. It makes less damage sound better.
+
+Current STRONG DIRECTION:
+- `LIVED THROUGH` = positive permanent-history count
+- `INCIDENT LOG` = readable persistent incident history
+
+The final permanent-history labels are still OPEN until explicitly approved.
+
+The intended psychology is: **more history makes the artifact more interesting.**
+
+## Seal and Archive visual grammar
+
+SEALED:
+- unopened comic
+
+ARCHIVED:
+- still sealed
+- visible protective archival plastic sleeve/cover
+- reversible
+- transfer locked until unarchived
+
+UNSEALED:
+- seal visibly broken/open
+- permanent
+- cannot return to Archive/reward eligibility
+
+The user should be able to understand the difference visually before reading a technical state label.
+
+## Irreversible Harrow warnings
+
+For reversible actions such as ARCHIVE / UNARCHIVE, Harrow can be brief and insulting.
+
+For irreversible actions such as BREAK THE SEAL, owner-authorized Hellforge, burn or permanent transformation, Harrow must become extremely clear.
+
+Humor cannot obscure what changes, that it cannot be undone, what eligibility/state is permanently lost, or what the user must intentionally confirm.
+
+Always provide an obvious retreat before final confirmation.
+
+## Dynamic metadata creative rule
+
+Birth identity stays stable:
+- copy/token ID
+- PRESS MARK
+- PRESS DEFECT
+
+Later state can legitimately change:
+- SEAL
+- ARCHIVE
+- permanent incident/history
+- SET STATUS
+- cover
+- Archive balance/status
+- Hellforge/evolution state
+
+Permanent events follow the token. Contextual traits follow current circumstances and may disappear when conditions stop being true.
+
+## SciVive creative exception
+
+SciVive may use dynamic covers, SEALED / UNSEALED, and a later contextual response to holding SciVive + the SciVive Graphic Novel in the same wallet.
+
+SciVive does not automatically inherit the native 216-copy MARK/DEFECT rarity grammar, full Hellforge economy, full Archive reward system or native burn/evolution catalog unless the creator explicitly changes that later.
+
+
+# 38. Gate-close maintenance protocol
 
 This bible is mandatory living documentation.
+
+Before every new Gate implementation:
+1. perform the plain-English architecture/vision alignment review with the creator;
+2. identify what the Gate is and is not building;
+3. surface irreversible decisions and future-capability constraints;
+4. do not begin implementation until alignment is complete.
 
 At the close of every Gate:
 
@@ -1483,9 +1668,26 @@ At the close of every Gate:
 | Gate 1 | REVIEWED RETROACTIVELY | Publishing/Reader architecture context incorporated where it affects Harrow. |
 | Gate 2 | REVIEWED RETROACTIVELY | Reader/product language and protected-publication behavior incorporated. |
 | Gate 3 | REVIEWED / CLOSED — 2026-08-30 | Added SEALED PRESS public posture, THE 30-MACHINE PROBLEM as Harrow's permanent first-introduction medium, 30-Byte servant/cast grammar, linear comic continuity, native HairyLabs interaction constraint, live completion/replay behavior, Harrow private-bypass behavior, and rejected generic-campaign register. Full Byte traversal remains externally cache-pending without changing canon. |
-| Gate 4 | NEXT REVIEW | Update when contract/mint behavior creates new Harrow/Press/public-facing canon; also ask whether HairyLabs has refreshed the pending Byte pages. |
+| Gate 4 | ARCHITECTURE ALIGNMENT / IMPLEMENTATION NOT STARTED | Native artifact/Press vocabulary, birth MARK/DEFECT grammar, creator pull, dynamic-state language, single-pull chaos and private publication-compiler direction recorded before Solidity. Review again at Gate 4 close and ask whether HairyLabs refreshed the pending Byte pages. |
 
-# 38. Change log
+# 39. Change log
+
+## 2026-08-30 — Gate 4 pre-implementation architecture alignment
+
+- added mandatory pre-Gate architecture/vision alignment rule;
+- locked native PRESS MARK vocabulary and 216-copy counts;
+- locked PRESS DEFECT vocabulary and counts;
+- locked Harrow first-six special editions and true-mintout final-three tail behavior;
+- locked #066 public HELLBOUND grail direction;
+- locked one-copy-per-transaction / max-six-per-wallet Harrow chaos rule;
+- added live remaining-odds/countdown creative grammar;
+- added private Press publication-compiler/art-compositing direction;
+- clarified that Harrow does not know the complete randomized trait map;
+- added Harrow-facing dynamic metadata vocabulary;
+- rejected `DAMAGE REPORT` as the permanent-history headline and recorded `LIVED THROUGH` / `INCIDENT LOG` as strong direction;
+- added SEALED / ARCHIVED sleeve / UNSEALED visual grammar;
+- added irreversible-action warning canon;
+- recorded SciVive's narrower dynamic-cover/seal exception.
 
 ## 2026-08-30 — Gate 3 formal-close addendum
 

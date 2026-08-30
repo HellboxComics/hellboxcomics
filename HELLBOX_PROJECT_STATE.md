@@ -2,8 +2,8 @@
 
 Last updated: 2026-08-30
 Current production branch: `main`
-Current live checkpoint: Gate 3 COMPLETE — identity/ownership/Archive/Reader authority, SEALED PRESS, permanent 30-machine first-introduction routing, completion/replay flow, and Harrow private bypass are live-proven
-Current roadmap position: Gate 4 NEXT — PulseChain Testnet publication contract + factory
+Current live checkpoint: Gate 3 COMPLETE and pushed; Gate 4 pre-implementation architecture alignment substantially complete; no Gate 4 contract/tooling implementation has begun
+Current roadmap position: Gate 4 — HELLBOX ARTIFACT KERNEL + VERSIONED PUBLICATION FACTORY; next deliverable is the Publication Configuration Blueprint before Foundry/Solidity work
 Public repository identity: `Harrow <noreply@hellboxcomics.com>`
 Repository privacy status: scrubbed and verified after Gate 2; no personal identity references remain in commit identity, tracked content, commit messages, or historical paths
 Checkpoint-reference rule: use Gate/checkpoint names plus live validation results; do not treat commit hashes as durable handoff identifiers
@@ -54,6 +54,16 @@ Interaction cadence is also locked:
 - do not dump long batches of future commands
 - wait for the result of the current step before giving the next
 - if a deployment can lag, verify the actual live version rather than assuming the push has propagated
+
+Pre-Gate architecture alignment — mandatory:
+- before implementation begins on every new Gate, stop and restate the Gate in plain English
+- explicitly define what the Gate is meant to achieve and what it is **not** meant to build
+- identify irreversible/hard-to-change decisions before code is written
+- identify future capabilities that today's architecture must preserve
+- distinguish locked decisions from open decisions and ask the creator to resolve material open choices
+- define the Gate's acceptance path and non-goals
+- do not install tooling, create implementation files, or start coding until this alignment review is complete
+- record meaningful architectural decisions in the living documents before implementation if losing them would cause a future thread to build the wrong system
 
 For backend/API work:
 - test changed backend behavior immediately
@@ -439,7 +449,7 @@ One conceptual publication is identified by a chain-independent `publicationKey`
 A specific blockchain asset is identified by:
 `(chainId, contractAddress, tokenId)`
 
-A collector-facing copy number is separate from token ID.
+For native Hellbox collectibles, the ERC-721 `tokenId` is the collector-facing Hellbox copy number; public assignment is randomized/shuffled rather than issued sequentially.
 
 ---
 
@@ -659,258 +669,590 @@ Hellbox is mature/adult-oriented, not for children.
 
 ---
 
-## 12. NFT ARCHITECTURE — LOCKED
+## 12. NATIVE NFT / ARTIFACT ARCHITECTURE — LOCKED WORKING CONSTITUTION
 
-Preferred standard:
+Hellbox is not building generic NFT collections.
+
+A native Hellbox comic is a **versioned programmable publishing artifact** whose release rules freeze while the object can continue changing according to those frozen rules.
+
+Core rule:
+
+> **THE RULES ARE IMMUTABLE. THE ARTIFACT IS ALIVE.**
+
+Preferred token standard:
 - ERC-721 / PRC-721 style individual copies
-- each copy is a unique token
+- one unique token per copy
+- **token ID is the Hellbox copy number** for collector clarity
+- do not display a second independent copy-number system unless the creator explicitly reverses this decision
 
-### Publication-contract model — LOCKED
+### One publication = one native collection — LOCKED
 
-Each Hellbox publication/release gets its own native ERC-721 collection contract per chain.
+Each publication/release gets its own native ERC-721 collection contract per chain.
 
-Examples:
-- SciVive → its own SciVive ERC-721 collection
-- Comic Issue A → its own finite ERC-721 collection
-- Comic Issue B → its own finite ERC-721 collection
-- one-shots/special releases → their own publication collections
+Hellbox.com is the publisher/library that unifies those separate finite collections.
 
-Reason:
-- every release should feel like a finished collectible object, not another token added forever to one giant Hellbox collection
-- each release gets its own marketplace collection identity, owners, volume, floor/history, finite supply, and contract address
-- Hellbox.com is the publisher/library that unifies these separate release collections
+Never return to one endlessly growing master Hellbox collection.
 
-The old "one master Hellbox NFT collection contract per chain" rule is retired and must not be reintroduced.
+Never bridge Hellbox NFTs.
 
-### Standardized deployment — LOCKED
+### Versioned immutable publication system — LOCKED
 
-Do NOT hand-code a unique smart-contract implementation for every release.
+Do not hand-code a bespoke contract implementation for every issue.
 
-Use:
-- one standardized/audited `HellboxPublication` implementation
-- one `HellboxPublicationFactory` per supported chain
-- fresh publication contracts deployed from that common factory/template
-- minimal-proxy/clone deployment is preferred if security, tooling, and marketplace compatibility remain appropriate after Gate 4 testing
+The platform uses:
+- standardized/audited `HellboxPublication` implementations/templates
+- `HellboxPublicationFactory`
+- one fresh publication instance per release
+- explicit immutable template/protocol version recorded for every deployed release
 
-Each publication contract owns its release-specific configuration, including as applicable:
-- publication key
-- collection name/symbol
+Released publication instances are **not upgradeable**.
+
+Future capability should come from:
+- newer approved publication-template versions for future releases
+- modular/external Hellbox protocols that old compatible releases can interact with
+
+Do not silently redefine an old version. Register a new version instead.
+
+Minimal proxy / clone deployment remains preferred **only if** Gate 4 proves good security, verification, explorer, marketplace, wallet and tooling compatibility on PulseChain. Full deployments remain an acceptable fallback.
+
+### Immutable launch configuration versus mutable artifact state
+
+Once a publication mint goes live, Harrow must lose the ability to rewrite that release's rules.
+
+Freeze at launch as applicable:
+- publication identity
+- template/protocol version
 - max supply
-- mint price/payment mode
-- wallet/transaction mint limits
-- royalty configuration
-- metadata/base URI/configuration
-- lifecycle/publishing controls
+- creator allocation policy
+- pricing policy and target/static amounts
+- accepted payment routes
+- mint schedule/phases
+- per-wallet allowances
+- 1-copy-per-transaction rule
+- royalty percentage
+- birth-trait vocabulary/counts
+- reserved/fixed copy rules
+- package/content commitment
+- base art/layer commitment
+- renderer/version rules
+- randomness/allocation rules
+- seal/archive capability
+- external protocol compatibility
+- other edition-specific promises shown by the Press
 
-For a normal finite issue, max supply must become immutable once the publication contract is initialized/configured.
-Burns may reduce surviving supply; nothing may increase the cap afterward.
+State may then legitimately change under those frozen rules:
+- SEALED / UNSEALED
+- ARCHIVED / AVAILABLE
+- dynamic covers
+- permanent incident/history state
+- contextual wallet-dependent traits
+- official Archive balance
+- Hellforge/evolution state
+- token-bound account assets
+- metadata output
 
-### Identity across Hellbox / chains
+No publisher seizure, arbitrary confiscation, forced transfer, blacklist, arbitrary owner burn or ownership override.
 
-Conceptual publication identity remains:
-`publicationKey`
+### Supply
 
-A native blockchain edition is identified by:
-`(chainId, contractAddress)`
-
-An individual collectible is identified by:
-`(chainId, contractAddress, tokenId)`
-
-A publication may later have a separate native deployment on another supported EVM chain, but Hellbox NFTs are never bridged.
-
-### Ownership/indexing
-
-Because one contract maps to one publication on a given chain:
-- `balanceOf(wallet)` is a valid fast on-chain answer to "does this wallet own at least one copy of this publication?"
-- D1 may cache that successful on-chain observation for a short bounded freshness window
-- D1 can never create/grant ownership by database insertion; chain state remains authoritative
-
-Token-level indexing is still required for collectible detail and advanced publication mechanics:
-- index `Transfer` events
-- verify specific token ownership with `ownerOf(tokenId)` where token-level certainty is required
-- maintain token/copy provenance and history
-- support copy-number mapping
-- support future sealed/unsealed state, special copies, burns, Hellforge/evolution, and other token-specific behavior
-
-Do not use ERC721Enumerable as the core ownership index.
-
-Publication lifecycle:
-`private → announced → mint_live → circulating`
-
-Standard future paid Hellbox edition:
-- max supply: 216
+Standard native issue baseline:
+- max supply: **216**
 - 6 × 6 × 6
-- supply never increases above 216
-- surviving supply may only decrease through burns
-- general target primary price: ~$6.66 equivalent
-- general planned royalty: 666 bps
-- general future primary limit: max 6 lifetime primary mints per wallet/publication
+- cap can never increase after launch
+- burns may reduce surviving supply
+- an issue may be permanently closed before reaching max supply; unminted capacity may be destroyed according to the final close/finalization design
 
-SciVive is the exception.
+SciVive remains a special test publication with supply `5,555`.
 
----
+### Publication/package commitment
 
-## 13. COPY NUMBER ASSIGNMENT
+Each release should cryptographically commit to the exact publication system Harrow approved before launch, including as practical:
+- canonical/base NFT cover
+- actual Reader/publication package
+- base publication/package digest
+- PRESS MARK assets/layers
+- PRESS DEFECT assets/layers
+- distribution manifest
+- reserved/fixed-copy manifest
+- renderer/compositor version/rules
+- pricing/mint-policy configuration
+- protocol/template version
 
-Human copy numbers should ideally be shuffled/unpredictable.
-
-Reason:
-- reduce sniping of lore-relevant copy numbers
-- separate mint order from collectible copy identity
-
-Lore-relevant numbers may include:
-- 13
-- 23
-- 33
-- 66
-- other intentionally selected numbers
-
-Special copies may differ by:
-- NFT cover/plate
-- metadata
-- Reader content
-- environmental behavior
-- temporary effects
-- permanent state
-- future Hellforge eligibility
-
-Do not convert this into generic rarity tiers.
-
-Perfect anti-sniping is not a launch blocker.
+Protected Reader content does not need to be placed publicly on-chain merely to prove integrity.
 
 ---
 
-## 14. SEALED / UNSEALED — LOCKED DIRECTION
+## 13. COPY ASSIGNMENT, CREATOR PULL & BIRTH TRAITS
 
-For publications that support sealing:
+### Token ID = copy number — LOCKED
 
-SEALED:
-- unread
-- may participate in future sealed $SIN reward path
-- cannot burn
-- may have transfer restrictions while actively locked in future reward system
+Collector-facing identity is simple:
 
-UNSEAL:
-- one-way permanent state change
-- becomes readable/experiential
-- can never earn $SIN again from sealed reward path
-- any accrued $SIN should be forced/withdrawn to owner wallet on unseal
-- sealed-related transfer restrictions end according to final implementation
-- unsealed copies may burn
-- sealed copies may not burn
+`tokenId 66 = COPY #066`
 
-SciVive does NOT use sealing.
+Public minting must **not** assign remaining token IDs predictably/sequentially.
+
+The allocation/reveal mechanism must:
+- shuffle/randomize the drawable copy IDs
+- preserve fixed/reserved IDs
+- prevent easy sniping of known grail IDs such as #066
+- make the unrevealed trait-to-ID map difficult for Harrow and collectors to predict/manipulate
+- be auditable and publicly defensible
+- avoid a secret publisher-controlled rarity map
+- be tested on PulseChain before the first native mainnet issue
+
+The exact randomness/oracle/reveal implementation is still OPEN for Gate 4 design/testing.
+
+### Standard 216-copy PRESS MARK grammar — LOCKED
+
+Permanent primary birth class:
+
+| PRESS MARK | Total | Meaning |
+|---|---:|---|
+| `HELLBOUND` | 6 | Top birth rarity; infernal/forbidden edition treatment |
+| `PRESS PROOF` | 12 | Harrow working-proof aesthetic: crop marks, corrections, production marks |
+| `GOLD` | 18 | Premium gold/foil NFT-readable treatment |
+| `STANDARD` | 180 | Canonical normal edition |
+
+Do not dilute this into generic `Rare / Legendary / Mythic / Platinum` NFT rarity soup.
+
+### Standard 216-copy PRESS DEFECT grammar — LOCKED
+
+A separate permanent birth axis:
+
+| PRESS DEFECT | Total |
+|---|---:|
+| `REDACTED` | 6 |
+| `CORRUPTED PLATE` | 12 |
+| `BLED OUT` | 18 |
+| `OFF REGISTER` | 24 |
+| `NONE` | 156 |
+
+PRESS MARK and PRESS DEFECT:
+- are separate axes
+- may overlap on the same public/randomized copy
+- remain permanent with the token across owners
+- do not change merely because the owner changes or later wallet conditions change
+- may disappear only if the original token itself is explicitly consumed/burned under an owner-authorized transformation
+
+Earlier development labels such as `MISPRINT`, `DAMAGED`, `ERROR COPY`, generic `INK BLEED`, and the idea of many generic rarity tiers are superseded by this stronger publishing/Harrow vocabulary.
+
+### Harrow creator allocation — LOCKED
+
+Harrow has a **maximum 9-copy creator allocation** on a standard native issue, all counted inside the fixed max supply.
+
+Immediate first six:
+
+| ID | PRESS MARK | Harrow's intended path |
+|---:|---|---|
+| #001 | HELLBOUND | open / break seal |
+| #002 | HELLBOUND | preserve sealed |
+| #003 | PRESS PROOF | open / break seal |
+| #004 | PRESS PROOF | preserve sealed |
+| #005 | GOLD | open / break seal |
+| #006 | GOLD | preserve sealed |
+
+These six are removed from the public draw immediately.
+
+PRESS DEFECT is **not** preset for Harrow. His copies participate in the same fair defect assignment process; sometimes Harrow gets lucky, sometimes he does not.
+
+Public grail:
+- #066 is HELLBOUND
+- #066 belongs to the randomized non-Harrow pool and must not be trivially snipable
+
+### Harrow tail reserve — LOCKED
+
+Harrow's final three are **not preselected**.
+
+After #001–#006 are removed:
+- the remaining IDs / PRESS MARKS / PRESS DEFECTS participate in the shared randomized mint pool
+- public/allowlist/free/reserve phases consume the pool
+- three issuance slots are held for the tail
+- only on a **true mint-out** do the final three copies left in the machine go to Harrow
+- Harrow does not know those IDs/marks/defects in advance
+- if Harrow permanently closes a release before true mint-out, he does **not** automatically receive the final three
+
+Press-facing creator language should make this transparent, e.g.:
+- `HARROW PULL // 6 TAKEN`
+- `3 STILL IN THE MACHINE`
+- the final three become Harrow's only at actual mint-out
+
+### Harrow rule of threes — CHARACTER GUIDANCE, NOT CONTRACT LAW
+
+Harrow's collector philosophy:
+- rule of 3s
+- at least one sealed and one unsealed copy to experience both paths
+- one copy may be the practical sell/double
+- one may be the ridiculous moonshot
+- one may be the forever copy
+
+This is advice from Harrow to collectors/Hellions-in-training. The contract does not enforce his personal collecting theology, and Harrow still does not necessarily approve of what they do.
 
 ---
 
-## 15. BURN — LOCKED PHILOSOPHY
+## 14. MINT SCHEDULE, SINGLE-PULL CHAOS & TRANSPARENT ODDS
 
-Burning must create a direct compelling benefit to the burner.
+### Standard native wallet/transaction rule — LOCKED
 
-It cannot exist only to reduce supply or enrich surviving holders.
+- maximum primary allowance: **6 copies per wallet/publication**
+- **1 copy per transaction**
+- no public quantity/batch mint
+- contract must enforce quantity = 1; frontend-only enforcement is insufficient
+- all normal phases follow the same one-copy-per-transaction rule unless a future explicit release rule says otherwise
 
-Strong future direction:
-- burn one or more eligible unsealed copies
-- transform a surviving copy
-- record consumed copy history
-- unlock meaningful state, cover, Reader path, proof, or future Hellforge result
+PulseChain gas is intentionally inexpensive enough that this friction is part of the experience.
 
-Burn rules are publication-specific.
+Purpose:
+- slow rapid six-copy sweeps
+- create more interleaving among collectors
+- make every copy a separate Press event
+- recalculate rarity/defect odds after every issuance
+- create deliberate Harrow-style chaos
 
-No universal public burn button.
+This is **not** Sybil protection. One human can use multiple wallets; never claim otherwise.
 
-SciVive has no burn feature.
+### Mint phase model — LOCKED REQUIREMENT
+
+The publication builder/contract model must support configurable immutable phases such as:
+- creator pull
+- reserved/partner claims
+- free claims
+- allowlist / whitelist
+- early Press access
+- public Press
+
+Each phase can define before launch:
+- start/end or transition condition
+- total phase allocation/cap
+- per-wallet allowance
+- eligibility commitment/proof
+- free versus paid
+- price policy
+- rollover behavior
+
+Use scalable eligibility proofs such as Merkle-style claims where appropriate instead of embedding large bespoke wallet lists.
+
+Unless explicitly and transparently configured otherwise before a release:
+- all non-Harrow phases draw from the same remaining randomized copy pool
+- allowlist/free/early users do not secretly receive better birth-trait odds
+
+### Live Press transparency — LOCKED PRODUCT REQUIREMENT
+
+The public Press must expose live HTML overlays/screens showing as applicable:
+- total run
+- Harrow immediate pull
+- 3-copy tail reserve
+- phase allocations
+- minted / remaining
+- current phase
+- connected wallet
+- wallet eligibility
+- wallet allowance / used / remaining
+- free/reserve/WL status
+- payment routes
+- current quote
+- PRESS MARK remaining counts
+- PRESS DEFECT remaining counts
+- live percentages/odds
+
+Odds must be recalculated from the **actual remaining drawable pool**, not original supply.
+
+Conceptual formula:
+
+`remaining copies with trait / remaining drawable copies`
+
+Update all relevant screens after every confirmed single-copy mint before the next pull.
+
+When a trait is exhausted, Harrow language may simply report:
+
+`GONE.`
 
 ---
 
-## 16. FUTURE $SIN
+## 15. PRICING POLICY — PER PUBLICATION, IMMUTABLE AT LAUNCH
 
-$SIN is future/classified.
+Every publication chooses and previews its pricing policy before mint starts.
+
+Different releases may intentionally have different economics:
+- ordinary native issue target may be around `$6.66`
+- a labor-intensive graphic novel may target something like `$66.66`
+- future market response may justify different future-release pricing
+- changing a future release never changes an older one
+
+Required policy modes:
+
+### FREE
+
+No primary payment.
+
+### FIXED_STABLE
+
+Fixed stable/USD-style amount chosen before launch.
+
+### FIXED_PLS
+
+Fixed PLS amount chosen before launch.
+
+The amount does not float with USD value for that release.
+
+### USD_TARGET_DUAL
+
+The collector may choose:
+- fixed stable/USD route
+- current PLS equivalent of the frozen USD target
+
+Example:
+- release target freezes at `$6.66`
+- PLS amount changes at mint time as PLS/USD moves
+- Harrow is not editing the publication every minute
+
+The architecture should use a trusted pricing adapter/oracle/TWAP-style mechanism rather than manual Harrow updates.
+
+Collector protection:
+- current PLS quote shown clearly on Press
+- quote tolerance / maximum authorized PLS amount
+- if price moves beyond tolerance, revert rather than silently overcharge
+- excess handling/refund behavior must be explicit and tested
+
+Exact PulseChain price-source/oracle design remains OPEN and must be researched/tested before locking.
+
+Publication mint terms freeze when mint goes live.
+
+Treasury/royalty routing should be designed so operational wallet rotation does not require mutating historical publication economics; routing contracts/modules may be preferable to changeable per-publication promises.
+
+---
+
+## 16. SEALED, ARCHIVE & UNSEALED STATE — LOCKED DIRECTION
+
+These are different concepts.
+
+### SEALED
+
+- comic has never been opened/read
+- may be Archive-eligible
+- may participate in future official reward systems if that publication supports them
+
+### ARCHIVE — REVERSIBLE WHILE SEALED
+
+Archive is non-custodial:
+- NFT remains in current owner's wallet
+- owner may ARCHIVE
+- owner may UNARCHIVE
+- owner may later ARCHIVE again while the seal remains intact
+
+While archived:
+- official accrual may run
+- NFT transfer execution is locked/reverts
+- Hellbox must not permit listing through its own UI
+- visual cover gains an archival plastic/protective sleeve treatment
+- compatible marketplaces should receive useful locked-state signaling where practical
+
+Important marketplace honesty:
+- third-party marketplaces may create/display off-chain signed listings without calling the token contract
+- Hellbox cannot guarantee that no third-party UI displays a listing
+- the contract **can** guarantee the actual transfer/sale execution cannot succeed while archived
+
+UNARCHIVE:
+- stops new official accrual
+- unlocks transfer
+- does **not** have to force claim already accrued official rewards
+- unclaimed official Archive balance may remain attached to the NFT and follow it to a later owner if transferred unclaimed
+
+### UNSEALED — IRREVERSIBLE
+
+Opening/reading breaks the seal permanently.
+
+Once unsealed:
+- cannot reseal
+- can never become Archive/reward eligible again
+- cannot resume official Archive earning
+- metadata/cover reflects the broken seal permanently
+
+Before UNSEAL:
+- token must be out of Archive
+- official accrued reward must be finalized/paid/claimed or otherwise cleared according to the final protocol
+- official reward state becomes `0 / INELIGIBLE` afterward
+
+Every irreversible action must receive a Harrow-voiced, hard-to-miss warning and deliberate confirmation. Humor may surround the warning but must not obscure permanence.
+
+---
+
+## 17. DYNAMIC METADATA, ARTIFACT HISTORY & CONTEXT
+
+Metadata output must remain dynamic.
+
+Do **not** permanently freeze one static JSON file for every token.
+
+Freeze:
+- release rules
+- renderer/protocol version
+- canonical base assets/package
+- birth traits/assignments
+- immutable publication configuration
+
+Allow metadata to reflect legitimate evolving state:
+- PRESS MARK
+- PRESS DEFECT
+- SEAL
+- ARCHIVE
+- permanent incident/history state
+- current contextual traits
+- official Archive balance/status
+- Hellforge/evolution state
+- cover changes
+
+Marketplace refresh/update signaling must be supported so compatible markets know when dynamic metadata should be re-read.
+
+### Public Harrow-facing metadata grammar
+
+Technical internals can use conventional code names. Collector-facing metadata must read like Harrow made it.
+
+Current stable/strong vocabulary:
+
+| Internal concept | Collector-facing Hellbox vocabulary |
+|---|---|
+| birth class | `PRESS MARK` |
+| birth anomaly | `PRESS DEFECT` |
+| sealed/unsealed | `SEAL` → `INTACT / BROKEN` |
+| archive state | `ARCHIVE` → e.g. `SLEEVED / AVAILABLE / INELIGIBLE` |
+| official accrual | `ARCHIVE BALANCE` |
+| series wallet condition | `SET STATUS` → e.g. `COMPLETE / MISSING PIECES` |
+| contract/protocol generation | `PRESS VERSION` |
+
+`DAMAGE REPORT` is rejected/superseded as the public name for permanent history because it makes lower sound better.
+
+Current **STRONG DIRECTION**, not yet final canon:
+- `LIVED THROUGH` = positive count of permanent incidents/history
+- `INCIDENT LOG` = the actual persistent history entries
+
+The goal is for more permanent history to make an artifact more interesting/desirable, not make it read like lower condition grade.
+
+### Permanent versus contextual state
+
+Permanent artifact events:
+- follow the token forever across owners
+- examples may include owner-authorized Hellforge transformation, burn-survivor history, event marks, permanent incident state
+- exact incident taxonomy remains open
+
+Contextual traits:
+- describe something true about the **current owner/context**
+- may appear/disappear without mutating permanent artifact history
+- example: current owner holds every issue in a series
+- selling one issue can turn `SET STATUS` from `COMPLETE` to `MISSING PIECES`
+
+---
+
+## 18. TOKEN-BOUND ACCOUNTS, OFFICIAL REWARDS & HELLFORGE COMPATIBILITY
+
+### ERC-6551 / token-bound account — REQUIRED FOR NATIVE ISSUE #1 CAPABILITY
+
+Native Hellbox issues must be compatible with token-bound accounts before the first native mainnet issue.
+
+The token-bound account is the NFT's general-purpose asset/account layer.
+
+Do not give Hellbox seizure/sweep authority over arbitrary assets somebody places in that account.
+
+### Official Archive reward accounting — SEPARATE SYSTEM
+
+Do not equate:
+- arbitrary assets physically held in a token-bound account
+with
+- Hellbox's official Archive reward balance
+
+Preferred architecture:
+- dedicated Hellbox reward/vault/accounting protocol
+- official balance keyed to the NFT/artifact
+- NFT stays in owner's wallet
+- owner may claim official accrued rewards at any time
+- unclaimed official rewards can follow the NFT to the new owner
+- unarchiving stops new accrual but does not necessarily erase/force-claim the existing official balance
+- irreversible unseal clears/finalizes official accrual and permanently ends eligibility
+
+Before the future reward token is publicly launched:
+- do not expose `$SIN` by name in metadata/Press/public UI
+- use neutral language such as `ARCHIVE BALANCE`
+
+Future reward formulas remain OPEN.
+
+### Hellforge / burn / evolution
+
+Before the first native mainnet issue, Native Issue #1 must be compatible with:
+- Hellforge
+- owner-authorized burn-to-transform
+- permanent evolution state
+- hidden traits
+- dynamic covers
+- permanent incident/history state
+- contextual wallet-dependent traits
+
+Prefer modular/external Hellforge machinery where practical rather than hardcoding every future recipe into every publication contract.
+
+Hellforge must not be able to burn/transform a token merely because Harrow wants it changed. The current owner must deliberately authorize irreversible transformations.
+
+Burning must provide a direct compelling benefit/result to the participant; it cannot exist only to reduce supply or enrich surviving holders.
+
+The publication kernel needs the interfaces/state/event framework for future protocols without knowing every future recipe at birth.
+
+### Future $SIN
+
+$SIN remains future/classified.
 
 Do not front-run it publicly.
 
-Expected launch route:
-- PUMP.tires
+Expected launch route remains PUMP.tires unless strategy changes.
 
-Do not build a bespoke SIN ERC-20 unless strategy changes.
-
-Future conceptual revenue routing:
-- 1/3 Hellbox/project
-- 1/3 market-buy $SIN + burn
-- 1/3 market-buy $SIN + rewards
-
-Keep this private until intentionally revealed.
-
-Future NFT/token-bound direction:
-- eligible comics may act like token-bound wallets/accounts
-- sealed eligible copies may participate in future reward systems
-- unsealing permanently ends sealed SIN earning eligibility
-
-Exact reward formulas remain open.
+Do not build a bespoke ERC-20 merely because artifact architecture needs future reward compatibility.
 
 ---
 
-## 17. HELLFORGE / SINVAULT
-
-Hellforge:
-- future transformation/evolution machinery
-- publication-specific recipes
-- exact rules NOT locked
-
-SinVault:
-- future economic/reward component
-- exact mechanics NOT locked
-- do not turn it into generic staking by assumption
-
-ERC-6551/token-bound architecture:
-- optional future capability
-- not a launch blocker
-
----
-
-## 18. SCIVIVE — LOCKED TEST PUBLICATION
+## 18A. SCIVIVE — LOCKED TEST PUBLICATION / EXCEPTION
 
 `publicationKey: scivive`
 
 SciVive:
 - standalone publication
-- not Issue #1
+- not Native Issue #1
 - PulseChain
 - ERC-721
-- max supply 5,555
+- max supply `5,555`
 - free primary mint
 - max 1 primary mint per wallet
 - max 1 per transaction
-- royalty 369 bps
+- royalty `369` bps
 - Reader enabled
 
-SciVive does NOT use:
-- Hellforge
-- $SIN
-- sealing
-- vault
-- evolution
-- burn gimmicks
-- easter-egg token transformations
+Newest SciVive capability direction supersedes the older blanket "no sealing" statement:
+
+SciVive **may use**:
+- dynamic covers
+- SEALED / UNSEALED
+- later contextual visual/state change when the same wallet also owns the future SciVive Graphic Novel
+
+SciVive still does **not** use the full native Hellbox artifact system unless explicitly reopened later:
+- no full Hellforge economy
+- no $SIN/Archive reward path
+- no native 216-copy PRESS MARK / PRESS DEFECT rarity grammar
+- no broad burn-to-transform program
+- no full native evolution stack
 
 SciVive source:
-- existing open-source ebook package
+- existing source book/package
 - EPUB exists
-- PDF cover/source exists
-- source is rough/unfinished
-- Harrow will NOT rewrite, edit, restore, sanitize, or finish Richard Heart’s book
-- Harrow is publisher, not co-author/editor
+- canonical PDF/Reader source exists
+- Harrow will NOT rewrite, edit, restore, sanitize or finish Richard Heart's book
+- Harrow is publisher/presenter, not source-book co-author/editor
 
 Purpose:
-- prove mint → ownership → Archive → protected Reader
+- prove mint → ownership → Archive/library recognition → protected Reader
+- exercise the publication factory and basic dynamic cover/seal primitives without pretending SciVive is Native Issue #1
 
-About one year after initial Hellbox SciVive release:
+About one year after initial SciVive release:
 - planned graphic-novel adaptation
-- follows standard 14-page Hellbox comic rules
-- exact supply/price not yet locked
-- may cost more because it requires significant Harrow production work
+- follows standard Hellbox comic production rules
+- exact supply/price remains open
+- may intentionally cost substantially more because of Harrow production labor
 
----
+Native Issue #1 is a separate launch barrier and does not go mainnet until the full artifact capability set is proven.
 
 ## 19. READER — PRODUCT PRIORITY
 
@@ -993,77 +1335,183 @@ Important current boundary:
 - SciVive still has no deployed publication contract, so positive real ownership cannot exist until Gate 4
 - SciVive remains private/non-public and cannot be considered a production collector-access release until the testnet/mainnet publication path is deliberately advanced
 
-## 20. PRESS — CURRENT / FUTURE
+## 20. PRESS — PRIVATE BUILDER + PUBLIC MINT MACHINE
 
-Current Press artwork/interface is a prototype.
+The current Press visual/interface is a prototype.
 
-Gate 0.2 status:
-- desktop/laptop overlap regression was repaired enough to continue
-- `HARROW // MACHINE` is structurally separated from the left publication/wallet card in tested standard desktop widths
-- current Press formatting is tolerable, not polished
-- Press formatting/art is intentionally back-burnered until the dedicated Press Gate unless a regression makes the site unusable
+The future Press has two related but distinct roles.
 
-The production Press must be redesigned around real functions before final art/layout approval.
+### A. HARROW PRIVATE / GATED PRESS — PUBLICATION COMPILER
 
-Future Press zones should intentionally support:
-- ingest
-- publication display
-- wallet/collector recognition
-- chain/RPC
-- release/payment terms
-- QC
-- signing
-- Press core
-- copy counter
-- release gate
-- fault board
-- classified future bay
+Harrow's private Press is the intake, package, contract and release builder.
 
-The physical real lever should be the activation control.
+For every release it must eventually let Harrow provide/configure, validate and preview the complete release **before PUBLISH**.
+
+Minimum creative/package inputs:
+1. canonical/base NFT cover
+2. actual comic/Reader publication file/package
+3. Harrow-authored reusable PRESS MARK assets/layers/masks/rules
+4. Harrow-authored reusable PRESS DEFECT assets/layers/masks/rules
+5. release-specific metadata/copy
+6. publication economics and mint schedule
+7. artifact/protocol/version capabilities
+
+Automation pipeline — LOCKED DIRECTION:
+
+`INPUT → VALIDATE → PREVIEW → FREEZE COUNTS/RULES → COMMIT PACKAGE/ART RULES → RANDOMIZE/ASSIGN → RENDER VARIANTS → GENERATE METADATA → DEPLOY → OPEN PRESS`
+
+This is **not AI image generation by default**.
+
+Preferred system:
+- reproducible/deterministic compositing
+- canonical Harrow base cover
+- masks/overlays/typography/effects/transformation rules authored/approved by Harrow
+- automated rendering into final token-art variants
+- cryptographic commitment to package/rules before launch
+
+Harrow should not manually author every token combination and should not know the full hidden trait-to-ID map before reveal.
+
+Fixed MARK guarantee:
+- #001–#006 receive the established creator PRESS MARKS
+
+Everything else follows the approved random/allocation rules.
+
+PRESS DEFECT is not guaranteed to Harrow.
+
+The builder must validate that:
+- total MARK counts equal max supply
+- total DEFECT counts equal max supply
+- fixed assignments do not exceed distribution counts
+- Harrow immediate/tail reserve rules are coherent
+- phase allocations do not exceed drawable supply
+- pricing policy is complete
+- renderer/package can reproduce expected artifacts
+- all irreversible launch configuration is shown before signature/deployment/go-live
+
+### B. PUBLIC PRESS — COLLECTOR EXPERIENCE
+
+The production mint experience must feel like operating Hellbox publishing machinery, not a generic wallet + mint button.
+
+Public Press uses live HTML overlays over intentionally empty/dynamic regions in the final Press artwork.
+
+Required live information includes:
+- publication
+- current phase
+- wallet/identity
+- WL/free/reserve eligibility
+- max wallet allowance `6`
+- used / remaining allowance
+- max 1 per transaction
+- supply/minted/remaining
+- Harrow immediate pull `6`
+- Harrow tail reserve `3`
+- phase allocations/claims
+- payment modes
+- USD target/static amount
+- current PLS quote where applicable
+- quote validity/tolerance
+- live PRESS MARK remaining counts/odds
+- live PRESS DEFECT remaining counts/odds
+- state/fault information
+- transaction progress
+- ejected copy/token ID
+- resulting MARK/DEFECT/state
+
+The real physical lever remains the desired activation metaphor.
+
 Do not add fake CSS levers.
 
-Next Press art must contain clean dynamic screen regions for live HTML data.
+After every successful single-copy mint:
+- refresh supply
+- refresh wallet allowance
+- refresh phase state
+- refresh drawable counts
+- recalculate MARK odds
+- recalculate DEFECT odds
+- show what just came out
+- only then permit/quote the next pull
 
-Target state sequence:
-- ASLEEP
-- LOADED
-- IDENTIFYING
-- RECOGNIZED
-- READY
-- ARMED
-- SIGNING
-- PRESSING
-- CONFIRMING
-- NUMBERING
-- RELEASED
-- YOURS
-
-Fault states must be clear and honest.
+Irreversible actions such as UNSEAL / Hellforge / owner-authorized burn require a separate deliberate warning flow and are not hidden behind ordinary Press excitement.
 
 ---
 
-## 21. PUBLICATION ENGINE — TARGET END STATE
+## 21. PUBLICATION ENGINE / PACKAGE BUILDER — TARGET END STATE
 
-Desired workflow for a new issue:
-1. prepare finished publication package
-2. upload it
-3. review automatic validation
-4. preview Press/Archive/Reader/metadata
-5. approve
-6. sign one factory deployment/configuration transaction that creates the release's standardized publication contract
-7. choose when Press goes live
+Desired workflow for a new publication:
 
-A fresh contract per release is expected.
-What is forbidden is bespoke contract development/deployment ceremony for every issue.
+1. Harrow creates the actual comic/publication and canonical cover
+2. enter the gated private Press
+3. start NEW PUBLICATION
+4. upload/attach canonical Reader/publication package
+5. upload/attach canonical base NFT cover
+6. select/preview approved MARK/DEFECT layer families
+7. choose supply and creator rules
+8. choose pricing policy
+9. configure mint phases / claims / allowlist / free / reserve rules
+10. configure artifact capabilities/version
+11. validate package and distribution math
+12. preview representative token-art output
+13. preview Press/Archive/Reader/marketplace metadata
+14. preview the exact immutable configuration that will freeze
+15. commit package/art/rules
+16. deploy a fresh standardized versioned publication contract through the factory
+17. record deployment in Hellbox durable publication data
+18. choose/open the public Press according to the frozen schedule
+
+The package builder should ultimately generate reproducibly:
+- publication package manifest
+- Reader delivery manifest/pointers
+- contract deployment configuration
+- trait distribution manifest
+- fixed assignment manifest
+- renderer/compositor manifest/version
+- metadata
+- cryptographic digests/commitments
+- allowlist/eligibility commitments
+- pricing policy
+- phase configuration
+- verification/preview report
 
 No:
-- manual site code edits
-- hand-coded one-off contract implementation per issue
-- manual R2 file juggling
-- hand-written metadata for every launch
-- complicated deployment ceremony
+- manual frontend edits for each issue
+- bespoke Solidity implementation for each issue
+- hand-juggling R2 objects
+- hand-writing every metadata JSON
+- Harrow preselecting every random rarity combination
+- mutable release promises after mint goes live
 
----
+### Publication Configuration Blueprint — NEXT REQUIRED GATE 4 DELIVERABLE
+
+Before Foundry is installed or Solidity implementation begins, Gate 4 must produce and approve one complete schema/blueprint listing **every field the private Press must decide and freeze**.
+
+At minimum it must cover:
+- identity/version
+- chain
+- supply
+- immediate creator pull
+- tail reserve
+- fixed IDs
+- trait distributions
+- art/package inputs
+- renderer/version
+- randomization/reveal policy
+- pricing mode
+- price targets/static amounts
+- accepted assets
+- mint phases
+- allowlist/claim commitments
+- per-wallet limit
+- one-per-transaction rule
+- royalty
+- treasury/routing
+- seal/archive capability
+- dynamic metadata capability
+- ERC-6551 compatibility
+- external protocol/Hellforge compatibility
+- package/content digest
+- freeze/finalization semantics
+
+This blueprint is the shared source from which future contract config, D1 data, private Press UI and validation tooling should derive.
 
 ## 22. MULTI-CHAIN — LOCKED
 
@@ -1322,473 +1770,183 @@ Gate status:
 - Gate 0 COMPLETE
 - Gate 1 COMPLETE
 - Gate 2 COMPLETE
-- **Gate 3 COMPLETE**
-- **Gate 4 NEXT**
+- Gate 3 COMPLETE
+- **Gate 4 PRE-IMPLEMENTATION ARCHITECTURE ALIGNMENT COMPLETE ENOUGH TO BUILD THE BLUEPRINT**
+- no Gate 4 contract/tooling implementation has started
+- Foundry is **not installed**
 
-Gate 3 is closed on every Hellbox-controlled acceptance criterion.
-
-One external item remains tracked outside the Gate blocker model:
-- full HairyLabs `#6 → #333` traversal acceptance waits for HairyLabs cache/history refresh
+HairyLabs Byte-cache status remains external/non-blocking:
 - do not include Bytes in testing until the creator explicitly says the lane is clear
-- prompt for HairyLabs refresh status at the end of every upcoming Gate
+- ask for refresh status at every upcoming Gate close
 
-### Immediate Gate 4 objective
+### Immediate next action in a new Gate 4 thread
 
-Begin **Gate 4 — PulseChain Testnet Publication Contract + Factory**.
+Read, in order:
+1. `HELLBOX_PROJECT_STATE.md`
+2. `HARROW_CHARACTER_BIBLE.md`
+3. `README.md`
 
-Before creating Solidity or introducing contract tooling, inspect the current repository to determine:
-- whether a Solidity/Foundry/Hardhat toolchain already exists
-- whether `package.json`, `foundry.toml`, `hardhat.config.*`, `contracts/`, or equivalent contract-test structure already exists
-- what existing dependency/tooling constraints must be preserved
-- whether PulseChain Testnet V4 access/faucet state is currently sufficient for later deployment
+Then do **not** jump directly to Solidity.
 
-Then choose the smallest single-file Gate 4 implementation step.
+First produce and review the **Publication Configuration Blueprint** defined in Section 21.
 
-Gate 4 must preserve all Gate 3 authority boundaries:
-- Archive and Reader continue to consume the same Worker ownership verifier
-- publication ownership remains blockchain-authoritative
-- D1 remains bounded evidence/cache only
-- one native ERC-721 collection per publication/release
-- standardized implementation/factory, not bespoke contracts
-- no NFT bridging
-- no mainnet deployment yet
+The blueprint must make explicit:
+- which fields are immutable at mint start
+- which state can change later according to frozen rules
+- which fields belong in the publication contract
+- which belong in factory/version registry
+- which belong in external protocols
+- which belong off-chain/D1/package manifests
+- what is cryptographically committed
+- what is publicly displayed on Press
+- what is open for later Gates but must be compatible from Native V1
 
-## 31. PRODUCTION GATE SYSTEM — REBASED 2026-08-29
+After the creator approves that blueprint:
+- choose/install contract tooling
+- current recommendation: Foundry
+- repository currently has no `package.json`, lockfile, Foundry config, Hardhat config, `contracts/`, `test/`, or equivalent contract-tooling structure
+- `forge`, `cast`, and `anvil` are currently not installed
+- then begin the smallest one-file Gate 4 implementation step
 
-The previous decimal sub-gates were useful during recovery but are no longer the right planning model.
+## 31. PRODUCTION GATE SYSTEM — WORKING ROADMAP REBASED 2026-08-30
 
-The production roadmap is now ten gates total: Gate 0 through Gate 9.
+The earlier Gate 0–9 compression was useful, but the native Hellbox artifact model is now intentionally broader.
 
-This follows the practical progression for a real digital publishing product:
-foundation → durable publication platform → Reader vertical slice → identity/ownership → testnet contract → real Press/mint experience → publisher operations → relationship depth → experience/content freeze → release candidate/mainnet.
+The working roadmap is **Gate 0 through Gate 10** so early Native Issue #1 collectors do not receive a stripped-down artifact that later releases outperform structurally.
+
+This roadmap may be refined deliberately in future pre-Gate alignment reviews, but do not compress major artifact capabilities merely to preserve the old gate count.
 
 ### GATE 0 — STABILIZATION & PLATFORM FOUNDATION — COMPLETE
 
-Delivered:
-- recovered deployable baseline
-- safe one-file-at-a-time workflow
-- standard laptop/mobile responsive baseline
-- hidden environmental discovery system
-- accessibility baseline
-- English/Spanish localization architecture
-- Google-assisted offline translation tooling
-- GA4 integration/verification
-- backend multi-chain registry/status APIs
-- PulseChain live status
-- future chains configured but disabled
-- Press prototype made usable enough to defer
-- living source-of-truth handoff
-
-Gate 0 means the foundation is stable enough to build the actual product.
-It does NOT mean the Hellbox product loop is complete.
+Foundation/recovery, responsive web, accessibility/localization, analytics, multi-chain foundation and safe workflow.
 
 ### GATE 1 — PUBLICATION PLATFORM & DATA MODEL — COMPLETE
 
-Goal:
-Make a Hellbox publication a real first-class durable data object rather than hardcoded prototype data.
-
-Delivered:
-- D1-backed publication model
-- lifecycle records
-- chain-independent `publicationKey`
-- per-chain deployment/token identity fields
-- release/payment/supply configuration
-- public/private publication visibility
-- R2 public/private package-location model
-- publication package manifest/schema
-- validation rules
-- SciVive as the first real private publication package
-- verified SciVive PDF/EPUB SHA-256 fingerprints and IPFS CIDs
-- refined asset-location identity supporting primary delivery, source, and mirror locations
-- production `DB` binding to D1 database `hellbox-production`
-- Worker publication APIs read durable D1 data rather than a hardcoded array
-
-Gate 1 production migrations:
-- `0001_publication_platform.sql`
-- `0002_refine_asset_location_identity.sql`
-- `0003_seed_scivive.sql`
-
-SciVive durable checkpoint:
-- `publicationKey`: `scivive`
-- lifecycle: `private`
-- public visible: `false`
-- presentation class: `book`
-- Reader enabled: `true`
-- Reader access policy: `ownership`
-- PulseChain chain ID: `369`
-- max supply: `5555`
-- payment: `free`
-- max primary mints per wallet: `1`
-- max per transaction: `1`
-- royalty: `369` bps
-- publishing enabled: `false`
-- contract address: `null`
-- package status: `draft`
-- package validation: `0` errors, `2` non-blocking warnings
-
-Live verification at Gate 1 close:
-- `/api/health` reports `publicationEngine: publication-key-d1-v1`
-- `/api/health` reports registry source `d1`
-- D1 registry counts: total `1`, public `0`, private `1`
-- `/api/publications` returns an empty public list while SciVive is private
-- `/api/publications/scivive` returns HTTP `404` to a normal unauthenticated/public request
-- all expected bindings report configured, including database/public bucket/private bucket/assets
-- repository working tree was clean after production verification
-
-Exit criteria status:
-- SciVive exists as a real private publication record: PASS
-- package validates without blocking errors: PASS
-- public/private asset locations are defined: PASS
-- Worker returns publication metadata from durable storage: PASS
-- no contract required yet: PASS
-- no manual public-site edit required merely to represent the publication: PASS
+D1 publication model, package/schema model, R2 public/private locations and SciVive private package.
 
 ### GATE 2 — READER VERTICAL SLICE — COMPLETE
 
-Goal:
-Make SciVive genuinely readable inside Hellbox while keeping protected delivery independent from yet-unbuilt NFT ownership.
-
-Delivered:
-- SciVive BOOK Reader manifest with 461 deterministic pages
-- verified canonical SciVive PDF source
-- reproducible PDF → WebP Reader build tool
-- 461 generated WebP presentation pages
-- protected `hellbox-private` Reader delivery
-- reproducible remote R2 upload + byte/hash verification tool
-- 462/462 private Reader objects remotely verified
-- D1 Reader binding migration
-- D1-backed `reader_manifest_key` and `private_prefix`
-- private Reader manifest registered as a durable package asset
-- Worker loads Reader delivery configuration from D1
-- Worker loads/validates the protected manifest from private R2
-- authenticated protected page delivery through the Worker
-- production byte-for-byte page verification
-- frontend protected image transport using authenticated fetch + Blob/object URL
-- adjacent-page preloading
-- continuous-mode lazy protected-image loading
-- versioned frontend asset deployment
-- browser Reader acceptance test
-- laptop, tablet, and compact-phone responsive acceptance
-- temporary preview authorization added only for production proof, then removed
-- temporary `HELLBOX_GATE2_READER_KEY` Cloudflare secret deleted after proof
-- normal public SciVive Reader protection re-verified as HTTP `404`
-
-Gate 2 production artifacts:
-- `publications/scivive/reader/manifest.json`
-- `tools/build_scivive_reader.py`
-- `tools/upload_scivive_reader.py`
-- `tools/test_reader_ui.py`
-- `migrations/0004_connect_scivive_reader.sql`
-
-Gate 2 implementation checkpoints (identify by commit subject; hashes were intentionally rewritten during the privacy scrub):
-- `Gate 2: define SciVive Reader manifest`
-- `Gate 2: add SciVive Reader asset builder`
-- `Gate 2: add private Reader R2 uploader`
-- `Gate 2: bind SciVive Reader delivery`
-- `Gate 2: read Reader delivery from D1`
-- `Gate 2: add protected Reader preview session` — temporary proof mechanism only
-- `Gate 2: remove temporary Reader preview`
-- `Gate 2: add protected Reader frontend transport`
-- `Gate 2: version protected Reader frontend`
-- `Gate 2: add Reader browser acceptance test`
-- `Close Gate 2 project state`
-- `Close Gate 2 README`
-
-Production acceptance proof:
-- authorized temporary Gate 2 test session opened the real production SciVive private manifest
-- manifest reported 461 pages
-- real protected page 1 returned HTTP `200`
-- page 1 matched the locally generated WebP byte-for-byte
-- unauthorized normal app Reader request returned HTTP `404`
-- after preview cleanup, preview endpoint returned HTTP `404`
-- after secret deletion, normal Worker remained healthy
-- browser acceptance: laptop `1440x900` PASS
-- browser acceptance: tablet `820x1180` PASS
-- browser acceptance: mobile `390x844` PASS
-- Reader is not an embedded PDF viewer
-
-Exit criteria status:
-- authorized test session opens SciVive: PASS
-- unauthorized normal app request cannot fetch protected reading assets: PASS
-- Reader works on laptop: PASS
-- Reader works on tablet/mobile web: PASS
-- Reader does not feel/behave like an embedded PDF viewer: PASS
-- temporary test authorization removed after proof: PASS
-
-Important boundary:
-Gate 2 proves delivery and Reader UX. Gate 3 now proves wallet identity plus shared Archive/Reader ownership authority. Positive real collector ownership remains impossible until Gate 4 deploys and mints the first publication contract.
+461-page protected SciVive Reader, private R2 delivery, reproducible build/upload tooling and browser acceptance.
 
 ### GATE 3 — IDENTITY, OWNERSHIP, ARCHIVE & PUBLIC ENTRY — COMPLETE
 
-Goal:
-Make wallet identity and publication ownership authoritative without allowing client claims, localStorage, or arbitrary database insertion to grant collector access.
+D1 wallet identity/session, shared blockchain-authoritative ownership, Archive/Reader authority, SEALED PRESS, permanent 30-machine introduction, completion/reset and Harrow bypass.
 
-Delivered:
-- D1-backed wallet-signature challenge model
-- durable single-use challenge consumption
-- short D1-backed wallet sessions
-- chain-aware identity
-- session expiration/revocation boundary
-- live wallet browser flow against production challenge/verify/session endpoints
-- browser reload restores identity only after server session validation
-- challenge replay rejection
-- durable D1 publication-ownership verification/cache schema
-- immutable ownership-verification event audit layer
-- locked one-publication-contract-per-release ownership model
-- publication-level ownership verifier using the publication contract's `balanceOf(wallet)`
-- bounded D1 ownership-evidence freshness window
-- explicit unconfigured/error states rather than fabricated `not_owned`
-- authenticated `/api/wallet-status` Archive authority
-- Archive frontend wired to server-authoritative ownership
-- Reader manifest/page authorization wired to the exact same Worker ownership function as Archive
-- browser/localStorage ownership claims proven unable to grant ownership or Reader access
-- Reader regression acceptance updated for authoritative ownership and passing on laptop/tablet/mobile
+External only:
+- full Byte #6→#333 traversal waits for HairyLabs cache/history refresh and does not block future Gates
 
-Production proofs:
-- live challenge creation persisted in D1
-- live EVM `personal_sign` verification succeeded
-- challenge was durably consumed exactly once
-- replay returned HTTP `409`
-- D1 session existed as chain `369`, active and unexpired
-- live `/api/auth/session` accepted the D1-backed bearer session
-- D1 revocation immediately made the same bearer token return HTTP `401`
-- throwaway challenge/session rows were deleted after tests
-- live browser acceptance reached `VERIFIED` using a throwaway wallet and real production auth endpoints
-- verified identity did not create ownership
-- chain/account changes cleared browser auth state
-- unauthenticated `/api/wallet-status` returned HTTP `401`
-- browser/localStorage fake ownership claims left owned count at `00` and could not enable Reader access
-- Reader regression test passed at laptop `1440x900`, tablet `820x1180`, and mobile `390x844`
-- production ownership tables contained no fabricated ownership rows before the ownership Worker was enabled
-
-Locked ownership authority:
-- each publication/release has its own native ERC-721 collection contract
-- blockchain state is authoritative
-- `balanceOf(wallet)` is the fast publication-level ownership check because one contract maps to one publication
-- D1 stores only bounded, auditable evidence/cache of successful on-chain observations
-- RPC errors do not prove non-ownership
-- token-level `Transfer` + `ownerOf(tokenId)` remain the future copy/provenance authority for copy number, transfers, special copies, sealed/unsealed state, burn/Hellforge history, etc.
-- Archive and Reader must never use different ownership authorities
-
-Gate 3 exit criteria:
-- wallet connects/signs through server-authoritative identity: PASS
-- short server session is D1-backed, expiring, single-use-challenge protected, and revocable: PASS
-- chain-aware wallet identity: PASS
-- localStorage/client claims cannot grant identity or ownership: PASS
-- ownership authority/cache model is durable and chain-backed by design: PASS
-- Archive consumes authenticated server ownership state: PASS
-- Reader consumes the exact same ownership authority: PASS
-- no-contract/private SciVive cannot falsely grant ownership or Reader access: PASS
-- public first-visit redirect to Byte #6: PASS
-- campaign completion → current sealed experience: PASS
-- replay/reset → Byte #6 redirect: PASS
-- Harrow private bypass ignores campaign completion and sealed screen: PASS
-- APIs/Reader/repository-private paths remain protected and unaffected: PASS
-- full HairyLabs 30-Byte traversal: EXTERNAL CACHE PENDING / NON-BLOCKING
-- positive minted-owner proof: intentionally belongs to Gate 4, because Gate 3 correctly does not deploy or fabricate a contract
-
-Important Gate boundary:
-Gate 3 is formally closed. Identity/ownership/Archive/Reader authority, SEALED PRESS, permanent first-introduction routing, completion/replay behavior, and Harrow's private bypass are all live-proven. The remaining HairyLabs cache/history refresh is an external non-blocking dependency and must not prevent Gate 4.
-
-#### Gate 3.1 / final-addition status
-
-**SEALED PRESS — COMPLETE**
-- public incomplete site is blinded behind `THE PRESS IS CLOSED`
-- Harrow has a private secure bypass/reseal path
-- static deployment leakage was hardened
-- cache-resistant sealed delivery was live-proven
-
-**THE 30-MACHINE PROBLEM — HELLBOX-SIDE INTEGRATION COMPLETE**
-- thirty owned Pulse Bytes carry one continuous Harrow-hosted comic/story
-- TX01 Byte #6 is the approved standard
-- all remaining transmissions were rebuilt to follow that standard
-- campaign remains the permanent first introduction to Hellbox after launch
-- first-visit redirect, completion, replay, and private-Harrow bypass plumbing are deployed and live-proven
-- full Byte-to-Byte end-to-end acceptance is externally cache-pending and is explicitly non-blocking
-
-**FINAL GATE 3 LIVE ACCEPTANCE — 2026-08-30**
-- fresh public root request: HTTP `302` to `https://hairylabs.io/page/6` — PASS
-- root redirect: `Cache-Control: no-store, max-age=0` — PASS
-- root redirect marker: `X-Hellbox-Campaign: first-introduction` — PASS
-- `/campaign-complete` followed to `/`: final HTTP `200` sealed Press — PASS
-- completion landing visibly contained `THE PRESS`, `START ANOTHER INCIDENT`, and `Experience the 30-machine problem again` — PASS
-- `/campaign-reset`: HTTP `303` to `https://hairylabs.io/page/6` — PASS
-- reset clears `__Host-hellbox_campaign_complete` with `Max-Age=0` — PASS
-- reset response no-store/no-cache — PASS
-- valid `/__harrow` session showed `PRIVATE ACCESS // HELD` and entered the real development/index site without Byte redirect or sealed Press — PASS
-- `/api/health`: `ok: true` — PASS
-- authentication engine remains `wallet-signature-d1-session` — PASS
-- ownership engine remains `publication-contract-balance-d1-cache-v1` — PASS
-- `/api/prelaunch/status`: `mode: sealed`, campaign start Byte #6, unauthenticated `completed: false` — PASS
-- unauthenticated `/api/reader/scivive`: HTTP `404` — PASS
-- `/.git/config`: HTTP `404` — PASS
-- repository working tree was clean after deployed routing/prelaunch commits — PASS
-- full HairyLabs `#6 → #333` traversal: **DEFERRED / EXTERNAL CACHE PENDING; not a Gate 3 blocker**
-
-### GATE 4 — PULSECHAIN TESTNET PUBLICATION CONTRACT + FACTORY
+### GATE 4 — HELLBOX ARTIFACT KERNEL + VERSIONED PUBLICATION FACTORY — CURRENT
 
 Goal:
-Prove the standardized one-contract-per-publication on-chain model before mainnet.
+Create the immutable/versioned on-chain kernel every publication can build on without painting Native Issue #1 into a corner.
 
-Build/deploy on PulseChain Testnet V4:
-- standardized/auditable `HellboxPublication` ERC-721 implementation
-- `HellboxPublicationFactory`
-- fresh native contract deployment per publication/release
-- immutable max-supply enforcement after initialization/configuration
-- publication lifecycle rules
-- royalty configuration
-- mint/payment limits
-- event model
-- copy-number assignment baseline
-- SciVive test publication contract deployed through the factory
-- factory/deployment metadata recorded back into Hellbox durable publication configuration
+Pre-implementation architecture alignment has established:
+- versioned non-upgradeable publication instances
+- one native ERC-721 collection per publication
+- tokenId = copy number
+- randomized anti-sniping public assignment
+- 216-copy native baseline
+- PRESS MARK / PRESS DEFECT permanent birth grammar
+- Harrow immediate six + true-mintout three-copy tail reserve
+- one-copy-per-transaction / max-six-per-wallet standard
+- pricing-policy modes
+- dynamic metadata requirement
+- SEALED / ARCHIVE / UNSEALED primitives
+- future ERC-6551 / reward / Hellforge compatibility
+- publication-package/art cryptographic commitment
+- private Press publication-compiler direction
 
-Exit criteria:
-- factory deploys a fresh SciVive publication collection
-- real testnet mint succeeds
-- publication-level `balanceOf` ownership reaches the Gate 3 ownership authority
-- token-level Transfer/`ownerOf` evidence can identify the minted copy
-- ownership reaches Archive
-- minted ownership opens Reader
-- a second dummy/test publication can be deployed from the same standard without bespoke Solidity changes
-- native future-chain deployment model is proven without bridging
+Gate 4 implementation should establish/test:
+- Publication Configuration Blueprint first
+- `HellboxPublication` versioned kernel/template
+- `HellboxPublicationFactory` / approved template registry
+- immutable configuration/finalization boundaries
+- supply enforcement
+- token/copy assignment architecture
+- mint schedule/config representation
+- pricing-policy interface/representation
+- royalty/event baseline
+- dynamic metadata/renderer interface
+- seal/archive-compatible primitives/interfaces as appropriate
+- external protocol compatibility points
+- package/content commitment
+- metadata update signaling
+- SciVive test deployment
+- second dummy publication deployment
+- real testnet mint reaching Gate 3 ownership → Archive → Reader
 
-### GATE 5 — PRESS V2 / REAL MINT EXPERIENCE
+Gate 4 is PulseChain Testnet V4 only.
 
-Goal:
-Turn the Press from prototype art into the real publishing/mint machine.
+### GATE 5 — PRESS V2 + PRIVATE RELEASE/CONTRACT BUILDER + REAL MINT UX
 
-This is when current Press formatting/art debt is intentionally revisited.
+Private publication builder plus collector Press, pricing/phase UX, live dynamic screens, one-copy pulls and real mint transactions.
 
-Build:
-- final Press functional map
-- new/final Press art only after functions are known
-- real lever activation
-- wallet recognition
-- publication display
-- transaction preparation/signing
-- confirmation
-- numbering
-- clear failure states
-- copy counter
-- dynamic screen regions
-- testnet mint integration
+### GATE 6 — INGEST + DYNAMIC METADATA + RARITY/RENDERING PACKAGE ENGINE
 
-Exit criteria:
-Press → wallet transaction → token → Archive → Reader works end-to-end.
+Automated package intake, canonical cover/Reader ingest, deterministic MARK/DEFECT rendering, random assignment/reveal integration, metadata renderer and marketplace refresh signaling.
 
-### GATE 6 — PUBLISHER / INGEST OPERATIONS
+### GATE 7 — ARTIFACT PROTOCOLS
 
-Goal:
-Make new publications plug-and-play.
+SEALED/UNSEALED, reversible Archive, transfer lock, official reward accounting, ERC-6551, permanent/contextual traits, dynamic covers, Hellforge, owner-authorized burn/evolution and protocol compatibility.
 
-Build:
-- publication package upload
-- validation
-- asset ingest
-- metadata generation
-- preview
-- release configuration
-- Press/Archive/Reader preview
-- one publication configuration transaction
-- controlled go-live
+### GATE 8 — RELATIONSHIP / HELLION PRODUCT DEPTH
 
-Exit criteria:
-A second test publication can be onboarded without frontend code edits, manual R2 juggling, or bespoke contract development; onboarding may deploy a fresh standardized publication contract through the factory as part of the normal release workflow.
+Durable relationship history, standing/favor, Hellion thresholds, certificates, aliases and privacy controls.
 
-### GATE 7 — RELATIONSHIP / HELLION PRODUCT DEPTH
+### GATE 9 — EXPERIENCE/CONTENT FREEZE + AUDIT/HARDENING
 
-Goal:
-Replace the local prototype with the real long-term relationship system.
+Final art/content, accessibility/localization, performance/privacy/analytics/SEO/legal, browser matrix, contract/security review and full Native Issue #1 prelaunch audit.
 
-Build:
-- permanent history
-- current standing
-- volatile favor
-- server-authoritative events
-- discovery history
-- reading/ownership/release history
-- rare Hellion thresholding
-- certificate custody/revocation/restoration
-- alias/name behavior
-- privacy controls
+### GATE 10 — RELEASE CANDIDATE / MAINNET + FIRST NATIVE ISSUE
 
-Exit criteria:
-Hellion cannot be cheaply earned through local clicks and persists according to real behavior.
+PulseChain mainnet production contracts/protocols, launch rehearsal, SciVive production path, first native Hellbox issue and full post-launch acceptance.
 
-### GATE 8 — EXPERIENCE FREEZE, CONTENT FREEZE & HARDENING
+### NATIVE ISSUE #1 HARD RELEASE BARRIER
 
-Goal:
-Freeze the product experience before launch.
+SciVive is allowed to be the proving exception.
 
-Resolve deferred work here:
-- final hero composition
-- show full hero below fixed header
-- move copy off `PUT THAT BACK`
-- restore true hotspot mapping
-- stripper-pole hotspot
-- `WHO'S NEXT?` hotspot
-- woman/crypto obsession-wall thread
-- final Press visual polish
-- widescreen/vertical layouts
-- final English wording
-- final Harrow voice pass
-- final locale delta
-- remaining languages generated/reviewed
-- accessibility audit
-- performance audit
-- privacy/consent
-- analytics event taxonomy
-- SEO/social metadata
-- legal/contact/privacy surfaces as required
-- internal hotspot inventory/test mode
-- browser/device matrix
+The first **native Hellbox comic issue** does not launch until all intended foundational artifact capabilities are proven so early adopters are not second-class collectors.
 
-Exit criteria:
-feature freeze + content freeze + visual freeze.
-
-### GATE 9 — RELEASE CANDIDATE / MAINNET LAUNCH
-
-Goal:
-Turn the frozen product into production.
-
-Build/verify:
-- PulseChain mainnet contract deployment
-- production publication configuration
-- production secrets/bindings
-- monitoring/logging
-- rate limiting/abuse handling
-- backup/recovery plan
-- Analytics verification
-- rollback procedure
-- launch rehearsal
-- SciVive production mint
-- ownership/Archive/Reader full-path validation
-- post-launch checklist
-
-Exit criteria:
-SciVive is live and the complete Hellbox publishing loop works in production.
+Before Native Issue #1 mainnet, prove:
+- unique versioned publication contract
+- immutable release configuration
+- 216-copy standard grammar
+- tokenId/copy randomization
+- Harrow immediate/tail allocation
+- PRESS MARK / PRESS DEFECT
+- dynamic generated covers/metadata
+- marketplace metadata updates
+- all mint phases and one-copy-per-transaction rule
+- live odds/transparency
+- chosen payment policy / dynamic PLS pricing where used
+- SEALED / ARCHIVED / UNSEALED
+- non-custodial official reward compatibility
+- transfer locking while archived
+- ERC-6551
+- permanent incident/history state
+- contextual traits
+- Hellforge
+- owner-authorized burn/transformation
+- hidden traits/evolution
+- protocol/version recognition
+- complete Press warnings/UX
 
 ### CURRENT CRITICAL PATH
 
-`Gate 4 testnet publication factory/contracts → Gate 5 Press → Gate 6 publisher operations → Gate 7 relationship depth`
-
-Do not spend weeks polishing prototype surfaces before the ownership → testnet mint → Archive → Reader loop works.
-
----
+`Gate 4 artifact kernel → Gate 5 Press/builder → Gate 6 package/metadata/rendering → Gate 7 artifact protocols → Gate 8 Hellion → Gate 9 freeze/audit → Gate 10 mainnet`
 
 ## 32. GATE 0 COMPLETION / DEFERRED BACKLOG
 
 Gate 0 was intentionally closed with known non-blocking visual debt.
 
 Deferred to later appropriate gates:
-- final Press formatting/art → Gate 5
-- hero structural composition/hotspot truth → Gate 8
-- stripper pole / `WHO'S NEXT?` / woman-crypto obsession-wall additions → Gate 8
-- widescreen/vertical layouts → Gate 8
-- all languages beyond Spanish → Gate 8 after English copy freeze
-- privacy/consent layer and final Analytics event taxonomy → Gate 8
-- mainnet contracts → Gate 9
+- final Press production art/UX → Gate 5, with final freeze in Gate 9
+- hero structural composition/hotspot truth → Gate 9
+- stripper pole / `WHO'S NEXT?` / woman-crypto obsession-wall additions → Gate 9
+- widescreen/vertical layouts → Gate 9
+- all languages beyond Spanish → Gate 9 after English copy freeze
+- privacy/consent layer and final Analytics event taxonomy → Gate 9
+- mainnet contracts → Gate 10
 
 Localization permanent rule:
 Every future user-visible interaction must enter the English catalog at creation time and be included in final locale delta/QA.
@@ -1797,71 +1955,99 @@ Every future user-visible interaction must enter the English catalog at creation
 
 ## 33. EXACT NEXT ENGINEERING ACTION
 
-**GATE 4 IS OPEN.**
+**GATE 4 IMPLEMENTATION HAS NOT STARTED. DO NOT SKIP THE BLUEPRINT.**
 
-Goal:
-Build and prove the standardized one-contract-per-publication model on PulseChain Testnet V4.
+Repository inspection already proved:
+- no `package.json`
+- no package-manager lockfile
+- no `foundry.toml`
+- no Hardhat config
+- no `contracts/`
+- no `test/` / `tests/` contract structure
+- `forge`, `cast`, `anvil` not installed
 
-### First action — inspect before adding files
+Working tool recommendation remains **Foundry**, but installing it is **not** the immediate next action.
 
-Do not guess which Solidity framework the repository already uses.
+### First Gate 4 deliverable in the new thread
 
-Inspect the repo root and likely contract-tooling paths first. Determine whether the repository already contains:
-- `package.json`
-- lockfiles
-- `foundry.toml`
-- `hardhat.config.js` / `hardhat.config.ts`
-- `contracts/`
-- `test/` / `tests/`
-- Solidity compiler/dependency configuration
+Create the **Publication Configuration Blueprint**.
 
-After that inspection, choose the smallest one-file setup/implementation step.
+It must enumerate every release field and classify each as:
+- immutable at mint-go-live
+- mutable artifact state under frozen rules
+- factory/template-registry state
+- publication-contract state
+- external-protocol state
+- D1/off-chain package state
+- cryptographic commitment
+- private-Press-only draft state
+- public Press/display state
 
-### Locked Gate 4 contract architecture
+The blueprint must include at least:
+- publication identity
+- chain
+- template/protocol version
+- collection name/symbol
+- max supply
+- immediate Harrow six
+- true-mintout three-copy tail reserve
+- fixed IDs such as #066
+- PRESS MARK distribution
+- PRESS DEFECT distribution
+- randomization/allocation/reveal policy
+- canonical cover
+- Reader package
+- layer/manifests
+- renderer version
+- package/content digest
+- pricing mode
+- stable/USD target
+- static PLS amount
+- accepted payment routes
+- price adapter/oracle reference where applicable
+- quote/slippage rules
+- mint phases
+- phase caps
+- eligibility/Merkle commitments
+- wallet allowance 6
+- one-copy-per-transaction
+- royalty
+- treasury/routing
+- metadata/renderer interface
+- metadata refresh signaling
+- SEALED capability
+- ARCHIVE compatibility
+- UNSEAL behavior
+- ERC-6551 compatibility
+- external reward protocol compatibility
+- Hellforge/burn/evolution compatibility
+- event/indexing requirements
+- freeze/finalization state
 
-Build:
-- standardized/auditable `HellboxPublication` ERC-721 implementation
-- `HellboxPublicationFactory`
-- fresh native publication collection deployed per release
-- immutable publication identity/configuration where appropriate
-- max supply that cannot increase after initialization/configuration
-- burns may reduce surviving supply but never raise the cap
-- royalty configuration
-- mint/payment limits
-- events sufficient for Gate 3 ownership and future token-level indexing/provenance
-- SciVive test publication deployed through the factory
+### After blueprint approval
 
-SciVive test configuration:
-- chain: PulseChain Testnet V4 / chain ID `943`
-- max supply: `5555`
-- free primary mint
-- max 1 primary mint per wallet
-- max 1 per transaction
-- royalty: `369` bps
-- Reader enabled
-- no sealing, Hellforge, $SIN, vault, evolution, or burn gimmicks
+Then:
+1. install/initialize the chosen contract toolchain
+2. preserve one-file-at-a-time workflow
+3. create the smallest first Gate 4 contract/config file
+4. test immediately
+5. do not deploy mainnet
+6. do not use stale HairyLabs Bytes in testing
 
-### Gate 4 acceptance path
+### Gate 4 acceptance target
 
-`factory deploys SciVive test collection → test wallet mints → Gate 3 balanceOf ownership authority sees owned → Archive shows owned → Reader opens → Transfer/ownerOf identifies the copy`
+`factory/template → SciVive Testnet V4 collection → 1-copy mint → Gate 3 balanceOf ownership → Archive owned → Reader opens`
 
-Also deploy a second dummy/test publication from the same standard without bespoke Solidity changes.
+and:
 
-Do not:
-- deploy mainnet
-- make SciVive public/mainnet-ready merely because testnet works
-- bridge Hellbox NFTs
-- create one endlessly growing master collection
-- hand-code a different implementation per publication
-- let max supply increase after configuration
-- bypass Gate 3 ownership authority with frontend contract reads
-- split Archive and Reader into different ownership sources
-- include stale HairyLabs Byte pages in Gate 4 testing
+`same factory/template/version → second dummy publication without bespoke Solidity changes`
+
+Gate 4 must also prove that its kernel/config model does **not** prevent the full Native Issue #1 artifact requirements assigned to later Gates.
 
 At Gate 4 close:
 - update all three living documents
-- give a weighted macro-progress report
-- ask whether HairyLabs has refreshed the pending Byte pages so the full permanent-introduction traversal can finally be accepted
+- provide weighted progress
+- ask whether HairyLabs has refreshed Bytes #6, #11, #13, #19, #20, #23, #104, #223, #333
 
 ## 30. RECOVERY AND PRIVACY RECORD
 

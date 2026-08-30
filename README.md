@@ -52,7 +52,8 @@ Detailed characterization and visual canon live in `HARROW_CHARACTER_BIBLE.md` a
 ## Current production checkpoint
 
 **Gate 3 COMPLETE — Identity, Ownership, Archive, SEALED PRESS & Permanent Public Entry**
-**Gate 4 NEXT — PulseChain Testnet Publication Contract + Factory**
+**Gate 4 CURRENT — Hellbox Artifact Kernel + Versioned Publication Factory**
+**Gate 4 implementation has NOT started; Publication Configuration Blueprint is next**
 
 The site is deployed at `hellboxcomics.com` from `main` through Cloudflare. The unfinished development site is intentionally hidden behind the sealed `THE PRESS IS CLOSED` surface for outside visitors; Harrow has a separate private bypass.
 
@@ -188,6 +189,45 @@ Verified 2026-08-30:
 - unauthenticated `/api/reader/scivive`: HTTP `404`
 - `/.git/config`: HTTP `404`
 - full 30-Byte traversal: external HairyLabs cache pending / intentionally excluded from testing
+
+## Gate 4 architecture alignment — read before coding
+
+Gate 4 is **not** simply “make an NFT contract.” It establishes the immutable/versioned artifact kernel that later Hellbox protocols build around.
+
+Locked/working native issue direction includes:
+- one native ERC-721 collection per publication
+- released publication instances are non-upgradeable
+- future capability through versioned templates + modular protocols
+- rules freeze at mint-go-live while artifact state/metadata may evolve
+- token ID is the collector copy number
+- public IDs shuffled/randomized rather than sequentially assigned
+- standard native run `216`
+- PRESS MARK: HELLBOUND `6`, PRESS PROOF `12`, GOLD `18`, STANDARD `180`
+- PRESS DEFECT: REDACTED `6`, CORRUPTED PLATE `12`, BLED OUT `18`, OFF REGISTER `24`, NONE `156`
+- #001–#006 are Harrow's fixed special creator pull
+- #066 is a public HELLBOUND grail
+- Harrow receives three additional copies only as the literal last three after a true mint-out
+- Harrow's PRESS DEFECT results are random too
+- max primary allowance `6` per wallet; **one copy per transaction**
+- configurable free/reserve/allowlist/early/public phases
+- public Press shows live eligibility, allocations, remaining MARK/DEFECT counts and recalculated odds
+- pricing policy per publication; FREE / FIXED_STABLE / FIXED_PLS / USD_TARGET_DUAL
+- dynamic PLS quote must use trusted price-adapter/oracle/TWAP-style architecture rather than manual edits
+- dynamic metadata required
+- SEALED → UNSEALED irreversible
+- ARCHIVE reversible while sealed and transfer-locks the token
+- ERC-6551 compatibility required for Native Issue #1
+- official Archive rewards separate from arbitrary token-bound-account assets
+- Hellforge/burn/evolution compatibility required before Native Issue #1 mainnet
+- SciVive remains a narrower proving exception
+
+The private gated Press becomes a **publication compiler**: Harrow supplies canonical cover + actual Reader/comic package + approved MARK/DEFECT layer art. The system validates, commits, randomizes, reproducibly composites cover variants, generates metadata and prepares deployment. This is deterministic/reproducible compositing, not AI image generation by default.
+
+### Immediate next deliverable
+
+Before installing Foundry or writing Solidity, create and approve the **Publication Configuration Blueprint**: one exhaustive schema of every field Harrow's private Press must decide, preview, validate and irreversibly freeze before `PUBLISH`.
+
+Repository/tooling discovery already showed no existing Solidity framework/config or contracts/test directories. Foundry is not installed. Working tool recommendation after blueprint approval: Foundry.
 
 ## Reader product direction
 
@@ -442,66 +482,38 @@ At every Gate close:
 
 ## Exact next action
 
-**Gate 4 is open.**
+Move this work to a fresh Gate 4 thread.
 
-Before creating contract files, inspect the repository for existing Solidity tooling (`package.json`, lockfiles, `foundry.toml`, `hardhat.config.*`, `contracts/`, test directories). Do not invent a second toolchain if one already exists.
+The new thread should read:
+1. `HELLBOX_PROJECT_STATE.md`
+2. `HARROW_CHARACTER_BIBLE.md`
+3. `README.md`
 
-Then begin the smallest one-file step toward:
-- standardized `HellboxPublication` ERC-721 implementation
-- `HellboxPublicationFactory`
-- PulseChain Testnet V4 deployment
-- SciVive test configuration: supply `5555`, free mint, max 1/wallet, max 1/transaction, royalty `369` bps
-- a second dummy publication deployed from the same standard
-- real mint → Gate 3 ownership authority → Archive → Reader proof
+Then create the **Publication Configuration Blueprint** before installing tooling or writing Solidity.
 
-Do not include HairyLabs Bytes in Gate 4 testing until the creator says the cache lane is clear.
+Only after the creator approves the blueprint should the thread install/initialize Foundry (working recommendation) and create the first Gate 4 implementation file under the one-file-at-a-time workflow.
 
-## Next Gate
+## Working roadmap — Gate 0 through Gate 10
 
-### Gate 4 — PulseChain Testnet Publication Contract + Factory
+- Gate 0 — foundation — COMPLETE
+- Gate 1 — publication/data model — COMPLETE
+- Gate 2 — protected Reader — COMPLETE
+- Gate 3 — identity/ownership/Archive/public entry — COMPLETE
+- Gate 4 — artifact kernel + versioned publication factory — CURRENT
+- Gate 5 — Press V2 + private release/contract builder + real mint UX
+- Gate 6 — ingest + dynamic metadata + rarity/rendering/package engine
+- Gate 7 — artifact protocols: Archive rewards, ERC-6551, contextual/permanent state, Hellforge/burn/evolution
+- Gate 8 — Hellion/relationship depth
+- Gate 9 — experience/content freeze + audit/hardening/localization/accessibility
+- Gate 10 — mainnet release candidate + first native Hellbox issue
 
-Goal: deploy the first real standardized Hellbox publication collection on PulseChain Testnet V4 and prove that Gate 3 ownership authority can consume it.
+Native Issue #1 does not go mainnet until the complete intended artifact model is genuinely proven.
 
-Locked contract direction:
-
-```text
-HellboxPublication implementation
-            │
-            ▼
-HellboxPublicationFactory
-      │       │       │
-      ▼       ▼       ▼
-  SciVive   Issue A   Issue B
-  contract  contract  contract
-```
-
-Each release gets its own finite ERC-721 collection and marketplace identity while reusing the same audited/standardized implementation.
-
-Gate 4 acceptance path:
-
-```text
-factory deploys SciVive test collection
-    ↓
-throwaway/test wallet mints
-    ↓
-Gate 3 balanceOf ownership authority sees owned
-    ↓
-Archive shows owned
-    ↓
-Reader opens
-    ↓
-Transfer/ownerOf identifies the individual copy
-```
-
-SciVive test configuration remains:
-
-- max supply `5555`
-- free primary mint
-- max 1 primary mint per wallet
-- max 1 per transaction
-- royalty `369` bps
-
-Do **not** deploy mainnet yet. Do **not** create one endlessly growing master collection. Do **not** bridge Hellbox NFTs.
+At every future Gate close:
+- update all three living documents
+- provide weighted progress
+- ask whether HairyLabs has refreshed Bytes `#6, #11, #13, #19, #20, #23, #104, #223, #333`
+- do not include the Bytes in testing until the creator says the lane is clear
 
 ## Security / repository rules
 
