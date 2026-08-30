@@ -13,6 +13,20 @@ const PRELAUNCH_SURFACE_PATH = "/prelaunch.html";
 const HARROW_ACCESS_PATH = "/__harrow";
 const HARROW_RESEAL_PATH = "/__harrow/reseal";
 
+// Permanent Hellbox first-introduction boundary.
+// This cookie is routing state only. It grants no identity, ownership,
+// Reader access, publication access, or Harrow/private privileges.
+const CAMPAIGN_COMPLETE_TTL_SECONDS =
+  365 * 24 * 60 * 60;
+const CAMPAIGN_COOKIE_NAME =
+  "__Host-hellbox_campaign_complete";
+const CAMPAIGN_START_URL =
+  "https://hairylabs.io/page/6";
+const CAMPAIGN_COMPLETE_PATH =
+  "/campaign-complete";
+const CAMPAIGN_RESET_PATH =
+  "/campaign-reset";
+
 const ALLOWED_ORIGINS = new Set([
   "https://hellboxcomics.com",
   "https://www.hellboxcomics.com",
@@ -364,6 +378,8 @@ async function handlePrelaunchRequest(
   env,
   url
 ) {
+  // Private Harrow routes are always reachable directly and remain separate
+  // from public campaign state.
   if (
     url.pathname ===
       HARROW_ACCESS_PATH
@@ -384,16 +400,62 @@ async function handlePrelaunchRequest(
     );
   }
 
-  if (!isPrelaunchSealed(env)) {
-    return null;
+  // The final Byte returns here. Completing the introduction only changes
+  // public routing; it cannot authorize any protected Hellbox capability.
+  if (
+    url.pathname ===
+      CAMPAIGN_COMPLETE_PATH
+  ) {
+    return handleCampaignComplete(
+      request
+    );
   }
 
+  // Replay is intentionally available forever. Clearing this cookie sends
+  // the visitor back to Byte #6 without touching any other Hellbox state.
+  if (
+    url.pathname ===
+      CAMPAIGN_RESET_PATH
+  ) {
+    return handleCampaignReset(
+      request
+    );
+  }
+
+  // Harrow's signed private bypass outranks the public introduction and
+  // sealed surface. This preserves the existing owner/developer workflow.
   if (
     await hasValidPrelaunchBypass(
       request,
       env
     )
   ) {
+    return null;
+  }
+
+  // THE 30-MACHINE PROBLEM is Hellbox's permanent first introduction.
+  // Only document navigations are redirected; APIs and static assets have
+  // already bypassed this path or do not present as HTML documents.
+  if (
+    (
+      request.method === "GET" ||
+      request.method === "HEAD"
+    ) &&
+    isDocumentNavigation(
+      request
+    ) &&
+    !hasCompletedCampaign(
+      request
+    )
+  ) {
+    return redirectToCampaignStart();
+  }
+
+  // During development, completed visitors see THE PRESS IS CLOSED.
+  // When sealed mode is later disabled, completed visitors simply fall
+  // through to the live Hellbox site while first-time visitors still begin
+  // at Byte #6.
+  if (!isPrelaunchSealed(env)) {
     return null;
   }
 
@@ -414,6 +476,160 @@ async function handlePrelaunchRequest(
   }
 
   return null;
+}
+
+function handleCampaignComplete(
+  request
+) {
+  if (
+    request.method !== "GET" &&
+    request.method !== "HEAD"
+  ) {
+    return new Response(
+      "Method Not Allowed",
+      {
+        status: 405,
+        headers: {
+          "Allow":
+            "GET, HEAD",
+          "Cache-Control":
+            "no-store",
+        },
+      }
+    );
+  }
+
+  return new Response(
+    null,
+    {
+      status: 303,
+      headers: {
+        "Location":
+          "/",
+        "Set-Cookie":
+          buildCampaignCompleteCookie(),
+        "Cache-Control":
+          "no-store, max-age=0",
+        "Pragma":
+          "no-cache",
+        "Expires":
+          "0",
+        "Referrer-Policy":
+          "no-referrer",
+        "X-Hellbox-Campaign":
+          "completed",
+      },
+    }
+  );
+}
+
+function handleCampaignReset(
+  request
+) {
+  if (
+    request.method !== "GET" &&
+    request.method !== "HEAD"
+  ) {
+    return new Response(
+      "Method Not Allowed",
+      {
+        status: 405,
+        headers: {
+          "Allow":
+            "GET, HEAD",
+          "Cache-Control":
+            "no-store",
+        },
+      }
+    );
+  }
+
+  return new Response(
+    null,
+    {
+      status: 303,
+      headers: {
+        "Location":
+          CAMPAIGN_START_URL,
+        "Set-Cookie":
+          clearCampaignCookie(),
+        "Cache-Control":
+          "no-store, max-age=0",
+        "Pragma":
+          "no-cache",
+        "Expires":
+          "0",
+        "Referrer-Policy":
+          "no-referrer",
+        "X-Hellbox-Campaign":
+          "reset",
+      },
+    }
+  );
+}
+
+function redirectToCampaignStart() {
+  return new Response(
+    null,
+    {
+      status: 302,
+      headers: {
+        "Location":
+          CAMPAIGN_START_URL,
+        "Cache-Control":
+          "no-store, max-age=0",
+        "Pragma":
+          "no-cache",
+        "Expires":
+          "0",
+        "Referrer-Policy":
+          "no-referrer",
+        "X-Hellbox-Campaign":
+          "first-introduction",
+      },
+    }
+  );
+}
+
+function hasCompletedCampaign(
+  request
+) {
+  return (
+    getCookieValue(
+      request,
+      CAMPAIGN_COOKIE_NAME
+    ) ===
+      "complete"
+  );
+}
+
+function buildCampaignCompleteCookie() {
+  return [
+    `${CAMPAIGN_COOKIE_NAME}=complete`,
+    "Path=/",
+    `Max-Age=${CAMPAIGN_COMPLETE_TTL_SECONDS}`,
+    "Secure",
+    "HttpOnly",
+    "SameSite=Lax",
+    "Priority=High",
+  ].join(
+    "; "
+  );
+}
+
+function clearCampaignCookie() {
+  return [
+    `${CAMPAIGN_COOKIE_NAME}=`,
+    "Path=/",
+    "Max-Age=0",
+    "Expires=Thu, 01 Jan 1970 00:00:00 GMT",
+    "Secure",
+    "HttpOnly",
+    "SameSite=Lax",
+    "Priority=High",
+  ].join(
+    "; "
+  );
 }
 
 function isPrelaunchSealed(env) {
@@ -615,6 +831,16 @@ async function handlePrelaunchStatusApi(
         env
       ),
     authorized,
+    campaign: {
+      name:
+        "the-30-machine-problem",
+      startUrl:
+        CAMPAIGN_START_URL,
+      completed:
+        hasCompletedCampaign(
+          request
+        ),
+    },
   });
 }
 
