@@ -1,6 +1,7 @@
 const API_VERSION = "hellbox-v2";
 const SESSION_TTL_SECONDS = 15 * 60;
 const CHALLENGE_TTL_SECONDS = 5 * 60;
+const OWNERSHIP_CACHE_TTL_SECONDS = 60;
 
 const ALLOWED_ORIGINS = new Set([
   "https://hellboxcomics.com",
@@ -439,8 +440,8 @@ async function handleApi(
     request.method === "GET"
   ) {
     return handleWalletStatus(
-      env,
-      url
+      request,
+      env
     );
   }
 
@@ -676,6 +677,9 @@ async function handleHealth(env) {
 
       authentication:
         "wallet-signature-d1-session",
+
+      ownershipEngine:
+        "publication-contract-balance-d1-cache-v1",
 
       payments:
         "free-erc20-native",
@@ -1195,35 +1199,33 @@ async function handlePress(
 // ============================================================
 
 async function handleWalletStatus(
-  env,
-  url
+  request,
+  env
 ) {
-  const address =
-    normalizeAddress(
-      url.searchParams.get(
-        "address"
-      )
+  const session =
+    await requireSession(
+      request,
+      env
     );
 
-  const requestedChainId =
-    Number(
-      url.searchParams.get(
-        "chainId"
-      ) ||
-      369
-    );
-
-  if (!address) {
+  if (!session.ok) {
     return json(
       {
         ok: false,
-
-        error:
-          "Valid wallet address required.",
+        authenticated: false,
+        error: session.error,
       },
-      400
+      session.status
     );
   }
+
+  const address =
+    session.payload.wallet;
+
+  const requestedChainId =
+    Number(
+      session.payload.chainId
+    );
 
   const chain =
     Object.values(
@@ -1240,14 +1242,13 @@ async function handleWalletStatus(
     return json(
       {
         ok: false,
-
+        authenticated: true,
         error:
-          "Unsupported chain.",
-
+          "Authenticated wallet chain is not active in Hellbox.",
         chainId:
           requestedChainId,
       },
-      400
+      409
     );
   }
 
@@ -1269,66 +1270,60 @@ async function handleWalletStatus(
     const publication
     of publicPublications
   ) {
-    const copies =
-      await getOwnedTokenCopies(
+    const ownership =
+      await verifyPublicationOwnership(
         env,
         publication,
         address
       );
 
+    let ownershipLabel =
+      "unavailable";
+
     if (
-      copies.length >
-      0
+      ownership.status ===
+      "verified"
     ) {
-      for (
-        const copy
-        of copies
-      ) {
-        editions.push({
-          ...publicPublicationView(
-            publication
-          ),
-
-          ownership:
-            copy.evolved
-              ? "evolved"
-              : "owned",
-
-          tokenId:
-            copy.tokenId,
-
-          copyNumber:
-            copy.copyNumber ??
-            null,
-
-          tokenState:
-            copy.tokenState ||
-            null,
-        });
-      }
-    } else {
-      editions.push({
-        ...publicPublicationView(
-          publication
-        ),
-
-        ownership:
-          publication
-            .token
-            .contractAddress
-            ? "missing"
-            : "unavailable",
-
-        tokenId:
-          null,
-
-        copyNumber:
-          null,
-
-        tokenState:
-          null,
-      });
+      ownershipLabel =
+        ownership.owned
+          ? "owned"
+          : "missing";
+    } else if (
+      ownership.status ===
+      "error"
+    ) {
+      ownershipLabel =
+        "verification_error";
     }
+
+    editions.push({
+      ...publicPublicationView(
+        publication
+      ),
+
+      ownership:
+        ownershipLabel,
+
+      balance:
+        ownership.balance,
+
+      verification: {
+        status:
+          ownership.status,
+
+        source:
+          ownership.source,
+
+        verifiedAt:
+          ownership.verifiedAt,
+
+        validUntil:
+          ownership.validUntil,
+
+        observedBlockNumber:
+          ownership.observedBlockNumber,
+      },
+    });
   }
 
   const ownedCount =
@@ -1336,13 +1331,6 @@ async function handleWalletStatus(
       edition =>
         edition.ownership ===
         "owned"
-    ).length;
-
-  const evolvedCount =
-    editions.filter(
-      edition =>
-        edition.ownership ===
-        "evolved"
     ).length;
 
   const missingCount =
@@ -1354,13 +1342,12 @@ async function handleWalletStatus(
 
   return json({
     ok: true,
+    authenticated: true,
 
     wallet: {
       address,
-
       chainId:
         requestedChainId,
-
       chainKey:
         chain.key,
     },
@@ -1368,21 +1355,22 @@ async function handleWalletStatus(
     summary: {
       known:
         editions.length,
-
       owned:
         ownedCount,
-
       missing:
         missingCount,
-
-      evolved:
-        evolvedCount,
-
+      evolved: 0,
       unavailable:
         editions.filter(
           edition =>
             edition.ownership ===
             "unavailable"
+        ).length,
+      verificationErrors:
+        editions.filter(
+          edition =>
+            edition.ownership ===
+            "verification_error"
         ).length,
     },
 
@@ -2383,6 +2371,38 @@ async function handleReaderManifest(
     );
 
   if (
+    ownership.status ===
+    "error"
+  ) {
+    return json(
+      {
+        ok: false,
+        access:
+          "verification_unavailable",
+        error:
+          "Ownership verification is temporarily unavailable.",
+      },
+      503
+    );
+  }
+
+  if (
+    ownership.status ===
+    "unavailable"
+  ) {
+    return json(
+      {
+        ok: false,
+        access:
+          "not_configured",
+        error:
+          "Ownership verification is not configured for this publication.",
+      },
+      409
+    );
+  }
+
+  if (
     !ownership.owned
   ) {
     return json(
@@ -2496,6 +2516,34 @@ async function handleReaderAsset(
         .payload
         .wallet
     );
+
+  if (
+    ownership.status ===
+    "error"
+  ) {
+    return json(
+      {
+        ok: false,
+        error:
+          "Ownership verification is temporarily unavailable.",
+      },
+      503
+    );
+  }
+
+  if (
+    ownership.status ===
+    "unavailable"
+  ) {
+    return json(
+      {
+        ok: false,
+        error:
+          "Ownership verification is not configured for this publication.",
+      },
+      409
+    );
+  }
 
   if (
     !ownership.owned
@@ -3520,33 +3568,40 @@ async function getOwnedTokenCopies(
   publication,
   address
 ) {
+  const ownership =
+    await verifyPublicationOwnership(
+      env,
+      publication,
+      address
+    );
+
   if (
-    !publication
-      .token
-      .contractAddress ||
-    publication
-      .token
-      .publicationId ==
-      null
+    ownership.status !==
+      "verified" ||
+    !ownership.owned
   ) {
     return [];
   }
 
   /*
-   * INTENTIONALLY NOT GUESSED.
+   * Publication-level ownership is authoritative through balanceOf(wallet)
+   * because every Hellbox publication/release has its own ERC-721 contract.
    *
-   * The Hellbox ERC-721 contract has not been deployed yet.
-   *
-   * Once deployed, this function will use:
-   *
-   * 1. indexed Transfer-event ownership cache
-   * 2. final ownerOf verification
-   *
-   * We will NOT use ERC721Enumerable.
-   * We will NOT repeatedly scan the entire chain per request.
+   * Individual token IDs/copy numbers remain a separate token-level index
+   * populated from Transfer events and verified with ownerOf(tokenId). Gate 3
+   * does not invent token IDs merely to prove Reader/Archive ownership.
    */
 
-  return [];
+  return [
+    {
+      tokenId: null,
+      copyNumber: null,
+      tokenState: null,
+      evolved: false,
+      balance:
+        ownership.balance,
+    },
+  ];
 }
 
 async function verifyPublicationOwnership(
@@ -3554,20 +3609,450 @@ async function verifyPublicationOwnership(
   publication,
   address
 ) {
-  const copies =
-    await getOwnedTokenCopies(
-      env,
-      publication,
+  const db =
+    requireDatabase(
+      env
+    );
+
+  const wallet =
+    normalizeAddress(
       address
     );
 
-  return {
-    owned:
-      copies.length >
-      0,
+  const contractAddress =
+    normalizeAddress(
+      publication?.token
+        ?.contractAddress
+    );
 
-    copies,
-  };
+  const chainId =
+    Number(
+      publication?.chainId
+    );
+
+  if (
+    !wallet ||
+    !contractAddress ||
+    !Number.isInteger(
+      chainId
+    )
+  ) {
+    return {
+      configured: false,
+      status:
+        "unavailable",
+      owned: false,
+      balance: null,
+      source: null,
+      verifiedAt: null,
+      validUntil: null,
+      observedBlockNumber: null,
+    };
+  }
+
+  const chain =
+    Object.values(
+      CHAIN_REGISTRY
+    ).find(
+      candidate =>
+        candidate.chainId ===
+          chainId &&
+        candidate.enabled ===
+          true
+    );
+
+  if (!chain) {
+    return {
+      configured: true,
+      status:
+        "error",
+      owned: false,
+      balance: null,
+      source: null,
+      verifiedAt: null,
+      validUntil: null,
+      observedBlockNumber: null,
+      error:
+        "Publication chain is not active in Hellbox.",
+    };
+  }
+
+  const now =
+    unixNow();
+
+  const cached =
+    await db
+      .prepare(
+        `
+          SELECT
+            contract_address,
+            balance,
+            ownership_status,
+            observed_block_number,
+            verified_at,
+            valid_until,
+            verification_source
+          FROM wallet_publication_holdings
+          WHERE wallet_address = ?
+            AND publication_key = ?
+            AND chain_id = ?
+            AND contract_address = ?
+            AND valid_until > ?
+          LIMIT 1
+        `
+      )
+      .bind(
+        wallet,
+        publication.publicationKey,
+        chainId,
+        contractAddress,
+        now
+      )
+      .first();
+
+  if (cached) {
+    return {
+      configured: true,
+      status:
+        "verified",
+      owned:
+        cached.ownership_status ===
+        "owned",
+      balance:
+        Number(
+          cached.balance
+        ),
+      source:
+        "d1_cache",
+      verificationSource:
+        cached.verification_source,
+      verifiedAt:
+        Number(
+          cached.verified_at
+        ),
+      validUntil:
+        Number(
+          cached.valid_until
+        ),
+      observedBlockNumber:
+        cached.observed_block_number == null
+          ? null
+          : Number(
+              cached.observed_block_number
+            ),
+    };
+  }
+
+  const verificationId =
+    crypto.randomUUID();
+
+  let verificationSource =
+    "rpc_public";
+
+  try {
+    const balanceCall =
+      await rpcWithFallback(
+        env,
+        chain,
+        "eth_call",
+        [
+          {
+            to:
+              contractAddress,
+            data:
+              encodeErc721BalanceOf(
+                wallet
+              ),
+          },
+          "latest",
+        ]
+      );
+
+    verificationSource =
+      balanceCall.fallbackUsed
+        ? "rpc_byte_fallback"
+        : "rpc_public";
+
+    const balance =
+      parseRpcUint256(
+        balanceCall.result
+      );
+
+    const blockCall =
+      await rpcWithFallback(
+        env,
+        chain,
+        "eth_blockNumber",
+        []
+      );
+
+    const observedBlockNumber =
+      parseRpcBlockNumber(
+        blockCall.result
+      );
+
+    const owned =
+      balance > 0;
+
+    const result =
+      owned
+        ? "owned"
+        : "not_owned";
+
+    const validUntil =
+      now +
+      OWNERSHIP_CACHE_TTL_SECONDS;
+
+    await db
+      .prepare(
+        `
+          INSERT INTO ownership_verification_events (
+            verification_id,
+            wallet_address,
+            publication_key,
+            chain_id,
+            contract_address,
+            token_standard,
+            result,
+            balance,
+            observed_block_number,
+            observed_block_hash,
+            verified_at,
+            valid_until,
+            verification_source,
+            error_code
+          )
+          VALUES (?, ?, ?, ?, ?, 'ERC721', ?, ?, ?, NULL, ?, ?, ?, NULL)
+        `
+      )
+      .bind(
+        verificationId,
+        wallet,
+        publication.publicationKey,
+        chainId,
+        contractAddress,
+        result,
+        balance,
+        observedBlockNumber,
+        now,
+        validUntil,
+        verificationSource
+      )
+      .run();
+
+    await db
+      .prepare(
+        `
+          INSERT INTO wallet_publication_holdings (
+            wallet_address,
+            publication_key,
+            chain_id,
+            contract_address,
+            token_standard,
+            balance,
+            ownership_status,
+            observed_block_number,
+            observed_block_hash,
+            verified_at,
+            valid_until,
+            verification_source,
+            updated_at
+          )
+          VALUES (?, ?, ?, ?, 'ERC721', ?, ?, ?, NULL, ?, ?, ?, CURRENT_TIMESTAMP)
+          ON CONFLICT(wallet_address, publication_key, chain_id)
+          DO UPDATE SET
+            contract_address = excluded.contract_address,
+            token_standard = excluded.token_standard,
+            balance = excluded.balance,
+            ownership_status = excluded.ownership_status,
+            observed_block_number = excluded.observed_block_number,
+            observed_block_hash = excluded.observed_block_hash,
+            verified_at = excluded.verified_at,
+            valid_until = excluded.valid_until,
+            verification_source = excluded.verification_source,
+            updated_at = CURRENT_TIMESTAMP
+        `
+      )
+      .bind(
+        wallet,
+        publication.publicationKey,
+        chainId,
+        contractAddress,
+        balance,
+        result,
+        observedBlockNumber,
+        now,
+        validUntil,
+        verificationSource
+      )
+      .run();
+
+    return {
+      configured: true,
+      status:
+        "verified",
+      owned,
+      balance,
+      source:
+        "chain",
+      verificationSource,
+      verifiedAt:
+        now,
+      validUntil,
+      observedBlockNumber,
+    };
+  } catch (error) {
+    if (
+      chain.fallbackRpcEnvKey &&
+      env[
+        chain.fallbackRpcEnvKey
+      ]
+    ) {
+      verificationSource =
+        "rpc_byte_fallback";
+    }
+
+    try {
+      await db
+        .prepare(
+          `
+            INSERT INTO ownership_verification_events (
+              verification_id,
+              wallet_address,
+              publication_key,
+              chain_id,
+              contract_address,
+              token_standard,
+              result,
+              balance,
+              observed_block_number,
+              observed_block_hash,
+              verified_at,
+              valid_until,
+              verification_source,
+              error_code
+            )
+            VALUES (?, ?, ?, ?, ?, 'ERC721', 'error', NULL, NULL, NULL, ?, NULL, ?, ?)
+          `
+        )
+        .bind(
+          verificationId,
+          wallet,
+          publication.publicationKey,
+          chainId,
+          contractAddress,
+          now,
+          verificationSource,
+          "RPC_UNAVAILABLE"
+        )
+        .run();
+    } catch {
+      // Never hide the original verification failure behind audit logging.
+    }
+
+    return {
+      configured: true,
+      status:
+        "error",
+      owned: false,
+      balance: null,
+      source: null,
+      verifiedAt: null,
+      validUntil: null,
+      observedBlockNumber: null,
+      error:
+        error instanceof Error
+          ? error.message
+          : String(error),
+    };
+  }
+}
+
+function encodeErc721BalanceOf(
+  address
+) {
+  const wallet =
+    normalizeAddress(
+      address
+    );
+
+  if (!wallet) {
+    throw new Error(
+      "Valid wallet address required for balanceOf."
+    );
+  }
+
+  return (
+    "0x70a08231" +
+    wallet
+      .slice(2)
+      .padStart(
+        64,
+        "0"
+      )
+  );
+}
+
+function parseRpcUint256(
+  value
+) {
+  if (
+    typeof value !==
+      "string" ||
+    !/^0x[0-9a-f]+$/i.test(
+      value
+    )
+  ) {
+    throw new Error(
+      "RPC returned an invalid uint256 value."
+    );
+  }
+
+  const parsed =
+    BigInt(
+      value
+    );
+
+  if (
+    parsed >
+    BigInt(
+      Number.MAX_SAFE_INTEGER
+    )
+  ) {
+    throw new Error(
+      "Ownership balance exceeds safe integer range."
+    );
+  }
+
+  return Number(
+    parsed
+  );
+}
+
+function parseRpcBlockNumber(
+  value
+) {
+  if (
+    typeof value !==
+      "string" ||
+    !/^0x[0-9a-f]+$/i.test(
+      value
+    )
+  ) {
+    return null;
+  }
+
+  const parsed =
+    Number.parseInt(
+      value,
+      16
+    );
+
+  return Number.isSafeInteger(
+    parsed
+  )
+    ? parsed
+    : null;
 }
 
 // ============================================================
