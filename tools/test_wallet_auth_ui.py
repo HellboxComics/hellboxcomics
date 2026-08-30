@@ -122,6 +122,17 @@ def main() -> int:
 
     provider_script = f"""
 (() => {{
+    // Deliberately poison browser storage with fake "ownership" claims.
+    // Gate 3 acceptance requires that none of this can create Archive/Reader authority.
+    try {{
+        window.localStorage.setItem("hellbox:ownership", JSON.stringify({{"scivive": true}}));
+        window.localStorage.setItem("hellbox:owned", JSON.stringify(["scivive"]));
+        window.localStorage.setItem("hellbox:collection", JSON.stringify({{"owned": 999}}));
+        window.localStorage.setItem("ownedComics", JSON.stringify(["scivive"]));
+    }} catch (error) {{
+        // Storage availability is not the point of this test.
+    }}
+
     const listeners = Object.create(null);
     let accounts = [{json.dumps(address)}];
     let chainId = {json.dumps(PULSECHAIN_HEX)};
@@ -263,7 +274,12 @@ def main() -> int:
             owned_count = page.locator("#summaryOwned").inner_text().strip()
             require(
                 owned_count == "00",
-                f"Verified identity incorrectly changed owned publication count to {owned_count!r}.",
+                f"Verified identity or browser storage incorrectly changed owned publication count to {owned_count!r}.",
+            )
+
+            require(
+                page.locator('.collection-item-action:not([disabled])').count() == 0,
+                "Browser/localStorage state created an enabled Archive/Reader action without authoritative ownership.",
             )
 
             stored_session_raw = page.evaluate(
@@ -362,6 +378,7 @@ def main() -> int:
     print("Real verify endpoint: PASS")
     print("UI identity state VERIFIED: PASS")
     print("Identity remains separate from ownership: PASS")
+    print("Browser/localStorage cannot grant ownership: PASS")
     print("D1 session restore after reload: PASS")
     print("Chain-change session clearing: PASS")
     print("Throwaway D1 auth records cleanup: PASS")
