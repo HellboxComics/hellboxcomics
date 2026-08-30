@@ -1,0 +1,8 @@
+{
+  "name": "hellboxcomics",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "viem": "2.55.19"
+  }
+}
