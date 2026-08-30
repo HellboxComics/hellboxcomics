@@ -3,15 +3,27 @@
   "name": "hellboxcomics",
   "main": "src/index.js",
   "compatibility_date": "2026-08-24",
+
+  // Gate 3.1 public state.
+  // "sealed" means ordinary visitors see the Sealed Press surface while a
+  // valid __Host-hellbox_prelaunch cookie continues to receive the real site.
+  "vars": {
+    "HELLBOX_PRELAUNCH_MODE": "sealed"
+  },
+
   "assets": {
     "directory": ".",
     "binding": "ASSETS",
     "run_worker_first": [
       "/api/*",
+      "/",
+      "/index.html",
+      "/prelaunch.html",
       "/__harrow",
       "/__harrow/*"
     ]
   },
+
   // Hellbox project storage uses only hellbox-public and hellbox-private.
   // The legacy hellbox-assets bucket is intentionally excluded forever.
   "r2_buckets": [
@@ -24,6 +36,7 @@
       "bucket_name": "hellbox-private"
     }
   ],
+
   "d1_databases": [
     {
       "binding": "DB",
