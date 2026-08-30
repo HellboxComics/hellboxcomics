@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#020202">
+  <meta name="color-scheme" content="dark">
+  <meta name="format-detection" content="telephone=no">
+
+  <title>Hellbox Comics — The Press Is Closed.</title>
+  <meta
+    name="description"
+    content="Hellbox Comics. Underground publishing from Harrow's side of PulseChain. The press is closed. For now."
+  >
+  <link rel="canonical" href="https://hellboxcomics.com/">
+  <link
+    rel="icon"
+    type="image/png"
+    href="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem-improved.PNG"
+  >
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Hellbox Comics">
+  <meta property="og:title" content="Hellbox Comics — The Press Is Closed.">
+  <meta property="og:description" content="You found it early. Harrow is still working.">
+  <meta property="og:url" content="https://hellboxcomics.com/">
+  <meta property="og:locale" content="en_US">
+  <meta
+    property="og:image"
+    content="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-banner-alt.PNG"
+  >
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Hellbox Comics — The Press Is Closed.">
+  <meta name="twitter:description" content="You found it early. Harrow is still working.">
+  <meta
+    name="twitter:image"
+    content="https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-banner-alt.PNG"
+  >
+
+  <link rel="preconnect" href="https://cdn.hellboxcomics.com" crossorigin>
+  <link rel="preload" as="image"
+    href="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem-improved.PNG"
+  >
+  <link rel="preload" as="image"
+    href="https://cdn.hellboxcomics.com/assets/brand/harrow/emblems/improved-harrow-pfp.PNG"
+  >
+
+  <style>
+    :root {
+      --black: #020202;
+      --ink: #080808;
+      --panel: rgba(10, 10, 10, 0.78);
+      --paper: #ece7dc;
+      --muted: #8e8b84;
+      --line: rgba(236, 231, 220, 0.16);
+      --ember: #f05a22;
+      --red: #da312c;
+      --violet: #8b48ff;
+      --violet-soft: rgba(139, 72, 255, 0.22);
+      --shadow: rgba(0, 0, 0, 0.78);
+      --max: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--black);
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--paper);
+      background:
+        radial-gradient(circle at 50% 15%, rgba(139,72,255,.08), transparent 28rem),
+        radial-gradient(circle at 50% 100%, rgba(240,90,34,.05), transparent 34rem),
+        var(--black);
+      font-family:
+        Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    button,
+    a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .skip-link {
+      position: fixed;
+      z-index: 100;
+      top: .75rem;
+      left: .75rem;
+      transform: translateY(-180%);
+      padding: .7rem .9rem;
+      border: 1px solid var(--paper);
+      background: #000;
+      color: var(--paper);
+      text-decoration: none;
+      font-size: .76rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      transition: transform .15s ease;
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    .background-room {
+      position: fixed;
+      inset: -4rem;
+      z-index: -4;
+      background:
+        linear-gradient(rgba(0,0,0,.82), rgba(0,0,0,.92)),
+        url("https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.png?v=20260828-gate0-1-02")
+        center / cover no-repeat;
+      filter: blur(24px) saturate(.7) contrast(1.08);
+      transform: scale(1.08);
+      opacity: .44;
+    }
+
+    .shutter {
+      position: fixed;
+      inset: 0;
+      z-index: -3;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(255,255,255,.015) 0,
+          rgba(255,255,255,.015) 1px,
+          rgba(0,0,0,.14) 1px,
+          rgba(0,0,0,.14) 6px
+        ),
+        linear-gradient(
+          90deg,
+          transparent 0 49.7%,
+          rgba(139,72,255,.18) 49.9%,
+          rgba(139,72,255,.07) 50.1%,
+          transparent 50.3%
+        );
+      opacity: .82;
+    }
+
+    .shutter::before,
+    .shutter::after {
+      content: "";
+      position: absolute;
+      inset-inline: 0;
+      height: 2px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(236,231,220,.12),
+        rgba(240,90,34,.24),
+        transparent
+      );
+      box-shadow: 0 0 20px rgba(240,90,34,.08);
+    }
+
+    .shutter::before { top: 23%; }
+    .shutter::after { top: 73%; }
+
+    .noise {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      pointer-events: none;
+      opacity: .16;
+      background-image:
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+      mix-blend-mode: soft-light;
+    }
+
+    .vignette {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,.45), transparent 22%, transparent 70%, rgba(0,0,0,.72)),
+        radial-gradient(circle at center, transparent 38%, rgba(0,0,0,.75) 100%);
+    }
+
+    .shell {
+      width: min(calc(100% - 2rem), var(--max));
+      min-height: 100vh;
+      margin: 0 auto;
+      padding:
+        max(1.25rem, env(safe-area-inset-top))
+        0
+        max(1.25rem, env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      min-height: 3.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--line);
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: .72rem;
+      min-width: 0;
+    }
+
+    .topbar-emblem {
+      width: 2rem;
+      height: 2rem;
+      object-fit: contain;
+      filter: drop-shadow(0 0 10px rgba(240,90,34,.18));
+      flex: 0 0 auto;
+    }
+
+    .topbar-name {
+      white-space: nowrap;
+    }
+
+    .topbar-status {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .status-dot {
+      width: .48rem;
+      height: .48rem;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 14px rgba(218,49,44,.55);
+    }
+
+    main {
+      flex: 1;
+      display: grid;
+      align-content: center;
+      padding: clamp(3.5rem, 8vw, 7.5rem) 0 clamp(3rem, 7vw, 6rem);
+    }
+
+    .stage {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(230px, 340px);
+      gap: clamp(2rem, 7vw, 6rem);
+      align-items: center;
+    }
+
+    .eyebrow {
+      margin: 0 0 1.1rem;
+      color: var(--ember);
+      font-size: clamp(.69rem, 1.2vw, .82rem);
+      font-weight: 900;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 850px;
+      margin: 0;
+      font-size: clamp(3rem, 9.5vw, 8rem);
+      line-height: .86;
+      letter-spacing: -.065em;
+      text-transform: uppercase;
+      text-wrap: balance;
+    }
+
+    .closed-word {
+      position: relative;
+      display: inline-block;
+    }
+
+    .closed-word::after {
+      content: "";
+      position: absolute;
+      left: -.02em;
+      right: -.04em;
+      top: 52%;
+      height: .055em;
+      background: var(--red);
+      transform: rotate(-1.5deg);
+      box-shadow: 0 0 18px rgba(218,49,44,.22);
+    }
+
+    .lede {
+      max-width: 620px;
+      margin: clamp(1.8rem, 4vw, 2.5rem) 0 0;
+      font-size: clamp(1.02rem, 2vw, 1.3rem);
+      line-height: 1.55;
+      color: #c8c4ba;
+    }
+
+    .lede strong {
+      color: var(--paper);
+    }
+
+    .signature {
+      margin-top: 1.2rem;
+      color: var(--paper);
+      font-weight: 900;
+      letter-spacing: .06em;
+    }
+
+    .proof-stamp {
+      width: fit-content;
+      margin-top: 2rem;
+      padding: .65rem .8rem .58rem;
+      border: 2px solid rgba(218,49,44,.68);
+      color: rgba(236,231,220,.78);
+      font-size: .68rem;
+      font-weight: 900;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      transform: rotate(-2deg);
+      background: rgba(0,0,0,.34);
+      box-shadow: inset 0 0 0 2px rgba(218,49,44,.08);
+    }
+
+    .machine-card {
+      position: relative;
+      padding: 1.1rem;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(145deg, rgba(16,16,16,.92), rgba(3,3,3,.82));
+      box-shadow:
+        0 22px 80px var(--shadow),
+        inset 0 0 50px rgba(139,72,255,.025);
+      overflow: hidden;
+    }
+
+    .machine-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          transparent 0 18px,
+          rgba(255,255,255,.015) 18px 19px
+        );
+    }
+
+    .machine-head {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding-bottom: .85rem;
+      border-bottom: 1px solid var(--line);
+      font-size: .66rem;
+      font-weight: 900;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+
+    .machine-head span:last-child {
+      color: var(--red);
+    }
+
+    .harrow-button {
+      position: relative;
+      display: block;
+      width: min(72%, 220px);
+      aspect-ratio: 1;
+      margin: 1.6rem auto 1.25rem;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, rgba(139,72,255,.10), transparent 65%);
+      cursor: pointer;
+    }
+
+    .harrow-button::before {
+      content: "";
+      position: absolute;
+      inset: 4%;
+      border-radius: 50%;
+      border: 1px solid rgba(139,72,255,.38);
+      box-shadow:
+        0 0 28px rgba(139,72,255,.11),
+        inset 0 0 24px rgba(139,72,255,.06);
+    }
+
+    .harrow-button img {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter:
+        drop-shadow(0 0 16px rgba(139,72,255,.24))
+        drop-shadow(0 0 12px rgba(218,49,44,.12));
+      transition: transform .16s ease, filter .16s ease;
+    }
+
+    .harrow-button:hover img,
+    .harrow-button:focus-visible img {
+      transform: scale(1.035) rotate(-1deg);
+      filter:
+        drop-shadow(0 0 22px rgba(139,72,255,.36))
+        drop-shadow(0 0 16px rgba(218,49,44,.17));
+    }
+
+    .harrow-button:focus-visible,
+    .social-link:focus-visible {
+      outline: 2px solid var(--paper);
+      outline-offset: 4px;
+    }
+
+    .harrow-readout {
+      position: relative;
+      min-height: 5.4rem;
+      padding: .9rem;
+      border-top: 1px solid var(--line);
+      background: rgba(0,0,0,.42);
+    }
+
+    .harrow-readout small {
+      display: block;
+      margin-bottom: .5rem;
+      color: var(--violet);
+      font-size: .62rem;
+      font-weight: 900;
+      letter-spacing: .17em;
+      text-transform: uppercase;
+    }
+
+    .harrow-readout p {
+      margin: 0;
+      min-height: 2.7em;
+      font-size: .9rem;
+      line-height: 1.48;
+      font-weight: 750;
+      letter-spacing: .01em;
+    }
+
+    .meter {
+      position: relative;
+      margin-top: 1rem;
+    }
+
+    .meter-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: .5rem;
+      color: var(--muted);
+      font-size: .62rem;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .meter-row strong {
+      color: var(--paper);
+    }
+
+    .meter-track {
+      display: grid;
+      grid-template-columns: repeat(17, 1fr);
+      gap: 4px;
+    }
+
+    .meter-track span {
+      height: .38rem;
+      background: rgba(236,231,220,.08);
+    }
+
+    .meter-track span:nth-child(-n+11) {
+      background: linear-gradient(90deg, rgba(240,90,34,.66), rgba(218,49,44,.72));
+      box-shadow: 0 0 8px rgba(218,49,44,.08);
+    }
+
+    .meter-note {
+      margin: .6rem 0 0;
+      color: var(--red);
+      text-align: right;
+      font-size: .62rem;
+      font-weight: 950;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    .leaks {
+      margin-top: clamp(2.2rem, 5vw, 4rem);
+      padding-top: 1.1rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .leaks-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: .8rem;
+      color: var(--muted);
+      font-size: .64rem;
+      font-weight: 900;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+
+    .leaks-label span:last-child {
+      color: rgba(236,231,220,.48);
+    }
+
+    .socials {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: .65rem;
+    }
+
+    .social-link {
+      position: relative;
+      min-height: 5.8rem;
+      padding: .9rem;
+      border: 1px solid var(--line);
+      background: rgba(4,4,4,.62);
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition:
+        border-color .15s ease,
+        background .15s ease,
+        transform .15s ease;
+    }
+
+    .social-link:hover {
+      transform: translateY(-2px);
+      border-color: rgba(236,231,220,.33);
+      background: rgba(12,12,12,.78);
+    }
+
+    .social-link small {
+      color: var(--muted);
+      font-size: .6rem;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .social-link strong {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: .6rem;
+      font-size: .86rem;
+      line-height: 1.15;
+      letter-spacing: .025em;
+      text-transform: uppercase;
+    }
+
+    .social-link strong span:last-child {
+      color: var(--ember);
+    }
+
+    .social-link.stickers {
+      border-color: rgba(139,72,255,.28);
+      background:
+        linear-gradient(135deg, rgba(139,72,255,.09), rgba(4,4,4,.7));
+    }
+
+    .social-link.stickers strong span:last-child {
+      color: var(--violet);
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      color: rgba(236,231,220,.42);
+      font-size: .58rem;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .footer strong {
+      color: rgba(236,231,220,.67);
+    }
+
+    @media (max-width: 850px) {
+      .stage {
+        grid-template-columns: 1fr;
+      }
+
+      .machine-card {
+        width: min(100%, 440px);
+      }
+
+      .socials {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .shell {
+        width: min(calc(100% - 1.25rem), var(--max));
+      }
+
+      .topbar-name {
+        display: none;
+      }
+
+      main {
+        padding-top: 3rem;
+      }
+
+      h1 {
+        font-size: clamp(3.1rem, 18vw, 5.1rem);
+      }
+
+      .socials {
+        grid-template-columns: 1fr;
+      }
+
+      .social-link {
+        min-height: 4.7rem;
+      }
+
+      .footer {
+        flex-direction: column;
+        gap: .35rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#mainContent">Skip the interruption</a>
+
+  <div class="background-room" aria-hidden="true"></div>
+  <div class="shutter" aria-hidden="true"></div>
+  <div class="noise" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <div class="shell">
+    <header class="topbar">
+      <div class="topbar-left">
+        <img
+          class="topbar-emblem"
+          src="https://cdn.hellboxcomics.com/assets/brand/hellbox/emblems/hellbox-emblem-improved.PNG"
+          alt=""
+        >
+        <span class="topbar-name">HELLBOX COMICS // PRIVATE PROPERTY*</span>
+      </div>
+
+      <div class="topbar-status">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span>PRESS STATUS // CLOSED</span>
+      </div>
+    </header>
+
+    <main id="mainContent">
+      <section class="stage" aria-labelledby="sealedTitle">
+        <div>
+          <p class="eyebrow">HELLBOX PRESS // BAY 01</p>
+
+          <h1 id="sealedTitle">
+            THE PRESS<br>
+            IS <span class="closed-word">CLOSED.</span>
+          </h1>
+
+          <p class="lede">
+            <strong>You found it early.</strong><br>
+            I'm still working.<br>
+            Try not to look so proud of yourself.
+          </p>
+
+          <p class="signature">— H</p>
+
+          <div class="proof-stamp" aria-label="Proofs not for release">
+            PROOFS NOT FOR RELEASE
+          </div>
+        </div>
+
+        <aside class="machine-card" aria-label="Harrow interruption panel">
+          <div class="machine-head">
+            <span>HARROW // BUSY</span>
+            <span>DO NOT DISTURB</span>
+          </div>
+
+          <button
+            class="harrow-button"
+            id="harrowButton"
+            type="button"
+            aria-describedby="harrowReadout"
+            aria-label="Interrupt Harrow"
+          >
+            <img
+              src="https://cdn.hellboxcomics.com/assets/brand/harrow/emblems/improved-harrow-pfp.PNG"
+              alt=""
+            >
+          </button>
+
+          <div class="harrow-readout" id="harrowReadout" aria-live="polite">
+            <small>HARROW // INTERRUPTION</small>
+            <p id="harrowMessage">Don't touch anything.</p>
+          </div>
+
+          <div class="meter" aria-label="Harrow quality review">
+            <div class="meter-row">
+              <span>QUALITY REVIEW</span>
+              <strong>IN PROGRESS</strong>
+            </div>
+            <div class="meter-track" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span><span></span>
+              <span></span><span></span>
+            </div>
+            <p class="meter-note">UNACCEPTABLE.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="leaks" aria-labelledby="leaksTitle">
+        <div class="leaks-label">
+          <span id="leaksTitle">AUTHORIZED LEAKS</span>
+          <span>Apparently you need something to do.</span>
+        </div>
+
+        <nav class="socials" aria-label="Hellbox social links">
+          <a
+            class="social-link"
+            href="https://x.com/HellboxComics"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <small>HELLBOX // X</small>
+            <strong>
+              <span>@HellboxComics</span>
+              <span aria-hidden="true">↗</span>
+            </strong>
+          </a>
+
+          <a
+            class="social-link"
+            href="https://x.com/SinnisterHarrow"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <small>HARROW // X</small>
+            <strong>
+              <span>Less official propaganda</span>
+              <span aria-hidden="true">↗</span>
+            </strong>
+          </a>
+
+          <a
+            class="social-link"
+            href="https://t.me/HellboxComics"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <small>TELEGRAM // THE BASEMENT</small>
+            <strong>
+              <span>Go bother them</span>
+              <span aria-hidden="true">↗</span>
+            </strong>
+          </a>
+
+          <a
+            class="social-link stickers"
+            href="https://t.me/addstickers/HellboxComics"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <small>STICKERS // CONTRABAND</small>
+            <strong>
+              <span>Make Telegram worse</span>
+              <span aria-hidden="true">↗</span>
+            </strong>
+          </a>
+        </nav>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>*PROBABLY NOT LEGALLY.</span>
+      <span><strong>HELLBOXCOMICS.COM</strong> // A HARROW PRODUCTION</span>
+    </footer>
+  </div>
+
+  <script>
+    (() => {
+      const button = document.getElementById("harrowButton");
+      const output = document.getElementById("harrowMessage");
+
+      if (!button || !output) return;
+
+      const lines = [
+        "What?",
+        "I said it's not ready.",
+        "This is becoming a personality problem.",
+        "Go bother a blockchain founder.",
+        "Fine. Take the stickers and leave.",
+        "You again?",
+        "I have work to do.",
+        "GO AWAY."
+      ];
+
+      let index = -1;
+
+      button.addEventListener("click", () => {
+        index = (index + 1) % lines.length;
+        output.textContent = lines[index];
+      });
+    })();
+  </script>
+</body>
+</html>
