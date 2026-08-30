@@ -3,15 +3,15 @@
   "name": "hellboxcomics",
   "main": "src/index.js",
   "compatibility_date": "2026-08-24",
-
   "assets": {
     "directory": ".",
     "binding": "ASSETS",
     "run_worker_first": [
-      "/api/*"
+      "/api/*",
+      "/__harrow",
+      "/__harrow/*"
     ]
   },
-
   // Hellbox project storage uses only hellbox-public and hellbox-private.
   // The legacy hellbox-assets bucket is intentionally excluded forever.
   "r2_buckets": [
@@ -24,7 +24,6 @@
       "bucket_name": "hellbox-private"
     }
   ],
-
   "d1_databases": [
     {
       "binding": "DB",
