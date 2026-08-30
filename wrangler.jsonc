@@ -14,14 +14,11 @@
   "assets": {
     "directory": ".",
     "binding": "ASSETS",
-    "run_worker_first": [
-      "/api/*",
-      "/",
-      "/index.html",
-      "/prelaunch.html",
-      "/__harrow",
-      "/__harrow/*"
-    ]
+
+    // Gate 3.1 requires the Worker to make the public/private document decision
+    // before Cloudflare's static asset cache. Ordinary assets still fall through
+    // to env.ASSETS.fetch(request) in src/index.js.
+    "run_worker_first": true
   },
 
   // Hellbox project storage uses only hellbox-public and hellbox-private.
