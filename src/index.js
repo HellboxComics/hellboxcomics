@@ -556,6 +556,15 @@ async function servePrelaunchSurface(
     "0"
   );
 
+  // Gate 3.1 launch transition:
+  // once an unauthenticated visitor reaches the sealed surface, tell
+  // supporting browsers to discard the previously cached full Hellbox site.
+  // This intentionally clears cache only — never cookies or storage.
+  headers.set(
+    "Clear-Site-Data",
+    "\"cache\""
+  );
+
   headers.set(
     "X-Content-Type-Options",
     "nosniff"
