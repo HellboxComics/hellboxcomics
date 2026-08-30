@@ -956,13 +956,43 @@ function renderHarrowAccessPage(
 function isTrustedPrelaunchWriteOrigin(
   request
 ) {
+  const fetchSite =
+    String(
+      request.headers.get(
+        "Sec-Fetch-Site"
+      ) ||
+      ""
+    )
+      .trim()
+      .toLowerCase();
+
+  // Browser form submissions give us a stronger signal than Origin here.
+  // Cloudflare may normalize the request URL internally, but Sec-Fetch-Site
+  // still reports whether the browser initiated this write from Hellbox itself.
+  if (fetchSite) {
+    if (
+      fetchSite ===
+        "cross-site"
+    ) {
+      return false;
+    }
+
+    return [
+      "same-origin",
+      "same-site",
+      "none",
+    ].includes(
+      fetchSite
+    );
+  }
+
+  // Non-browser/manual requests may omit Sec-Fetch-Site. Fall back to the
+  // explicit Hellbox origin allowlist when Origin exists.
   const origin =
     request.headers.get(
       "Origin"
     );
 
-  // Non-browser/manual same-site requests can omit Origin. The access secret
-  // is still required, and the browser form always sends an Origin header.
   if (!origin) {
     return true;
   }
