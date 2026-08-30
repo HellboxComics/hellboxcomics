@@ -547,6 +547,16 @@ async function servePrelaunchSurface(
   );
 
   headers.set(
+    "Pragma",
+    "no-cache"
+  );
+
+  headers.set(
+    "Expires",
+    "0"
+  );
+
+  headers.set(
     "X-Content-Type-Options",
     "nosniff"
   );
@@ -604,7 +614,7 @@ async function handlePrelaunchAccessApi(
   env
 ) {
   if (
-    !isSameOriginWrite(
+    !isTrustedPrelaunchWriteOrigin(
       request
     )
   ) {
@@ -710,7 +720,7 @@ async function handleHarrowAccessPage(
     request.method === "POST"
   ) {
     if (
-      !isSameOriginWrite(
+      !isTrustedPrelaunchWriteOrigin(
         request
       )
     ) {
@@ -913,6 +923,10 @@ function renderHarrowAccessPage(
         "text/html; charset=utf-8",
       "Cache-Control":
         "private, no-store, max-age=0",
+      "Pragma":
+        "no-cache",
+      "Expires":
+        "0",
       "X-Robots-Tag":
         "noindex, nofollow, noarchive",
       "X-Content-Type-Options":
@@ -936,7 +950,10 @@ function renderHarrowAccessPage(
   );
 }
 
-function isSameOriginWrite(
+// The public Hellbox domain may be normalized internally by Cloudflare before
+// the Worker sees request.url. Trust only the explicitly allowlisted Hellbox
+// origins instead of requiring exact equality with that internal URL.
+function isTrustedPrelaunchWriteOrigin(
   request
 ) {
   const origin =
@@ -944,18 +961,20 @@ function isSameOriginWrite(
       "Origin"
     );
 
+  // Non-browser/manual same-site requests can omit Origin. The access secret
+  // is still required, and the browser form always sends an Origin header.
   if (!origin) {
     return true;
   }
 
   try {
-    return (
+    const normalized =
       new URL(
         origin
-      ).origin ===
-      new URL(
-        request.url
-      ).origin
+      ).origin;
+
+    return ALLOWED_ORIGINS.has(
+      normalized
     );
   } catch {
     return false;
