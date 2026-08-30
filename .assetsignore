@@ -1,8 +1,71 @@
-# Worker source and internal project material are not public static assets.
+# Hellbox Comics static asset boundary
+#
+# wrangler.jsonc intentionally uses the repository root as the Assets directory.
+# Therefore every non-public repository path MUST be denied here.
+#
+# Public static surface intentionally left deployable:
+#   index.html
+#   prelaunch.html
+#   app.js
+#   style.css
+#   gate02.css
+#   locales/
+#
+# Everything below is repository, build, source, private publication, or tooling
+# material and must never be exposed through Cloudflare static Assets.
+
+# Version control / local tooling
+.git/
+.git/**
+.wrangler/
+.wrangler/**
+node_modules/
+node_modules/**
+.DS_Store
+**/.DS_Store
+
+# Worker/backend source
 src/
+src/**
+
+# Internal project documentation / handoff
 docs/
+docs/**
 README.md
+HELLBOX_PROJECT_STATE.md
+HARROW_CHARACTER_BIBLE.md
+*.md
+**/*.md
+
+# Cloudflare/runtime configuration
 wrangler.jsonc
 .assetsignore
+
+# Database / schemas / tooling
+migrations/
+migrations/**
+schemas/
+schemas/**
+tools/
+tools/**
+
+# Publication source/packages are not public static assets.
+# Reader delivery is handled through D1 + private R2 + Worker authorization.
+publications/
+publications/**
+
+# Browser does not load repository chain configuration directly.
+config/
+config/**
+
+# Archives / build artifacts / temp files
 *.zip
-*.md
+**/*.zip
+*.tar
+**/*.tar
+*.gz
+**/*.gz
+*.log
+**/*.log
+*.map
+**/*.map
