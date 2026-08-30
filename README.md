@@ -51,8 +51,8 @@ Detailed characterization and visual canon live in `docs/HARROW_CHARACTER_BIBLE_
 
 ## Current production checkpoint
 
-**Gate 2 COMPLETE — SciVive Reader vertical slice**  
-**Gate 3 NEXT — Identity, Ownership & Archive**
+**Gate 3 COMPLETE — Identity, Ownership & Archive**  
+**Gate 4 NEXT — PulseChain Testnet Publication Contract + Factory**
 
 The site is live at `hellboxcomics.com` and deploys from `main` through Cloudflare.
 
@@ -108,6 +108,23 @@ The site is live at `hellboxcomics.com` and deploys from `main` through Cloudfla
 - pre-scrub local backup and filter-repo temporary data removed
 - old pre-rewrite commit SHAs are intentionally obsolete and should not be used as handoff anchors
 
+**Gate 3 — Identity, Ownership & Archive**
+
+- durable D1-backed wallet-signature challenges
+- single-use challenge consumption and replay rejection
+- short D1-backed wallet sessions with expiration/revocation
+- chain-aware wallet identity
+- real production `personal_sign` browser flow
+- authenticated `/api/wallet-status` ownership authority
+- durable D1 ownership verification/cache + audit events
+- blockchain remains ownership source of truth; D1 is bounded evidence/cache only
+- one native ERC-721 collection contract per publication/release is now the locked architecture
+- publication-level ownership uses that publication contract's `balanceOf(wallet)`
+- Archive and Reader use the same Worker ownership authority
+- browser/localStorage state cannot grant ownership
+- Reader regression still passes on laptop, tablet and phone under authoritative ownership fixtures
+- SciVive still has no contract, so no positive real owner is fabricated before Gate 4
+
 ## Reader product direction
 
 Website first.
@@ -161,7 +178,14 @@ Browser
 Cloudflare Worker — src/index.js
       │
       ├── D1: hellbox-production
-      │     publication/package/Reader authority
+      │     publications/packages
+      │     Reader delivery pointers
+      │     wallet challenges/sessions
+      │     bounded ownership evidence/cache
+      │
+      ├── EVM RPC
+      │     authoritative publication ownership checks
+      │     against each release's native ERC-721 contract
       │
       ├── R2: hellbox-public
       │     public delivery assets
@@ -179,6 +203,24 @@ Configured Worker bindings are defined in `wrangler.jsonc`:
 
 The legacy `hellbox-assets` R2 bucket is intentionally excluded from this architecture.
 
+
+The on-chain publication model is **one standardized native ERC-721 collection contract per release**. Hellbox.com is the publisher/library tying those finite collections together. Gate 4 will implement the standardized `HellboxPublication` + `HellboxPublicationFactory` pattern on PulseChain Testnet V4.
+
+Identity layers:
+
+```text
+publicationKey
+    conceptual publication identity
+
+(chainId, contractAddress)
+    native on-chain release/collection identity
+
+(chainId, contractAddress, tokenId)
+    individual collectible identity
+```
+
+Never bridge Hellbox NFTs.
+
 ## Important repository paths
 
 ```text
@@ -195,7 +237,8 @@ config/chains.js                  chain configuration
 locales/                          interface localization packs
 tools/build_scivive_reader.py     reproducible Reader asset builder
 tools/upload_scivive_reader.py    private R2 upload + remote verification
-tools/test_reader_ui.py           browser Reader acceptance test
+tools/test_reader_ui.py           Reader/ownership browser regression test
+tools/test_wallet_auth_ui.py      live wallet identity/security acceptance test
 docs/                             product/canon standards
 HELLBOX_PROJECT_STATE.md          authoritative living handoff
 ```
@@ -211,6 +254,8 @@ Applied in order:
 0002_refine_asset_location_identity.sql
 0003_seed_scivive.sql
 0004_connect_scivive_reader.sql
+0005_wallet_identity.sql
+0006_ownership_index.sql
 ```
 
 Do not re-run or rewrite applied production migrations casually. Add a new migration for future durable changes.
@@ -223,7 +268,7 @@ Production health:
 curl -sS https://hellboxcomics.com/api/health | python3 -m json.tool
 ```
 
-The current healthy publication state reports D1 as the registry source with one configured private publication and one configured Reader.
+The current healthy state reports D1-backed publication/Reader authority, `wallet-signature-d1-session` authentication, and `publication-contract-balance-d1-cache-v1` ownership verification.
 
 Public publication enumeration is intentionally empty while SciVive remains private:
 
@@ -261,7 +306,27 @@ Current expected result:
 Gate 2 Reader UI laptop: PASS (1440x900)
 Gate 2 Reader UI tablet: PASS (820x1180)
 Gate 2 Reader UI mobile: PASS (390x844)
-Gate 2 Reader browser acceptance: PASS
+Hellbox Reader browser acceptance: PASS
+Authoritative ownership fixture: PASS
+```
+
+
+Live wallet identity/security acceptance:
+
+```bash
+python tools/test_wallet_auth_ui.py
+```
+
+Expected highlights:
+
+```text
+Gate 3 live wallet browser acceptance: PASS
+Real personal_sign flow: PASS
+UI identity state VERIFIED: PASS
+Identity remains separate from ownership: PASS
+Browser/localStorage cannot grant ownership: PASS
+D1 session restore after reload: PASS
+Throwaway D1 auth records cleanup: PASS
 ```
 
 ## Development workflow
@@ -300,27 +365,50 @@ At every Gate close:
 
 ## Next Gate
 
-### Gate 3 — Identity, Ownership & Archive
+### Gate 4 — PulseChain Testnet Publication Contract + Factory
 
-Goal: make wallet identity and ownership authoritative while preserving the proven Gate 2 Reader.
+Goal: deploy the first real standardized Hellbox publication collection on PulseChain Testnet V4 and prove that Gate 3 ownership authority can consume it.
 
-Target authority flow:
+Locked contract direction:
 
 ```text
-wallet signature
-    ↓
-short server session
-    ↓
-chain-aware wallet identity
-    ↓
-indexed + verified ownership
-    ↓
-Archive + Reader use the same authority
+HellboxPublication implementation
+            │
+            ▼
+HellboxPublicationFactory
+      │       │       │
+      ▼       ▼       ▼
+  SciVive   Issue A   Issue B
+  contract  contract  contract
 ```
 
-Gate 3 work begins by inspecting the existing wallet/session/Reader authorization paths and choosing the smallest single-file change.
+Each release gets its own finite ERC-721 collection and marketplace identity while reusing the same audited/standardized implementation.
 
-Do **not** deploy the NFT contract yet. Contract deployment belongs to Gate 4 after identity/ownership architecture is ready to consume it.
+Gate 4 acceptance path:
+
+```text
+factory deploys SciVive test collection
+    ↓
+throwaway/test wallet mints
+    ↓
+Gate 3 balanceOf ownership authority sees owned
+    ↓
+Archive shows owned
+    ↓
+Reader opens
+    ↓
+Transfer/ownerOf identifies the individual copy
+```
+
+SciVive test configuration remains:
+
+- max supply `5555`
+- free primary mint
+- max 1 primary mint per wallet
+- max 1 per transaction
+- royalty `369` bps
+
+Do **not** deploy mainnet yet. Do **not** create one endlessly growing master collection. Do **not** bridge Hellbox NFTs.
 
 ## Security / repository rules
 
@@ -337,6 +425,8 @@ Never commit:
 Do not make a private publication public merely to simplify testing.
 
 Do not resurrect the removed Gate 2 preview route/key as an authorization shortcut.
+
+Do not allow localStorage, frontend flags, or client claims to grant publication ownership or Reader access.
 
 ---
 
