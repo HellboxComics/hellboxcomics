@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gate 2 browser acceptance test for the Hellbox Reader frontend.
+"""Hellbox Reader browser acceptance/regression test.
 
 Loads the deployed (or supplied) Hellbox frontend, intercepts only publication/Reader
 API requests with deterministic fixtures, and verifies the actual Reader UI behavior
@@ -32,6 +32,12 @@ PAGE_FIXTURES_B64 = [
     "UklGRlgAAABXRUJQVlA4IEwAAABQBwCdASp4AKAAPm02mkmkIyKhIGgAgA2JaW7hdUAAO6HVUmyYh1VJsmIdVSbJiHVUmyYh1VJsmIdVSbJiHVUmyYWAAP78XQAAAAAA",
 ]
 PAGE_FIXTURES = [base64.b64decode(item) for item in PAGE_FIXTURES_B64]
+
+TEST_WALLET = "0x1111111111111111111111111111111111111111"
+TEST_CHAIN_ID = 369
+TEST_SESSION_TOKEN = "gate3-reader-browser-test-session"
+TEST_SESSION_EXPIRES_AT = 4102444800  # 2100-01-01
+TEST_SESSION_STORAGE_KEY = "hellbox:wallet-session:v1"
 
 
 @dataclass(frozen=True)
@@ -66,6 +72,55 @@ def publication_payload() -> Dict[str, object]:
             }
         ],
         "count": 1,
+    }
+
+
+def wallet_status_payload() -> Dict[str, object]:
+    return {
+        "ok": True,
+        "authenticated": True,
+        "wallet": {
+            "address": TEST_WALLET,
+            "chainId": TEST_CHAIN_ID,
+        },
+        "source": "gate3-reader-browser-test",
+        "publications": [
+            {
+                "publicationKey": "scivive",
+                "title": "SciVive",
+                "lifecycle": "circulating",
+                "publicVisible": True,
+                "presentationClass": "book",
+                "reader": {"enabled": True, "accessPolicy": "ownership"},
+                "ownership": "owned",
+                "ownershipDetails": {
+                    "balance": 1,
+                    "source": "test-fixture",
+                    "authoritative": True,
+                },
+            }
+        ],
+        "summary": {
+            "known": 1,
+            "owned": 1,
+            "missing": 0,
+            "evolved": 0,
+            "unavailable": 0,
+            "verificationErrors": 0,
+        },
+    }
+
+
+def auth_session_payload() -> Dict[str, object]:
+    return {
+        "ok": True,
+        "authenticated": True,
+        "wallet": {
+            "address": TEST_WALLET,
+            "chainId": TEST_CHAIN_ID,
+        },
+        "scope": "wallet_identity",
+        "expiresAt": TEST_SESSION_EXPIRES_AT,
     }
 
 
@@ -114,11 +169,54 @@ def install_routes(page: Page) -> None:
         url = route.request.url
         path = route.request.url.split("?", 1)[0]
 
+        if path.endswith("/api/auth/session"):
+            authorization = route.request.headers.get("authorization", "")
+            if authorization != f"Bearer {TEST_SESSION_TOKEN}":
+                fulfill_json(
+                    route,
+                    {
+                        "ok": False,
+                        "authenticated": False,
+                        "error": "Reader session required.",
+                    },
+                    status=401,
+                )
+                return
+
+            fulfill_json(route, auth_session_payload())
+            return
+
+        if path.endswith("/api/wallet-status"):
+            authorization = route.request.headers.get("authorization", "")
+            if authorization != f"Bearer {TEST_SESSION_TOKEN}":
+                fulfill_json(
+                    route,
+                    {
+                        "ok": False,
+                        "authenticated": False,
+                        "error": "Reader session required.",
+                    },
+                    status=401,
+                )
+                return
+
+            fulfill_json(route, wallet_status_payload())
+            return
+
         if path.endswith("/api/publications"):
             fulfill_json(route, publication_payload())
             return
 
         if path.endswith("/api/reader/scivive"):
+            authorization = route.request.headers.get("authorization", "")
+            if authorization != f"Bearer {TEST_SESSION_TOKEN}":
+                fulfill_json(
+                    route,
+                    {"ok": False, "error": "Reader session required."},
+                    status=401,
+                )
+                return
+
             fulfill_json(route, reader_payload())
             return
 
@@ -135,9 +233,15 @@ def install_routes(page: Page) -> None:
                 return
 
             authorization = route.request.headers.get("authorization", "")
-            # The frontend must be capable of attaching authorization when a token exists.
-            # This fixture accepts either state because Gate 2 backend auth was validated
-            # separately against production.
+            if authorization != f"Bearer {TEST_SESSION_TOKEN}":
+                route.fulfill(
+                    status=401,
+                    content_type="application/json; charset=utf-8",
+                    body=json.dumps({"ok": False, "error": "Reader session required."}),
+                    headers={"Cache-Control": "no-store"},
+                )
+                return
+
             route.fulfill(
                 status=200,
                 content_type="image/webp",
@@ -191,6 +295,44 @@ def run_viewport(browser: Browser, base_url: str, case: ViewportCase) -> None:
         has_touch=case.has_touch,
         locale="en-US",
     )
+    context.add_init_script(
+        script=f"""
+        (() => {{
+            const address = {json.dumps(TEST_WALLET)};
+            const chainHex = "0x171";
+
+            window.ethereum = {{
+                isMetaMask: true,
+                async request(request) {{
+                    switch (request?.method) {{
+                        case "eth_accounts":
+                        case "eth_requestAccounts":
+                            return [address];
+                        case "eth_chainId":
+                            return chainHex;
+                        default:
+                            throw new Error(
+                                `Unsupported Reader acceptance wallet method: ${{request?.method}}`
+                            );
+                    }}
+                }},
+                on() {{}},
+                removeListener() {{}}
+            }};
+
+            window.sessionStorage.setItem(
+                {json.dumps(TEST_SESSION_STORAGE_KEY)},
+                JSON.stringify({{
+                    token: {json.dumps(TEST_SESSION_TOKEN)},
+                    address,
+                    chainId: {TEST_CHAIN_ID},
+                    expiresAt: {TEST_SESSION_EXPIRES_AT}
+                }})
+            );
+        }})();
+        """
+    )
+
     page = context.new_page()
     install_routes(page)
 
@@ -203,8 +345,20 @@ def run_viewport(browser: Browser, base_url: str, case: ViewportCase) -> None:
 
     page.goto(url, wait_until="domcontentloaded", timeout=30000)
 
+    page.wait_for_function(
+        "() => document.querySelector('#collectionAccessState')?.textContent?.trim() === 'VERIFIED'",
+        timeout=20000,
+    )
+
+    page.wait_for_function(
+        "() => document.querySelector('#summaryOwned')?.textContent?.trim() === '01'",
+        timeout=20000,
+    )
+
     button = page.locator('.collection-item-action[data-publication-key="scivive"]')
     button.wait_for(state="visible", timeout=20000)
+    assert_condition(button.is_enabled(), f"{case.name}: authoritative owned Reader action is disabled")
+    assert_condition("OPEN READER" in button.inner_text(), f"{case.name}: owned Reader action label is wrong")
     button.click()
 
     reader = page.locator("#hellboxReader")
@@ -312,7 +466,7 @@ def launch_browser(playwright, headed: bool) -> Browser:
 
 
 def main(argv: Iterable[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Hellbox Gate 2 Reader browser acceptance test")
+    parser = argparse.ArgumentParser(description="Hellbox Reader browser acceptance/regression test")
     parser.add_argument("--base-url", default="https://hellboxcomics.com/", help="Hellbox frontend URL to test")
     parser.add_argument("--headed", action="store_true", help="Show the browser while testing")
     args = parser.parse_args(list(argv) if argv is not None else None)
@@ -329,7 +483,8 @@ def main(argv: Iterable[str] | None = None) -> int:
         finally:
             browser.close()
 
-    print("Gate 2 Reader browser acceptance: PASS")
+    print("Hellbox Reader browser acceptance: PASS")
+    print("Authoritative ownership fixture: PASS")
     print("Production publication/ownership data was not modified by this test.")
     return 0
 

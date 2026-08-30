@@ -217,8 +217,8 @@ def main() -> int:
 
             script_src = page.locator('script[src*="/app.js"]').get_attribute("src") or ""
             require(
-                "gate3-identity" in script_src,
-                "Live homepage is not loading the Gate 3 identity frontend.",
+                "/app.js?v=20260829-gate3-" in script_src,
+                "Live homepage is not loading a Gate 3 frontend runtime.",
             )
 
             page.wait_for_function(
