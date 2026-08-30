@@ -1,6 +1,6 @@
 /* ============================================================
    HELLBOX COMICS
-   FRONTEND APPLICATION V11 — GATE 2 PROTECTED READER TRANSPORT
+   FRONTEND APPLICATION V12 — GATE 3 D1 WALLET IDENTITY
    HARROW'S NERVOUS SYSTEM
    ------------------------------------------------------------
    - Relationship / Hellion memory
@@ -37,7 +37,8 @@
         dialogueHistory: "hellbox:dialogue-history:v1",
         accessibility: "hellbox:accessibility:v1",
         uiLocale: "hellbox:ui-locale:v1",
-        readerSession: "hellbox:reader-session:v1"
+        readerSession: "hellbox:reader-session:v1",
+        walletSession: "hellbox:wallet-session:v1"
     };
 
     /*
@@ -176,7 +177,10 @@
             address: null,
             chainId: null,
             connected: false,
-            sessionToken: null
+            authenticated: false,
+            authenticating: false,
+            sessionToken: null,
+            sessionExpiresAt: null
         },
 
         publications: [],
@@ -6228,6 +6232,351 @@
        WALLET
        ========================================================= */
 
+    function normalizeWalletAddress(value) {
+        const address =
+            typeof value === "string"
+                ? value.trim()
+                : "";
+
+        return /^0x[0-9a-fA-F]{40}$/.test(address)
+            ? address.toLowerCase()
+            : null;
+    }
+
+    function walletIdentityVerified() {
+        return Boolean(
+            state.wallet.connected &&
+            state.wallet.authenticated &&
+            state.wallet.sessionToken &&
+            normalizeWalletAddress(state.wallet.address) &&
+            state.wallet.chainId === PULSECHAIN.chainId
+        );
+    }
+
+    function readStoredWalletSession() {
+        if (!storageAvailable("sessionStorage")) {
+            return null;
+        }
+
+        try {
+            const raw =
+                window.sessionStorage.getItem(
+                    STORAGE_KEYS.walletSession
+                );
+
+            if (!raw) {
+                return null;
+            }
+
+            const parsed =
+                JSON.parse(raw);
+
+            if (
+                !parsed ||
+                typeof parsed !== "object" ||
+                typeof parsed.token !== "string" ||
+                !normalizeWalletAddress(parsed.address) ||
+                !Number.isInteger(Number(parsed.chainId)) ||
+                !Number.isInteger(Number(parsed.expiresAt))
+            ) {
+                return null;
+            }
+
+            return {
+                token: parsed.token,
+                address: normalizeWalletAddress(parsed.address),
+                chainId: Number(parsed.chainId),
+                expiresAt: Number(parsed.expiresAt)
+            };
+
+        } catch (error) {
+            return null;
+        }
+    }
+
+    function storeWalletSession() {
+        if (
+            !storageAvailable("sessionStorage") ||
+            !state.wallet.sessionToken ||
+            !state.wallet.sessionExpiresAt ||
+            !normalizeWalletAddress(state.wallet.address)
+        ) {
+            return;
+        }
+
+        try {
+            window.sessionStorage.setItem(
+                STORAGE_KEYS.walletSession,
+                JSON.stringify({
+                    token: state.wallet.sessionToken,
+                    address: normalizeWalletAddress(state.wallet.address),
+                    chainId: state.wallet.chainId,
+                    expiresAt: state.wallet.sessionExpiresAt
+                })
+            );
+
+        } catch (error) {
+            // Session persistence is a convenience, not the authority.
+        }
+    }
+
+    function clearWalletSession() {
+        state.wallet.authenticated =
+            false;
+
+        state.wallet.authenticating =
+            false;
+
+        state.wallet.sessionToken =
+            null;
+
+        state.wallet.sessionExpiresAt =
+            null;
+
+        if (storageAvailable("sessionStorage")) {
+            try {
+                window.sessionStorage.removeItem(
+                    STORAGE_KEYS.walletSession
+                );
+
+            } catch (error) {
+                // Non-critical local cleanup failure.
+            }
+        }
+    }
+
+    async function validateStoredWalletSession() {
+        const stored =
+            readStoredWalletSession();
+
+        const currentAddress =
+            normalizeWalletAddress(
+                state.wallet.address
+            );
+
+        if (
+            !stored ||
+            !state.wallet.connected ||
+            !currentAddress ||
+            state.wallet.chainId !== PULSECHAIN.chainId ||
+            stored.address !== currentAddress ||
+            stored.chainId !== state.wallet.chainId ||
+            stored.expiresAt <= Math.floor(Date.now() / 1000)
+        ) {
+            clearWalletSession();
+            return false;
+        }
+
+        try {
+            const payload =
+                await apiJson(
+                    "/api/auth/session",
+                    {
+                        headers: {
+                            Authorization:
+                                `Bearer ${stored.token}`
+                        }
+                    }
+                );
+
+            const sessionAddress =
+                normalizeWalletAddress(
+                    payload?.wallet?.address
+                );
+
+            if (
+                payload?.authenticated !== true ||
+                sessionAddress !== currentAddress ||
+                Number(payload?.wallet?.chainId) !== state.wallet.chainId ||
+                payload?.scope !== "wallet_identity"
+            ) {
+                clearWalletSession();
+                return false;
+            }
+
+            state.wallet.authenticated =
+                true;
+
+            state.wallet.sessionToken =
+                stored.token;
+
+            state.wallet.sessionExpiresAt =
+                Number(payload.expiresAt) ||
+                stored.expiresAt;
+
+            storeWalletSession();
+            return true;
+
+        } catch (error) {
+            clearWalletSession();
+            return false;
+        }
+    }
+
+    async function authenticateConnectedWallet() {
+        const provider =
+            state.wallet.provider ||
+            getEthereumProvider();
+
+        const address =
+            normalizeWalletAddress(
+                state.wallet.address
+            );
+
+        if (
+            !provider ||
+            !state.wallet.connected ||
+            !address
+        ) {
+            clearWalletSession();
+            return false;
+        }
+
+        if (
+            state.wallet.chainId !==
+            PULSECHAIN.chainId
+        ) {
+            clearWalletSession();
+            return false;
+        }
+
+        if (state.wallet.authenticating) {
+            return false;
+        }
+
+        if (
+            state.wallet.authenticated &&
+            state.wallet.sessionToken
+        ) {
+            const valid =
+                await validateStoredWalletSession();
+
+            if (valid) {
+                return true;
+            }
+        }
+
+        state.wallet.authenticating =
+            true;
+
+        renderWalletState();
+
+        try {
+            const challengePayload =
+                await apiJson(
+                    "/api/auth/challenge",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+                        body: JSON.stringify({
+                            address,
+                            chainId:
+                                state.wallet.chainId
+                        })
+                    }
+                );
+
+            const challenge =
+                challengePayload?.challenge;
+
+            if (
+                !challenge ||
+                typeof challenge.id !== "string" ||
+                typeof challenge.message !== "string"
+            ) {
+                throw new Error(
+                    "Hellbox did not return a valid wallet challenge."
+                );
+            }
+
+            const signature =
+                await provider.request({
+                    method:
+                        "personal_sign",
+                    params: [
+                        challenge.message,
+                        state.wallet.address
+                    ]
+                });
+
+            if (
+                typeof signature !== "string" ||
+                !signature.startsWith("0x")
+            ) {
+                throw new Error(
+                    "Wallet returned an invalid signature."
+                );
+            }
+
+            const verifyPayload =
+                await apiJson(
+                    "/api/auth/verify",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+                        body: JSON.stringify({
+                            address,
+                            challengeId:
+                                challenge.id,
+                            signature
+                        })
+                    }
+                );
+
+            const token =
+                verifyPayload?.session?.token;
+
+            const expiresAt =
+                Number(
+                    verifyPayload?.session?.expiresAt
+                );
+
+            if (
+                verifyPayload?.verified !== true ||
+                typeof token !== "string" ||
+                !token ||
+                !Number.isInteger(expiresAt)
+            ) {
+                throw new Error(
+                    "Hellbox did not issue a valid wallet session."
+                );
+            }
+
+            state.wallet.authenticated =
+                true;
+
+            state.wallet.sessionToken =
+                token;
+
+            state.wallet.sessionExpiresAt =
+                expiresAt;
+
+            storeWalletSession();
+
+            discover(
+                "wallet:verified"
+            );
+
+            return true;
+
+        } catch (error) {
+            clearWalletSession();
+            throw error;
+
+        } finally {
+            state.wallet.authenticating =
+                false;
+
+            renderWalletState();
+        }
+    }
+
     function getEthereumProvider() {
         return (
             typeof window.ethereum !==
@@ -6245,6 +6594,7 @@
             provider;
 
         if (!provider) {
+            clearWalletSession();
             renderWalletState();
             return;
         }
@@ -6276,6 +6626,15 @@
                     chainId
                 );
 
+            if (
+                state.wallet.connected &&
+                state.wallet.chainId === PULSECHAIN.chainId
+            ) {
+                await validateStoredWalletSession();
+            } else {
+                clearWalletSession();
+            }
+
         } catch (error) {
             state.wallet.address =
                 null;
@@ -6285,6 +6644,8 @@
 
             state.wallet.connected =
                 false;
+
+            clearWalletSession();
         }
 
         renderWalletState();
@@ -6348,6 +6709,28 @@
                         "eth_chainId"
                 });
 
+            const previousAddress =
+                normalizeWalletAddress(
+                    state.wallet.address
+                );
+
+            const nextAddress =
+                normalizeWalletAddress(
+                    accounts[0]
+                );
+
+            const nextChainId =
+                normalizeChainId(
+                    chainId
+                );
+
+            if (
+                previousAddress !== nextAddress ||
+                state.wallet.chainId !== nextChainId
+            ) {
+                clearWalletSession();
+            }
+
             state.wallet.provider =
                 provider;
 
@@ -6355,9 +6738,7 @@
                 accounts[0];
 
             state.wallet.chainId =
-                normalizeChainId(
-                    chainId
-                );
+                nextChainId;
 
             state.wallet.connected =
                 true;
@@ -6372,6 +6753,8 @@
                 state.wallet.chainId !==
                 PULSECHAIN.chainId
             ) {
+                clearWalletSession();
+
                 showDialogue(
                     DIALOGUE.wrongChain,
                     {
@@ -6384,15 +6767,25 @@
                 );
 
             } else {
-                showDialogue(
-                    isHellion()
-                        ? DIALOGUE.walletConnected.hellion
-                        : DIALOGUE.walletConnected.visitor,
-                    {
-                        importance:
-                            "important"
-                    }
-                );
+                const authenticated =
+                    await authenticateConnectedWallet();
+
+                if (authenticated) {
+                    showHarrowResponse(
+                        translation(
+                            "wallet.verified.title",
+                            "THAT'S YOU."
+                        ),
+                        translation(
+                            "wallet.verified.text",
+                            "Wallet control verified. Ownership is a separate question."
+                        ),
+                        {
+                            importance:
+                                "important"
+                        }
+                    );
+                }
             }
 
             await loadPublications();
@@ -6403,10 +6796,11 @@
                     "wallet.rejected.title",
                     "NEVER MIND."
                 ),
-                translation(
-                    "wallet.rejected.text",
-                    "You either rejected it or your wallet decided today was its day to become performance art."
-                ),
+                error?.message ||
+                    translation(
+                        "wallet.rejected.text",
+                        "You either rejected it or your wallet decided today was its day to become performance art."
+                    ),
                 {
                     importance:
                         "important"
@@ -6434,23 +6828,31 @@
             state.wallet.chainId ===
             PULSECHAIN.chainId;
 
+        const verified =
+            walletIdentityVerified();
+
         if (dom.walletButton) {
             dom.walletButton.textContent =
-                connected
-                    ? truncateAddress(
-                        state.wallet.address
+                state.wallet.authenticating
+                    ? translation(
+                        "wallet.verifying",
+                        "VERIFYING..."
                     )
-                    : (
-                        isHellion()
-                            ? translation(
-                                "wallet.showAgain",
-                                "SHOW ME AGAIN"
-                            )
-                            : translation(
-                                "wallet.show",
-                                "SHOW ME"
-                            )
-                    );
+                    : connected
+                        ? truncateAddress(
+                            state.wallet.address
+                        )
+                        : (
+                            isHellion()
+                                ? translation(
+                                    "wallet.showAgain",
+                                    "SHOW ME AGAIN"
+                                )
+                                : translation(
+                                    "wallet.show",
+                                    "SHOW ME"
+                                )
+                        );
         }
 
         if (dom.collectionWallet) {
@@ -6495,9 +6897,15 @@
                     ? (
                         onPulseChain
                             ? (
-                                isHellion()
-                                    ? translation("wallet.state.hellion", "HELLION")
-                                    : translation("wallet.state.seen", "SEEN")
+                                verified
+                                    ? translation(
+                                        "wallet.state.verified",
+                                        "VERIFIED"
+                                    )
+                                    : translation(
+                                        "wallet.state.unverified",
+                                        "UNVERIFIED"
+                                    )
                             )
                             : translation("wallet.state.wrongChain", "WRONG CHAIN")
                     )
@@ -6507,7 +6915,14 @@
         if (dom.terminalAction) {
             dom.terminalAction.textContent =
                 connected
-                    ? translation("wallet.lookAgain", "LOOK AGAIN")
+                    ? (
+                        verified
+                            ? translation("wallet.lookAgain", "LOOK AGAIN")
+                            : translation(
+                                "wallet.verify",
+                                "VERIFY WALLET"
+                            )
+                    )
                     : (
                         isHellion()
                             ? translation(
@@ -6568,6 +6983,11 @@
             !onPulseChain
         );
 
+        document.body.classList.toggle(
+            "wallet-verified",
+            verified
+        );
+
         updatePressFromWallet();
         updateDiagnostics();
     }
@@ -6591,18 +7011,64 @@
                         return;
                     }
 
+                    if (
+                        state.wallet.chainId === PULSECHAIN.chainId &&
+                        !walletIdentityVerified()
+                    ) {
+                        try {
+                            const authenticated =
+                                await authenticateConnectedWallet();
+
+                            if (authenticated) {
+                                showHarrowResponse(
+                                    translation(
+                                        "wallet.verified.title",
+                                        "THAT'S YOU."
+                                    ),
+                                    translation(
+                                        "wallet.verified.text",
+                                        "Wallet control verified. Ownership is a separate question."
+                                    ),
+                                    {
+                                        importance:
+                                            "important"
+                                    }
+                                );
+                            }
+
+                        } catch (error) {
+                            showHarrowResponse(
+                                translation(
+                                    "wallet.rejected.title",
+                                    "NEVER MIND."
+                                ),
+                                error?.message ||
+                                    translation(
+                                        "wallet.rejected.text",
+                                        "Wallet verification did not finish."
+                                    ),
+                                {
+                                    importance:
+                                        "important"
+                                }
+                            );
+                        }
+                    }
+
                     await loadPublications();
 
-                    showHarrowResponse(
-                        translation(
-                            "wallet.lookedAgain.title",
-                            "I LOOKED AGAIN."
-                        ),
-                        translation(
-                            "wallet.lookedAgain.text",
-                            "The chain did not become more interesting because you refreshed it."
-                        )
-                    );
+                    if (walletIdentityVerified()) {
+                        showHarrowResponse(
+                            translation(
+                                "wallet.lookedAgain.title",
+                                "I LOOKED AGAIN."
+                            ),
+                            translation(
+                                "wallet.lookedAgain.verified",
+                                "Identity verified. Ownership is the next ledger I care about."
+                            )
+                        );
+                    }
                 }
             );
         }
@@ -6618,6 +7084,8 @@
             provider.on(
                 "accountsChanged",
                 async (accounts) => {
+                    clearWalletSession();
+
                     if (
                         !Array.isArray(accounts) ||
                         accounts.length === 0
@@ -6649,6 +7117,8 @@
             provider.on(
                 "chainChanged",
                 async (chainId) => {
+                    clearWalletSession();
+
                     state.wallet.chainId =
                         normalizeChainId(
                             chainId
@@ -7155,9 +7625,16 @@
         if (dom.terminalMessage) {
             dom.terminalMessage.textContent =
                 state.wallet.connected
-                    ? translation(
-                        "archive.message.knownWallet",
-                        "Ownership verification comes next."
+                    ? (
+                        walletIdentityVerified()
+                            ? translation(
+                                "archive.message.knownVerifiedWallet",
+                                "Wallet identity verified. Ownership verification comes next."
+                            )
+                            : translation(
+                                "archive.message.knownWallet",
+                                "Wallet connected. Verify identity before the Box trusts it."
+                            )
                     )
                     : translation(
                         "archive.message.knownNoWallet",
@@ -7238,9 +7715,16 @@
                         <strong>
                             ${escapeHtml(
                                 state.wallet.connected
-                                    ? translation(
-                                        "archive.item.unverified",
-                                        "UNVERIFIED"
+                                    ? (
+                                        walletIdentityVerified()
+                                            ? translation(
+                                                "archive.item.identityVerified",
+                                                "IDENTITY VERIFIED"
+                                            )
+                                            : translation(
+                                                "archive.item.unverified",
+                                                "UNVERIFIED"
+                                            )
                                     )
                                     : translation(
                                         "wallet.notShown",
@@ -9157,7 +9641,16 @@
 
                 correctChain:
                     state.wallet.chainId ===
-                    PULSECHAIN.chainId
+                    PULSECHAIN.chainId,
+
+                authenticated:
+                    walletIdentityVerified(),
+
+                authAuthority:
+                    "D1 WALLET SESSION",
+
+                sessionExpiresAt:
+                    state.wallet.sessionExpiresAt
             },
 
             archive: {
