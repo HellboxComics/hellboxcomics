@@ -189,7 +189,10 @@
             known: 0,
             owned: 0,
             missing: 0,
-            evolved: 0
+            evolved: 0,
+            unavailable: 0,
+            verificationErrors: 0,
+            authoritative: false
         },
 
         discoveries: new Set(),
@@ -7237,6 +7240,14 @@
             return payload.comics;
         }
 
+        if (
+            Array.isArray(
+                payload?.editions
+            )
+        ) {
+            return payload.editions;
+        }
+
         return [];
     }
 
@@ -7258,22 +7269,132 @@
         }
 
         try {
-            const payload =
-                await apiJson(
-                    "/api/publications"
-                );
+            let payload;
 
-            state.publications =
-                normalizePublicationList(
-                    payload
-                );
+            if (walletIdentityVerified()) {
+                payload =
+                    await apiJson(
+                        "/api/wallet-status",
+                        {
+                            headers: {
+                                Authorization:
+                                    `Bearer ${state.wallet.sessionToken}`
+                            }
+                        }
+                    );
+
+                state.publications =
+                    normalizePublicationList(
+                        payload
+                    );
+
+                const summary =
+                    payload?.summary ||
+                    {};
+
+                state.collection = {
+                    known:
+                        Number(summary.known) ||
+                        0,
+                    owned:
+                        Number(summary.owned) ||
+                        0,
+                    missing:
+                        Number(summary.missing) ||
+                        0,
+                    evolved:
+                        Number(summary.evolved) ||
+                        0,
+                    unavailable:
+                        Number(summary.unavailable) ||
+                        0,
+                    verificationErrors:
+                        Number(summary.verificationErrors) ||
+                        0,
+                    authoritative: true
+                };
+
+            } else {
+                payload =
+                    await apiJson(
+                        "/api/publications"
+                    );
+
+                state.publications =
+                    normalizePublicationList(
+                        payload
+                    );
+
+                state.collection = {
+                    known:
+                        state.publications.length,
+                    owned: 0,
+                    missing: 0,
+                    evolved: 0,
+                    unavailable: 0,
+                    verificationErrors: 0,
+                    authoritative: false
+                };
+            }
 
             renderCollection();
             updatePressPublication();
 
         } catch (error) {
+            if (
+                walletIdentityVerified() &&
+                (
+                    error?.status === 401 ||
+                    error?.status === 403
+                )
+            ) {
+                clearWalletSession();
+                renderWalletState();
+
+                try {
+                    const publicPayload =
+                        await apiJson(
+                            "/api/publications"
+                        );
+
+                    state.publications =
+                        normalizePublicationList(
+                            publicPayload
+                        );
+
+                    state.collection = {
+                        known:
+                            state.publications.length,
+                        owned: 0,
+                        missing: 0,
+                        evolved: 0,
+                        unavailable: 0,
+                        verificationErrors: 0,
+                        authoritative: false
+                    };
+
+                    renderCollection();
+                    updatePressPublication();
+                    updateDiagnostics();
+                    return;
+
+                } catch (fallbackError) {
+                    // Fall through to the normal Archive error state.
+                }
+            }
+
             state.publications =
                 [];
+
+            state.collection = {
+                known: 0,
+                owned: 0,
+                missing: 0,
+                evolved: 0,
+                unavailable: 0,
+                verificationErrors: 0,
+                authoritative: false
+            };
 
             renderCollection({
                 error: true
@@ -7365,24 +7486,141 @@
         return false;
     }
 
+    function publicationOwnershipLabel(
+        publication
+    ) {
+        if (!state.wallet.connected) {
+            return translation(
+                "wallet.notShown",
+                "NOT SHOWN"
+            );
+        }
+
+        if (!walletIdentityVerified()) {
+            return translation(
+                "archive.item.unverified",
+                "UNVERIFIED"
+            );
+        }
+
+        switch (publication?.ownership) {
+            case "owned":
+                return translation(
+                    "archive.item.owned",
+                    "OWNED"
+                );
+
+            case "missing":
+                return translation(
+                    "archive.item.notOwned",
+                    "NOT OWNED"
+                );
+
+            case "unavailable":
+                return translation(
+                    "archive.item.ownershipUnavailable",
+                    "OWNERSHIP UNAVAILABLE"
+                );
+
+            case "verification_error":
+                return translation(
+                    "archive.item.verificationError",
+                    "VERIFY ERROR"
+                );
+
+            default:
+                return translation(
+                    "archive.item.identityVerified",
+                    "IDENTITY VERIFIED"
+                );
+        }
+    }
+
+    function publicationReaderAction(
+        publication
+    ) {
+        if (!publicationReaderEnabled(publication)) {
+            return {
+                enabled: false,
+                label: translation(
+                    "archive.item.notReady",
+                    "NOT READY"
+                )
+            };
+        }
+
+        if (publication?.ownership === "owned") {
+            return {
+                enabled: true,
+                label: translation(
+                    "archive.item.openReader",
+                    "OPEN READER"
+                )
+            };
+        }
+
+        if (!state.wallet.connected) {
+            return {
+                enabled: false,
+                label: translation(
+                    "wallet.show",
+                    "SHOW ME"
+                )
+            };
+        }
+
+        if (!walletIdentityVerified()) {
+            return {
+                enabled: false,
+                label: translation(
+                    "wallet.verify",
+                    "VERIFY WALLET"
+                )
+            };
+        }
+
+        if (publication?.ownership === "missing") {
+            return {
+                enabled: false,
+                label: translation(
+                    "archive.item.notYours",
+                    "NOT YOURS"
+                )
+            };
+        }
+
+        return {
+            enabled: false,
+            label: translation(
+                "archive.item.notReady",
+                "NOT READY"
+            )
+        };
+    }
+
     function calculateCollectionSummary() {
         /*
-         * Ownership remains deliberately conservative.
-         * We do NOT infer ownership just because a wallet
-         * is connected.
+         * A verified wallet gets its summary from the authenticated
+         * Worker ownership authority. Never recalculate that result
+         * from browser state.
          */
-
-        const known =
-            state.publications.length;
+        if (
+            state.collection
+                .authoritative ===
+            true
+        ) {
+            return;
+        }
 
         state.collection = {
-            known,
+            known:
+                state.publications.length,
             owned: 0,
-            missing:
-                state.wallet.connected
-                    ? known
-                    : 0,
-            evolved: 0
+            missing: 0,
+            evolved: 0,
+            unavailable: 0,
+            verificationErrors: 0,
+            authoritative: false
         };
     }
 
@@ -7627,9 +7865,16 @@
                 state.wallet.connected
                     ? (
                         walletIdentityVerified()
-                            ? translation(
-                                "archive.message.knownVerifiedWallet",
-                                "Wallet identity verified. Ownership verification comes next."
+                            ? (
+                                state.collection.authoritative
+                                    ? translation(
+                                        "archive.message.ownershipChecked",
+                                        "Wallet identity verified. Archive ownership checked against chain."
+                                    )
+                                    : translation(
+                                        "archive.message.knownVerifiedWallet",
+                                        "Wallet identity verified. Ownership verification comes next."
+                                    )
                             )
                             : translation(
                                 "archive.message.knownWallet",
@@ -7662,8 +7907,13 @@
                         publication
                     );
 
-                const readerEnabled =
-                    publicationReaderEnabled(
+                const readerAction =
+                    publicationReaderAction(
+                        publication
+                    );
+
+                const ownershipLabel =
+                    publicationOwnershipLabel(
                         publication
                     );
 
@@ -7714,22 +7964,7 @@
 
                         <strong>
                             ${escapeHtml(
-                                state.wallet.connected
-                                    ? (
-                                        walletIdentityVerified()
-                                            ? translation(
-                                                "archive.item.identityVerified",
-                                                "IDENTITY VERIFIED"
-                                            )
-                                            : translation(
-                                                "archive.item.unverified",
-                                                "UNVERIFIED"
-                                            )
-                                    )
-                                    : translation(
-                                        "wallet.notShown",
-                                        "NOT SHOWN"
-                                    )
+                                ownershipLabel
                             )}
                         </strong>
 
@@ -7740,21 +7975,13 @@
                         class="collection-item-action"
                         data-publication-key="${escapeHtml(key)}"
                         ${
-                            readerEnabled
+                            readerAction.enabled
                                 ? ""
                                 : "disabled"
                         }
                     >
                         ${escapeHtml(
-                            readerEnabled
-                                ? translation(
-                                    "archive.item.tryReader",
-                                    "TRY READER"
-                                )
-                                : translation(
-                                    "archive.item.notReady",
-                                    "NOT READY"
-                                )
+                            readerAction.label
                         )}
                     </button>
                 `;
@@ -7783,10 +8010,15 @@
 
         if (dom.collectionStatus) {
             dom.collectionStatus.textContent =
-                translation(
-                    "archive.status.publicLoaded",
-                    "PUBLIC INDEX LOADED."
-                );
+                state.collection.authoritative
+                    ? translation(
+                        "archive.status.ownershipChecked",
+                        "OWNERSHIP CHECKED AGAINST CHAIN."
+                    )
+                    : translation(
+                        "archive.status.publicLoaded",
+                        "PUBLIC INDEX LOADED."
+                    );
         }
     }
 
