@@ -5,6 +5,7 @@
 **Current Gate:** Gate 4 — HELLBOX ARTIFACT KERNEL + VERSIONED PUBLICATION FACTORY
 **Current implementation checkpoint:** V1 publication kernel + `HELLBOX_ABI_V1` release fingerprint + deterministic issuance core + size-safe V1 full-deployment factory + versioned enforcement-preimage anchors + modular `HellboxBirthPolicy` + immutable inert `HellboxBirthPolicyCodeStore` foundation implemented; verified post-push regression **69 Solidity tests passed, 0 failed**; issuance fuzz boundary **256 runs**; current unoptimized Shanghai runtimes remain publication **16,334 bytes**, factory **8,020 bytes**, birth-policy module **5,561 bytes**
 **Exact next frontier:** wire the approved inert BirthPolicy code store into the publication/factory deployment path so the publication copies the exact reviewed policy creation bytes and executes `CREATE` itself, preserving `HellboxBirthPolicy.publication = msg.sender` without embedding 17 KB of policy creation code in publication initcode; then prove atomic deployment/provenance/headroom before per-token MARK/DEFECT consumption
+**New locked owner-experience direction:** a normal Hellbox comic release may present publicly as the same finite collectible, but the private owner Reader is a finite Harrow-authored interactive narrative: comic stages lead into frame-native escape rooms, timed survival, authored branches, alternate endings, death outcomes and trait-specific interactions. AI may assist Harrow during issue production, but published owner paths/pages/rooms are pre-authored and finite; no canonical story page is generated live by AI at read time. This expands later Reader/package/Archive work and does **not** change the immediate Gate 4 code-store/BirthPolicy frontier or require a `HELLBOX_ABI_V1` change.
 **Mainnet:** prohibited during Gate 4
 
 This file intentionally combines project state, engineering handoff, development process and future-Gate continuity. It replaces separate root-level master-handoff and engineering-execution-standard documents **only because their durable rules are folded here in full**.
@@ -250,6 +251,239 @@ Rules:
 The Gate 4 factory-size repair and birth-policy modularization are material engineering corrections, but they do **not** by themselves trigger a new public overall percentage because they preserve the approved product scope rather than expand or remove it. Recalculate at formal Gate 4 close unless a later Gate 4 event materially rebaselines the overall project.
 
 Do not churn stable public APIs merely to satisfy style-only lint notes. Security-relevant warnings must be investigated; style/optimization notes are tracked and revisited during hardening.
+
+## 2.9 Solo-operator maintainability standard — LOCKED
+
+Hellbox must remain operable by **one non-developer creator with a demanding full-time primary career and fragmented availability**, without enterprise staffing, hidden tribal knowledge or repetitive manual heroics.
+
+Architecture and workflow must assume:
+- one primary operator;
+- work may occur from home or another trusted workstation;
+- sessions may be interrupted without warning;
+- long uninterrupted development blocks are not guaranteed;
+- ordinary home-office hardware/connectivity;
+- context switches and long pauses between work sessions;
+- the operator cannot be expected to remember undocumented sequences;
+- routine use of reviewed systems must not require understanding Solidity internals;
+- future handoff to another competent AI/developer without oral reconstruction.
+
+Therefore:
+- no critical workflow may exist only in chat history, Terminal scrollback or Harrow's memory;
+- every repeated multi-step operation must become a script, compiler task, template, checklist, generated interface or guided Press action;
+- recurring manual steps are technical debt and must be automated before they become operationally critical;
+- routine operations must be preflighted, self-checking, explicit about expected output and safe to rerun;
+- commands should be idempotent or safely resumable where practical;
+- incomplete or ambiguous state must fail closed rather than guessing;
+- failures must be explicit rather than silently producing partial releases;
+- generated artifacts must carry hashes/manifests sufficient to verify and reproduce them;
+- per-issue custom Solidity and per-issue infrastructure snowflakes are prohibited unless a formal architecture review approves an exception;
+- issue production must reuse versioned schemas, renderers, room components, validators and deployment tooling;
+- complex engineering must be absorbed into reusable machinery rather than transferred to Harrow as manual procedure;
+- a smaller shippable issue is preferred over reducing validation/quality to preserve an oversized scope;
+- every clean checkpoint must be understandable from the repository and living documents alone.
+
+The target is not merely "documented enough for a developer." It is:
+
+> **pre-engineered enough that Harrow can operate the finished machine safely in short, interrupted sessions.**
+
+A process that only works while the original chat, Terminal scrollback or Harrow's short-term memory is available is not a production process.
+
+## 2.10 Session resume / interruption protocol — LOCKED
+
+At the beginning of every fresh Terminal, resumed work session or new AI thread:
+
+1. enter the exact repository;
+2. inspect `git status --short`;
+3. inspect the current `HEAD` subject/hash;
+4. compare local and remote when the previous checkpoint should have been pushed;
+5. verify the hash of the immediate target file;
+6. read this document's Exact Next Action;
+7. read the relevant `CURRENT_GATE_BLUEPRINT.md` section;
+8. run the narrowest relevant validation before modifying a major boundary when state is uncertain.
+
+After an interruption:
+- never infer that a command completed from memory;
+- rerun safe read-only/preflight checks;
+- treat an already-installed expected target hash as success;
+- treat an unexpected source hash as a stop condition;
+- never continue from copied Terminal fragments without proving actual repository state;
+- leave no assumed background task.
+
+Terminal output is evidence for the current session, not durable project storage. Durable state belongs in Git, manifests, tests and living documents.
+
+## 2.11 AI-assisted engineering and authoring policy — LOCKED
+
+AI is a force multiplier for a solo operator, not a replacement for canonical source, deterministic tooling, security review or Harrow's final judgment.
+
+Approved AI assistance may include:
+- architecture option analysis;
+- code/test drafting;
+- adversarial-test ideation;
+- documentation synchronization;
+- story/branch/room ideation;
+- continuity and canon checks;
+- asset concepts and production assistance;
+- narrative-graph simulation;
+- puzzle variant generation;
+- unreachable-path/dead-end discovery;
+- accessibility text/caption drafts;
+- localization drafts;
+- performance/test-case generation;
+- release-checklist generation.
+
+AI output must pass the same gates as human output:
+- schema validation;
+- deterministic/reproducible build rules;
+- automated tests;
+- contradiction sweeps;
+- copyright/provenance review where applicable;
+- human visual/editorial approval;
+- Harrow approval for canon/economics/authority/scarcity decisions.
+
+AI must not:
+- generate canonical story pages live at Reader runtime;
+- directly hold or receive private keys, seed phrases or production secrets;
+- directly publish a release or send a mainnet transaction without explicit reviewed operator action;
+- silently change collector promises;
+- bypass failing tests/validators;
+- substitute for specialist security, legal or tax review where those are materially required;
+- become an undocumented external dependency needed to reproduce an already-published issue.
+
+The authoritative output is the reviewed source package and deterministic build, not an AI conversation.
+
+## 2.12 Scope budget and change-control rule — LOCKED
+
+Every Gate and every native issue must declare a scope budget before deep implementation/content production.
+
+For an interactive issue, the budget must at minimum identify:
+- surviving story-stage count;
+- maximum simultaneous branch width;
+- intended reconvergence points/windows;
+- number of required escape rooms;
+- number of ending classes;
+- number of authored room variants;
+- MARK/DEFECT intervention count;
+- required unique visual/audio assets;
+- performance budget;
+- accessibility obligations;
+- required human playtest coverage.
+
+Exact values are issue-specific and remain open until that issue is designed.
+
+Any mid-production idea must do one of the following:
+1. fit inside the existing budget;
+2. replace another scoped item;
+3. move to a later issue/Gate;
+4. trigger an explicit rebaseline.
+
+Do not allow a branching graph to expand merely because every new idea is good. Good ideas that prevent shipment are backlog items.
+
+Stop/re-review conditions include:
+- branch count grows faster than reconvergence;
+- unique asset count exceeds the declared production budget;
+- required manual steps multiply per copy/path;
+- one issue requires bespoke contract behavior;
+- the validation matrix can no longer cover every reachable path;
+- Harrow cannot realistically author/review/playtest the scope without lowering quality.
+
+## 2.13 Repeatable production pipeline — LOCKED TARGET
+
+Every native issue should eventually move through one reproducible pipeline:
+
+```text
+CANONICAL SOURCE PACKAGE
+        ↓
+SCHEMA + RIGHTS/PROVENANCE VALIDATION
+        ↓
+NARRATIVE GRAPH / ROOM / TRAIT VALIDATION
+        ↓
+DETERMINISTIC PREVIEW + PLAYTHROUGH MATRIX
+        ↓
+ACCESSIBILITY / PERFORMANCE / DEVICE CHECKS
+        ↓
+HUMAN EDITORIAL + HARROW APPROVAL
+        ↓
+FREEZE PREVIEW
+        ↓
+PUBLISH COMMITMENTS
+        ↓
+DEPLOY / VERIFY
+        ↓
+OPEN PRESS
+        ↓
+POST-RELEASE MONITORING
+```
+
+The pipeline must prefer:
+- one canonical machine-readable manifest rather than duplicated configuration;
+- generated metadata rather than hand-written per-copy JSON;
+- generated route/ending coverage reports;
+- generated asset inventories and hashes;
+- generated deployment/config summaries;
+- dry-run and production modes using the same underlying code path;
+- explicit artifacts that can be rechecked later.
+
+Manual intervention may approve or abort a release. It should not be required to assemble hundreds of files by hand.
+
+## 2.14 Definition of done — code, content and operations
+
+A feature is not done because it looks correct once.
+
+Code completion requires, as applicable:
+- allowed-path tests;
+- forbidden-path tests;
+- fuzz/invariant/adversarial evidence;
+- size/deployability proof;
+- security review proportional to the change;
+- documentation sync;
+- clean committed/pushed checkpoint.
+
+Interactive content completion requires:
+- every reachable node/room/ending validated;
+- no orphan or accidental dead-end routes;
+- all required assets present and hashed;
+- ordinary copies can reach the ideal/core ending;
+- trait interventions cannot corrupt unrelated paths;
+- timer/death behavior tested;
+- human playtests across intended difficulty;
+- accessibility and performance checks;
+- deterministic rebuild from source.
+
+Operational completion requires:
+- runbook;
+- monitoring/alert behavior;
+- backup/export path;
+- tested recovery path;
+- safe abort/fail-closed behavior;
+- no secret/manual step omitted from documentation.
+
+A backup is not considered proven until a restore has succeeded.
+
+## 2.15 Stop-the-line conditions — LOCKED
+
+Stop immediately rather than improvising around:
+
+- unexpected source/artifact hash;
+- unexpected staged or unstaged file;
+- failing test, invariant, deployment or package validation;
+- unexplained reduction in EIP-170/EIP-3860 safety margin;
+- unclear authority or mutable/immutable boundary;
+- conflicting authoritative documents;
+- secret/private data exposed in output or Git;
+- production write without a verified backup/recovery path;
+- a critical third-party dependency without outage/fallback behavior;
+- interactive scope exceeding its approved budget;
+- AI output that cannot be reproduced or independently checked;
+- manual operation whose consequences are not understood.
+
+Required response:
+
+1. stop;
+2. preserve evidence;
+3. restore the known-good checkpoint if needed;
+4. document the conflict/failure;
+5. redesign or repair;
+6. rerun proof before continuing.
 
 ---
 
@@ -646,7 +880,7 @@ Locked boundary:
 
 ---
 
-# 10. READER PRODUCT
+# 10. READER PRODUCT — LOCKED OWNER-EXPERIENCE DIRECTION
 
 Reader is central.
 
@@ -654,30 +888,176 @@ Presentation classes:
 
 - `BOOK`
 - `COMIC`
-- future `ENHANCED`
+- `INTERACTIVE_COMIC`
+- future deliberately-authored enhanced classes if justified
 
 BOOK:
-- proven through SciVive.
+- proven through SciVive;
+- conventional protected reading remains supported.
 
 COMIC:
-- fixed page/spread reading;
-- future comic-specific behavior.
+- conventional fixed page/spread reading remains supported where the publication calls for it.
 
-ENHANCED:
-- deliberate artist-authored effects only;
-- no automatic gimmick animation.
+## INTERACTIVE_COMIC — locked Hellbox direction for native comics
+
+The public collectible may still look like a finite comic/NFT release. The private owner experience is allowed to be fundamentally different from a traditional digital comic.
+
+A published interactive issue is a **finite, Harrow-authored narrative graph**.
+
+AI may assist Harrow during production with:
+- story mapping;
+- branch planning;
+- continuity checks;
+- puzzle/escape-room ideation;
+- art/animation/audio production;
+- difficulty review;
+- playthrough simulation;
+- impossible/dead-path detection;
+- workload reduction.
+
+AI does **not** invent canonical next pages or story paths live for the collector. By PUBLISH, the allowed pages/stage variants, rooms, choices, consequences, endings, trait interactions and rules are already authored and part of the frozen issue/package identity.
+
+### Core stage loop
+
+A successful stage normally behaves as:
+
+```text
+comic page/stage
+    ↓
+reader reaches final frame
+    ↓
+final frame becomes the entrance to that stage's Hellbox escape room
+    ↓
+room must be escaped before story advancement
+    ↓
+authored decision / consequence
+    ↓
+next allowed authored story stage
+```
+
+The escape room is an interactive extension of the stage's final comic frame, not a random external minigame pasted onto the issue.
+
+### Difficulty curve
+
+Required product direction:
+- opening rooms teach the interaction language and begin simple;
+- puzzle complexity increases as the issue progresses;
+- later rooms should become meaningfully difficult;
+- finishing the complete surviving story should be challenging;
+- community discussion/collaboration around puzzles is an intended part of the Hellion experience.
+
+Exact room timers, puzzle mechanics and hint policy are publication/package design decisions.
+
+### Timed survival
+
+A room may have a frozen authored time limit.
+
+If a required timed room is not completed before its authoritative deadline, the run may terminate in an authored death outcome.
+
+Timer authority must not rely on the collector changing a local browser clock. Exact server/runtime implementation belongs to later Reader work.
+
+### Branching rules
+
+Branches are **real story branches**, not merely disguised right/wrong buttons.
+
+A branch may:
+- continue through a distinct surviving route;
+- diverge and later reconverge;
+- alter later dialogue/clues/rooms;
+- produce an alternate surviving ending;
+- produce a secret outcome;
+- produce death when that consequence is actually authored.
+
+Not every non-ideal branch ends in death.
+
+Each interactive issue must support:
+- one intended/ideal surviving ending;
+- at least one authored alternate surviving ending;
+- authored death outcomes where appropriate.
+
+Death may occur from:
+- a consequential branch choice;
+- failing a timed escape room.
+
+Death is terminal for the current run. Exact restart/retry policy beyond that remains later Reader-product detail.
+
+### Progress
+
+Live run progress must persist between visits.
+
+The later implementation should treat meaningful progress as server-authoritative rather than allowing localStorage/front-end flags to claim a solved room or completed branch.
+
+Expected logical identity:
+
+```text
+publication
+tokenId
+wallet
+runId
+```
+
+Exact transfer/new-owner handling for private prior-run state remains later product detail and must be resolved before this system ships.
+
+### Trait-specific owner experiences
+
+Immutable birth traits can alter what an owner encounters.
+
+MARK may unlock or alter:
+- trait-specific interactions;
+- optional rooms;
+- Harrow dialogue;
+- clues;
+- visual layers;
+- hidden passages;
+- achievements;
+- special authored side content.
+
+HELLBOUND in particular should have genuine HELLBOUND-specific interactions rather than functioning only as a scarcity/market label.
+
+DEFECT may intentionally change how the comic/room behaves. Examples of the design language, not a requirement that every issue use every effect:
+- REDACTED can conceal/reveal authored information;
+- CORRUPTED PLATE can introduce deliberate visual/data corruption;
+- BLED OUT can let ink/color bleed become part of the interaction;
+- OFF REGISTER can use intentional layer misalignment as presentation/puzzle language;
+- NONE remains the clean baseline.
+
+Trait behavior must be pre-authored/validated for the issue. It is not runtime AI generation.
+
+### Fairness boundary
+
+Rarity may make a copy **different**, not cripple ordinary collectors.
+
+A normal/common copy must remain capable of:
+- experiencing the complete core story;
+- surviving the required rooms;
+- reaching the ideal ending;
+- reaching the issue's ordinary alternate ending(s).
+
+Rare traits may add secret/alternate content, interactions, presentation or achievements, but must not turn the core narrative/ideal ending into pay-to-win access.
+
+### Achievement / completion direction
+
+Hellbox may persist:
+- survival/completion achievements;
+- deaths;
+- discovered endings;
+- authored experience marks;
+- a Harrow completion/certificate artifact.
+
+Exact achievement taxonomy, certificate implementation and public/private disclosure are later Reader/artifact-state design. The Harrow certificate concept may keep the joke that Harrow retains the "original."
 
 Reader principles:
 
 - art/content is the star;
 - UI disappears when not needed;
 - keyboard/touch;
-- paged/continuous;
 - fit page/width;
 - preloading;
 - accessibility;
 - protected ownership access;
-- no dishonest DRM claims.
+- no dishonest DRM claims;
+- story/puzzle state is authored, deterministic under its frozen rules and reproducible;
+- no runtime-AI dependency for canonical story continuity.
 
 ---
 
@@ -729,33 +1109,57 @@ Bike:
 
 ---
 
-# 12. COMIC FORMAT — STRONG PROTOTYPE
+# 12. COMIC / INTERACTIVE NARRATIVE FORMAT
 
-Current working standard for **ordinary Hellbox comic books**:
+Current working structural standard for **ordinary Hellbox comic books** remains:
 
-- 14 story pages;
-- 64 chronological frames;
+- 14 comic story stages/pages on a complete surviving path;
+- 64 chronological comic-frame positions on a complete surviving path;
 - frame numbering does not reset inside an issue;
-- page count and chronological frame count are intended to remain standardized across ordinary Hellbox comics once the production model is formally locked.
+- the interactive system does not automatically create extra numbered comic frames merely because an escape room opens from the final frame.
+
+For an `INTERACTIVE_COMIC`, "page" should be understood as a **story-stage position** that may have multiple pre-authored variants.
+
+Conceptually:
+
+```text
+STAGE 6
+├── page/stage variant A
+├── page/stage variant B
+├── optional trait-specific authored intervention
+├── final-frame escape room
+├── branch/death consequence
+└── transition to an allowed next stage
+```
+
+A surviving branch may diverge for one or more stages and later reconverge. This is the primary workload-control strategy: Hellbox should create strong perceived consequence without requiring an exponentially expanding tree of wholly independent books.
 
 Still **OPEN / PROTOTYPE**:
-
 - exact page-by-page frame distribution;
-- exact panel/grid/layout grammar.
+- exact panel/grid/layout grammar;
+- whether every stage variant must preserve an identical local frame count once the final layout grammar is locked;
+- exact branch-reconvergence conventions.
 
-Once the ordinary-comic layout grammar is established, it should remain coherent and repeatable across Hellbox comic books rather than every title inventing a new structural language.
+What is now **LOCKED**:
+- the published interactive issue is finite/pre-authored;
+- successful paths may legitimately differ;
+- at least one alternate surviving ending exists in addition to the ideal ending;
+- death paths can terminate before the final stage;
+- the final-frame room/branch experience is part of the authored issue;
+- rare-trait interactions cannot block ordinary copies from the complete core story or ideal ending.
+
+Once the ordinary-comic layout grammar is established, it should remain coherent and repeatable across Hellbox comics rather than every title inventing a new structural language.
 
 Exceptions:
-
 - graphic novels;
 - prose-to-graphic adaptations;
 - SciVive and similar proving/source-book cases.
 
-Those exceptions are not required to follow the ordinary-comic page/frame/grid structure.
+Those exceptions are not required to follow the ordinary-comic page/frame/interactive structure.
 
-There is no separate locked rule called "no filler frames." The intended quality rule is that, once the production standard is finalized, each frame should earn its place in story, pacing, character, atmosphere, information or visual rhythm.
+There is no separate locked rule called "no filler frames." The intended quality rule is that, once the production standard is finalized, each frame should earn its place in story, pacing, character, atmosphere, information, clueing or visual rhythm.
 
-`NO CONSENSUS` is **not an established Hellbox series**. It is currently only a fill-in/example title from format exploration. Do not create a series, cast, faction or canon around it unless the creator later explicitly establishes it.
+`NO CONSENSUS` is **not an established Hellbox series** under current root-document authority. It remains only a fill-in/example title from format exploration unless the creator later explicitly establishes it.
 
 Harrow can rotate titles, publish one-shots and return to dormant series.
 
@@ -1089,11 +1493,16 @@ Potentially Archive-eligible.
 
 Reversible while sealed.
 
+Archive is the digital equivalent of preserving the comic under protective plastic/slab rather than handling/reading it.
+
 - NFT remains in wallet;
 - transfer execution locked;
 - Hellbox does not list it while archived;
-- visual protective sleeve;
-- unarchive stops earning/unlocks transfer;
+- NFT/metadata presentation should visibly communicate the protective sleeve/plastic state;
+- current Hellbox reward doctrine: **only archived copies accrue official Archive rewards**;
+- an archived copy cannot enter/play the interactive Reader run;
+- an archived copy cannot acquire experience marks, puzzle scars, deaths, run achievements or other handling-derived artifact state while archived;
+- unarchive stops new earning/unlocks transfer and returns the still-sealed artifact to SEALED state;
 - may rearchive while still sealed.
 
 Third-party off-chain listings may still display; actual transfer must fail while archived.
@@ -1104,10 +1513,14 @@ Permanent.
 
 Once opened:
 - cannot reseal;
-- cannot re-enter Archive;
-- cannot regain official reward eligibility.
+- cannot re-enter Archive under the current product model;
+- cannot regain ordinary official Archive reward eligibility merely by finishing/closing the Reader;
+- may participate in the interactive owner experience;
+- may acquire authored experience/history state according to the issue's frozen rules.
 
 Irreversible actions require explicit Harrow warning and deliberate confirmation.
+
+Future burn/consume systems may create a different approved way to earn or modify reward power, but that possibility is **OPEN** and must not be interpreted as permission to make UNSEALED copies re-Archive under today's rules.
 
 ---
 
@@ -1122,16 +1535,24 @@ Permanent birth:
 - PRESS MARK;
 - PRESS DEFECT.
 
-Ruled state:
+**Birth rarity never changes.** Reading, dying, escaping, achievements, experience marks, Archive status, burns or future reward modifiers must not rewrite a token's MARK/DEFECT birth identity.
+
+Ruled artifact state may include:
 - SEAL;
 - ARCHIVE;
-- cover;
+- cover/presentation;
 - permanent history;
+- authored experience marks/scars earned while the artifact is unsealed;
+- discovered artifact-level achievements where the publication rules say they follow the token;
 - Hellforge/evolution state;
 - official Archive status/balance;
 - contextual current-wallet traits.
 
-Permanent events follow the token.
+Private run state is distinct from permanent birth rarity and may also be distinct from artifact-level permanent history. Exact wallet-run versus token-history boundaries remain later Reader/artifact-state work.
+
+Archived copies are protected from handling-derived experience mutation while archived.
+
+Permanent artifact events follow the token.
 
 Contextual traits can appear/disappear with current conditions.
 
@@ -1153,14 +1574,51 @@ Token-bound account:
 
 ## Official Archive rewards
 
-Separate from arbitrary TBA asset balances.
+Separate from arbitrary TBA asset balances and separate from birth-trait assignment itself.
 
-Preferred:
-- dedicated protocol accounting keyed to NFT;
-- owner can claim;
-- unclaimed balance can follow NFT if frozen protocol says so;
-- unarchive stops new accrual;
-- unseal permanently finalizes/clears eligibility.
+Current locked product doctrine:
+- **archived copies are the ordinary reward-earning state**;
+- reward earning is **rarity-weighted** using the token's immutable birth rarity;
+- MARK and DEFECT may both contribute to relative Archive weight;
+- exact numeric weights, combination formula, emissions, reward asset and payout schedule remain later Gate 7 product/economic decisions;
+- experience marks do **not** alter MARK/DEFECT rarity and do not retroactively reroll the birth-rarity basis;
+- unarchive stops new ordinary Archive accrual;
+- unseal permanently ends ordinary Archive eligibility under the current model.
+
+Preferred implementation boundary:
+- dedicated external/protocol accounting keyed to NFT;
+- publication/BirthPolicy expose or preserve the immutable inputs but do not hard-code a reward token or emissions formula;
+- owner can claim under the active external reward protocol;
+- unclaimed balance can follow NFT if the later frozen protocol explicitly says so.
+
+### Harrow creator-copy reward delay — LOCKED
+
+Harrow's creator-reserved immediate copies **#001–#006 earn zero official Archive rewards for six years after their mint**.
+
+During that six-year period:
+- they may still exist/display under the normal artifact rules;
+- if archived, their effective official reward weight is `0`;
+- their special MARKS do not create an immediate creator reward advantage.
+
+After the six-year delay, the external Archive/reward protocol may allow them to participate under the same approved rarity-weight doctrine then in force.
+
+This lock belongs in the external Archive/reward eligibility layer, not as a reward-token formula inside `HellboxPublication` or `HellboxBirthPolicy`.
+
+Rationale:
+- if Hellbox does not survive/grow long enough, Harrow never receives the benefit of those creator-reserved rarity allocations;
+- it prevents the creator from immediately assigning himself rare copies and simultaneously extracting enhanced rarity-weighted rewards from them.
+
+### Burn/reward interaction — deliberately OPEN
+
+Do **not** lock today's burn economics.
+
+A future approved burn/consume system might:
+- create a separate earning event;
+- increase another archived artifact's effective reward power;
+- feed a permanence/inscription mechanism;
+- do something else entirely.
+
+Any future burn modifier must remain distinct from birth rarity: it may modify **effective reward power** under the external protocol but must not rewrite MARK/DEFECT.
 
 Before any future reward-token launch:
 - do not lock or publicly promise a token address, supply, emissions model, tokenomics or distribution merely because an earlier concept exists;
@@ -1202,6 +1660,7 @@ May use:
 
 Does not automatically use:
 - native 216 MARK/DEFECT grammar;
+- native interactive-comic escape-room/branch/death structure;
 - full Archive reward economy;
 - full Hellforge;
 - broad burn/evolution system.
@@ -1217,30 +1676,52 @@ Purpose:
 Harrow supplies:
 
 1. canonical cover;
-2. actual comic/Reader package;
-3. MARK layers/rules;
-4. DEFECT layers/rules;
-5. credits/metadata;
-6. economics;
-7. mint phases;
-8. capabilities/version.
+2. actual comic/Reader source package;
+3. finite narrative graph, stage/page variants, choices and endings where interactive;
+4. escape-room definitions, timers, solutions, hints and death consequences where interactive;
+5. MARK interaction layers/rules;
+6. DEFECT interaction layers/rules;
+7. credits/metadata;
+8. economics;
+9. mint phases;
+10. capabilities/version;
+11. rights/provenance records for included assets.
 
-Compiler:
+Compiler target:
 
-`INPUT → VALIDATE → PREVIEW → COMMIT → RANDOMIZE/ASSIGN → RENDER → METADATA → DEPLOY → VERIFY → OPEN PRESS`
+`INPUT → VALIDATE → GRAPH-CHECK → PREVIEW → PLAYTHROUGH MATRIX → COMMIT → RANDOMIZE/ASSIGN → RENDER → METADATA → DEPLOY → VERIFY → OPEN PRESS`
 
-Default art pipeline:
-- deterministic/reproducible compositing;
-- Harrow-authored layers/masks/effects;
-- not AI generation by default.
+Compiler/Press must eventually generate:
+- route/reachability report;
+- ending coverage;
+- room/timer inventory;
+- trait-intervention compatibility report;
+- missing-asset report;
+- deterministic asset/hash manifest;
+- accessibility checklist;
+- performance budget report;
+- immutable freeze summary;
+- exact deployment/config package;
+- post-deploy verification report.
 
-Harrow should not know the complete hidden random map in advance.
+Default production pipeline:
+- deterministic/reproducible compositing and packaging;
+- Harrow-authored/approved layers, rooms, branches and effects;
+- AI assistance permitted during production under the locked AI policy;
+- no runtime-AI dependency for canonical story continuity.
+
+Harrow should not know the complete hidden random copy/trait assignment map in advance.
 
 No future release should require:
 - bespoke Solidity;
 - hand-writing every metadata JSON;
 - manual R2 juggling;
-- manual rendering of every combination.
+- manual rendering of every combination;
+- manually checking every graph edge in a spreadsheet;
+- remembering unrecorded release steps;
+- rebuilding the publication package differently for preview and production.
+
+The target system must turn issue production into a repeatable authored-data workflow rather than a new software project for every book.
 
 ---
 
@@ -1778,10 +2259,14 @@ Before code, replace `CURRENT_GATE_BLUEPRINT.md` with an approved Gate 5 bluepri
 Private Press:
 - Harrow auth;
 - draft lifecycle;
+- schema-driven forms rather than duplicated freehand configuration;
 - validation;
+- generated risk/scope/immutability summary;
 - immutable freeze preview;
-- publish transaction;
-- deployment verification.
+- dry-run using the same package/deployment path as production;
+- deliberate publish transaction;
+- deployment verification;
+- generated release runbook/report.
 
 Public Press:
 - wallet;
@@ -1795,29 +2280,57 @@ Public Press:
 
 Do not build Gate 6 compositor or Gate 7 protocols here.
 
-## Gate 6 — ingest / package / dynamic metadata / rendering
+## Gate 6 — ingest / package / interactive narrative / dynamic metadata / rendering
+
+This Gate now carries the largest implementation expansion created by the interactive-comic decision.
 
 Blueprint must define:
 - package schema;
+- canonical single-source issue manifest;
+- solo-operator scope budget;
+- reusable room/interaction component library;
 - cover + Reader inputs;
-- MARK/DEFECT layer format;
+- finite authored narrative-graph schema;
+- story-stage/node identity;
+- allowed branch transitions and reconvergence;
+- escape-room manifests;
+- authoritative room timer/death rules;
+- choice/consequence definitions;
+- ideal/alternate/death ending definitions;
+- progress/run-state schema and save/restore behavior;
+- trait-conditioned MARK/DEFECT interactions;
+- ordinary-copy fairness validation;
+- achievement/certificate inputs;
+- validation that all reachable paths are authored and no canonical runtime-AI generation is required;
+- validation for unreachable nodes, impossible rooms, accidental dead ends and broken transitions;
+- exhaustive machine route coverage for every reachable authored path/variant combination within the issue budget;
+- generated playtest matrix and coverage gaps;
+- deterministic seed/fixture support for reproducing every authored variant during testing;
+- MARK/DEFECT visual layer format;
 - deterministic compositor;
 - randomness/render boundary;
-- metadata renderer;
+- metadata/artifact-state renderer;
 - marketplace refresh;
 - reproducibility;
 - protected Reader ingest;
 - durability/fallback.
 
+AI-assisted authoring/build/test tools are required as practical leverage where they materially reduce Harrow's workload, but every output remains subject to schema/test/human approval and the published runtime graph remains finite and pre-authored.
+
+Gate 6 must leave Harrow with a reusable authoring/compiler system, not a pile of issue-specific scripts that only work for Native Issue #1.
+
 ## Gate 7 — artifact protocols
 
 Split into sub-checkpoints:
 - Seal/Archive;
-- official reward accounting;
+- rarity-weighted official Archive reward accounting;
+- Harrow #001–#006 six-year reward-delay enforcement;
 - ERC-6551;
-- permanent incident/history state;
+- permanent experience/incident/history state;
+- archived-state protection from experience marking;
 - contextual traits;
-- Hellforge/burn/evolution.
+- Hellforge/burn/evolution;
+- explicit review of any future burn-to-reward-power interaction without changing birth rarity.
 
 Do not build one giant everything-contract.
 
@@ -1833,29 +2346,43 @@ Server-authoritative durable relationship:
 
 No generic XP.
 
-## Gate 9 — freeze / audit / hardening / content
+## Gate 9 — freeze / audit / hardening / content / operations
 
 - content/code freeze;
 - accessibility;
 - localization;
-- responsive/browser matrix;
+- responsive/browser/device matrix;
 - privacy/consent;
-- performance;
+- performance budgets;
 - analytics/SEO/legal;
 - threat model;
 - fuzz/invariant/static analysis;
 - targeted independent security review;
+- reward/token/economic specialist review if those systems are active;
 - metadata/content continuity;
 - publisher continuity plan;
-- Native Issue #1 content readiness.
+- multi-RPC/provider failure drills;
+- Cloudflare/D1/R2 outage behavior;
+- key/authority separation review;
+- automated backup/export schedules;
+- full restore drill from documented artifacts;
+- incident/maintenance runbooks;
+- Native Issue #1 content/playtest readiness;
+- proof that one operator can execute the release safely from the runbook.
 
 ## Gate 10 — mainnet release candidate
 
 - exact deployment runbook;
+- deterministic dry-run;
+- transaction simulation;
 - production versions/config;
-- monitoring;
+- explicit abort points;
+- monitoring/alerts;
+- backup/export checkpoint;
+- post-deployment verification command/report;
 - SciVive production;
-- Native Issue #1 only after full hard release barrier.
+- Native Issue #1 only after full hard release barrier;
+- no production release that requires improvised Terminal work not present in the approved runbook.
 
 ---
 
@@ -1891,7 +2418,24 @@ Before Native Issue #1 mainnet, prove as promised:
 - owner-authorized burn/evolution;
 - marketplace refresh;
 - Reader ownership access;
+- finite pre-authored narrative graph with one ideal surviving ending, at least one alternate surviving ending and authored death outcomes;
+- progressively harder escape-room curve validated by human playtesting;
+- server-authoritative saved progress/timer behavior with an approved platform-outage policy;
+- ordinary/common copies can complete the core story and ideal ending;
+- intended MARK/DEFECT-specific interactions work without pay-to-win gating;
+- transfer/new-owner run-state behavior is explicitly resolved;
+- archived copies cannot acquire experience marks while archived;
+- rarity-weighted Archive reward boundary remains external/modular;
+- Harrow #001–#006 six-year zero-reward eligibility is machine-enforced if rewards are active;
+- compatibility with later finite authored interactive Reader packages without embedding game logic in the publication kernel;
+- deterministic issue rebuild, route coverage report and asset/hash manifest;
+- accessibility/performance/device acceptance;
+- documented backup/restore and solo-operator release runbook;
+- successful clean-room recovery drill from documented backups;
+- proof that one ordinary operator can execute the approved release runbook safely without improvised developer-only steps;
 - clear irreversible warnings.
+
+Gate 4 does **not** have to implement the narrative graph, escape rooms, timer engine, saved runs, achievements or rarity-weighted reward formula. It must preserve the clean boundaries those later systems need.
 
 ---
 
@@ -1905,7 +2449,7 @@ Use:
 - pinned OpenZeppelin;
 - established ERCs;
 - small custom Solidity;
-- AI review;
+- AI-assisted review as one layer, never as the sole audit;
 - unit tests;
 - fuzz tests;
 - invariant tests;
@@ -1924,7 +2468,15 @@ Do not:
 
 A publication using unchanged reviewed versioned bytecode should not need a new full code audit just because title/art/config changed.
 
+Reward-token launch, revenue-sharing language, buy/burn mechanics and rarity-weighted reward marketing require specialist legal/tax review when they become concrete. Those systems may be delayed or disabled without blocking the comic/ownership platform.
+
 ERC-2981 expresses royalty information; it does not guarantee every marketplace will enforce or pay royalties. Do not model secondary royalties as guaranteed cash flow.
+
+The comic/artifact must remain worth owning if:
+- the future reward token has no value or never launches;
+- secondary royalties are zero;
+- resale liquidity is poor;
+- Archive emissions are reduced or paused.
 
 Operational continuity is a **STRONG PRE-MAINNET DURABILITY REQUIREMENT**, not a locked implementation mechanism:
 
@@ -2127,27 +2679,561 @@ This doctrine remains OPEN strategic work.
 
 ---
 
-# 35. LOW-COST OPERATIONS
+# 35. SOLO-OPERATOR / LOW-COST / RELIABLE OPERATIONS
 
-Hellbox is a solo/part-time creator project.
+Hellbox is a solo, part-time creator project and must not require a staffed studio, 24/7 operator, permanent DevOps team or a specific computer remaining online.
+
+## 35.1 Cost discipline
 
 Prefer:
-
 - Cloudflare Worker/static;
 - D1;
 - R2;
-- no always-on app server unless needed;
+- managed/serverless services over servers Harrow must patch;
+- no always-on app server unless required;
 - no expensive indexer initially;
 - no CMS unless justified;
 - direct-to-R2 large upload paths;
 - lazy Reader delivery;
-- reusable publication versions.
+- reusable publication versions;
+- event-driven automation that scales down when idle;
+- one authoritative source per configuration domain.
 
 Do not create infrastructure cost because a larger company would.
 
+Cost savings must not remove:
+- backups;
+- monitoring;
+- security;
+- deterministic builds;
+- recovery;
+- authoritative ownership/progress state.
+
+## 35.2 No daily-human-operator requirement
+
+Normal operation must continue while Harrow is working, asleep, offline or unavailable.
+
+Avoid systems that require:
+- manual mint closure;
+- daily reward calculations;
+- hand-updated prices;
+- manual ownership approvals;
+- manual puzzle-progress correction;
+- constant server supervision;
+- daily dashboard maintenance;
+- a specific workstation remaining online.
+
+Time/state transitions should execute deterministically from frozen rules or be safely callable by automation/anyone where appropriate.
+
+If a critical service is unhealthy, unsafe writes should pause/fail closed rather than require Harrow to notice immediately.
+
+## 35.3 Required operational runbooks before mainnet
+
+Maintain concise, executable runbooks for:
+
+- new trusted-workstation/repository bootstrap;
+- website/Worker deployment and rollback;
+- contract-version deployment;
+- Testnet/mainnet publication;
+- publication-package build and verification;
+- Reader/narrative package build and upload;
+- D1 backup/export and restore;
+- R2 manifest/inventory verification and restore;
+- RPC/provider failover;
+- publishing/treasury authority rotation;
+- compromised-key response;
+- Cloudflare/vendor outage;
+- unsafe-write/read-only mode;
+- failed mint/publication transaction;
+- content/package correction before PUBLISH;
+- dependency update;
+- incident recording/postmortem.
+
+A runbook must contain commands/checks and expected evidence, not merely prose saying "restore the database."
+
+## 35.4 Backup and clean-room recovery standard
+
+GitHub is not the only backup.
+
+Before mainnet, Hellbox must have:
+- repository mirrors/backups;
+- reproducible dependency/version locks;
+- D1 exports/backups;
+- R2 object manifests and content hashes;
+- publication/source-package backups;
+- infrastructure configuration records;
+- offline-secured recovery material for critical accounts/authorities;
+- a written restore order.
+
+Hard release barrier:
+
+> **No Native Issue #1 mainnet release until a clean-room recovery drill can rebuild the public platform and recover authoritative publication/Reader data from documented backups.**
+
+A backup that has never been restored is unproven.
+
+## 35.5 Monitoring and bounded failure
+
+Before mainnet establish one low-noise operational view covering:
+- website/API health;
+- Worker/D1/R2 health;
+- RPC/provider health;
+- ownership-critical paths;
+- publication/mint failures;
+- Reader/package delivery;
+- narrative timer/progress service when interactive comics exist;
+- unusual authority/configuration changes.
+
+Alerts should identify:
+- what failed;
+- whether reads remain safe;
+- whether writes are disabled;
+- which runbook applies.
+
+Do not create alert noise that trains a solo operator to ignore it.
+
+## 35.6 Authority and irreversible-operation safeguards
+
+Before mainnet:
+- use hardware-backed signing for production authorities;
+- separate publishing, routing/treasury and application authority where practical;
+- simulate irreversible transactions before execution;
+- use deliberate two-step rotations where supported;
+- keep secrets out of Git, AI chats, logs and screenshots;
+- preserve durable audit evidence for production changes.
+
+AI may prepare or verify an operation. It may not receive signing secrets or unilaterally execute it.
+
+## 35.7 Automation priority
+
+Automate in this order:
+
+1. correctness-critical repetition;
+2. release/deployment verification;
+3. graph/path/content validation;
+4. backups/restores;
+5. monitoring/alerts;
+6. asset-production repetition;
+7. convenience.
+
+Do not automate an unstable process before its invariants are understood. Once stable, do not keep performing it manually.
+
+## 35.8 Incident principle
+
+When authoritative truth is unavailable:
+
+```text
+PAUSE / FAIL CLOSED / PRESERVE EVIDENCE
+```
+
+Do not guess ownership, randomness, mint eligibility, payment state, room completion or reward balances.
+
+A known platform-wide Hellbox outage must not automatically cause mass timed-room deaths. Exact incident-clock behavior remains later Reader engineering, but the system must distinguish platform failure from an individual user's failure.
+
+## 35.9 AI operational leverage
+
+Use AI to:
+- generate/check manifests;
+- prepare focused commands;
+- compare backups/inventories;
+- summarize incidents;
+- validate runbooks against current configuration;
+- generate test cases;
+- inspect graph/package inconsistencies;
+- prepare model-independent handoffs.
+
+AI must operate through explicit, reviewable artifacts/commands and cannot become a hidden always-on control plane.
+
+
+## 35.10 INTERACTIVE OWNER-EXPERIENCE IMPACT ON CURRENT GATE 4
+
+This newly locked product direction does **not** invalidate the current Gate 4 kernel/factory/BirthPolicy work.
+
+No current reason exists to change `HELLBOX_ABI_V1` because:
+- the publication/package/Reader commitment envelope can bind a later canonical narrative/package manifest;
+- ownership remains ERC-721 `balanceOf`;
+- MARK/DEFECT remain immutable birth inputs;
+- dynamic metadata/artifact-state compatibility already exists;
+- Archive/reward protocols remain modular/external;
+- the publication contract does not need to execute puzzles, store branch progress or know the future reward token.
+
+Gate 4 must therefore avoid:
+- linear-page-only on-chain assumptions;
+- runtime-AI dependencies;
+- reward-weight formulas;
+- experience-mark mutators;
+- game-progress storage in the publication.
+
+The immediate Gate 4 frontier remains code-store/BirthPolicy atomic deployment wiring.
+
 ---
 
-# 36. CURRENT KNOWN RISKS / DEBT
+# 36. ACTIVE RISK REGISTER / PRE-ENGINEERED RESPONSES
+
+These risks are not excuses to stop. They define the systems Hellbox must build so predictable failures remain contained.
+
+## 36.1 Scope explosion / failure to ship — GUARANTEED PRESSURE
+
+Risk:
+- ideas, branches, traits, rooms and protocols expand faster than one creator can finish them.
+
+Prevent:
+- mandatory Gate/issue scope budget;
+- branch reconvergence;
+- reusable room/trait components;
+- one ideal ending + controlled alternate/death outcomes rather than unlimited fan-out;
+- explicit backlog for good ideas outside the current budget;
+- one-file/one-checkpoint implementation.
+
+Trigger:
+- path/asset count exceeds declared budget;
+- validation coverage becomes incomplete;
+- a new feature requires new custom Solidity or issue-specific infrastructure.
+
+Response:
+- cut, reconverge, reuse or move the idea to a later issue;
+- never preserve scope by lowering security, accessibility, testing or editorial quality.
+
+## 36.2 Harrow/solo-operator bottleneck and bus factor — GUARANTEED
+
+Risk:
+- project operation depends on one person's memory, energy or uninterrupted availability.
+
+Prevent:
+- canonical manifests;
+- scripts/compilers/runbooks;
+- living documents;
+- deterministic builds;
+- generated reports;
+- scheduled backups;
+- no undocumented production steps.
+
+Response:
+- stop and document/automate any process that repeatedly requires memory or improvisation;
+- reduce release scope before adding permanent staff-like operational burden;
+- maintain a handoff package another competent engineer can execute.
+
+## 36.3 Interactive narrative combinatorial explosion — GUARANTEED WITHOUT CONTROL
+
+Risk:
+- branch tree, room variants and MARK/DEFECT combinations become impossible to author/test.
+
+Prevent:
+- graph, not infinite tree;
+- declared max branch width;
+- reconvergence;
+- base stage + modular trait intervention;
+- exhaustive machine reachability/coverage;
+- deterministic fixtures for every variant.
+
+Response:
+- reject any route set that cannot be exhaustively validated;
+- consolidate branches or reduce trait interventions;
+- ship fewer stronger differences.
+
+## 36.4 AI-assisted production quality / canon / rights risk
+
+Risk:
+- AI output is inconsistent, derivative, legally unclear, visually off-model or impossible to reproduce.
+
+Prevent:
+- AI policy;
+- human approval;
+- canonical source package;
+- asset provenance/licensing records;
+- character/canon references;
+- deterministic final build;
+- no runtime canonical generation.
+
+Response:
+- reject/rebuild questionable assets;
+- do not PUBLISH until rights/provenance and visual/canon review pass;
+- treat AI conversations as disposable assistance, not authoritative source.
+
+## 36.5 Puzzle quality and frustration risk
+
+Risk:
+- rooms are technically clever but unfair, tedious, inaccessible or not fun.
+
+Prevent:
+- progressive difficulty;
+- tutorialized interaction language;
+- human playtests;
+- telemetry after launch where privacy-appropriate;
+- authored hints/accessibility;
+- timer begins only after assets load and explicit entry.
+
+Response:
+- revise before PUBLISH;
+- cut a weak room rather than protect sunk cost;
+- future issues improve reusable components, but a published issue's frozen puzzle package is not silently rewritten unless the publication rules explicitly permit a non-canonical operational fix.
+
+## 36.6 Spoilers, collaboration, screenshots and datamining — GUARANTEED
+
+Risk:
+- solutions/assets leak; players share answers.
+
+Prevent/position:
+- community collaboration is intentional;
+- value is ownership, authenticated progression, artifact state and experience—not impossible DRM;
+- use pre-authored validated variants where they improve replay/spoiler resistance;
+- do not make secrecy the only difficulty mechanism.
+
+Response:
+- do not enter an anti-cheat arms race that overwhelms a solo project;
+- adjust future issues/variants and community design rather than pretending pixels cannot leak.
+
+## 36.7 Timer, browser, device and platform-outage fairness
+
+Risk:
+- crash, suspension, latency or provider outage causes unfair death/progress loss.
+
+Prevent:
+- prefetch assets;
+- explicit room entry;
+- authoritative server timestamp;
+- idempotent transition writes;
+- saved progress;
+- platform incident detection;
+- documented pause/maintenance policy.
+
+Response:
+- platform-wide failure must not mass-kill runs;
+- preserve evidence and resume/repair under the approved incident rule;
+- individual connectivity failure follows the issue's disclosed rules.
+
+## 36.8 Client cheating / progress forgery
+
+Risk:
+- localStorage, modified JavaScript or replayed requests claim rooms/choices were completed.
+
+Prevent:
+- Worker/D1 authoritative transitions;
+- signed wallet sessions;
+- one-way state transitions;
+- nonce/idempotency protections;
+- server validation of legal graph edges/timers;
+- browser remains presentation/cache only.
+
+Response:
+- reject invalid transitions;
+- revoke compromised sessions;
+- preserve audit evidence;
+- never let frontend flags grant ownership, rewards or completion.
+
+## 36.9 NFT transfer / run privacy / token-history ambiguity
+
+Risk:
+- a buyer inherits spoilers/progress; private choices become public; token history and wallet run state are conflated.
+
+Prevent:
+- explicit separation of `publication + tokenId + wallet + runId` private run state from deliberately public artifact history;
+- define transfer behavior before interactive Reader mainnet.
+
+Response:
+- do not ship until new-owner start/resume rules and privacy boundaries are tested;
+- default to protecting private run choices unless explicitly disclosed otherwise.
+
+## 36.10 Immutable-contract bug / code-size / deployment failure
+
+Risk:
+- non-upgradeable mainnet bug or EIP-170/EIP-3860 boundary failure.
+
+Prevent:
+- small versioned modules;
+- OpenZeppelin;
+- unit/fuzz/invariant/static/adversarial tests;
+- exact-byte hashes;
+- Testnet campaign;
+- external review after freeze;
+- measure sizes/payload after every major wiring change.
+
+Response:
+- pre-mint: abandon bad deployment/version and deploy reviewed successor;
+- post-mint: do not seize/rewrite collector NFTs; disable only optional unsafe platform paths where possible and fix future versions.
+
+## 36.11 Randomness / Final-3 manipulation
+
+Risk:
+- Harrow, miner/validator, publisher or attacker influences valuable copy/trait/tail assignment.
+
+Prevent:
+- production entropy abstraction;
+- no timestamp/manual-wallet pseudo-randomness;
+- committed failure/fallback policy;
+- unbiased timed-expiry selection;
+- adversarial tests.
+
+Response:
+- pause mint/closure rather than switch silently to manipulable entropy;
+- do not let Harrow select Final 3 or rare copies.
+
+## 36.12 Reward economics / regulatory / sustainability risk
+
+Risk:
+- rewards dominate the comic, become unsustainable, create self-dealing optics or trigger legal/tax problems.
+
+Prevent:
+- external versioned reward module;
+- no reward token/formula in publication kernel;
+- six-year zero reward for Harrow #001–#006;
+- capped/adjustable operational budgets;
+- specialist review when economics become concrete;
+- market the artifact/experience, not guaranteed profit.
+
+Response:
+- delay, reduce, pause or redesign rewards without invalidating ownership/comics;
+- launch core platform without a reward token if necessary;
+- assume secondary royalties and token value may be zero.
+
+## 36.13 Archive-versus-experience imbalance
+
+Risk:
+- reward value becomes so high that owners never unseal rare copies, wasting the interactive work.
+
+Prevent:
+- model reward magnitude before Gate 7;
+- make experience/collectible meaning valuable;
+- avoid APY-style promises;
+- monitor sealed/archive/unseal behavior.
+
+Response:
+- adjust future external reward budgets/strategies;
+- do not alter published birth rarity or force owners to unseal.
+
+## 36.14 Burn incentive risk
+
+Risk:
+- premature burn mechanics create perverse scarcity, reward or permanence incentives.
+
+Prevent:
+- burn/reward interaction remains open;
+- external modifier distinct from MARK/DEFECT;
+- scenario/economic simulation before approval;
+- explicit owner authorization and warnings.
+
+Response:
+- postpone burn economics;
+- never use burn as a repair mechanism for bad tokenomics.
+
+## 36.15 PulseChain / RPC / ecosystem dependency
+
+Risk:
+- RPC outages, explorer weakness, chain congestion, low NFT liquidity or limited user base.
+
+Prevent:
+- multiple RPCs/providers;
+- health checks;
+- bounded ownership cache/evidence;
+- fail-closed writes;
+- comic has standalone value beyond resale;
+- no bridge dependency.
+
+Response:
+- pause unsafe writes/mints;
+- use documented degraded read behavior only;
+- do not guess chain truth.
+
+## 36.16 Cloudflare / D1 / R2 / DNS vendor failure
+
+Risk:
+- managed-service outage or account loss interrupts Reader/progress/publication delivery.
+
+Prevent:
+- content hashes;
+- exports/backups;
+- portable source packages;
+- restore drills;
+- provider boundaries;
+- maintenance state;
+- operational continuity plan.
+
+Response:
+- restore from verified manifests/exports;
+- serve durable fallback where approved;
+- do not claim recovery capability until tested.
+
+## 36.17 Content leakage / DRM expectations
+
+Risk:
+- protected comic pages, audio or puzzle assets are copied.
+
+Prevent:
+- honest ownership gating;
+- no false DRM promise;
+- authenticated state/experience/provenance provide value beyond hidden bytes.
+
+Response:
+- enforce access reasonably;
+- investigate breaches;
+- do not redesign the project around impossible perfect secrecy.
+
+## 36.18 Wallet, secret and operational-key compromise
+
+Risk:
+- publishing, treasury/router or infrastructure credentials are stolen.
+
+Prevent:
+- hardware-backed keys;
+- separate roles/authorities;
+- least privilege;
+- no secrets in repo/AI chat;
+- short sessions;
+- monitored authority changes;
+- deliberate two-step rotations where supported.
+
+Response:
+- revoke/rotate compromised operational credentials;
+- pause affected writes;
+- preserve chain/audit evidence;
+- publication contracts retain no seizure power.
+
+## 36.19 Performance / accessibility / device fragmentation
+
+Risk:
+- experience works on Harrow's workstation but fails on phones, slow connections or assistive technology.
+
+Prevent:
+- asset/performance budgets;
+- progressive loading;
+- input abstraction;
+- reduced-effects mode;
+- captions/transcripts;
+- keyboard/touch/accessibility validation;
+- device/browser matrix;
+- assisted completion where needed without hiding core ownership.
+
+Response:
+- reduce effects/assets before excluding owners;
+- distinguish optional prestige achievements from basic accessibility.
+
+## 36.20 Mobile app-store policy risk
+
+Risk:
+- Apple/Google rules constrain wallet, NFT or payment behavior.
+
+Prevent:
+- web remains first-class;
+- native app is a client of shared APIs/state;
+- mint/payment path separable from Reader/Archive;
+- no mobile-only required puzzle unless explicitly sold that way.
+
+Response:
+- ship Reader/Archive capabilities within allowed policy and keep minting on web if necessary.
+
+## 36.21 Project becomes impossible to explain
+
+Risk:
+- technical depth obscures the simple reason to care.
+
+Prevent:
+- public proposition stays simple;
+- advanced systems are discovered after ownership;
+- marketing leads with comics/artifacts/experience, not protocol diagrams.
+
+Response:
+- simplify public language, not the integrity of the underlying system.
+
+## 36.22 Current technical debt / incomplete systems
 
 - `app.js` large/monolithic;
 - `src/index.js` large/monolithic;
@@ -2159,6 +3245,8 @@ Do not create infrastructure cost because a larger company would.
 - full dynamic renderer not built;
 - revenue-routing controller/gated operational split management not yet implemented;
 - Archive rewards/ERC-6551/Hellforge remain later Gates;
+- interactive narrative graph/runtime, room timer authority, saved-run state and path-validation tooling are not built yet;
+- trait-specific Reader interaction rules/content tooling are not built yet;
 - relationship/Hellion not server-authoritative yet;
 - frontend/backend chain registry can drift until parity/generated source exists;
 - internationalization incomplete by design;
@@ -2177,9 +3265,18 @@ Do not create infrastructure cost because a larger company would.
 - launch-health KPIs beyond "sold out";
 - final permanent-history public label;
 - exact randomness provider;
-- reward-token identity/tokenomics/distribution and Archive reward formulas;
+- exact MARK/DEFECT Archive weight table and combination formula;
+- reward-token identity/tokenomics/distribution and Archive reward emissions/formulas;
+- exact burn-to-reward interaction, if any;
+- exact experience-mark taxonomy and which marks are private run state versus permanent token history;
+- exact interactive-comic room timers, hint system, retry/new-run behavior and anti-spoiler/variant strategy;
+- exact achievement/certificate format;
+- exact per-issue scope-budget values and playtest thresholds;
+- exact platform-wide timed-room outage/pause policy;
+- exact backup retention/export schedule and recovery target;
+- exact operational authority/key separation before mainnet;
 - Hellforge recipes;
-- Native Issue #1 exact title/content/frozen PLS price/royalty rate/phases.
+- Native Issue #1 exact title/content/narrative graph/rooms/endings/frozen PLS price/royalty rate/phases.
 
 Future AI must not convert these into canon because it likes an idea.
 
@@ -2206,9 +3303,15 @@ Before code it must state:
 - contradictions found;
 - files that must not be touched yet.
 
-Then inspect the actual implementation files relevant to the immediate frontier and run the mandatory internal engineering checkpoint before writing a major file.
+Then:
+- run the session-resume repository preflight;
+- inspect the actual implementation files relevant to the immediate frontier;
+- verify the source hash before proposing replacement bytes;
+- run the mandatory internal engineering checkpoint before writing a major file.
 
 If implementation evidence is newer than stale progress prose, preserve the working implementation and synchronize the docs; do not backtrack.
+
+The handoff must be model-independent. No AI may require Harrow to remember what another AI meant or reconstruct state from an old conversation.
 
 Do not ask Harrow to re-explain project architecture.
 
@@ -2220,17 +3323,26 @@ Do not keep coding until a chat collapses.
 
 At a clean checkpoint:
 
-1. run tests;
-2. commit/push if appropriate;
-3. synchronize `CURRENT_GATE_BLUEPRINT.md` if stale text could mislead the next engineer;
-4. update this file with the verified checkpoint/frontier;
-5. update Harrow Bible only if canon changed;
-6. update README;
-7. open a fresh chat using the root-document handoff order.
+1. stop at a file/behavior boundary rather than halfway through an unverified multi-file change;
+2. run tests/validators;
+3. record exact hashes/counts/sizes/evidence;
+4. commit/push if appropriate;
+5. record any intentionally uncommitted file names and exact hashes;
+6. synchronize `CURRENT_GATE_BLUEPRINT.md` if stale text could mislead the next engineer;
+7. update this file with the verified checkpoint/frontier;
+8. update Harrow Bible only if canon changed;
+9. update README;
+10. preserve or generate any runbook/status artifact needed to resume without Terminal scrollback;
+11. open a fresh chat using the root-document handoff order.
+
+When a work session ends unexpectedly:
+- leave no assumed background task;
+- on resume rerun read-only state checks;
+- never use Terminal scrollback as the only record of unfinished work.
 
 Do not archive/replace the current Gate blueprint merely because chat context changed. Archive it only at formal Gate close.
 
-Context exhaustion is a handoff event, not a reason to lose architecture.
+Context exhaustion or real-world interruption is a handoff event, not a reason to lose architecture.
 
 ---
 
@@ -2318,6 +3430,28 @@ Stop before introducing:
 - changing an already-published issue's frozen payment asset, PLS mint price, royalty rate or native deadline;
 - hard-coding today's royalty/mint downstream split percentages, destination wallets or future reward-token address into the publication;
 - treating mutable revenue-routing operations as immutable collectible rarity rules;
+- runtime-AI generation of canonical story pages/branches/escape-room outcomes for a published issue;
+- treating every story branch as a hidden death/correct-answer test instead of allowing legitimate authored surviving routes;
+- locking the ideal/core story behind rare MARK/DEFECT ownership;
+- changing MARK/DEFECT birth rarity because of Reader experiences, achievements, burns or reward state;
+- letting an archived/plastic-protected copy acquire handling-derived experience marks while it remains archived;
+- ordinary Archive rewards accruing to Harrow #001–#006 before their six-year post-mint delay expires;
+- hard-coding Archive rarity weights/emissions/burn modifiers into the Gate 4 publication kernel;
+- issue production that depends on undocumented manual steps or Harrow remembering hidden state;
+- per-issue custom infrastructure/scripts that bypass the canonical compiler without formal review;
+- AI directly publishing, signing mainnet transactions or handling production secrets;
+- accepting AI-generated code/content because it looks plausible without automated and human review;
+- allowing branch/asset scope to exceed the declared issue budget without explicit rebaseline;
+- claiming backups, failover or recovery readiness without a successful restore/failure drill;
+- relying on one RPC/provider for ownership-critical or mint-critical truth;
+- starting timed rooms before required assets are loaded and an authoritative start is recorded;
+- platform-wide outages automatically causing mass timed-room deaths;
+- reward economics becoming a necessary condition for the comic/artifact to have value;
+- shipping an interactive issue without exhaustive reachable-path validation and human playtesting;
+- normal production operation that requires daily Harrow intervention or a specific computer remaining online;
+- mainnet release without a successful clean-room recovery drill and approved executable runbook;
+- AI output treated as current-state evidence without repository/test verification;
+- a handoff that depends on one AI's private conversation context;
 - static metadata requirement for native issues;
 - custodial Archive staking;
 - TBA sweep authority;
