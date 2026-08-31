@@ -2,8 +2,8 @@
 
 **Gate:** Gate 4 — HELLBOX ARTIFACT KERNEL + VERSIONED PUBLICATION FACTORY
 **Status:** APPROVED / IMPLEMENTATION IN PROGRESS
-**Checkpoint:** V1 kernel + `HELLBOX_ABI_V1` + deterministic issuance core + size-safe V1 full-deployment factory + versioned enforcement-preimage anchors + modular `HellboxBirthPolicy` foundation implemented; verified post-push regression **65 passed / 0 failed**; current unoptimized Shanghai runtimes: publication **16,334 bytes**, factory **8,020 bytes**, birth-policy module **5,561 bytes**
-**Next frontier:** atomically wire the three enforcement preimages and immutable per-publication `HellboxBirthPolicy` companion through publication/factory deployment, prove combined EIP-170/EIP-3860 headroom, then wire permanent per-token MARK/DEFECT consumption without selecting production randomness prematurely
+**Checkpoint:** V1 kernel + `HELLBOX_ABI_V1` + deterministic issuance core + size-safe V1 full-deployment factory + versioned enforcement-preimage anchors + modular `HellboxBirthPolicy` + immutable inert `HellboxBirthPolicyCodeStore` implemented; verified post-push regression **69 passed / 0 failed** with issuance fuzz boundary **256 runs** and **4/4** dedicated code-store proofs; current unoptimized Shanghai runtimes remain publication **16,334 bytes**, factory **8,020 bytes**, birth-policy module **5,561 bytes**
+**Next frontier:** bind the approved BirthPolicy code store + creation-code hash into the factory generation, have each publication copy the exact policy creation bytes from runtime offset `1`, verify their hash, append canonical policy constructor arguments, and execute publication-owned ordinary `CREATE` before trait consumption or collector minting
 **Target chain:** PulseChain Testnet V4 only
 **Mainnet:** prohibited in Gate 4
 **Repository destination:** `CURRENT_GATE_BLUEPRINT.md`
@@ -42,7 +42,7 @@ Current proven Gate 4 implementation constraints:
 - each factory generation freezes an immutable `approvedPublicationCreationCodeHash`;
 - `publish(...)` accepts the exact reviewed publication creation bytecode, verifies its hash against that immutable approval, appends canonical constructor arguments, and deploys the fresh publication through ordinary EVM `CREATE`;
 - the former embedded `new HellboxPublication(...)` factory path is superseded because it pushed factory runtime above the EIP-170 limit once the issuance core landed;
-- current verified unoptimized Shanghai sizes: `HellboxPublicationFactory` runtime **8,020 bytes** with **16,556 bytes** EIP-170 headroom; `HellboxPublication` runtime **16,334 bytes** with **8,242 bytes** EIP-170 headroom and **24,855-byte** initcode; standalone `HellboxBirthPolicy` runtime **5,561 bytes** with **19,015 bytes** EIP-170 headroom and **17,018-byte** initcode with **32,134 bytes** EIP-3860 headroom;
+- current verified unoptimized Shanghai sizes: `HellboxPublicationFactory` runtime **8,020 bytes** with **16,556 bytes** EIP-170 headroom; `HellboxPublication` runtime **16,334 bytes** with **8,242 bytes** EIP-170 headroom and **24,855-byte** initcode; standalone `HellboxBirthPolicy` runtime **5,561 bytes** with **19,015 bytes** EIP-170 headroom and **17,018-byte** initcode with **32,134 bytes** EIP-3860 headroom; proven code-store runtime is `STOP` + those creation bytes (**17,019 bytes**, derived EIP-170 margin **7,557 bytes**);
 - official factory provenance is append-only: no `registerExisting()`, no arbitrary provenance setters, and no post-deployment path that can manufacture authenticity for an external contract;
 - factory V1 rejects zero approved publication creation-code hash, unapproved supplied creation bytecode, duplicate `publicationKey` hashes, and duplicate release-config digests within that official factory/chain generation;
 - factory V1 records only minimal authenticity state (`isPublication`, release-digest lookup, publication-key lookup, ordered publication addresses) and emits richer provenance evidence in `PublicationPublished`;
@@ -52,18 +52,64 @@ Current proven Gate 4 implementation constraints:
 - the deterministic issuance core is implemented behind a deterministic entropy-word/test-double boundary without selecting production randomness;
 - versioned fixed-copy, birth-trait and randomization-policy enforcement domains/typed preimage hashes are implemented and permanently anchored to the corresponding `CommitmentSet` digests without changing `HELLBOX_ABI_V1`;
 - `HellboxBirthPolicy V1` is implemented as a standalone non-upgradeable per-publication companion foundation with constructor-only configuration, permanent `publication = msg.sender` binding, independent digest verification, native MARK/DEFECT inventory + fixed reservations, #066 HELLBOUND/random-pool eligibility enforcement, SciVive trait-disabled support, and no external mutation/admin surface at this checkpoint;
-- the companion is **not yet deployment-wired**: the publication does not yet create/store it and the factory does not yet transport the three policy preimages; no collector mint may be exposed on the assumption that this missing wiring already exists;
-- current Gate 4 post-push regression checkpoint passes **65 Solidity tests total, 0 failed**:
+- immutable inert `HellboxBirthPolicyCodeStore` is implemented/committed/pushed with `STOP || exact BirthPolicy creationCode` runtime and **4/4** focused proofs;
+- the direct publication-constructor BirthPolicy embed was measured at **42,840-byte initcode** and rejected/restored for inadequate practical EIP-3860 runway;
+- the companion is **not yet deployment-wired**: the factory does not yet bind/transport approved code-store context + three policy preimages, and the publication does not yet copy/hash/create/store its companion; no collector mint may be exposed on the assumption that this missing wiring already exists;
+- current Gate 4 post-push regression checkpoint passes **69 Solidity tests total, 0 failed**:
   - 16 `HellboxPublication` kernel tests;
   - 11 `HellboxPublicationFactory` provenance/deployability tests;
   - 12 deterministic issuance tests, including a 256-run fuzz boundary;
   - 9 `HellboxPublicationPolicy` enforcement-anchor tests;
   - 16 dedicated `HellboxBirthPolicy` module tests;
+  - 4 dedicated `HellboxBirthPolicyCodeStore` tests;
   - 1 Solidity↔JavaScript golden-vector test;
 - no publication has been deployed to mainnet; Gate 4 remains PulseChain Testnet V4 only;
 - do **not** use HairyLabs Byte pages for acceptance/regression testing until the creator explicitly clears the Byte lane.
 
 If implementation discovers a material conflict with this blueprint, stop and synchronize/re-review this file before silently changing the architecture.
+
+## 0.1 Later-product compatibility now locked during Gate 4
+
+The newly locked private owner experience does **not** change the immediate Gate 4 implementation frontier and does not currently require a `HELLBOX_ABI_V1` field-order/meaning change.
+
+Gate 4 must preserve these later-product facts:
+
+- a native Hellbox comic may be an `INTERACTIVE_COMIC`, not merely a linear Reader package;
+- the published owner experience is a finite, Harrow-authored narrative graph whose canonical pages/stage variants/rooms/branches/endings are authored before `PUBLISH`;
+- AI may assist production/build/test work, but canonical story pages/branches are not generated live by AI for the reader;
+- meaningful Reader run/progress/timer state belongs to the later authenticated Reader/runtime layer, not the publication kernel;
+- MARK/DEFECT are immutable birth rarity and may later condition authored Reader interactions without becoming editable game state;
+- ordinary/common copies must be capable of completing the core story and reaching the ideal ending; rarity cannot become pay-to-win access to the core story;
+- Archive is the sealed/protected state; an archived artifact cannot be actively played/handled or acquire experience marks while it remains archived;
+- ordinary official Archive rewards are intended to be rarity-weighted from immutable MARK/DEFECT through a later external protocol;
+- Harrow's immediate creator copies #001–#006 earn zero official Archive rewards for six years after mint;
+- exact Archive weights, emissions, reward asset, burn modifier and reward-token identity remain later product/economic work;
+- birth rarity never changes because of Reader experience, achievements, reward state, burns or future effective-reward modifiers.
+
+Therefore Gate 4 must **not** introduce:
+- linear-page-only on-chain assumptions;
+- puzzle/branch/progress/timer storage in `HellboxPublication`;
+- runtime-AI dependencies;
+- Archive reward-weight formulas;
+- burn-to-reward formulas;
+- experience-mark mutation logic;
+- a speculative reward-token dependency.
+
+The existing package/Reader commitment envelope is sufficient to bind richer future Reader manifests/subdigests without changing `ReleaseConfig` or `CommitmentSet` merely to represent interactive content.
+
+## 0.2 Solo-operator implementation constraint
+
+Gate 4 must remain maintainable by one non-developer operator in short, interruptible work sessions.
+
+For this Gate:
+- no critical implementation/deployment fact may live only in chat or Terminal scrollback;
+- every replacement file uses exact source/target hashes;
+- unexpected hashes/files, failing tests, unexplained code-size loss or unclear authority boundaries are stop-the-line conditions;
+- repeated Testnet deployment/configuration work must become reproducible scripts/runbooks rather than manual ABI assembly;
+- Testnet deployment evidence must include exact contract/version/config hashes and post-deployment verification;
+- no Gate 4 design may require daily Harrow intervention or a specific workstation to remain online;
+- AI-generated code is treated as a draft until compiler/tests/provenance/size checks prove it;
+- mainnet remains prohibited.
 
 ---
 
@@ -289,6 +335,8 @@ These are not arbitrary per-publication values. Harrow selects an approved regis
 | `template.factoryVersion` | factory generation | `F P D U` | `REGISTRY/SET-ONCE deployment record` | `NO — derived from approved factory` | Registry/deployment metadata only. **It is not a caller-supplied `ReleaseConfig` field.** HELLBOX_ABI_V1 binds the actual factory address instead. |
 | `template.approvedFactoryCodeHash` | expected runtime code hash for the approved factory address | `F P D` | `REGISTRY` | `NO` | Pre-PUBLISH validation evidence for the factory itself. It is not a universal publication-instance hash and is not added to `ReleaseConfig`. |
 | `template.approvedPublicationCreationCodeHash` | exact `keccak256` of reviewed `HellboxPublication` creation bytecode approved for this factory generation | `F P D U` | `REGISTRY/FREEZE generation` | `NO — factory/version provenance` | Must equal the factory's immutable `approvedPublicationCreationCodeHash`; supplied publish bytecode must hash to this value. It is not a `ReleaseConfig` field and does not alter `HELLBOX_ABI_V1`. |
+| `template.birthPolicyCodeStoreAddress` | approved inert `HellboxBirthPolicyCodeStore` address for this factory generation | `F P D U` | `REGISTRY/FREEZE generation` | `NO — factory/version provenance` | Next wiring checkpoint must bind this as factory-generation infrastructure, not caller-selected per publication. |
+| `template.approvedBirthPolicyCreationCodeHash` | exact `keccak256` of the `HellboxBirthPolicy` creation bytes stored after runtime offset `1` | `F P D U` | `REGISTRY/FREEZE generation` | `NO — factory/version provenance` | Publication must verify copied bytes before `CREATE`; not a `ReleaseConfig` field and does not alter `HELLBOX_ABI_V1`. |
 | `template.configSchemaVersion` | blueprint/config schema version | `F P D I` | `REGISTRY/FREEZE selection` | `ROOT` | Defines exact normalized config field/encoding expectations. |
 | `template.commitmentSchemeVersion` | commitment/encoding generation | `F P D I` | `REGISTRY/FREEZE selection` | `ROOT` | Prevents hash ambiguity across future versions. |
 | `template.deploymentMode` | `FULL_DEPLOYMENT` for V1 | `F P D I` | `REGISTRY/FREEZE selection` | `ROOT` | **LOCKED for HellboxPublication V1:** constructor initialization; no initializer, proxy, delegatecall architecture, or upgrades. V2/V3 may reconsider ERC-1167 only as an explicitly new reviewed version with demonstrated benefit. |
@@ -313,6 +361,7 @@ For `HellboxPublicationFactory V1`:
 - ownership rotates through `Ownable2Step`; accidental ownership renunciation is disabled;
 - each successful publication must be unique by both `publicationKey` hash and `releaseConfigDigest` within that factory generation;
 - the factory generation freezes immutable `approvedPublicationCreationCodeHash` and records only publications it physically creates from supplied creation bytecode whose `keccak256` exactly matches that approved value;
+- the next wiring revision must additionally freeze the approved inert BirthPolicy code-store address + underlying BirthPolicy creation-code hash at the **factory-generation** level; these are not caller-selected per publication and do not enter `ReleaseConfig`;
 - the factory appends the canonical V1 constructor arguments and executes ordinary EVM `CREATE`, so the child still observes the approved factory as `msg.sender` during construction;
 - there is no embedded `new HellboxPublication(...)` publication bytecode in factory runtime, no arbitrary implementation registry, no generic constructor-data escape hatch, no `registerExisting()`, no `setOfficial(...)`, no provenance repair setter, no proxy, initializer, clone, `delegatecall`, CREATE2 requirement, or upgrade path in V1;
 - before provenance is recorded, the deployed publication must report the expected factory, chain ID, template ID, publication version, release-config digest, and publication key;
@@ -365,13 +414,38 @@ HellboxBirthPolicy runtime           = 5,561 bytes
 HellboxBirthPolicy initcode          = 17,018 bytes
 ```
 
-The publication-created companion topology has **not** yet been compiled as one deployment graph. EIP-3860 proof therefore remains required after wiring; simple addition of the two standalone initcode sizes is not deployment proof.
+A later direct publication-constructor `new HellboxBirthPolicy(...)` experiment was then compiled. It produced:
+
+```text
+HellboxPublication runtime after direct embed = 16,411 bytes
+HellboxPublication initcode after direct embed = 42,840 bytes
+static EIP-3860 margin                        =  6,312 bytes
+estimated native constructor payload          ≈ 4,832 bytes
+estimated practical CREATE payload            ≈47,672 bytes
+estimated remaining practical margin          ≈ 1,480 bytes
+```
+
+That topology passed local behavior tests but was **rejected/restored without commit** because the remaining deployment runway was not acceptable for unfinished Gate 4 work.
+
+The committed correction is `HellboxBirthPolicyCodeStore`:
+
+```text
+deployed runtime byte 0      = STOP
+deployed runtime bytes [1..] = exact HellboxBirthPolicy creation code
+derived deployed code length = 17,019 bytes
+EIP-170 runtime limit        = 24,576 bytes
+derived runtime margin       =  7,557 bytes
+```
+
+Dedicated proof is **4/4**: exact runtime layout, exact stop-prefixed runtime hash, copied payload hash equality with the BirthPolicy creation-code hash, and inert ordinary calls.
+
+The active wiring topology therefore keeps BirthPolicy creation bytecode **out of publication initcode**. The publication will `EXTCODECOPY` the approved bytes from offset `1`, verify the approved creation-code hash, append canonical constructor arguments, and execute ordinary `CREATE` itself so `HellboxBirthPolicy.publication = msg.sender` still binds to the actual publication.
 
 This remains `FULL_DEPLOYMENT`; it is not a clone/proxy/upgrade model.
 
-Do **not** reintroduce embedded publication creation bytecode into factory runtime. Do **not** silently enable optimizer/via-IR merely to hide a structural size regression.
+Do **not** resurrect either embedded publication creation bytecode in factory runtime or direct embedded BirthPolicy creation bytecode in publication initcode. Do **not** silently enable optimizer/via-IR merely to hide a structural size regression.
 
-Because no V1 factory had been deployed before this correction, this remains the pre-deployment V1 implementation rather than a post-release upgrade.
+Because no V1 factory/publication has been deployed before these corrections, this remains coherent pre-deployment V1 architecture rather than a post-release upgrade.
 
 
 ---
@@ -397,13 +471,13 @@ Contract address, deployment tx, and deployment block are not known until `PUBLI
 | Field | Type / standard | Author | Home | Mutability | Commit | Public | Validation |
 |---|---|---|---|---|---|---|---|
 | `supply.maxSupply` | standard native `216`; SciVive `5555` | Harrow | `C P D U I` | `FREEZE` | `ROOT/DIRECT` | yes | > 0; can never increase after publish. |
-| `supply.mintableCapacity` | derived | builder | `P D U I` | `DERIVED` | `ROOT` | yes | Equals max supply before burns/closure; exact phase/tail math shown separately. |
+| `supply.mintableCapacity` | derived | builder | `P D U I` | `DERIVED` | `ROOT` | yes | Maximum original edition capacity. Native timed expiry may permanently extinguish unused capacity, so final minted/surviving supply may finish below `maxSupply`. |
 | `supply.copyIds` | `1..maxSupply` | builder | `C P I` | `FREEZE` | `ROOT/SUB` | not list-required | IDs unique, in range, tokenId=copy number. |
 | `supply.initialCandidatePoolSize` | derived after immediate creator issuance | builder | `P D U I` | `DERIVED` | `ROOT` | yes | Standard native: `216 - 6 = 210`. These are the random candidates physically left in the machine after #001–#006. The future tail copies are **not** preselected or removed. |
 | `supply.nonTailIssuanceCapacity` | derived non-tail primary issuance limit | builder | `P D U I` | `DERIVED` | `ROOT` | yes | Standard native: `216 - 6 - 3 = 207`. This limits all normal non-tail primary issuances across reserved/free/allowlist/early/public phases; it is **not** the initial randomness/odds denominator. |
 | `supply.capCanIncrease` | hard `false` | template invariant | `F C I` | `FREEZE` | implicit/template | proof | Not configurable to true. |
 | `supply.burnMayReduceSurvivingSupply` | capability bool | Harrow/template | `C P I` | `FREEZE` | `ROOT` | yes if enabled | Burn only through owner-authorized frozen protocols. |
-| `supply.earlyCloseSupported` | bool | Harrow/template | `C P D U I` | `FREEZE` | `ROOT` | yes | If enabled, exact closure effects must freeze before publish. |
+| `supply.nativeTimedClosureRequired` | standard native `true`; SciVive `false` | Harrow/template | `C P D U I` | `FREEZE` | `ROOT` | yes | Native V1 uses the immutable `66d 6h 6m 6s` closure rule in §32; SciVive is explicitly exempt. |
 
 No publisher action can increase `maxSupply` after `PUBLISH`.
 
@@ -449,19 +523,23 @@ Before any normal non-tail primary issuance may open:
 If the approved production randomness mechanism is asynchronous, the publication may remain in a non-public initialization/finalization state while entropy is fulfilled. **The public Press cannot open during that gap.** This preserves Harrow's first-six promise without silently choosing synchronous entropy.
 
 
-## 11.2 True-mintout tail reserve
+## 11.2 Final-three tail reserve
 
 | Field | Standard native value | Home | Mutability | Commit | Public | Validation |
 |---|---|---|---|---|---|---|
 | `creatorAllocation.tail.enabled` | `true` | `C P D U I` | `FREEZE` | `ROOT/DIRECT` | yes | Standard native. |
-| `creatorAllocation.tail.count` | `3` | `C P D U I` | `FREEZE` | `ROOT/DIRECT` | yes | Collector issuance stops when this many random candidates remain. These copies are not predetermined and are not removed from the candidate pool at the start. |
+| `creatorAllocation.tail.count` | `3` | `C P D U I` | `FREEZE` | `ROOT/DIRECT` | yes | These copies are never predetermined and are not removed from the candidate pool at the start. |
 | `creatorAllocation.tail.recipient` | Harrow recipient address | `C P D I` | `FREEZE` | `ROOT/DIRECT` | transparent | Explicit. |
-| `creatorAllocation.tail.trigger` | `TRUE_MINT_OUT_ONLY` | `C P U I` | `FREEZE` | `ROOT` | yes | Cannot be claimed merely because Harrow closes early. |
-| `creatorAllocation.tail.selection` | `FINAL_THREE_REMAINING_IN_RANDOM_POOL` | `C P U I` | `FREEZE` | `ROOT` | yes | Harrow does not know IDs/MARKS/DEFECTS beforehand. |
-| `creatorAllocation.tail.earlyCloseEffect` | `FORFEIT_TAIL` | `C P U I` | `FREEZE` | `ROOT` | yes | Early permanent close does not hand Harrow the final three. |
-| `creatorAllocation.tail.awarded` | runtime bool | `C P U A` | `RULED` | `NO` | yes | Becomes true only on actual mint-out trigger. |
-| `creatorAllocation.tail.awardedCopyIds` | runtime 3 IDs | `C P U A` | `SET-ONCE` | state/event | yes after award | Must be the actual last three remaining copies. |
+| `creatorAllocation.tail.trigger` | `TRUE_MINT_OUT_OR_NATIVE_DEADLINE` | `C P U I` | `FREEZE` | `ROOT` | yes | Sellout path and timed-expiry path are both frozen collector rules. |
+| `creatorAllocation.tail.trueMintOutSelection` | `FINAL_THREE_REMAINING_IN_RANDOM_POOL` | `C P U I` | `FREEZE` | `ROOT` | yes | If all 207 non-tail issuances complete first, the literal remaining three go to Harrow. |
+| `creatorAllocation.tail.deadlineSelection` | `UNBIASED_THREE_FROM_REMAINING_POOL` | `C P U I` | `FREEZE` | `ROOT` | yes | If the native deadline arrives while more than three candidates remain, exactly three must be selected without Harrow/manual choice. |
+| `creatorAllocation.tail.deadlineRemainderEffect` | `EXTINGUISH_ALL_OTHER_UNMINTED` | `C P U I` | `FREEZE` | `ROOT` | yes | Every non-selected unminted candidate becomes permanently unavailable. |
+| `creatorAllocation.tail.awarded` | runtime bool | `C P U A` | `RULED` | `NO` | yes | Becomes true once after either valid terminal path. |
+| `creatorAllocation.tail.awardedCopyIds` | runtime 3 IDs | `C P U A` | `SET-ONCE` | state/event | yes after award | Must match the true-mintout remainder or the unbiased timed-expiry selection. |
 
+Harrow cannot manually select the Final 3. `#066`, if still in the candidate pool when the deadline arrives, participates under the same unbiased selection rule as every other remaining candidate.
+
+The exact production entropy/final-selection mechanism for the timed-expiry branch remains a Gate 4 technical decision. The product rule does not.
 ---
 
 # 12. FIXED COPY RULES
@@ -728,88 +806,112 @@ Representative outputs are previewed before `PUBLISH`; Harrow does not manually 
 | Field | Type | Home | Mutability | Commit | Public | Validation |
 |---|---|---|---|---|---|---|
 | `reader.enabled` | bool | `C P D U I` | `FREEZE` | `ROOT` | yes | Native collectible may enable protected Reader. |
-| `reader.presentationClass` | `BOOK`, `COMIC`, future `ENHANCED` | `P D U I` | `FREEZE` | `ROOT` | yes | Must match package. |
+| `reader.presentationClass` | `BOOK`, `COMIC`, `INTERACTIVE_COMIC` | `P D U I` | `FREEZE` | `ROOT` | yes | Must match the committed package. |
 | `reader.accessPolicy` | e.g. `OWNERSHIP` | `C P D U I` | `FREEZE` | `ROOT` | yes | Gate 3 ownership authority remains source of Reader permission. |
 | `reader.sourcePackageDigest` | source package/file root | `P I` | `FREEZE` | `SUB` | proof | Exact content identity. |
-| `reader.manifestDigest` | generated Reader manifest | `P C I` | `FREEZE` | `SUB` | proof | Exact Reader presentation identity. |
-| `reader.pageCount` | derived integer | `P D U I` | `FREEZE` | `ROOT` | yes/useful | Validate against manifest. |
+| `reader.manifestDigest` | generated Reader manifest | `P C I` | `FREEZE` | `SUB` | proof | Exact Reader presentation/runtime-package identity. |
+| `reader.pageCount` | derived integer where linear-page semantics apply | `P D U I` | `FREEZE` | `ROOT` | yes/useful | BOOK/COMIC validation; not sufficient by itself to describe an interactive graph. |
+| `reader.storyStageCount` | derived integer for `INTERACTIVE_COMIC` | `P D U I` | `FREEZE` | `ROOT/SUB` | yes/useful | Complete surviving-path stage grammar is package-defined; exact Gate 6 schema later. |
+| `reader.narrativeGraphDigest` | authored node/transition graph digest | `P I` | `FREEZE` | `SUB` | proof | Required by a future `INTERACTIVE_COMIC`; bound under the existing Reader/package commitment envelope. |
+| `reader.roomManifestDigest` | authored escape-room/timer/solution manifest digest | `P I` | `FREEZE` | `SUB` | proof | Future interactive-package field; not Gate 4 game logic. |
+| `reader.endingManifestDigest` | authored ideal/alternate/death ending manifest digest | `P I` | `FREEZE` | `SUB` | proof | Future interactive-package field. |
+| `reader.traitInteractionDigest` | MARK/DEFECT-conditioned authored interaction manifest digest | `P I` | `FREEZE` | `SUB` | proof | Must not rewrite birth traits. |
+| `reader.progressPolicyDigest` | run/save/transfer/privacy policy digest | `P I` | `FREEZE` | `SUB` | proof | Exact later schema/implementation remains Gate 6/Reader work. |
+| `reader.runtimeCanonicalAiGeneration` | hard `false` for native interactive comics | `F P U I` | `FREEZE` | `ROOT/SUB` | yes/proof | AI may assist authoring, not invent canonical runtime story paths. |
 | `reader.deliveryProvider` | `r2_private` etc. | `P D` | operational | `NO` unless part of package policy | no | Can migrate if bytes remain identical and access remains protected. |
 | `reader.manifestStorageKey` | R2 key | `P` | operational | `NO` | no | D1 delivery pointer. |
 | `reader.privatePrefix` | R2 prefix | `P` | operational | `NO` | no | D1 delivery pointer. |
 | `reader.publicRetrievable` | normal protected release `false` | `P D` | policy | access rule in `ROOT`; operational state separate | no | Private Reader assets must not become public to simplify testing. |
 
+### 18.1 Interactive-comic product boundary
+
+A native `INTERACTIVE_COMIC` is a **finite, pre-authored narrative graph**.
+
+Locked later-product rules:
+- final comic frames may open stage-relevant escape rooms;
+- rooms begin simple and become progressively harder;
+- community collaboration around difficult rooms is expected/acceptable;
+- a required room can block advancement until escaped;
+- authored timed-room failure may end the current run in death;
+- authored branch choices may continue through legitimate surviving routes, reconverge later, or produce death where narratively intended;
+- at least one authored alternate surviving ending exists in addition to the intended/ideal surviving ending;
+- HELLBOUND and other MARK/DEFECT combinations may receive special authored interactions;
+- rare interactions may add content, presentation, clues, rooms or achievements but cannot deny a normal copy the complete core story or ideal ending;
+- run progress must persist between visits through later server-authoritative state rather than browser-local claims.
+
+Gate 4 does **not** implement these game/runtime behaviors. It preserves ownership, immutable birth rarity, content commitments, dynamic-metadata compatibility and modular protocol boundaries so Gate 6 can build the narrative/package compiler without changing the V1 collectible ownership model.
+
 Protected Reader content does not have to be made publicly downloadable/on-chain merely to prove integrity.
 
 ---
 
-# 19. PRICING POLICY MODEL
+# 19. V1 PRICING POLICY MODEL
 
-A release may contain one or more frozen pricing policies so different phases can reference different predeclared economics.
+Gate 4 V1 deliberately narrows pricing. A publication selects **one release-level primary pricing policy** at `PUBLISH`; phases may change eligibility/order but do not reprice the same V1 issue.
 
-Required supported policy modes:
+Supported V1 modes:
 
 ```text
 FREE
-FIXED_STABLE
 FIXED_PLS
-USD_TARGET_DUAL
 ```
 
-## 19.1 Pricing policy fields
+Resolved V1 product rules:
+
+- standard native Hellbox issues use `FIXED_PLS`;
+- SciVive uses `FREE`;
+- a native issue's exact PLS amount is frozen at `PUBLISH` and may differ from another issue;
+- V1 does **not** support stablecoin minting;
+- V1 does **not** support USD-target pricing;
+- V1 does **not** require a PLS/USD price oracle, TWAP, quote adapter, freshness window or conversion path;
+- a future publication version may add another payment token, but that future capability cannot rewrite an already-published issue's payment asset or price.
+
+## 19.1 V1 pricing policy fields
+
+For compatibility with the existing commitment envelope the rich package may still represent `pricingPolicies[]`, but V1 validation requires exactly one active release-level policy.
 
 | Field | Type | Home | Mutability | Commit | Public | Validation |
 |---|---|---|---|---|---|---|
-| `pricingPolicies[].pricingPolicyId` | stable release-local ID | `C P D U I` | `FREEZE` | `ROOT` | yes | Unique. |
-| `pricingPolicies[].mode` | required enum | `C P D U I` | `FREEZE` | `ROOT/DIRECT` | yes | Must be supported by template. |
+| `pricingPolicies[].pricingPolicyId` | stable release-local ID | `C P D U I` | `FREEZE` | `ROOT` | yes | Exactly one active V1 policy. |
+| `pricingPolicies[].mode` | `FREE` or `FIXED_PLS` | `C P D U I` | `FREEZE` | `ROOT/DIRECT` | yes | No other V1 mode accepted. |
 | `pricingPolicies[].displayTarget` | human display amount | `P D U I` | `FREEZE` | `ROOT` | yes | Must correspond to machine amount. |
-| `pricingPolicies[].usdTargetAmount` | normalized USD target | `C P D U I` | `FREEZE` | `ROOT/DIRECT` | yes when applicable | Required for `FIXED_STABLE`/`USD_TARGET_DUAL` as designed. |
-| `pricingPolicies[].fixedNativeAmount` | wei amount | `C P D U I` | `FREEZE` | `ROOT/DIRECT` | yes | Required for `FIXED_PLS`. |
-| `pricingPolicies[].stableAmountRules` | per accepted stable route | `C P D U I` | `FREEZE` | `ROOT` | yes | Exact token units/normalization. |
-| `pricingPolicies[].priceAdapterRef` | oracle/adapter address/ID | `C X P D U I` | `FREEZE` if required | `ROOT/DIRECT` | yes/proof | Required for `USD_TARGET_DUAL` native quote. |
-| `pricingPolicies[].quoteMaxAgeSeconds` | freshness bound | `C X P D U I` | `FREEZE` | `ROOT` | yes | Prevent stale quote. |
-| `pricingPolicies[].defaultToleranceBps` | Press default quote tolerance | `C P D U I` | `FREEZE` | `ROOT` | yes | Collector still approves transaction-specific maximum. |
-| `pricingPolicies[].oracleFailurePolicy` | `REVERT` or approved frozen behavior | `C X P U I` | `FREEZE` | `ROOT` | yes | Must never silently substitute Harrow-entered live prices. |
-| `pricingPolicies[].excessNativePolicy` | explicit refund/revert handling | `C P D U I` | `FREEZE` | `ROOT` | yes | Must be tested. |
-| `pricingPolicies[].roundingPolicy` | deterministic rounding | `C X P I` | `FREEZE` | `ROOT` | proof | Avoid quote mismatches. |
+| `pricingPolicies[].fixedNativeAmount` | PLS wei amount | `C P D U I` | `FREEZE` | `ROOT/DIRECT` | yes for `FIXED_PLS` | Must be nonzero for paid native issues and zero for `FREE`. |
+| `pricingPolicies[].releaseWide` | hard `true` for V1 | `F P U I` | `FREEZE` | `ROOT` | yes/proof | Phase changes do not silently change the issue price. |
+| `pricingPolicies[].excessNativePolicy` | explicit exact-payment/refund/revert handling | `C P D U I` | `FREEZE` | `ROOT` | yes | Must be deterministic/tested. |
 
-### Mode validation
+### `FREE`
 
-#### `FREE`
 - no primary payment required;
-- paid route amounts must be zero/disabled.
+- no paid route may be enabled;
+- `fixedNativeAmount = 0`.
 
-#### `FIXED_STABLE`
-- accepted stable route(s) explicitly frozen;
-- token address and exact unit math validated;
-- no native PLS price drift logic.
+### `FIXED_PLS`
 
-#### `FIXED_PLS`
-- fixed native PLS amount frozen;
-- does not float with USD.
-
-#### `USD_TARGET_DUAL`
-- frozen USD target;
-- one or more fixed stable route(s);
-- current native PLS equivalent obtained from the frozen approved pricing-adapter architecture;
-- quote freshness and tolerance enforced;
-- collector sees exact current quote and maximum authorization before signing.
-
-The exact PulseChain price source remains an open Gate 4 research/test item. The field boundary is already fixed by this blueprint.
+- exact native PLS wei amount frozen per issue;
+- all ordinary paid collector phases for that issue use the same frozen amount;
+- no USD drift/conversion logic;
+- no ERC-20 transfer path in V1;
+- Press displays the exact PLS amount before signature.
 
 ---
 
-# 20. ACCEPTED PAYMENT ROUTES
+# 20. V1 ACCEPTED PAYMENT ROUTES
+
+V1 keeps payment routing narrow and auditable.
 
 | Field | Type | Home | Mutability | Commit | Public | Validation |
 |---|---|---|---|---|---|---|
-| `paymentRoutes[].routeId` | stable release-local ID | `C P D U I` | `FREEZE` | `ROOT` | yes | Unique. |
-| `paymentRoutes[].pricingPolicyId` | reference | `C P I` | `FREEZE` | `ROOT` | yes | Must exist. |
-| `paymentRoutes[].assetKind` | `NATIVE`, `ERC20` | `C P U I` | `FREEZE` | `ROOT/DIRECT` | yes | Supported type only. |
-| `paymentRoutes[].assetAddress` | token address or native sentinel | `C P D U I` | `FREEZE` | `ROOT/DIRECT` | yes | ERC-20 code/metadata validated on target chain. |
-| `paymentRoutes[].assetDecimals` | verified decimals | `P D U I` | `FREEZE` | `ROOT` | yes | Must match token contract where applicable. |
-| `paymentRoutes[].assetDisplaySymbol` | display symbol | `P D U I` | `FREEZE` | `ROOT` | yes | Display only; address is authority. |
-| `paymentRoutes[].enabled` | bool | `C P D U I` | `FREEZE` | `ROOT` | yes | Accepted routes cannot be silently added after publish. |
-| `paymentRoutes[].settlementRouterRef` | treasury/payment adapter if needed | `C X P I` | `FREEZE` | `ROOT/DIRECT` | proof | Must support required asset. |
+| `paymentRoutes[].routeId` | stable release-local route ID | `C P D U I` | `FREEZE` | `ROOT` | yes | At most one enabled V1 route. |
+| `paymentRoutes[].pricingPolicyId` | reference | `C P I` | `FREEZE` | `ROOT` | yes | Must reference the single V1 pricing policy. |
+| `paymentRoutes[].assetKind` | `NONE` or `NATIVE` | `C P U I` | `FREEZE` | `ROOT/DIRECT` | yes | `NONE` for `FREE`; `NATIVE` for `FIXED_PLS`. ERC-20 is outside V1. |
+| `paymentRoutes[].assetAddress` | native sentinel/zero convention | `C P D U I` | `FREEZE` | `ROOT/DIRECT` | yes/proof | No caller-selectable token address in V1. |
+| `paymentRoutes[].assetDisplaySymbol` | `PLS` for native paid release | `P D U I` | `FREEZE` | `ROOT` | yes | Display only; native asset is determined by chain. |
+| `paymentRoutes[].enabled` | bool | `C P D U I` | `FREEZE` | `ROOT` | yes | `false`/none for `FREE`; exactly one native route for `FIXED_PLS`. |
+| `paymentRoutes[].settlementRouterRef` | stable Hellbox primary-proceeds routing endpoint when paid | `C X P I` | `FREEZE` | `ROOT/DIRECT` | proof | The endpoint may route downstream operationally; it does not freeze today's destination wallets/split table into the publication. |
+
+For a `FIXED_PLS` issue, the payment asset and PLS price cannot change after `PUBLISH`.
+
+The settlement routing endpoint may point to a stable Hellbox operational router whose downstream recipients, split percentages and future reward-token actions are mutable under the separate gated routing-control system described in §25. That operational mutability does **not** permit the publication's payment asset or mint price to change.
 
 No bridged Hellbox NFT architecture is introduced by payment routing.
 
@@ -870,11 +972,13 @@ Creator immediate allocation is modeled separately from collector phases, but it
 | `mintPhases[].eligibilityRoot` | Merkle/root commitment | `C P D U I` | `FREEZE` | `ROOT/SUB/DIRECT` | root can be public | Required for Merkle-style phase. |
 | `mintPhases[].eligibilityLeafSchemaVersion` | exact leaf encoding | `C F P I` | `FREEZE` | `ROOT` | proof | Prevents root ambiguity. |
 | `mintPhases[].eligibilityManifestDigest` | off-chain source list/snapshot root | `P I` | `FREEZE` | `SUB` | proof | Full private list need not be public. |
-| `mintPhases[].pricingPolicyId` | referenced policy | `C P D U I` | `FREEZE` | `ROOT` | yes | Allows free and paid phases without mutating policy later. |
-| `mintPhases[].allowedPaymentRouteIds[]` | accepted routes in phase | `C P D U I` | `FREEZE` | `ROOT` | yes | Subset of frozen payment routes. |
+| `mintPhases[].pricingPolicyId` | reference to the release-wide V1 policy | `C P D U I` | `FREEZE` | `ROOT` | yes | All phases of one V1 publication reference the same frozen price mode/amount. |
+| `mintPhases[].allowedPaymentRouteIds[]` | release route reference(s) | `C P D U I` | `FREEZE` | `ROOT` | yes | V1: none for a `FREE` release or the one frozen native PLS route for `FIXED_PLS`. |
 | `mintPhases[].rolloverPolicy` | none/to-next/to-shared/etc. | `C P D U I` | `FREEZE` | `ROOT` | yes | Must be explicit. |
 | `mintPhases[].traitPoolPolicy` | normally `GLOBAL_SHARED` | `C P U I` | `FREEZE` | `ROOT` | yes | Prevents secret privileged birth odds. |
 | `mintPhases[].enabled` | bool in final config | `C P I` | `FREEZE` | `ROOT` | yes | Omitted phases should not exist as hidden future switches. |
+
+For Gate 4 V1, phase rules control eligibility, allocation and timing—not dynamic repricing. A standard native issue remains `FIXED_PLS` across its ordinary collector phases; SciVive remains `FREE`. A future version may deliberately expand this model.
 
 ### Phase math validation
 
@@ -961,34 +1065,73 @@ Public odds are not decorative marketing numbers.
 
 ---
 
-# 24. ROYALTY
+# 24. ROYALTY — FROZEN RATE, STABLE ROUTING BOUNDARY
 
 | Field | Type | Home | Mutability | Commit | Public | Validation |
 |---|---|---|---|---|---|---|
 | `royalty.enabled` | bool | `C P D U I` | `FREEZE` | `ROOT` | yes | Can be false/0. |
-| `royalty.standard` | `ERC-2981` or selected supported mode | `C F P I` | `FREEZE` | `ROOT` | proof | Gate 4 baseline should support marketplace-readable royalty data. |
-| `royalty.bps` | integer 0..10000 | `C P D U I` | `FREEZE` | `ROOT/DIRECT` | yes | SciVive = `369`. |
-| `royalty.routerRef` | routing contract address | `C X P I` | `FREEZE` | `ROOT/DIRECT` | proof | Preferred over hard-wiring an operational wallet when routing rotation is needed. |
-| `royalty.routeId` | immutable route identifier | `C X P I` | `FREEZE` | `ROOT` | proof | Route economic meaning must be clear. |
-| `royalty.routePolicyDigest` | optional split/policy root | `X P I` | `FREEZE` | `SUB` | proof | If percentages/splits are promised, freeze them. |
+| `royalty.standard` | `ERC-2981` | `C F P I` | `FREEZE` | `ROOT` | proof | Marketplace-readable royalty data. |
+| `royalty.bps` | integer 0..10000 | `C P D U I` | `FREEZE` | `ROOT/DIRECT` | yes | Frozen per issue; SciVive = `369`. |
+| `royalty.routerRef` | stable routing contract/receiver address | `C X P I` | `FREEZE` | `ROOT/DIRECT` | proof | Preferred immutable `royaltyReceiver` target for V1. |
+| `royalty.routeId` | issue-local operational route slot/reference | `C X P I` | `FREEZE` | `ROOT` | proof | Identifies the route boundary; it does not make the current downstream split table immutable. |
+| `royalty.routePolicyDigest` | optional routing-interface/authority-policy root | `X P I` | `FREEZE` | `SUB` | proof | Gate 4 Native V1 must not use this to freeze today's downstream recipients/split percentages by accident. |
 
-Operational recipient wallet rotation may occur behind an approved routing system **only if it does not rewrite the frozen economic promise**.
+Frozen collector economics:
+- whether royalty is enabled;
+- headline royalty BPS;
+- the stable receiver/router boundary disclosed for the issue.
+
+Operationally mutable behind that boundary:
+- downstream recipient wallets;
+- downstream split percentages;
+- reward-pool destination;
+- future reward-token buy/burn/reward actions.
+
+Current royalty-routing concept — **operational direction, not protocol-locked collector promise**:
+
+```text
+1/3 → Feed Harrow and future plans
+1/3 → holder reward pool in native token
+1/3 → buy and burn the future reward-token mechanism
+```
+
+Those proportions and downstream destinations may change through the gated Hellbox routing system without changing the published issue's royalty BPS.
 
 `ERC-2981` communicates royalty information to compatible marketplaces. It does **not** guarantee that every marketplace, transfer or secondary sale will enforce or pay that royalty. Hellbox must not model secondary royalty revenue as guaranteed cash flow.
 
-
 ---
 
-# 25. PRIMARY TREASURY / PROCEEDS ROUTING
+# 25. PRIMARY PROCEEDS ROUTING — OPERATIONAL DOWNSTREAM CONTROL
 
 | Field | Type | Home | Mutability | Commit | Public | Validation |
 |---|---|---|---|---|---|---|
-| `treasury.primaryRouterRef` | routing contract | `C X P D I` | `FREEZE` | `ROOT/DIRECT` | proof | Nonzero/code verified when paid. |
-| `treasury.primaryRouteId` | route identifier | `C X P D I` | `FREEZE` | `ROOT` | proof | Must exist. |
-| `treasury.primaryRoutePolicyDigest` | economic split/policy root | `X P I` | `FREEZE` | `SUB` | proof | Required when route has contractual split meaning. |
-| `treasury.refundReceiverPolicy` | purchaser/refund behavior | `C P I` | `FREEZE` | `ROOT` | yes as needed | Must be explicit/tested. |
+| `treasury.primaryRouterRef` | stable Hellbox routing contract | `C X P D I` | `FREEZE` | `ROOT/DIRECT` | proof | Nonzero/code verified for paid releases. Publication pays this boundary; it does not hard-code final wallets. |
+| `treasury.primaryRouteId` | issue-local operational route slot/reference | `C X P D I` | `FREEZE` | `ROOT` | proof | Route slot exists; contents may be updated by the disclosed gated routing-control system. |
+| `treasury.primaryRoutePolicyDigest` | optional routing-interface/authority-policy root | `X P I` | `FREEZE` | `SUB` | proof | Must not freeze today's downstream split table unless a future release explicitly makes that a collector promise. Native V1 does not. |
+| `treasury.refundReceiverPolicy` | purchaser/refund behavior | `C P I` | `FREEZE` | `ROOT` | yes as needed | Refund/exact-payment semantics affect collectors and must be frozen/tested. |
 
-A routing module may support wallet rotation without giving Harrow authority to rewrite price, royalty percentage, supply, or collector ownership.
+The publication freezes **where it hands proceeds to the Hellbox routing boundary**, while what happens after receipt remains operational.
+
+Mutable downstream state may include:
+- project/creator destination wallets;
+- holder reward-pool routing;
+- split percentages;
+- future reward-token address/identity;
+- buy/burn/reward strategy;
+- project-funding allocation.
+
+Current primary-proceeds concept — **not protocol-locked**:
+
+```text
+1/3 → Feed Harrow and future plans
+2/3 → buy the future Hellbox reward token
+      ├─ 1/2 → holder reward pool
+      └─ 1/2 → burn
+```
+
+No reward token currently exists as a frozen publication dependency. Gate 4 must not hard-code its future address, name, supply, emissions, distribution formula or tokenomics.
+
+The exact router contract, routing authority and private/gated operational control interface remain technical work. That authority is an external economic-routing control surface, not generic ownership of collector NFTs and not permission to rewrite the issue's PLS price, royalty BPS, supply, rarity, ownership or native deadline.
 
 ---
 
@@ -1053,6 +1196,8 @@ These are capability rules, not merely UI labels.
 
 ## 27.2 Archive compatibility
 
+Archive is the protected/slabbed state: the sealed digital comic is preserved rather than handled.
+
 | Field | Type / standard direction | Home | Mutability | Commit | Public |
 |---|---|---|---|---|---|
 | `capabilities.archive.enabled` | bool | `C X P D U I` | `FREEZE` | `ROOT` | yes |
@@ -1060,9 +1205,18 @@ These are capability rules, not merely UI labels.
 | `capabilities.archive.reversibleWhileSealed` | `true` | `C X P U I` | `FREEZE` | `ROOT` | yes |
 | `capabilities.archive.transferLockWhileArchived` | `true` | `C X P U I` | `FREEZE` | `ROOT` | yes |
 | `capabilities.archive.visualSleeveEnabled` | bool | `P U I` | `FREEZE` | `ROOT` | yes |
+| `capabilities.archive.readerPlayBlockedWhileArchived` | hard `true` for native interactive issues | `X P U I` | `FREEZE before use` | `ROOT/SUB` | yes — protected/slabbed copy is not simultaneously being handled/played. |
+| `capabilities.archive.experienceMutationBlockedWhileArchived` | hard `true` | `X P U I` | `FREEZE before use` | `ROOT/SUB` | yes — no handling-derived experience marks while archived. |
 | `capabilities.archive.officialRewardsEnabled` | bool | `X P D U I` | `FREEZE` | `ROOT` | yes |
 | `capabilities.archive.unclaimedBalanceFollowsToken` | configured when rewards enabled | `X P U I` | `FREEZE` | `ROOT` | yes |
-| `capabilities.archive.thirdPartyListingGuarantee` | hard `NO_OFFCHAIN_LISTING_GUARANTEE` | `P U I` | `FREEZE` | `ROOT` | yes/honesty | Contract can block transfer execution, not third-party signed-listing display. |
+| `capabilities.archive.thirdPartyListingGuarantee` | hard `NO_OFFCHAIN_LISTING_GUARANTEE` | `P U I` | `FREEZE` | `ROOT` | yes/honesty — contract can block transfer execution, not third-party signed-listing display. |
+
+Current product doctrine:
+- ordinary official Archive rewards accrue only while the copy is in its eligible archived/sealed state;
+- unarchive stops new ordinary accrual and unlocks the sealed artifact according to the later protocol;
+- a still-sealed copy may rearchive;
+- once UNSEALED, the copy cannot reseal/re-enter ordinary Archive eligibility under the current product model;
+- future burn/consume mechanics may create a distinct reward path, but that does not make an unsealed copy "pristine" again.
 
 The later Gate 7 Archive protocol implements full behavior. Gate 4 must not choose a kernel shape that makes this impossible.
 
@@ -1085,13 +1239,42 @@ Arbitrary assets placed in a token-bound account are not the same thing as Hellb
 
 | Field | Type | Home | Mutability | Commit | Public | Rule |
 |---|---|---|---|---|---|---|
-| `capabilities.rewards.compatible` | bool | `C X P D U I` | `FREEZE` | `ROOT` | yes | Native Issue #1 must preserve compatibility; SciVive full reward path remains off unless explicitly reopened. |
-| `capabilities.rewards.protocolClass` | stable interface/class ID | `F X P I` | `FREEZE` | `ROOT` | proof | Allows modular protocol versions. |
+| `capabilities.rewards.compatible` | bool | `C X P D U I` | `FREEZE` | `ROOT` | yes | Native Issue #1 must preserve generic compatibility; SciVive full reward path remains off unless explicitly reopened. |
+| `capabilities.rewards.protocolClass` | stable generic interface/class ID | `F X P I` | `FREEZE` | `ROOT` | proof | Allows modular protocol versions without choosing a reward token now. |
 | `capabilities.rewards.protocolBindingMode` | direct/registry/generic-compatible | `C X P I` | `FREEZE` | `ROOT` | proof | Exact Gate 7 protocol binding remains open. |
-| `capabilities.rewards.accrualEligibilityRule` | Archive + sealed rule | `X P U I` | `FREEZE` | `ROOT` | yes | Frozen before release if enabled. |
-| `capabilities.rewards.claimRule` | owner/current-token-holder rules | `X P U I` | `FREEZE` | `ROOT` | yes | Final protocol later. |
-| `capabilities.rewards.unsealFinalizationRule` | clear/finalize/claim policy | `X P U I` | `FREEZE` | `ROOT` | yes | Must be explicit before any reward-enabled release. |
-| `capabilities.rewards.publicTokenName` | neutral before reward launch | `P U I` | `FREEZE per release` | `ROOT` | yes | Do not expose future `$SIN` by name before approved launch. |
+| `capabilities.rewards.accrualEligibilityRule` | sealed + archived rule when future protocol enabled | `X P U I` | `FREEZE before a reward-enabled release` | `ROOT` | yes | Ordinary official accrual occurs only in eligible Archive state under current doctrine. |
+| `capabilities.rewards.rarityWeightingClass` | MARK+DEFECT relative-weight policy class | `X P I` | `FREEZE before a reward-enabled release` | `ROOT/SUB` | proof | Exact numeric table/formula remains Gate 7 product/economic work. |
+| `capabilities.rewards.creatorImmediateDelayRule` | #001–#006 zero-reward for six years after mint | `X P U I` | `FREEZE before a reward-enabled release` | `ROOT/SUB` | yes | External protocol must enforce; exact timestamp representation is later technical work and cannot make eligibility earlier than the approved six-year delay. |
+| `capabilities.rewards.claimRule` | owner/current-token-holder rules | `X P U I` | `FREEZE before a reward-enabled release` | `ROOT` | yes | Final protocol later. |
+| `capabilities.rewards.unsealFinalizationRule` | clear/finalize/claim policy | `X P U I` | `FREEZE before a reward-enabled release` | `ROOT` | yes | Must be explicit before any reward-enabled release. |
+| `metadataPolicy.archiveBalanceLabel` | neutral `ARCHIVE BALANCE` while token identity is unresolved | `P U I` | `FREEZE per release presentation` | `ROOT` | yes | Does not imply any particular reward token. |
+
+Locked product doctrine for a future reward-enabled native release:
+- ordinary official reward earning requires eligible Archive state;
+- relative Archive earning power is rarity-weighted from the token's immutable birth MARK/DEFECT;
+- experience marks, deaths, endings, achievements, burns and future external modifiers do **not** rewrite MARK/DEFECT birth rarity;
+- Harrow's immediate creator copies #001–#006 have effective official Archive reward weight `0` until the approved six-year post-mint delay has elapsed.
+
+Gate 4 preserves **generic reward compatibility only**. It does not freeze or assume:
+
+```text
+exact MARK weight table
+exact DEFECT weight table
+exact combination formula
+reward token name
+reward token address
+supply
+emissions
+distribution formula
+tokenomics
+buy/burn proportions
+holder-reward formula
+future burn-to-effective-reward modifier
+```
+
+A future burn/consume protocol may alter **effective reward power** if later approved, but it cannot alter immutable MARK/DEFECT birth rarity.
+
+The future reward system may change structure before explicit creator approval. Publication/BirthPolicy code must not embed a speculative token dependency or Archive-emission formula.
 
 ---
 
@@ -1128,21 +1311,66 @@ Contextual state may disappear when current circumstances stop being true. It mu
 
 # 32. PUBLICATION CLOSURE / FINALIZATION POLICY
 
-A standard native release may permanently close before max supply, but that power cannot be vague.
+## 32.1 Standard native timed closure — LOCKED
 
-| Field | Type | Home | Mutability | Commit | Public | Rule |
+Every standard native Hellbox issue has an immutable primary mint window of exactly:
+
+```text
+66 days
++ 6 hours
++ 6 minutes
++ 6 seconds
+= 5,724,366 seconds
+```
+
+The deadline is derived from that issue's frozen go-live timestamp and cannot be extended, reopened or moved after `PUBLISH`.
+
+| Field | Standard native | Home | Mutability | Commit | Public | Rule |
 |---|---|---|---|---|---|---|
-| `closurePolicy.earlyCloseAllowed` | bool | `C P D U I` | `FREEZE` | `ROOT` | yes | If false, only configured terminal conditions close minting. |
-| `closurePolicy.closeAuthority` | explicit narrow authority endpoint/reference if enabled | `C P D U I` | `FREEZE` | `ROOT/DIRECT` | yes/proof | Must not imply seizure authority. For real releases with early close enabled, do not freeze a fragile personal EOA as the permanent endpoint; use the approved rotation-safe `publisherAuthority` strategy once that strategy is proven. |
-| `closurePolicy.closeIsPermanent` | `true` | `C P U I` | `FREEZE` | `ROOT` | yes | No reopen after permanent close. |
-| `closurePolicy.unmintedCapacityEffect` | destroy/retire according to final design | `C P U I` | `FREEZE` | `ROOT` | yes | Exact implementation must be fixed before real release. |
-| `closurePolicy.tailReserveOnEarlyClose` | standard `FORFEIT_TAIL` | `C P U I` | `FREEZE` | `ROOT` | yes | Harrow does not confiscate final three. |
-| `closurePolicy.closeEventRequired` | true | `C P I` | `FREEZE` | template/root | proof | Indexable permanent event. |
-| `artifactState.primaryMintClosed` | bool | `C P U A` | `RULED` | `NO` | yes |
-| `artifactState.closedAt` | block/time | `C P U A` | `SET-ONCE` | event | yes |
-| `artifactState.trueMintOutReached` | bool | `C P U A` | `RULED/SET-ONCE` | event | yes |
+| `closurePolicy.goLiveAt` | exact issue timestamp | `C P D U I` | `FREEZE` | `ROOT/DIRECT-or-preimage` | yes | Beginning of the native primary mint window. |
+| `closurePolicy.mintDurationSeconds` | `5_724_366` | `C F P U I` | `FREEZE` | `ROOT/template-or-preimage` | yes | Exactly `66d 6h 6m 6s`. |
+| `closurePolicy.endAt` | `goLiveAt + 5_724_366` | `C/P D U I` | `DERIVED/FREEZE` | `ROOT` | yes | Exact deadline shown before publish. |
+| `closurePolicy.deadlineCanExtend` | hard `false` | `F C P U I` | `FREEZE` | template/root | yes/proof | No extension/reopen path. |
+| `closurePolicy.manualEarlyCloseAllowed` | hard `false` for standard native V1 | `F C P U I` | `FREEZE` | template/root | yes | Native closure is sellout-or-timer, not Harrow discretion. |
+| `closurePolicy.selloutTerminal` | `true` | `C P U I` | `FREEZE` | `ROOT` | yes | True non-tail exhaustion may finish before timer. |
+| `closurePolicy.deadlineTailCount` | `3` | `C P U I` | `FREEZE` | `ROOT` | yes | Harrow Final 3 survive timed expiry. |
+| `closurePolicy.deadlineTailSelection` | `UNBIASED_FROM_REMAINING_POOL` | `C P U I` | `FREEZE` | `ROOT` | yes | No manual/grail selection. |
+| `closurePolicy.deadlineRemainderEffect` | `PERMANENTLY_EXTINGUISH` | `C P U I` | `FREEZE` | `ROOT` | yes | All other unminted candidates die from capacity forever. |
+| `closurePolicy.closeEventRequired` | `true` | `C P I` | `FREEZE` | template/root | proof | Indexable terminal event/state. |
+| `artifactState.primaryMintClosed` | bool | `C P U A` | `RULED` | `NO` | yes | Terminal after sellout or timed finalization. |
+| `artifactState.closedAt` | block/time | `C P U A` | `SET-ONCE` | event | yes | Chain fact. |
+| `artifactState.trueMintOutReached` | bool | `C P U A` | `RULED/SET-ONCE` | event | yes | Distinguishes sellout from timed expiry. |
+| `artifactState.extinguishedUnmintedCount` | integer | `C P U A` | `SET-ONCE` | state/event | yes | `0` on true mint-out; positive when timer expires with excess candidates. |
+| `artifactState.finalPrimarySupply` | integer | `C/P U A` | `DERIVED/SET-ONCE` | state/event | yes | May finish below original `216` cap after timed extinguishment. |
 
-The exact early-close mechanics are an implementation detail to prove in Gate 4; the blueprint requires the policy to be explicit and frozen.
+### Sellout branch
+
+When the last allowed non-tail primary issuance occurs before the deadline:
+
+```text
+candidatePoolRemaining   = 3
+nonTailIssuanceRemaining = 0
+→ award those literal final 3 candidates to Harrow
+→ extinguishedUnmintedCount = 0
+→ close permanently
+```
+
+### Timed-expiry branch
+
+If `endAt` arrives while more than three candidates remain:
+
+1. ordinary collector issuance is permanently closed;
+2. exactly three candidates are selected from the still-remaining candidate pool using the approved unbiased closure randomness;
+3. those three are assigned to Harrow;
+4. every other still-unminted candidate is permanently extinguished;
+5. no transfer, burn, admin action, later phase or configuration can restore that capacity;
+6. `maxSupply` remains the original cap (`216`), while actual final minted/surviving supply may be lower.
+
+The exact **transaction trigger and entropy implementation** for timed finalization remain Gate 4 technical work. A permissionless/lazy finalization design may be evaluated, but Harrow must never receive a manual Final-3 selection or deadline-extension control.
+
+## 32.2 SciVive exemption
+
+SciVive is explicitly exempt from the native `66d 6h 6m 6s` duration. If SciVive or another proving release uses a closure/time rule, that rule must still be resolved and frozen for that release before public minting; it must not inherit native-216 tail/expiry behavior accidentally.
 
 ---
 
@@ -1167,19 +1395,19 @@ Preferred Gate 4 direction is an atomic factory publish/deploy flow that receive
 
 # 32B. RELEASE AUTHORITY FIELDS
 
-A publication may need a known publisher authority for narrowly defined lifecycle actions such as an explicitly configured permanent early close. The address and its powers must be explicit.
+A publication may need a known publisher authority for narrowly defined lifecycle actions. The address and its powers must be explicit. Standard native timed closure is **not** one of those discretionary powers.
 
 | Field | Type | Home | Mutability | Commit | Public | Rule |
 |---|---|---|---|---|---|---|
-| `authority.publisherAuthority` | narrow operational authority endpoint | `C P D U I` | `FREEZE` | `ROOT/DIRECT` | yes/proof | This is **not publisher identity and not generic ownership**. It is the endpoint authorized only for explicitly frozen lifecycle actions. For a real release that enables a long-lived action such as early close, the resolved endpoint must use a rotation-safe control strategy rather than freezing a fragile personal EOA forever. |
+| `authority.publisherAuthority` | narrow publication operational authority endpoint | `C P D U I` | `FREEZE` | `ROOT/DIRECT` | yes/proof | This is **not publisher identity and not generic ownership**. It is authorized only for explicitly frozen publication lifecycle actions. Standard native deadline finalization cannot depend on Harrow discretion. |
 | `authority.allowedPublisherActions[]` | explicit action codes | `C P D U I` | `FREEZE` | `ROOT` | yes | Must be a narrow whitelist; no implicit owner superpowers. |
-| `authority.closeAuthority` | role/address reference | `C P D U I` | `FREEZE` | `ROOT/DIRECT` | yes | Required only if early close is enabled. It must resolve to `publisherAuthority` or another explicitly approved narrow, rotation-safe endpoint; it must never imply generic ownership/seizure power. |
+| `authority.nativeCloseAuthority` | standard native `NONE / MECHANICAL` | `C P D U I` | `FREEZE` | `ROOT` | yes | Native V1 sellout/timed closure follows frozen machine rules; no publisher button may extend the deadline or choose Final 3. |
 | `authority.randomnessRequestAuthority` | contract/provider/publisher as required by approved scheme | `C X P I` | `FREEZE` | `ROOT` | proof | Must not permit publisher reroll/manipulation. |
 | `authority.metadataMutationAuthority` | hard rule: state transitions/approved renderer only, not arbitrary publisher edits | `C F X I` | `FREEZE` | template/root | proof | Dynamic metadata must follow state, not a publisher text/image override switch. |
 
 If no publisher-authorized action is needed, the safest resolved configuration is to expose no generic publication-owner mutation role at all.
 
-The V1 kernel field name is `publisherAuthority`. Harrow/Hellbox publisher identity belongs in credits and public presentation; the operational authority endpoint is a separate concept. Gate 4 does **not** invent a new controller contract merely to solve rotation. Before a mainnet release enables a persistent publisher-authorized lifecycle action, the endpoint strategy must be explicitly proven rotation-safe.
+The V1 kernel field name is `publisherAuthority`. Harrow/Hellbox publisher identity belongs in credits and public presentation; the publication operational authority endpoint is a separate concept. The external revenue-routing controller described in §§24–25 is also a separate authority domain and must not become generic NFT ownership. Before a mainnet release enables any persistent publisher-authorized publication action, the endpoint strategy must be explicitly proven rotation-safe.
 
 ---
 
@@ -1203,6 +1431,8 @@ post-PUBLISH creator-allocation rewrite
 post-PUBLISH package/content digest rewrite
 post-PUBLISH renderer-rule rewrite
 post-PUBLISH royalty-bps rewrite
+post-PUBLISH native mint-deadline extension/reopen
+publisher/manual Final-3 selection
 post-PUBLISH phase-rule rewrite
 post-PUBLISH wallet-limit rewrite
 silent template implementation replacement
@@ -1227,8 +1457,8 @@ At minimum Gate 4 architecture must support indexable evidence for:
 | payment route used | publication/router | auditable primary economics |
 | random assignment/reveal | publication/randomness adapter | prove hidden assignment lifecycle without leaking early |
 | trait assignment finalized | publication/renderer state | permanent birth identity |
-| tail reserve awarded | publication | prove true-mintout final three |
-| publication permanently closed | publication | supply finality |
+| tail reserve awarded | publication | prove either literal true-mintout final three or unbiased timed-expiry Final 3 |
+| publication permanently closed | publication | prove sellout/timed-expiry terminal state and extinguished capacity |
 | seal broken | publication/protocol | permanent state |
 | archived/unarchived | publication/protocol | transfer-lock state |
 | metadata update signal | publication/renderer | marketplace refresh |
@@ -1282,7 +1512,7 @@ rendererRulesDigest
 metadataTemplateDigest
 creditsManifestDigest
 eligibilityManifestDigest(s)
-treasury/royalty route policy digest(s) when applicable
+treasury/royalty routing-boundary/authority-policy digest(s) when applicable; Native V1 does not commit today's mutable downstream split table as a collector promise
 ```
 
 ## 36.2 Root coverage rule
@@ -1355,7 +1585,7 @@ commitmentsDigest       = 0xb6a0722a62b0309c6a082152ddff7e1ffc544669e8d690047a75
 releaseConfigDigest     = 0x66e6697d8fde60531eebed0882030a1c6beecf086b04926599a39878d4e0d15d
 ```
 
-Current proof status: `testJavascriptAndSolidityGoldenVectorMatch()` passes. The verified post-push Gate 4 regression is **65 passed / 0 failed** across kernel, factory, deterministic issuance, publication policy-anchor, modular birth-policy and cross-language golden-vector suites. The issuance fuzz boundary passes 256 runs.
+Current proof status: `testJavascriptAndSolidityGoldenVectorMatch()` passes. The verified post-push Gate 4 regression is **69 passed / 0 failed** across kernel, factory, deterministic issuance, publication policy-anchor, modular birth-policy, immutable code-store and cross-language golden-vector suites. The issuance fuzz boundary passes 256 runs; dedicated code-store proofs pass **4/4**.
 
 ## 36.4 Deployment-time enforcement preimages — LOCKED BOUNDARY
 
@@ -1385,16 +1615,20 @@ authorityPolicyDigest
 
 Current implementation boundary:
 
-- `HellboxPublication` now implements versioned canonical typed preimage hashing for `fixedCopyRulesDigest`, `birthTraitsDigest`, and `randomizationPolicyDigest`, permanently anchors those three commitment digests, and exposes mismatch-verification helpers/tests without changing `ReleaseConfig`, `CommitmentSet`, or the `HELLBOX_ABI_V1` fingerprint;
+- `HellboxPublication` implements versioned canonical typed preimage hashing for `fixedCopyRulesDigest`, `birthTraitsDigest`, and `randomizationPolicyDigest`, permanently anchors those three commitment digests, and exposes mismatch-verification helpers/tests without changing `ReleaseConfig`, `CommitmentSet`, or the `HELLBOX_ABI_V1` fingerprint;
 - `HellboxBirthPolicy V1` uses the same canonical enforcement domains/typed structures and independently verifies all three supplied preimages against the frozen digest anchors while loading inventory/reservation/randomization-policy state;
-- the size-safe factory still appends only ABI-encoded `ReleaseConfig`, `CommitmentSet`, and `expectedReleaseConfigDigest` to the exact approved publication creation bytecode;
-- the publication constructor does **not yet receive** the three enforcement preimages, does **not yet create/store** its companion, and the factory does **not yet transport** those preimages;
-- therefore the next implementation may deliberately evolve the pre-deployment factory/publication call/constructor ABI to carry those narrow typed preimages, but it must not change the frozen release-fingerprint field order/meaning merely for convenience;
-- the preferred topology to test is atomic `HellboxPublication` constructor creation of exactly one `HellboxBirthPolicy`, because the companion's constructor can then bind `publication = msg.sender` with no setter/initializer/predicted-address trick;
-- that topology is conditional on exact combined compile/deployability evidence, including EIP-170 runtime and EIP-3860 initcode headroom; if it fails a chain boundary, stop and redesign rather than adding an upgrade/configuration escape hatch;
-- it must not use a post-deploy setter, uncommitted collector-affecting value, generic arbitrary constructor-data execution surface, proxy, clone, `delegatecall`, or arbitrary implementation registry;
-- any publication source/constructor change changes the exact creation bytecode and therefore requires recalculating the approved creation-code hash used by the factory generation;
+- the direct `new HellboxBirthPolicy(...)` publication-constructor experiment was measured at 42,840 bytes of publication initcode and rejected/restored for inadequate practical EIP-3860 runway;
+- immutable inert `HellboxBirthPolicyCodeStore` is now committed/pushed/tested: runtime byte `0` is `STOP`, bytes `[1..]` are the exact BirthPolicy creation bytes, ordinary calls are inert, and copied payload hash equality is proven;
+- the size-safe factory still appends only the current publication constructor arguments and is **not yet code-store wired**;
+- the publication constructor does **not yet receive** the three enforcement preimages or factory-approved code-store/hash context and does **not yet create/store** its companion;
+- the next implementation may deliberately evolve the pre-deployment factory/publication call/constructor ABI to carry those narrow typed preimages plus factory-generation code-store/hash context, but it must not change the frozen release-fingerprint field order/meaning merely for convenience;
+- the publication must `EXTCODECOPY` only the exact BirthPolicy creation bytes from code-store runtime offset `1`, verify their hash against the factory-generation-approved value, append canonical constructor args, and execute ordinary `CREATE` itself;
+- this preserves `HellboxBirthPolicy.publication = msg.sender` as the actual publication without embedding the policy creation bytecode in publication initcode;
+- it must not use a post-deploy setter, uncommitted collector-affecting value, generic arbitrary constructor-data execution surface, proxy, clone, `delegatecall`, CREATE2 dependency, arbitrary implementation registry, or caller-selected code store;
+- any publication source/constructor change changes the exact creation bytecode and therefore requires recalculating the approved publication creation-code hash used by the factory generation;
 - no V1 factory/publication has been deployed yet, so a coherent pre-deployment V1 interface correction is allowed without pretending a deployed V1 was upgraded.
+
+Future pricing/payment/royalty/treasury enforcement preimages must preserve the same commitment boundary: immutable per-issue payment asset, mint price, royalty BPS and routing endpoint/policy boundary may be committed, while intentionally mutable downstream recipient wallets, split percentages and reward-token strategy must not be accidentally reclassified as immutable collector promises.
 
 This preserves the proven `HELLBOX_ABI_V1` golden vector while moving already-committed policy toward real atomic EVM enforcement.
 
@@ -1417,6 +1651,8 @@ These fields are system-generated at `PUBLISH` and stored durably.
 | `deploymentRecord.chainId` | `C F P U` | `SET-ONCE` | config provenance | yes |
 | `deploymentRecord.factoryAddress` | `F P U` | `SET-ONCE` | config provenance | yes |
 | `deploymentRecord.approvedPublicationCreationCodeHash` | `F P U` | `SET-ONCE factory-generation provenance` | registry/factory immutable evidence | yes/proof |
+| `deploymentRecord.birthPolicyCodeStoreAddress` | `F P U` | `SET-ONCE factory-generation provenance` | registry/factory immutable evidence | yes/proof |
+| `deploymentRecord.approvedBirthPolicyCreationCodeHash` | `F P U` | `SET-ONCE factory-generation provenance` | registry/factory immutable evidence | yes/proof |
 | `deploymentRecord.templateId` | `F P U` | `SET-ONCE` | config provenance | yes |
 | `deploymentRecord.templateVersion` | `F C P U` | `SET-ONCE` | config provenance | yes |
 | `deploymentRecord.instanceRuntimeCodeHash` | `F P U` | `SET-ONCE` | event/chain forensic evidence | yes/proof |
@@ -1426,11 +1662,11 @@ These fields are system-generated at `PUBLISH` and stored durably.
 | `deploymentRecord.releaseConfigDigest` | `C F P U` | `SET-ONCE` | `DIRECT` | yes |
 | `deploymentRecord.packageDigest` | `C F P U` | `SET-ONCE` | `DIRECT` | yes |
 | `deploymentRecord.publishedAt` | `C/P U` | `SET-ONCE` | event | yes |
-| `deploymentRecord.publisherAuthority` | factory publishing authority endpoint observed for deployment | `F/P` | `SET-ONCE` | event/chain fact | proof |
+| `deploymentRecord.publisherAuthority` | `F/P` | `SET-ONCE` | event/chain fact | yes/proof — factory publishing authority endpoint observed for deployment. |
 
 D1 may cache/display this record, but the chain is authoritative for deployed contract address and transaction facts.
 
-For V1, there is no shared publication implementation field in the deployment record. `approvedPublicationCreationCodeHash` identifies the exact reviewed creation bytecode authorized by that factory generation; `instanceRuntimeCodeHash` is captured only after deployment and proves the exact deployed instance. Neither changes `HELLBOX_ABI_V1`, and the instance runtime hash is not compared against a universal publication hash. The recorded publishing authority may be a Safe or controller contract; it represents the authority endpoint that performed the deployment, not an asserted individual human identity.
+For V1, there is no shared publication implementation field in the deployment record. `approvedPublicationCreationCodeHash` identifies the exact reviewed publication creation bytecode authorized by that factory generation. The BirthPolicy code-store address + approved BirthPolicy creation-code hash are also factory-generation provenance once wiring lands; they do not become caller-supplied release fields. `instanceRuntimeCodeHash` is captured only after deployment and proves the exact deployed publication instance. None of these provenance fields changes `HELLBOX_ABI_V1`, and the instance runtime hash is not compared against a universal publication hash. The recorded publishing authority may be a Safe or controller contract; it represents the authority endpoint that performed the deployment, not an asserted individual human identity.
 
 ---
 
@@ -1455,8 +1691,13 @@ These fields are necessary for the builder but are **not** immutable release pro
 | `privateDraft.previewReportRef` | `D P` | `DRAFT` | `NO` | no |
 | `privateDraft.publishReady` | `D P` | `DRAFT` | `NO` | no |
 | `privateDraft.unsavedChanges` | `D` | `DRAFT` | `NO` | no |
+| `privateDraft.scopeBudgetRef` | `D P` | `DRAFT` | `NO` | no — future interactive-issue scope budget/report. |
+| `privateDraft.graphValidationReportRef` | `D P` | `DRAFT` | `NO` | no — Gate 6 interactive compiler output. |
+| `privateDraft.playtestCoverageReportRef` | `D P` | `DRAFT` | `NO` | no — human/machine route coverage evidence for interactive issues. |
 
 Changing any committed field after validation invalidates the previous validation/preview and requires a new full validation before `PUBLISH`.
+
+For a future `INTERACTIVE_COMIC`, Press must not permit PUBLISH merely because the contract configuration is valid. The narrative/package compiler must also prove the issue's finite graph/assets/endings/trait interactions and required human playtest coverage. That validation belongs to Gate 6/Press, not Gate 4 Solidity.
 
 ---
 
@@ -1521,15 +1762,19 @@ The Press should expose as applicable:
 - `PRESS VERSION`;
 - total run/max supply;
 - Harrow immediate pull;
-- Harrow tail reserve and its true-mintout condition;
+- Harrow Final-3 reserve and its sellout/timed-expiry conditions;
 - fixed public grails/rules Harrow has chosen to disclose;
-- pricing mode(s);
-- accepted payment assets/routes;
+- V1 primary price mode (`FREE` or `FIXED_PLS`);
+- accepted payment asset;
+- exact frozen issue PLS price when paid;
+- native go-live/deadline/countdown where applicable;
 - phase schedule/rules;
 - publication lifetime wallet allowance;
 - `1 COPY PER TRANSACTION`;
 - royalty;
 - seal/archive capabilities;
+- Reader presentation class (`BOOK`, `COMIC`, `INTERACTIVE_COMIC`);
+- non-spoiler interactive capability summary when applicable (authored branching/rooms/alternate endings/trait interactions without revealing solutions);
 - relevant irreversible state warnings;
 - release/config proof digest(s);
 - package/renderer/version proof where appropriate.
@@ -1560,11 +1805,12 @@ Public Harrow jokes, localization wording, layout, and explanatory presentation 
 | `publicPressRuntime.freeStatus` | eligibility/config | runtime |
 | `publicPressRuntime.reserveStatus` | eligibility/config | runtime |
 | `publicPressRuntime.allowlistStatus` | eligibility/config | runtime |
-| `publicPressRuntime.paymentRoutes` | frozen config | `DERIVED` |
-| `publicPressRuntime.currentNativeQuote` | approved pricing adapter | `EXTERNAL/DERIVED` |
-| `publicPressRuntime.quoteTimestamp` | adapter | `EXTERNAL` |
-| `publicPressRuntime.quoteExpiresAt` | frozen freshness rule + quote | `DERIVED` |
-| `publicPressRuntime.collectorMaxAuthorizedNative` | collector transaction input | per transaction |
+| `publicPressRuntime.paymentAsset` | frozen config | `DERIVED` |
+| `publicPressRuntime.fixedMintPrice` | frozen config | `DERIVED` |
+| `publicPressRuntime.nativeGoLiveAt` | frozen config when applicable | `DERIVED` |
+| `publicPressRuntime.nativeMintDeadline` | frozen/derived config when applicable | `DERIVED` |
+| `publicPressRuntime.nativeMintTimeRemaining` | current chain time + frozen deadline | `DERIVED` |
+| `publicPressRuntime.extinguishedUnmintedCount` | chain closure state | `RULED/SET-ONCE` |
 | `publicPressRuntime.markRemaining` | random pool state | `RULED` |
 | `publicPressRuntime.markOdds` | derived | `DERIVED` |
 | `publicPressRuntime.defectRemaining` | random pool state | `RULED` |
@@ -1575,7 +1821,7 @@ Public Harrow jokes, localization wording, layout, and explanatory presentation 
 | `publicPressRuntime.lastEjectedMark` | confirmed assignment | `SET-ONCE per token` |
 | `publicPressRuntime.lastEjectedDefect` | confirmed assignment | `SET-ONCE per token` |
 | `publicPressRuntime.lastEjectedSealState` | token state | `RULED` |
-| `publicPressRuntime.faultCode` | chain/adapter/Worker | runtime |
+| `publicPressRuntime.faultCode` | chain/router/Worker | runtime |
 
 After every confirmed single-copy issuance the UI must refresh authoritative state before enabling/quoting the next pull.
 
@@ -1592,8 +1838,10 @@ The artifact can change after `PUBLISH`, but only inside this boundary.
 | `artifactState.tokenId` | `C A U` | `SET-ONCE` | tokenId is copy number. |
 | `artifactState.birthMark` | `C/P A U` | `SET-ONCE` | Permanent after assignment. |
 | `artifactState.birthDefect` | `C/P A U` | `SET-ONCE` | Permanent after assignment. |
-| `artifactState.mintedAt` | `C/P A` | `SET-ONCE` | Chain fact. |
+| `artifactState.mintedAt` | `C/P A` | `SET-ONCE` | Chain fact; later reward protocols may use it as an eligibility input. |
 | `artifactState.originalMinter` | `C/P A` | `SET-ONCE` if tracked | Historical evidence only; current owner remains ERC-721 authority. |
+
+**Birth rarity never changes.** Reader choices, deaths, endings, achievements, Archive status, burns, Hellforge actions or reward modifiers cannot reroll/rewrite MARK/DEFECT.
 
 ## 41.2 Ordinary ERC-721 state
 
@@ -1635,17 +1883,34 @@ INELIGIBLE
 | `artifactState.archive` | `C/X A U` | `RULED` |
 | `artifactState.archivedAt` | `C/X/P A` | `RULED/history` |
 | `artifactState.transferLocked` | `C/X A U` | `DERIVED/RULED` |
+| `artifactState.readerPlayBlocked` | `X/P U` | `DERIVED/RULED` while archived |
+| `artifactState.experienceMutationBlocked` | `X/P U` | `DERIVED/RULED` while archived |
 | `artifactState.officialArchiveBalance` | `X A U` | `EXTERNAL` |
 | `artifactState.archiveEligibility` | `C/X A U` | `DERIVED/RULED` |
+| `artifactState.effectiveArchiveWeight` | `X/P A U` | `EXTERNAL/DERIVED` — may use immutable birth rarity + later approved modifiers; never rewrites birth rarity. |
 
-## 41.5 Permanent history / incidents
+An archived/plastic-protected artifact cannot simultaneously accrue handling-derived Reader experience state. Unarchiving stops new ordinary Archive reward accrual; UNSEAL permanently ends ordinary Archive eligibility under the current product model.
+
+## 41.5 Permanent history / incidents / experience
 
 | State | Home | Mutability |
 |---|---|---|
 | `artifactState.permanentIncidentCount` | `C/X/P A U` | monotonically `RULED` |
 | `artifactState.incidentLogRef/root` | `X/P A U` | append-only/per protocol |
+| `artifactState.experienceMarkRef/root` | `X/P A U` | append-only/ruled where an issue makes an experience token-level permanent |
+| `artifactState.achievementRef/root` | `X/P A U` | append-only/ruled where publication policy makes it artifact-level |
 | `artifactState.hellforgeState` | `C/X A U` | irreversible/ruled per protocol |
 | `artifactState.transformationHistory` | `X/P A U` | append-only/per protocol |
+
+Private Reader run state is distinct from immutable birth rarity and may also be distinct from permanent token-level history.
+
+Later Reader design must explicitly resolve:
+- `publication + tokenId + wallet + runId` progress identity;
+- what a new owner inherits versus starts fresh;
+- which choices/deaths/endings remain private to a wallet/run;
+- which deliberately authored artifact events follow the token.
+
+Gate 4 does not store this run state in `HellboxPublication`.
 
 ## 41.6 Contextual state
 
@@ -1707,7 +1972,9 @@ Humor can surround the warning. Humor cannot obscure permanence.
 - factory address is the chain/version registry's approved factory for the selected generation;
 - code currently present at that factory address matches the registry's approved factory-code evidence;
 - factory immutable `approvedPublicationCreationCodeHash` matches the registry's exact approved publication creation-bytecode hash for that generation;
-- the creation bytecode supplied for simulated/final `publish(...)` hashes exactly to that approved value;
+- after code-store wiring lands, factory-generation `birthPolicyCodeStoreAddress` and `approvedBirthPolicyCreationCodeHash` match the approved registry evidence;
+- the code store is nonzero, has the expected inert `STOP` prefix, and its copied bytes `[1..]` hash to the approved BirthPolicy creation-code hash;
+- the creation bytecode supplied for simulated/final `publish(...)` hashes exactly to the approved publication value;
 - selected template/version is approved for new deployment;
 - template version supports every selected capability;
 - V1 deployment mode is `FULL_DEPLOYMENT`;
@@ -1726,6 +1993,9 @@ Humor can surround the warning. Humor cannot obscure permanence.
 - both derived values are non-negative and internally consistent;
 - the tail is not pre-removed from `initialCandidatePoolSize`;
 - no phase path can exceed `nonTailIssuanceCapacity`;
+- native go-live + `5_724_366` seconds derives the exact immutable deadline;
+- native deadline finalization preserves exactly three Harrow candidates and extinguishes every other still-unminted candidate;
+- SciVive does not inherit native timed-closure behavior;
 - cap can never increase.
 
 ## 43.4 Trait distribution
@@ -1764,12 +2034,15 @@ Also:
 - cryptographic digest matches bytes;
 - source PDF/package facts match actual source;
 - Reader manifest references only intended page/object paths;
-- Reader object count/page count matches manifest;
+- Reader object count/page count matches manifest where linear semantics apply;
 - no protected Reader binary accidentally enters public delivery;
 - base cover dimensions/type valid;
 - every render dependency is included in committed manifest;
 - package root recalculates exactly;
-- no temp path/local username/private secret is committed.
+- no temp path/local username/private secret is committed;
+- when presentation class is `INTERACTIVE_COMIC`, the future Gate 6 validator must additionally prove graph/room/ending/trait-interaction manifests, reachable-path integrity, ordinary-copy fairness and `runtimeCanonicalAiGeneration = false`.
+
+Gate 4 only preserves this validation boundary; the interactive compiler/runtime is not a Gate 4 implementation requirement.
 
 ## 43.7 Renderer
 
@@ -1783,38 +2056,40 @@ Also:
 
 ## 43.8 Pricing/payment
 
-For each pricing policy:
+For V1:
 
-- mode-specific required fields complete;
-- forbidden/inapplicable fields are absent/zero;
-- accepted asset address exists on chain when ERC-20;
-- token decimals verified;
-- price adapter supports target chain/asset pair when needed;
-- current quote sanity tested;
-- quote freshness rule enforced;
-- tolerance/maximum authorization behavior simulated;
-- overpayment/refund/revert behavior tested;
-- free phase cannot accidentally collect payment.
+- exactly one release-level pricing policy is active;
+- mode is only `FREE` or `FIXED_PLS`;
+- SciVive/proving free release has zero native price and no paid route;
+- standard native release is `FIXED_PLS`;
+- fixed PLS wei amount is nonzero and exactly displayed for paid native releases;
+- no ERC-20/stablecoin route exists;
+- no USD target, price-conversion adapter, quote freshness or tolerance logic exists;
+- payment route is none for `FREE` or exactly one native PLS route for `FIXED_PLS`;
+- phase configuration cannot silently reprice the issue;
+- exact-payment/overpayment/refund/revert behavior is tested.
 
 ## 43.9 Mint phases
 
 - unique phase IDs/order;
-- all referenced pricing policies/routes exist;
+- every phase references the release-wide V1 pricing policy and permitted route shape;
 - all Merkle/eligibility roots match exact leaf schema;
 - phase wallet cap does not violate lifetime cap;
 - phase state machine has no impossible/ambiguous transition;
 - allocation/rollover simulation cannot exceed available supply;
-- tail reserve remains protected until true mint-out;
+- Final 3 remain inside the candidate pool until true mint-out or native timed finalization;
+- native timed finalization selects exactly three remaining candidates without manual choice and permanently extinguishes every other unminted candidate;
 - trait pool rule is transparent;
 - manual transition authority, if ever configured, is explicitly shown as such.
 
-## 43.10 Royalty/treasury
+## 43.10 Royalty/primary routing
 
-- bps valid;
-- router addresses contain expected code;
-- route IDs exist;
-- economic route policy digest matches intended splits;
-- operational wallet rotation cannot mutate bps/supply/price/ownership.
+- royalty BPS valid and frozen per issue;
+- immutable royalty/primary routing endpoints contain expected code when used;
+- route IDs/slots exist;
+- commitment/preimage binds the intended routing interface/authority boundary without accidentally freezing today's mutable downstream split table;
+- gated downstream route mutation cannot mutate payment asset, mint price, royalty BPS, supply, rarity, ownership or native deadline;
+- no reward-token address/name/supply/emissions/tokenomics/distribution formula is required or hard-coded by Gate 4.
 
 ## 43.11 Artifact capabilities
 
@@ -1826,7 +2101,7 @@ For each pricing policy:
 - ERC-6551 compatibility does not add sweep authority;
 - Hellforge/burn requires owner authorization;
 - reward system is not conflated with TBA assets;
-- future classified reward token name is not leaked.
+- no unresolved future reward-token identity/tokenomics is implied or hard-coded.
 
 ## 43.12 Freeze preview
 
@@ -1838,7 +2113,10 @@ Before the final `PUBLISH` action:
 - package digest generated;
 - exact target chain/factory/template shown;
 - exact approved publication creation-code hash shown and matched to the deployment bytecode;
-- exact admin/close powers shown;
+- approved BirthPolicy code-store address + policy creation-code hash shown once wiring lands;
+- exact PLS price/payment asset/royalty BPS/native deadline shown where applicable;
+- mutable downstream revenue-routing boundary is distinguished from frozen issue economics;
+- exact publication admin powers shown; standard native manual close/deadline extension is absent;
 - exact irreversible capability rules shown;
 - exact deployment call simulated;
 - D1/package resolved snapshot matches the digest;
@@ -1871,11 +2149,13 @@ Show:
 - total run;
 - #001–#006 creator rules;
 - #066 public HELLBOUND rule;
-- 3-copy true-mintout tail;
+- 3-copy Final-3 rule for both true mint-out and timed expiry;
 - initial random candidate pool size (`210` for the standard native profile);
 - maximum non-tail primary issuance capacity (`207` for the standard native profile);
-- explanation that the final three are whatever remains after non-tail primary issuances, not a predetermined removed set;
-- consequences of early close.
+- explanation that the Final 3 are never a predetermined removed set;
+- exact native `66d 6h 6m 6s` deadline;
+- timed-expiry explanation: unbiased three to Harrow, all other unminted candidates permanently extinguished;
+- SciVive exemption where applicable.
 
 ## 44.3 Trait preview
 
@@ -1908,9 +2188,12 @@ Do **not** preview the actual full hidden token map to Harrow if the selected sc
 Show:
 
 - source file identity/digest;
-- page/object count;
-- Reader presentation;
-- representative Reader page;
+- page/object count where applicable;
+- Reader presentation class;
+- representative Reader page/stage;
+- story-stage/room/branch/ending counts for a future `INTERACTIVE_COMIC` without exposing spoiler solutions;
+- narrative/room/ending/trait-interaction manifest proofs when applicable;
+- graph-validation/playtest coverage status when applicable;
 - protected/public delivery classification;
 - manifest digest;
 - package root;
@@ -1930,18 +2213,18 @@ Show representative outputs for:
 - one contextual state example if enabled;
 - one future permanent-history/Hellforge state example when protocol is available.
 
-## 44.7 Pricing preview
+## 44.7 Pricing / economic-boundary preview
 
-For every phase/policy:
+Show:
 
-- free/paid status;
-- accepted asset(s);
-- fixed amount or USD target;
-- current PLS quote where applicable;
-- quote timestamp/freshness;
-- tolerance;
-- maximum collector authorization;
-- refund/revert behavior.
+- release-wide V1 mode: `FREE` or `FIXED_PLS`;
+- accepted asset: none or native PLS;
+- exact frozen PLS amount for a paid native issue;
+- frozen royalty BPS;
+- stable primary/royalty routing endpoints when used;
+- explicit statement that downstream routing destinations/split percentages/reward-token strategy are operationally mutable and are not the frozen issue price/royalty promise;
+- exact-payment/refund/revert behavior;
+- native go-live and exact `66d 6h 6m 6s` deadline where applicable.
 
 ## 44.8 Phase simulation
 
@@ -1954,8 +2237,9 @@ The Press must simulate at least:
 - phase sold out;
 - phase rollover;
 - near mint-out with `candidatePoolRemaining = 4` and `nonTailIssuanceRemaining = 1`;
-- true mint-out transition where final 3 go to Harrow;
-- early close before true mint-out.
+- true mint-out transition where the literal final 3 go to Harrow;
+- timed expiry with more than three candidates where unbiased Final 3 go to Harrow and every other unminted candidate is extinguished;
+- post-deadline mint rejection and permanent no-reopen behavior.
 
 ## 44.9 Metadata preview
 
@@ -2064,11 +2348,27 @@ public grail:
   #066 HELLBOUND
   stays in randomized collector pool
 
-creator tail:
+creator Final 3:
   count: 3
-  trigger: true mint-out only
-  identities: final three remaining in machine
-  early close: tail forfeited; not awarded to Harrow
+  sellout branch: literal final three remaining in machine
+  timed-expiry branch: unbiased three selected from all candidates still remaining
+  Harrow manual selection: impossible
+  all other timed-expiry leftovers: permanently extinguished
+
+primary pricing:
+  mode: FIXED_PLS
+  payment asset: native PLS only
+  exact PLS amount: issue-specific, frozen at PUBLISH
+  stablecoin/ERC-20 route: none in V1
+  USD target/oracle conversion: none in V1
+
+primary mint window:
+  duration: 66 days + 6 hours + 6 minutes + 6 seconds
+  duration seconds: 5,724,366
+  start: frozen issue go-live time
+  end: frozen/derived deadline
+  extension/reopen: impossible
+  manual early close: disabled
 
 PRESS MARK:
   HELLBOUND: 6
@@ -2110,12 +2410,11 @@ native-issue compatibility target:
   permanent history
   contextual traits
   ERC-6551
-  official reward protocol
+  generic official reward-protocol compatibility
   Hellforge / owner-authorized burn/evolution
 ```
 
-Price, royalty, phase schedule, treasury route, exact randomness provider, and exact price adapter remain publication-specific choices.
-
+Exact issue-specific choices still resolved before each `PUBLISH` include the PLS amount, royalty BPS, eligible phase schedule, content/package and production randomness configuration. Downstream primary/royalty routing destinations, split percentages and future reward-token mechanics remain operational rather than immutable publication economics.
 ---
 
 # 47. SCIVIVE EXCEPTION PROFILE — BLUEPRINT COMPATIBILITY PROOF
@@ -2133,6 +2432,7 @@ primary pricing: FREE
 primary wallet cap: 1
 max per transaction: 1
 royalty: 369 bps
+native 66d 6h 6m 6s timer: EXEMPT
 Reader: enabled
 Reader access: ownership
 source package: existing protected SciVive source/Reader package
@@ -2159,7 +2459,7 @@ broad burn/evolution catalog
 future reward-token exposure
 ```
 
-This exception proves the factory/template/config system must be configurable rather than hard-coding the native-216 profile into every publication.
+This exception proves the factory/template/config system must be configurable rather than hard-coding the native-216 profile into every publication. SciVive's free proving mint must not inherit the native timed-closure/Final-3 policy.
 
 ---
 
@@ -2169,49 +2469,70 @@ These are explicitly not silently resolved as creator canon by this file.
 
 ## Gate 4 research/test decisions
 
-1. **Randomness/oracle/reveal mechanism**
+1. **Production randomness / reveal mechanism**
    - exact provider;
    - exact entropy source;
    - exact reveal timing;
    - exact fallback behavior;
-   - anti-sniping proof.
+   - anti-sniping proof;
+   - unbiased Final-3 selection at native timed expiry when more than three candidates remain;
+   - no Harrow/manual grail-selection path.
 
-2. **PulseChain USD/PLS pricing source**
-   - oracle / adapter / TWAP design;
-   - stable assets accepted;
-   - quote freshness;
-   - manipulation/failure behavior.
-
-3. **Optimizer/compiler optimization policy**
+2. **Optimizer/compiler optimization policy**
    - Solidity `0.8.36` and EVM `shanghai` are locked;
    - optimizer on/off, optimizer runs, `via_ir`, deployment bytecode size and gas behavior remain open;
    - lock only after test-backed comparison on the actual Hellbox kernel/factory path.
 
-4. **Metadata renderer transport**
+3. **Metadata renderer transport**
    - exact Gate 4 interface and test renderer;
    - Gate 6 implements full deterministic package/render engine.
 
-5. **External protocol binding strategy**
+4. **External protocol binding strategy**
    - direct binding vs compatible external protocol/registry model;
    - must preserve non-upgradeable release rules while allowing later compatible Archive/reward/Hellforge systems.
 
-6. **Early-close implementation and authority endpoint**
-   - exact on-chain unminted-capacity finalization mechanism;
-   - tail reserve must still be forfeited on early close;
-   - if a real release enables early close or another persistent publisher-authorized lifecycle action, the `publisherAuthority` endpoint must be rotation-safe;
-   - do not freeze Harrow's current personal EOA forever and do not invent a new authority/controller contract until the need and design are explicitly proven.
+5. **BirthPolicy code-store factory/publication wiring**
+   - exact factory constructor/provenance representation for approved code-store address + BirthPolicy creation-code hash;
+   - exact publication constructor transport for the three policy preimages plus factory-approved code-store context;
+   - exact `EXTCODECOPY`/hash verification/ordinary-`CREATE` implementation;
+   - exact post-wiring EIP-170/EIP-3860/practical deployment-payload proof.
+
+6. **Native timed-finalization mechanics**
+   - exact callable/lazy/permissionless trigger after frozen deadline;
+   - exact state accounting for extinguished capacity/final supply;
+   - exact interaction with pending randomness requests if an asynchronous provider is selected;
+   - no deadline extension, reopen or publisher-selected Final 3.
+
+7. **Revenue-routing implementation**
+   - exact stable primary/royalty router contract(s);
+   - exact gated Harrow operational controller/rotation strategy;
+   - downstream split/destination update events and auditability;
+   - separation from publication `publisherAuthority`;
+   - no generic NFT ownership, seizure or price/royalty/deadline mutation;
+   - no reward-token identity hard-coded before that future product is approved.
+
+8. **Future payment-token architecture beyond V1**
+   - Gate 4 V1 is only `FREE` or `FIXED_PLS`;
+   - if a later version supports another token, its asset + price freeze per issue at publish;
+   - older V1 issues are not rewritten.
 
 ## Later-gate product/canon decisions already known to be open
 
-7. Final permanent-history public labels beyond the currently strong `LIVED THROUGH` / `INCIDENT LOG` direction.
-8. Exact permanent incident taxonomy.
-9. Exact official Archive reward formulas.
-10. Exact Hellforge recipes/catalog.
-11. Exact Native Issue #1 publication price/royalty/phases/title/cast.
+9. Final permanent-history public labels beyond the currently strong `LIVED THROUGH` / `INCIDENT LOG` direction.
+10. Exact permanent incident/experience-mark taxonomy and which events are wallet/run-private versus token-level permanent history.
+11. Exact interactive room timers, hint/assist system, death/retry/new-run rules, spoiler-resistant authored variants and transfer/new-owner progress behavior.
+12. Exact achievement/certificate format.
+13. Exact per-issue scope budget, branch-width/reconvergence budget and human playtest thresholds.
+14. Exact MARK/DEFECT Archive weight table and combination formula.
+15. Reward-token identity/address/supply/emissions/tokenomics/distribution and exact official Archive reward emissions/formulas.
+16. Exact burn-to-effective-reward interaction, if any; burn may never rewrite birth rarity.
+17. Exact six-year creator-delay timestamp representation in the future reward protocol; it cannot make #001–#006 eligible earlier than the approved six-year delay.
+18. Exact Hellforge recipes/catalog.
+19. Exact Native Issue #1 title/content/narrative graph/rooms/endings/frozen PLS amount/royalty BPS/phase eligibility details.
 
 None of these gaps permits Gate 4 to build an architecture that makes the future capability impossible.
 
-## Strong pre-mainnet durability requirement
+## Strong pre-mainnet durability / solo-operator requirement
 
 > **dynamic when alive; durable when dead**
 
@@ -2219,6 +2540,86 @@ This is a **strong pre-mainnet architecture requirement**, not a selected implem
 
 Gate 4 must not paint later Gates into a corner that requires Hellbox infrastructure to remain online forever merely for an owned publication to retain meaningful identity. The exact continuity/fallback mechanism remains OPEN for later research/hardening and must not be invented from this phrase alone.
 
+Before Native Issue #1 mainnet:
+- routine operation cannot require daily Harrow intervention or a specific workstation online;
+- critical workflows require executable runbooks/automation;
+- repository/package/D1/R2 recovery inputs must be backed up;
+- a clean-room restore drill must actually succeed;
+- critical chain reads/writes must have an approved provider-health/fail-closed strategy;
+- irreversible production operations require explicit preflight/simulation and post-operation verification.
+
+These are later hard-release requirements, not an excuse to expand Gate 4 into a DevOps/recovery Gate.
+
+---
+
+# 48A. GATE 4 RISK CONTAINMENT / SOLO-OPERATOR GUARDRAILS
+
+The full project risk register lives in `HELLBOX_PROJECT_STATE.md`. Gate 4 specifically guards against:
+
+## Scope spillover
+
+Do not implement the Gate 6 interactive engine or Gate 7 reward economics inside Gate 4 merely because their product rules are now known.
+
+Gate 4 responsibility:
+- preserve compatible commitment/state/protocol boundaries;
+- finish publication/factory/BirthPolicy/issuance/economics/closure/Testnet proof.
+
+Not Gate 4:
+- narrative graph runtime;
+- escape-room engine;
+- saved runs;
+- experience marks;
+- Archive weight formulas/emissions;
+- burn-to-reward mechanics;
+- mobile-app behavior.
+
+## Immutable-code / size risk
+
+After every major production wiring change:
+- compile;
+- run dedicated tests;
+- measure EIP-170/EIP-3860/practical deployment payload;
+- run full regression;
+- stop if headroom becomes unsafe even if the hard limit still technically passes.
+
+A passing behavior test does not justify unacceptable deployment runway.
+
+## Randomness/scarcity risk
+
+If approved production entropy is unavailable:
+- do not silently substitute caller choice, timestamp or other manipulable entropy;
+- issuance/finalization must fail safely under the eventually frozen policy;
+- Harrow never receives rare-copy/Final-3 selection authority.
+
+## Operator-error risk
+
+Testnet deployment/configuration must evolve toward one reproducible script/runbook that:
+- validates compiler/EVM/dependency versions;
+- validates approved creation-code/code-store hashes;
+- computes/validates release digests;
+- performs deployment;
+- records addresses/config hashes;
+- verifies provenance;
+- performs post-deploy smoke tests.
+
+Do not make Harrow manually concatenate bytecode, hand-encode ABI payloads or reconstruct publication arguments from memory for normal operation.
+
+## AI/review risk
+
+AI-written Gate 4 source is not accepted because it looks plausible.
+
+Acceptance requires the same:
+- compile;
+- diff check;
+- focused tests;
+- full regression;
+- size proof where applicable;
+- authority/forbidden-surface review;
+- exact committed hashes.
+
+## Dependency/provider risk
+
+Gate 4 deployment/test tooling must keep RPC endpoint configuration external rather than hard-coded to one provider. Full provider failover is later hardening, but the Gate 4 architecture must not make one RPC address part of immutable publication truth.
 
 ---
 
@@ -2228,15 +2629,15 @@ This blueprint is approved. Gate 4 may continue to implement/test:
 
 - the versioned `HellboxPublication` kernel/template;
 - Hellbox chain/version registry configuration and approved-factory reference;
-- `HellboxPublicationFactory`;
+- `HellboxPublicationFactory` + factory-generation BirthPolicy code-store provenance;
 - immutable configuration/finalization boundary;
 - supply/copy-number enforcement;
-- creator immediate/tail rules;
+- creator immediate/Final-3 + native timed-closure rules;
 - fixed-copy constraints;
 - token/copy assignment architecture;
 - phase/config representation;
-- pricing-policy representation/interface;
-- royalty baseline;
+- V1 `FREE` / `FIXED_PLS` pricing + payment enforcement;
+- frozen per-issue royalty BPS + stable revenue-routing boundary;
 - dynamic metadata renderer interface;
 - metadata refresh signaling;
 - seal/archive-compatible primitives/interfaces;
@@ -2287,58 +2688,70 @@ Already proven at this synchronization checkpoint:
   - randomization-policy boundary validation;
   - SciVive trait-disabled shape;
   - read-only external surface at this checkpoint and no publisher/admin mutation path;
-- current unoptimized Shanghai runtime sizes: publication **16,334 bytes**, factory **8,020 bytes**, birth-policy module **5,561 bytes**;
-- current standalone initcode sizes: publication **24,855 bytes**, birth-policy module **17,018 bytes**; combined deployment graph still unproven until wiring is compiled;
-- **65 total Solidity tests passing, 0 failed**:
+- immutable inert `HellboxBirthPolicyCodeStore`:
+  - runtime `STOP || exact HellboxBirthPolicy creationCode`;
+  - exact copied-payload hash proof;
+  - exact stop-prefixed runtime hash proof;
+  - inert ordinary-call proof;
+  - no owner/setter/initializer/proxy/delegatecall/upgrade surface;
+- direct publication `new HellboxBirthPolicy(...)` embed measured at **42,840-byte publication initcode** and rejected/restored because practical deployment runway was too small;
+- current unoptimized Shanghai runtime sizes remain publication **16,334 bytes**, factory **8,020 bytes**, birth-policy module **5,561 bytes**;
+- current standalone initcode sizes remain publication **24,855 bytes**, birth-policy module **17,018 bytes**; active code-store wiring graph still requires exact compile/payload proof;
+- **69 total Solidity tests passing, 0 failed**:
   - 16 kernel;
   - 11 factory;
   - 12 deterministic issuance;
   - 9 publication policy-anchor;
   - 16 dedicated birth-policy;
+  - 4 dedicated code-store;
   - 1 cross-language golden vector;
 - issuance fuzz boundary: **256 runs passed**.
 
 Gate 4 must **not** pretend to finish:
 
 - final Press V2 UX — Gate 5;
-- full ingest/render/package automation — Gate 6;
+- full ingest/render/package/interactive narrative compiler and Reader runtime — Gate 6;
 - full Archive reward/Hellforge/ERC-6551 product protocols — Gate 7;
 - Hellion system — Gate 8;
-- final audit/content/localization hardening — Gate 9;
+- final audit/content/localization/performance/operations/recovery hardening — Gate 9;
 - mainnet Native Issue #1 — Gate 10.
+
+The newly locked interactive-comic and rarity-weighted Archive directions do **not** add game/reward implementation to Gate 4. `HellboxPublication` and `HellboxBirthPolicy` must not gain narrative graph state, puzzle timers, saved-run state, experience-mark mutation, Archive weight tables, reward emissions or burn-reward formulas.
 
 ---
 
-# 49A. INTERNAL ENGINEERING CHECKPOINT — ATOMIC BIRTH-POLICY WIRING + TRAIT CONSUMPTION
+# 49A. INTERNAL ENGINEERING CHECKPOINT — CODE-STORE BIRTH-POLICY WIRING + TRAIT CONSUMPTION
 
-The deterministic issuance accounting core, publication-side enforcement digest anchors, and standalone modular birth-policy foundation are now implemented and test-backed. This section is the required architecture ledger for the next Gate 4 Solidity work: **atomically bind the existing `HellboxBirthPolicy` to each publication deployment before adding mutable per-token trait consumption or exposing collector minting.**
+The deterministic issuance accounting core, publication-side enforcement digest anchors, standalone modular BirthPolicy and inert bytecode store are implemented and test-backed. The next Gate 4 Solidity work is to **atomically bind the existing `HellboxBirthPolicy` to each publication through the approved code store before adding mutable per-token trait consumption or exposing collector minting.**
 
-## 49A.1 Blueprint sections implemented / carried forward
+## 49A.1 Blueprint sections carried forward
 
-The implemented issuance/policy work and next wiring derive primarily from:
+The wiring and immediately following state work derive primarily from:
 
-- §8 factory/authenticity/deployability;
+- §8 factory/authenticity/deployability + code-store provenance;
 - §10 supply & copy numbering;
-- §11 creator immediate/tail allocation;
+- §11 creator immediate/Final-3 allocation;
 - §12 fixed copy rules;
 - §13 birth trait axes;
 - §14 randomness/allocation/reveal boundary;
+- §§19–20 V1 FREE/FIXED_PLS pricing/payment;
 - §21 wallet/transaction limits;
 - §22 mint-phase compatibility;
 - §23 live odds;
-- §32 / §32A / §32B closure/finalization/authority;
+- §§24–25 frozen economic boundary vs mutable downstream routing;
+- §32 / §32A / §32B timed closure/finalization/authority;
 - §33 prohibited publisher powers;
 - §34 issuance/indexing events;
 - §36 / §36.4 commitment + enforcement-preimage boundary;
 - §40 public Press runtime state;
 - §43–45 validation/preview/PUBLISH constraints;
-- §46 standard native 216 profile.
+- §§46–47 Native/SciVive profiles.
 
-## 49A.2 Standard-native issuance state machine — implemented accounting, trait consumption pending
+## 49A.2 Standard-native issuance state machine
 
-### PUBLISH / initialization semantics
+### PUBLISH / initialization
 
-The release freezes `maxSupply = 216`.
+The release freezes `maxSupply = 216`, its issue-specific PLS price, royalty BPS, go-live time and native deadline.
 
 Before normal non-tail issuance opens:
 
@@ -2362,7 +2775,7 @@ candidatePoolRemaining   = 210
 nonTailIssuanceRemaining = 207
 ```
 
-The three future Harrow tail copies are still inside those 210 candidates. They are not known, removed or reserved by ID.
+The future Harrow Final 3 are still inside those 210 candidates. They are not known, removed or reserved by ID.
 
 Known remaining MARK inventory after **future issuance-time consumption** of the six creator reservations must be:
 
@@ -2388,7 +2801,7 @@ creator #005/#006 GOLD           = 2 reserved
 total fixed MARK reservations    = 7
 ```
 
-Therefore the construction-time HELLBOUND state is:
+Construction-time HELLBOUND state:
 
 ```text
 HELLBOUND inventory remaining          = 6
@@ -2398,7 +2811,7 @@ HELLBOUND random-assignable remaining  = 3
 
 Across all MARK values, construction-time random-assignable total is `209`, because seven MARK positions are fixed/reserved.
 
-This does **not** change the collector next-copy probability after the creator six are actually consumed. At that future point:
+After the creator six are actually consumed:
 
 ```text
 candidatePoolRemaining = 210
@@ -2407,30 +2820,33 @@ HELLBOUND remaining    = 4
 other random-assignable HELLBOUND = 3
 ```
 
-So the next-copy HELLBOUND probability is still exactly `4 / 210`. The implementation must preserve this by consuming creator reservations/inventory when the six creator copies receive their permanent birth identities; it must not pre-remove #066 from candidate selection.
+Therefore next-copy HELLBOUND probability remains exactly `4 / 210`. The implementation must consume creator reservations/inventory correctly and must not pre-remove #066 from candidate selection.
 
-### Every successful normal non-tail primary issuance — required behavior after trait wiring
+### Every successful normal non-tail primary issuance
 
 Exactly one token is issued.
 
 A successful issuance must:
 
-1. validate the frozen phase/eligibility rules;
-2. enforce wallet lifetime primary usage;
-3. select one still-eligible candidate copy ID through the approved randomness boundary;
-4. preserve fixed-copy constraints;
-5. consume valid remaining MARK/DEFECT inventory;
-6. bind permanent tokenId/copy-number + birth identity;
-7. increment lifetime primary usage;
-8. decrement `candidatePoolRemaining` by exactly one;
-9. decrement `nonTailIssuanceRemaining` by exactly one;
-10. emit/index authoritative state needed for Press/D1 refresh.
+1. reject if the frozen native deadline has passed;
+2. validate frozen phase/eligibility;
+3. enforce the frozen V1 payment rule (`FIXED_PLS` native issue or `FREE` proving release);
+4. enforce wallet lifetime primary usage;
+5. select one still-eligible candidate copy ID through the approved randomness boundary;
+6. preserve fixed-copy constraints;
+7. consume valid remaining MARK/DEFECT inventory;
+8. bind permanent tokenId/copy-number + birth identity;
+9. increment lifetime primary usage;
+10. decrement `candidatePoolRemaining` by exactly one;
+11. decrement `nonTailIssuanceRemaining` by exactly one;
+12. route primary proceeds only to the frozen routing boundary for paid issues;
+13. emit/index authoritative state needed for Press/D1 refresh.
 
-Reserved, free, allowlist, early and public phases may differ in eligibility/economics, but unless the frozen release explicitly says otherwise they consume the same global non-tail issuance capacity and same random trait/copy pool.
+Normal non-Harrow phases consume the same global non-tail issuance capacity and same random trait/copy pool unless a frozen release explicitly says otherwise. Under V1 they do **not** silently reprice the issue.
 
 Transfer or burn does not restore primary allowance or primary issuance capacity.
 
-### True mint-out
+### True mint-out branch
 
 Immediately before the final normal non-tail issuance:
 
@@ -2446,23 +2862,33 @@ candidatePoolRemaining   = 3
 nonTailIssuanceRemaining = 0
 ```
 
-Those exact three remaining candidate IDs are awarded to the configured tail recipient. They are not preselected. `tailAwarded` becomes true once.
+Those literal three candidates go to Harrow. They are not preselected. `tailAwarded` becomes true once, primary mint closes, and no unminted capacity remains to extinguish.
 
-### Early permanent close
+### Timed-expiry branch — LOCKED PRODUCT RULE
 
-If early close is enabled and invoked before true mint-out:
+Native duration:
 
-- primary issuance closes permanently;
-- no reopen;
-- no cap increase;
-- unminted non-tail capacity is retired;
-- Harrow gets no final-three tail;
-- `tailAwarded` remains false;
-- remaining unissued IDs cannot later be swept or reassigned by an admin escape hatch.
+```text
+66 days + 6 hours + 6 minutes + 6 seconds
+= 5,724,366 seconds
+```
 
-Exact early-close implementation remains open and is not part of the immediate atomic-wiring checkpoint.
+If the immutable deadline arrives before true mint-out:
 
-## 49A.3 `HellboxBirthPolicy V1` — current module contract
+- ordinary primary issuance closes permanently;
+- if exactly three candidates remain, those literal three go to Harrow;
+- if more than three remain, exactly three are selected through the approved unbiased timed-closure randomness;
+- Harrow cannot choose candidate IDs, MARKS or DEFECTS;
+- `#066`, if still present, participates normally;
+- every non-selected unminted candidate is permanently extinguished;
+- no reopen, deadline extension, capacity restoration or admin sweep exists;
+- actual final minted/surviving supply may therefore be below the original 216 cap.
+
+The exact finalization transaction trigger and entropy provider are technical decisions; the behavior above is not.
+
+SciVive is explicitly exempt from this native timer/Final-3 rule.
+
+## 49A.3 `HellboxBirthPolicy V1` — current module
 
 The standalone companion currently implements/validates:
 
@@ -2473,34 +2899,68 @@ publication           = msg.sender at construction
 ```
 
 Its constructor receives:
-
-- a narrow `PublicationBinding` containing already-frozen supply/creator/tail/digest anchors;
+- narrow `PublicationBinding` derived only from frozen publication state;
 - encoded fixed-copy policy preimage;
 - encoded birth-trait policy preimage;
 - encoded randomization-policy preimage.
 
 It independently verifies the three canonical enforcement digests using the same domains as the publication anchors.
 
-Current module semantics include:
-
+Current semantics include:
 - native MARK inventory `6 / 12 / 18 / 180`;
 - native DEFECT inventory `6 / 12 / 18 / 24 / 156`;
 - fixed MARK reservations for #001–#006;
-- creator DEFECT fixed assignment prohibited;
+- creator fixed DEFECT prohibition;
 - #066 HELLBOUND while public-random-pool eligible;
 - duplicate axis/value/fixed-rule rejection;
 - reservation-over-inventory rejection;
-- randomization boundary requiring random non-sequential copy shuffle, global shared trait pool, independent MARK/DEFECT axes, shared-random creator DEFECT semantics, and no full preknown publisher rarity map;
+- randomization-policy boundary validation;
 - trait-disabled reusable shape for SciVive;
 - read-only inventory/reservation inspection surfaces.
 
-At this checkpoint it has **no external mutation/admin surface**. It does not have `Ownable`, initializer, proxy, upgrade, `delegatecall`, mint, burn, transfer, rarity setter, or publisher configuration function.
+At this checkpoint it has **no external mutation/admin surface**. Its current `*Remaining` values are construction-time policy/reservation state only, not live post-mint Press odds.
 
-Its current `*Remaining` values are construction-time policy/reservation state only. They are **not yet live post-mint Press odds** because per-token consumption has not been implemented.
+## 49A.4 `HellboxBirthPolicyCodeStore` — implemented/proven infrastructure
 
-## 49A.4 Atomic deployment topology — exact next checkpoint
+Committed store behavior:
 
-Current committed deployment graph is still:
+```text
+runtime[0]   = STOP
+runtime[1..] = exact type(HellboxBirthPolicy).creationCode
+```
+
+Focused tests prove:
+1. exact runtime layout;
+2. exact stop-prefixed runtime code hash;
+3. copied payload hash equals `HellboxBirthPolicy` creation-code hash;
+4. ordinary calls are inert.
+
+There is no owner, setter, initializer, proxy, `delegatecall`, CREATE2 requirement or upgrade path.
+
+### Rejected topology — DO NOT RESURRECT
+
+The direct publication constructor experiment:
+
+```text
+new HellboxBirthPolicy(...)
+```
+
+compiled to:
+
+```text
+HellboxPublication runtime after direct embed = 16,411 bytes
+HellboxPublication initcode after direct embed = 42,840 bytes
+static EIP-3860 margin                        =  6,312 bytes
+estimated native constructor payload          ≈ 4,832 bytes
+estimated practical CREATE payload            ≈47,672 bytes
+estimated practical margin                    ≈ 1,480 bytes
+```
+
+It was restored/discarded without commit. Passing tests did not make the runway acceptable.
+
+## 49A.5 Active atomic deployment topology — exact next checkpoint
+
+Current committed graph:
 
 ```text
 reviewed HellboxPublication creation bytecode
@@ -2508,85 +2968,73 @@ reviewed HellboxPublication creation bytecode
 HellboxPublicationFactory ordinary CREATE
         ↓
 HellboxPublication
+
+HellboxBirthPolicyCodeStore
+        separate inert/proven infrastructure
 ```
 
-The module exists independently but is not connected to that graph.
-
-Preferred topology to test next:
+Target graph:
 
 ```text
+factory generation
+  ├─ approvedPublicationCreationCodeHash
+  ├─ birthPolicyCodeStoreAddress
+  └─ approvedBirthPolicyCreationCodeHash
+
+exact reviewed HellboxPublication creation bytes
+        ↓ hash verified by factory
 HellboxPublicationFactory ordinary CREATE
         ↓
 HellboxPublication constructor
-        ↓  atomic constructor-time CREATE
-HellboxBirthPolicy companion
+        ↓ EXTCODECOPY codeStore bytes [1..]
+        ↓ keccak256 == approvedBirthPolicyCreationCodeHash
+        ↓ append canonical BirthPolicy constructor args
+        ↓ ordinary CREATE executed by publication
+HellboxBirthPolicy
+        ↓
+publication = actual HellboxPublication
 ```
 
-Reasons for preferring publication-created companion:
+The code-store address/hash must be factory-generation provenance, not arbitrary `publish(...)` caller input.
 
-- `HellboxBirthPolicy` can permanently bind `publication = msg.sender` to the actual publication;
-- no setter/initializer/configuration window is needed;
-- no predicted publication address or CREATE2 requirement is needed;
-- factory remains the publication deployer/provenance root;
-- publication + companion deployment succeeds or reverts atomically.
-
-This is a **preferred topology to prove, not yet a proven implementation fact**.
-
-Critical chain-size evidence before wiring:
-
-```text
-HellboxPublication runtime                = 16,334 bytes
-HellboxPublication EIP-170 margin         =  8,242 bytes
-HellboxPublication initcode               = 24,855 bytes
-
-HellboxBirthPolicy runtime                =  5,561 bytes
-HellboxBirthPolicy EIP-170 margin         = 19,015 bytes
-HellboxBirthPolicy initcode               = 17,018 bytes
-HellboxBirthPolicy EIP-3860 margin        = 32,134 bytes
-
-EIP-3860 publication-initcode limit       = 49,152 bytes
-```
-
-The simple standalone initcode sum (`24,855 + 17,018`) is below 49,152, but **that is not combined deployment proof**. Solidity may embed companion creation bytecode plus constructor/payload handling differently. Compile and measure the actual wired publication before accepting the topology.
-
-If the actual graph exceeds EIP-3860, EIP-170, or leaves unacceptable deployment headroom, stop and re-review topology. Do **not** solve the problem with a post-deploy setter, proxy, initializer, arbitrary implementation registry, `delegatecall`, or unbound companion.
-
-## 49A.5 Exact deployment-wiring requirements
+## 49A.6 Exact deployment-wiring requirements
 
 The next implementation checkpoint must:
 
-1. transport exactly the three narrow fixed-copy/birth-trait/randomization enforcement preimages through the factory/publication deployment path;
-2. leave `ReleaseConfig`, `CommitmentSet`, their field order/meaning and the `HELLBOX_ABI_V1` release fingerprint unchanged;
-3. build `HellboxBirthPolicy.PublicationBinding` only from already-validated publication config/commitment anchors;
-4. create exactly one companion during construction if the preferred topology passes exact compile/deployability tests;
-5. permanently store/expose the companion address in the publication with no setter/replacement path;
-6. prove malformed/decode-invalid/digest-mismatched policy data reverts the entire publication deployment;
-7. prove `birthPolicy.publication()` equals the deployed publication, not factory/publisher authority;
-8. preserve factory ordinary `CREATE`, immutable approved publication creation-code hash checking and post-deploy provenance checks;
-9. recalculate the approved publication creation-code hash because reviewed publication creation bytecode changes when constructor/module wiring lands;
-10. measure exact publication runtime/initcode and factory runtime/initcode after wiring, under the existing unoptimized Shanghai build baseline;
-11. keep SciVive's trait-disabled configuration deployable through the same reviewed publication version;
-12. introduce no generic arbitrary constructor-data execution surface;
-13. introduce no generic owner, rarity setter, activation window, proxy, clone, upgrade, arbitrary transfer/burn, seizure, or publisher reroll;
-14. keep production randomness/provider selection outside this deterministic deployment work.
+1. make the factory generation approve/bind the exact intended BirthPolicy code store and exact underlying BirthPolicy creation-code hash without changing `HELLBOX_ABI_V1` field order/meaning;
+2. pass the three narrow enforcement preimages through the factory/publication constructor path;
+3. have the publication copy only stored BirthPolicy creation bytes from code-store runtime offset `1`;
+4. verify the copied bytes hash exactly to the factory-generation-approved BirthPolicy creation-code hash before any `CREATE`;
+5. build `HellboxBirthPolicy.PublicationBinding` only from already-validated publication config/commitment anchors;
+6. append only canonical BirthPolicy constructor arguments and have the publication itself execute ordinary `CREATE`;
+7. permanently store/expose exactly one companion address with no setter/replacement path;
+8. prove malformed store layout/hash, malformed preimages or digest mismatches revert the entire publication deployment;
+9. prove `birthPolicy.publication()` equals the deployed publication, not factory, code store or publisher authority;
+10. preserve factory ordinary `CREATE`, immutable approved publication creation-code hash checking and post-deploy provenance checks;
+11. recalculate approved publication creation-code hash when publication constructor/source changes;
+12. measure exact publication/factory runtime, initcode and practical deployment payload under the current unoptimized Shanghai baseline;
+13. keep SciVive's trait-disabled configuration deployable through the same reviewed publication version;
+14. introduce no generic arbitrary constructor-data execution surface, owner, rarity setter, activation window, proxy, clone, upgrade, arbitrary transfer/burn, seizure or publisher reroll;
+15. keep production randomness/provider selection outside this deterministic deployment wiring.
 
-The factory may change its **pre-deployment call ABI** to transport these typed policy preimages. That is not permission to change the frozen release fingerprint or collector-facing promise schema.
+The factory may change its **pre-deployment call ABI** to transport these enforcement preimages and factory-owned infrastructure context. That is not permission to change `ReleaseConfig`, `CommitmentSet`, their field order/meaning, the golden vector or collector-facing promise semantics.
 
-## 49A.6 On-chain vs committed data
+## 49A.7 On-chain vs committed vs operational data
 
 Must be on-chain or deterministically derivable on-chain when required for enforcement:
-
 - capacity/candidate state;
 - lifetime wallet use;
 - copy assignment/existence;
 - fixed-rule enforcement;
 - runtime trait inventory once consumption is wired;
-- closure/tail state;
-- immutable companion binding;
-- narrow authority endpoint when an enabled action requires one.
+- frozen payment asset + issue mint price;
+- frozen native go-live/deadline;
+- closure/tail/extinguished-capacity state;
+- frozen royalty BPS;
+- immutable publication ↔ companion binding;
+- narrow publication authority endpoint when an enabled action requires one.
 
-May remain rich committed package/D1 data when the EVM does not need it to enforce collector promises:
-
+May remain rich committed package/D1 data when EVM enforcement does not require direct storage:
 - human descriptions;
 - art manifests;
 - preview reports;
@@ -2595,9 +3043,16 @@ May remain rich committed package/D1 data when the EVM does not need it to enfor
 - publication content;
 - audit explanations.
 
-If rich committed policy is needed by the EVM, use the §36.4 canonical preimage rule.
+Intentionally operational outside immutable publication state:
+- downstream primary/royalty recipient wallets;
+- downstream split percentages;
+- future reward-token identity/address/tokenomics;
+- buy/burn/reward strategy;
+- routing-controller rotations permitted by the disclosed routing protocol.
 
-## 49A.7 Authority / ABI / reuse boundaries
+Operational routing must not mutate the frozen publication asset/price/BPS/supply/rarity/ownership/deadline.
+
+## 49A.8 Authority / ABI / reuse boundaries
 
 Atomic wiring and later trait consumption must not add:
 
@@ -2606,17 +3061,25 @@ generic publication owner
 generic birth-policy owner
 supply setter
 trait/rarity setter
+narrative graph/progress/timer storage
+experience-mark mutation
+Archive weight/emission formula
+reward-token dependency
+burn-to-reward formula
 token seizure
 arbitrary transfer
 arbitrary burn
 publisher rarity reroll
+publisher/manual Final-3 selection
+native deadline extension/reopen
 external authenticity registration
 proxy/admin upgrade
 post-PUBLISH config editor
 companion replacement setter
+caller-selected BirthPolicy implementation/code store
 ```
 
-Future birth-policy mutation needed for actual issuance must be narrowly callable only by the permanently bound publication state machine. That is an internal enforcement relationship, not a publisher/admin authority surface.
+Future BirthPolicy mutation needed for actual issuance must be narrowly callable only by its permanently bound publication state machine. That is internal enforcement, not publisher/admin power.
 
 The work must not change:
 
@@ -2632,7 +3095,7 @@ Deployment-time policy preimages are allowed because their digests are already b
 
 An unchanged reviewed V1 must remain reusable for future issues through configuration rather than per-issue Solidity changes.
 
-## 49A.8 Foundry proof ledger — current + remaining
+## 49A.9 Foundry proof ledger — current + remaining
 
 Current verified post-push regression:
 
@@ -2642,77 +3105,77 @@ HellboxPublicationFactory tests        11
 deterministic issuance tests           12
 HellboxPublicationPolicy tests          9
 HellboxBirthPolicy tests               16
+HellboxBirthPolicyCodeStore tests       4
 cross-language golden vector            1
 -----------------------------------------
-TOTAL                                  65 passed / 0 failed
+TOTAL                                  69 passed / 0 failed
 
 issuance fuzz boundary                 256 runs passed
 ```
 
-Current `HellboxBirthPolicy` dedicated suite proves, among other things:
+The dedicated BirthPolicy suite proves its constructor binding, canonical enforcement preimages, inventory/reservation validity, creator rules, #066 shape and SciVive trait-disabled reuse.
 
-- module identity/version and permanent constructor binding;
-- canonical legacy enforcement preimages remain compatible;
-- all three independent digest mismatch paths revert;
-- native MARK/DEFECT inventory validation;
-- Harrow creator MARK reservation shape;
-- creator fixed DEFECT prohibition;
-- #066 HELLBOUND reservation/random-pool eligibility shape;
-- duplicate fixed-copy rule rejection;
-- fixed reservation cannot exceed inventory;
-- birth inventory must equal frozen supply;
-- randomization requires global shared trait pool;
-- creator immediate rule count must match frozen binding;
-- SciVive-style trait-disabled reusable publication shape.
+The dedicated code-store suite proves exact runtime layout/hash, copied policy-code hash and inert ordinary calls.
 
-Still required before the atomic deployment-wiring checkpoint is complete:
-
+Still required before atomic deployment wiring is complete:
+- factory-generation code-store address/hash binding;
 - exact factory/publication transport encoding for the three policy preimages;
-- atomic companion construction from the publication constructor;
+- publication `EXTCODECOPY` + code-hash verification;
+- publication-owned ordinary `CREATE`;
 - immutable publication companion address;
-- deployment-level malformed/mismatch reverts;
+- malformed-store/preimage/mismatch deployment reverts;
 - actual publication binding proof;
-- combined unoptimized Shanghai EIP-170/EIP-3860 size proof;
-- factory size/provenance regression after the wiring;
+- post-wiring unoptimized Shanghai EIP-170/EIP-3860/practical payload proof;
+- factory size/provenance regression after wiring;
 - SciVive trait-disabled deployment through the wired graph;
-- full regression and adversarial tests.
+- full regression/adversarial tests.
 
 After atomic wiring is proven, the next deterministic module slice must implement/test:
 
 ### Trait conservation / permanent birth identity
 - consuming #001–#006 fixed MARK reservations exactly once;
-- creator DEFECT uses the approved shared random process and consumes actual DEFECT inventory;
-- #066 remains HELLBOUND while staying candidate-random until drawn;
-- MARK totals remain exact;
-- DEFECT totals remain exact;
-- fixed assignments consume reservations + inventory correctly;
-- random assignments cannot consume reserved inventory needed by an undrawn fixed copy;
+- creator DEFECT shared-random inventory consumption;
+- #066 HELLBOUND + candidate-random behavior;
+- exact MARK totals;
+- exact DEFECT totals;
+- fixed assignments consuming reservation + inventory correctly;
+- random assignment unable to consume reserved inventory required by an undrawn fixed copy;
 - no underflow/over-allocation;
-- every issued/awarded copy gets exactly one value from each enabled birth axis;
-- permanent token MARK/DEFECT values cannot be rerolled by publisher/admin action;
-- authoritative remaining inventory produces correct public next-copy odds using the actual candidate denominator.
+- exactly one value from each enabled birth axis per issued/awarded copy;
+- no publisher/admin birth-trait reroll;
+- authoritative remaining inventory → correct live odds using actual candidate denominator.
 
 Still required later in Gate 4:
 
-### Authority / close / phases / public mint
-- unauthorized close fails;
-- early close is permanent and never awards tail;
-- no post-close mint succeeds;
-- no caller can mint over frozen lifetime/phase rules;
-- changing phases cannot reset lifetime usage;
-- no caller can force #066;
-- no caller can preselect tail IDs;
-- no publisher reroll exists;
-- no supply/trait/fixed-rule rewrite exists.
+### V1 mint / phases / economics
+- standard native accepts exact frozen PLS price only;
+- SciVive accepts no payment;
+- over/underpayment behavior exact and tested;
+- wallet lifetime cap cannot reset through transfer/burn/phase change;
+- phases cannot reprice the V1 issue;
+- no stablecoin/ERC-20/USD-target/oracle pricing path exists in V1;
+- publication routes paid proceeds only to the frozen primary routing boundary.
+
+### Native timed closure
+- pre-deadline ordinary mint succeeds only when otherwise eligible;
+- post-deadline ordinary mint always fails;
+- no deadline extension/reopen path;
+- true mint-out awards literal final 3;
+- timed expiry with `>3` remaining awards unbiased Final 3 and extinguishes all others;
+- timed expiry with exactly `3` remaining awards those three;
+- #066 cannot be manually forced at closure;
+- extinguished capacity cannot be resurrected;
+- final supply accounting remains internally consistent;
+- SciVive is exempt from native timer/Final-3 behavior.
 
 ### Production randomness + Testnet acceptance
-- production entropy source/provider and fallback are selected through research/test evidence;
-- collector cannot predict or snipe the next copy under the production mechanism;
+- production entropy source/provider/fallback selected through research/test evidence;
+- collector cannot predict/snipe next copy;
+- timed-expiry Final-3 selection uses the approved unbiased mechanism;
 - real PulseChain Testnet V4 mint path passes factory → ownership → Gate 3 → Archive/library → Reader;
 - same reviewed factory/template/version deploys a second dummy publication without bespoke Solidity.
 
 Use fuzz/invariant tests as each remaining deterministic transition becomes concrete.
-
 ---
 
 # 50. ACCEPTANCE TESTS THIS BLUEPRINT REQUIRES OF GATE 4
@@ -2746,11 +3209,13 @@ After `PUBLISH`, attempts to mutate frozen fields must fail or be impossible:
 - creator allocation;
 - fixed copy rules;
 - trait totals;
-- pricing policy;
-- payment routes;
+- accepted payment asset;
+- issue mint price;
 - phase rules;
 - wallet limits;
 - royalty bps;
+- native go-live/deadline where applicable;
+- publication's stable primary/royalty routing boundary;
 - package digest;
 - renderer rules/version;
 - capability policy;
@@ -2768,21 +3233,51 @@ Allowed runtime state still works:
 - random pool shrinks;
 - odds recalculate;
 - copy assignment becomes permanent;
-- tail awards only on true mint-out;
-- early close does not hand tail to Harrow;
+- tail awards literal final three on true mint-out;
+- timed expiry awards exactly three through unbiased selection and permanently extinguishes every other unminted candidate;
+- post-deadline mint/reopen fails;
+- downstream revenue-routing state may change without mutating frozen payment asset/price/royalty BPS/deadline;
 - dynamic metadata can signal refresh;
 - later-compatible seal/archive/evolution state is not structurally blocked.
 
+## Later-product compatibility proof
+
+Gate 4 architecture/source review must establish:
+- no linear-Reader-only assumption is encoded in the publication kernel;
+- existing package/Reader digests can bind richer future interactive manifests without changing `HELLBOX_ABI_V1` merely for game content;
+- no narrative graph, room timer, saved-run or experience-mark state is required in `HellboxPublication`;
+- birth MARK/DEFECT remain immutable inputs suitable for later trait-specific Reader behavior and external rarity weighting;
+- no Archive weight/emission formula or speculative reward token is embedded in Publication/BirthPolicy;
+- #001–#006 identity/mint-time evidence remains available for a later external six-year reward-delay rule.
+
+## Repeatable Testnet operation proof
+
+Before formal Gate 4 close:
+- the reviewed factory/template deployment path must be scriptable/repeatable from documented inputs;
+- deployment output records exact chain, addresses, version and relevant code/config hashes;
+- the same process can deploy SciVive and a second dummy publication without bespoke Solidity or manual ABI reconstruction;
+- post-deployment provenance and the one-copy ownership/Reader acceptance path are machine-checkable.
+
 ---
 
-# 51. PUBLICATION COMPILER OUTPUTS
+# 51. PUBLICATION / ISSUE COMPILER OUTPUTS
 
-The approved private Press builder should ultimately emit a reproducible release bundle containing at least:
+The approved private Press/issue compiler should ultimately emit a reproducible release bundle containing at least:
 
 ```text
 resolved publication configuration
 publication package manifest
 Reader manifest + delivery manifest/pointers
+interactive narrative graph manifest when applicable
+escape-room/timer manifest when applicable
+ending/choice/consequence manifest when applicable
+MARK/DEFECT interaction manifest when applicable
+issue scope-budget report
+route/reachability/ending coverage report
+trait-combination/fallback coverage report
+asset inventory + deterministic content hashes
+human playtest coverage report
+accessibility/performance report
 contract deployment configuration
 trait distribution manifest
 fixed assignment manifest
@@ -2796,9 +3291,32 @@ royalty/treasury route configuration
 capability/protocol compatibility configuration
 cryptographic digests/roots
 validation report
-preview report
+freeze/preview report
 deployment verification report
+release runbook / post-release verification checklist
 ```
+
+Target production sequence:
+
+```text
+CANONICAL SOURCE PACKAGE
+    ↓
+SCHEMA + RIGHTS/PROVENANCE VALIDATION
+    ↓
+NARRATIVE / ROOM / TRAIT VALIDATION
+    ↓
+DETERMINISTIC PREVIEW + PLAYTHROUGH MATRIX
+    ↓
+ACCESSIBILITY / PERFORMANCE CHECKS
+    ↓
+HUMAN EDITORIAL + HARROW APPROVAL
+    ↓
+FREEZE PREVIEW
+    ↓
+PUBLISH / DEPLOY / VERIFY
+```
+
+AI may assist authoring, assets, tests, graph analysis and report generation, but the reviewed source package/manifests are authoritative and the published narrative remains finite/pre-authored.
 
 No future release should require:
 
@@ -2807,7 +3325,12 @@ No future release should require:
 - hand-writing every metadata JSON;
 - manually juggling R2 objects;
 - Harrow manually selecting every random trait combination;
+- manually checking every graph edge/trait combination by memory or spreadsheet;
+- separate ad-hoc build paths for preview versus production;
+- undocumented dashboard/Terminal steps as part of normal publication;
 - editable release promises after `PUBLISH`.
+
+The target is a reusable publishing machine, not a new software project for every comic.
 
 ---
 
@@ -2850,13 +3373,13 @@ Metadata output changes because the artifact changes under those rules.
 
 The blueprint can be complete without pretending an untested randomness provider has already been approved.
 
-## G. Pricing can vary by frozen phase without becoming editable economics
+## G. V1 pricing is release-wide and frozen, not phase-variable
 
-A release may contain multiple predeclared pricing policies; each phase references one. Harrow cannot rewrite them after publish.
+Gate 4 V1 supports only `FREE` and `FIXED_PLS`. Standard native uses one issue-specific PLS amount frozen at `PUBLISH`; SciVive is free. Phase transitions cannot reprice that V1 issue, and no stablecoin/USD-target/oracle conversion path exists.
 
-## H. Treasury routing can be operationally maintainable without changing historical economics
+## H. Revenue routing is deliberately operational downstream of frozen issue economics
 
-The release freezes the router/route/policy. Operational destination rotation must not rewrite royalty bps, price, ownership, or promised splits.
+The release freezes payment asset, mint price, royalty BPS and the stable routing boundary. Downstream destination wallets, split percentages, reward-token choice and buy/burn/reward strategy remain operationally mutable through the separate gated routing system. Those operational changes must not rewrite supply, rarity, ownership, price, royalty BPS or the native deadline.
 
 ## I. Later protocols remain external/modular
 
@@ -2865,6 +3388,22 @@ Archive rewards, ERC-6551 account behavior, Hellforge, permanent incidents and c
 ## J. SciVive and Native 216 both fit one factory/config system
 
 That is mandatory proof that Hellbox is building a publishing platform, not one hard-coded NFT contract.
+
+## K. The interactive comic is committed content/runtime policy, not on-chain game logic
+
+A future `INTERACTIVE_COMIC` can bind its finite authored graph/rooms/endings/trait-interaction policy through the existing Reader/package commitment envelope. Gate 4 must preserve this without storing gameplay/progress/timers in the NFT kernel.
+
+## L. Birth rarity and experience history are separate
+
+MARK/DEFECT are immutable birth identity. Later Reader experiences may create private run state or deliberately permanent artifact history, but neither can reroll birth rarity.
+
+## M. Rarity-weighted Archive rewards remain external
+
+The product direction is ordinary reward earning only while appropriately SEALED+ARCHIVED, weighted from immutable birth rarity, with Harrow #001–#006 receiving zero official Archive reward for six years after mint. Numeric weights, emissions, reward token and burn modifiers remain external/later and must not enter Gate 4 Publication/BirthPolicy.
+
+## N. Solo-operator maintainability is an architecture constraint
+
+Normal publication/deployment must become reproducible, preflighted and documented. A workflow that requires Harrow to remember hidden ABI/configuration steps or keep one machine online is not an acceptable final publishing system.
 
 ---
 
@@ -2878,7 +3417,7 @@ The blueprint was approved before Foundry/Solidity implementation began. This ch
 - [x] `tokenId = copy number`.
 - [x] Native standard supply baseline = `216`.
 - [x] Harrow immediate #001–#006 rules are correct.
-- [x] Harrow true-mintout final-three tail rule is correct.
+- [x] Harrow Final-3 rule is correct: literal final three on sellout; unbiased three from remaining pool on timed expiry; no manual selection.
 - [x] #066 remains a public randomized HELLBOUND grail.
 - [x] PRESS MARK counts/vocabulary are correct.
 - [x] PRESS DEFECT counts/vocabulary are correct.
@@ -2886,10 +3425,11 @@ The blueprint was approved before Foundry/Solidity implementation began. This ch
 - [x] Creator DEFECT remains random.
 - [x] Standard wallet lifetime cap = `6`.
 - [x] Standard max per transaction = `1`.
-- [x] Mint phases can use different predeclared frozen pricing policies.
+- [x] Gate 4 V1 pricing is release-wide: `FREE` for SciVive/proving release or `FIXED_PLS` for native; phases cannot reprice the issue.
+- [x] Native issue payment asset + PLS price and royalty BPS freeze at `PUBLISH`; downstream primary/royalty recipients, split percentages and future reward-token strategy remain operationally mutable.
+- [x] No reward-token address/name/supply/emissions/tokenomics/distribution is locked by Gate 4.
 - [x] Public live odds use the actual `candidatePoolRemaining`; standard native starts at 210 candidates after Harrow's immediate six, while non-tail primary issuance capacity is separately 207.
 - [ ] Exact randomness provider remains Gate 4 technical research/testing.
-- [ ] Exact PulseChain price adapter/oracle remains Gate 4 technical research/testing.
 - [x] Canonical content/art/renderer bytes/rules are committed by digest.
 - [x] Storage delivery pointers may migrate only when committed bytes remain identical.
 - [x] Release config can be partly on-chain + partly committed package data, but the root binds all immutable promises.
@@ -2897,11 +3437,23 @@ The blueprint was approved before Foundry/Solidity implementation began. This ch
 - [x] SEALED/ARCHIVED/UNSEALED boundaries are preserved.
 - [x] ERC-6551 compatibility is preserved without publisher sweep authority.
 - [x] Official Archive rewards remain separate from arbitrary TBA assets.
+- [x] Native interactive comics use finite pre-authored narrative graphs; runtime AI does not generate canonical next pages/branches.
+- [x] Interactive branches can produce legitimate surviving routes; at least one alternate surviving ending exists in addition to the ideal ending; authored death may result from choices and/or timed-room failure.
+- [x] MARK/DEFECT may condition authored Reader interactions, including genuine HELLBOUND-specific experiences, without making the core story/ideal ending pay-to-win.
+- [x] Birth MARK/DEFECT never change because of Reader experience, achievements, Archive state, rewards, burns or future effective-reward modifiers.
+- [x] Archived copies are protected/slabbed: ordinary official rewards require eligible Archive state, active Reader handling/experience mutation is blocked while archived, and UNSEAL ends ordinary Archive eligibility under the current model.
+- [x] Future official Archive earning is rarity-weighted from immutable MARK/DEFECT, but exact weights/formula/emissions/reward asset remain open Gate 7 economics.
+- [x] Harrow #001–#006 earn zero official Archive rewards for six years after mint; exact later protocol timestamp representation cannot weaken that delay.
+- [x] Burn/reward interaction remains deliberately open and may not rewrite birth rarity.
 - [x] Hellforge/burn/evolution always requires owner authorization.
 - [x] No publisher seizure/forced transfer/arbitrary burn/blacklist ownership override exists.
-- [x] Early permanent close forfeits Harrow's unearned tail reserve.
+- [x] Standard native mint duration is exactly `66d 6h 6m 6s`; SciVive is exempt; native timed expiry preserves Final 3 and permanently extinguishes all other unminted capacity.
 - [x] SciVive remains a narrower proving exception.
 - [x] Gate 4 stays Testnet V4 only.
+- [x] The interactive-comic/reward product expansion does not change the current Gate 4 code-store/BirthPolicy frontier or require a `HELLBOX_ABI_V1` field-order change.
+- [x] Gate 4 must not implement narrative graph/progress/timers/experience marks/Archive weight formulas/reward emissions inside Publication/BirthPolicy.
+- [x] Normal future operation must be solo-operator-safe: repeatable scripts/runbooks, no critical chat-only state, no daily manual operator dependency, no specific workstation as source of truth.
+- [x] Native Issue #1 mainnet requires documented backup/recovery inputs and a successful clean-room recovery drill in later hardening.
 - [x] HairyLabs Byte pages remain excluded from testing until the creator explicitly clears the Byte lane.
 
 Additional implementation decisions now synchronized here:
@@ -2919,14 +3471,18 @@ Additional implementation decisions now synchronized here:
 - [x] Deterministic issuance accounting core is implemented/tested, including `210 / 207`, immediate-six ordering, #066 candidate eligibility, lifetime wallet accounting, sparse candidate draws, and true-mintout final-three behavior.
 - [x] Publication-side versioned enforcement-preimage anchors for fixed-copy, birth-trait and randomization policy are implemented/tested without changing `HELLBOX_ABI_V1`.
 - [x] Standalone non-upgradeable `HellboxBirthPolicy V1` companion foundation is implemented/tested with constructor-only binding, native inventory/reservations, #066 rule shape, SciVive trait-disabled support and no external mutation/admin surface at this checkpoint.
-- [ ] Publication/factory → `HellboxBirthPolicy` atomic deployment wiring and exact combined EIP-170/EIP-3860 proof are not yet complete.
+- [x] Immutable inert `HellboxBirthPolicyCodeStore` is implemented/tested with exact `STOP || creationCode` runtime, copied-code hash proof and inert ordinary calls.
+- [x] Direct publication `new HellboxBirthPolicy(...)` topology was measured at 42,840-byte publication initcode and rejected/restored for inadequate practical EIP-3860 runway.
+- [ ] Publication/factory → code store → publication-owned `CREATE` atomic BirthPolicy wiring and exact post-wiring EIP-170/EIP-3860/practical payload proof are not yet complete.
 - [ ] Per-token MARK/DEFECT consumption/assignment and authoritative live post-mint odds are not yet complete.
-- [x] Current verified Solidity regression = **65 passed / 0 failed** with issuance fuzz boundary **256 runs passed**.
+- [ ] Native timed-closure + permanent extinguishment + unbiased expiry Final-3 implementation is not yet complete.
+- [ ] PLS-only native pricing/payment enforcement and stable revenue-routing boundary are not yet complete.
+- [x] Current verified Solidity regression = **69 passed / 0 failed** with issuance fuzz boundary **256 runs passed**; dedicated code-store suite = **4/4**.
 - [x] `template.factoryVersion` remains registry/deployment metadata and is not a caller-supplied `ReleaseConfig` field.
 - [x] Publication-level operational authority uses the canonical `publisherAuthority` name throughout.
 - [ ] Rotation-safe `publisherAuthority` endpoint strategy remains open before any mainnet release enables persistent publisher-authorized lifecycle actions.
 
-After this synchronization is committed, the next implementation frontier is **atomic publication/factory deployment wiring for the existing `HellboxBirthPolicy` companion and its three enforcement preimages**. Only after that graph is compile/size/provenance tested should Gate 4 add publication-only per-token MARK/DEFECT consumption and live odds. Do not expose a collector mint before both layers are real EVM enforcement.
+After this synchronization is committed, the next implementation frontier is **factory-generation binding of the proven inert BirthPolicy code store + publication-side `EXTCODECOPY`/hash verification + publication-owned ordinary `CREATE` of the `HellboxBirthPolicy` companion with its three enforcement preimages**. Only after that graph is compile/size/provenance tested should Gate 4 add publication-only per-token MARK/DEFECT consumption and live odds. Do not expose a collector mint before both layers are real EVM enforcement.
 
 That implementation must preserve the already-proven standard native distinction:
 
@@ -2936,7 +3492,7 @@ candidatePoolRemaining   = 210
 nonTailIssuanceRemaining = 207
 ```
 
-Production random assignment logic must not be frozen until the still-open Gate 4 randomness mechanism has been researched and test-backed. Whatever randomness mechanism is selected, it must draw from the actual candidate pool; the three-copy tail is determined by what remains after the final non-tail primary issuance, not by pre-removing three candidates.
+Production random assignment logic must not be frozen until the still-open Gate 4 randomness mechanism has been researched and test-backed. Whatever mechanism is selected must draw from the actual candidate pool. On sellout, the Final 3 are the literal three remaining candidates. On timed expiry with more than three remaining, the same approved randomness boundary must select three without Harrow/manual choice; every other unminted candidate is permanently extinguished.
 
 ---
 
@@ -2953,6 +3509,10 @@ After creator approval:
 - a mid-Gate public percentage change is reserved for a genuinely material project-wide expansion, setback, or rebaseline;
 - the finalized complete Gate 4 blueprint must then be archived as `docs/architecture/gates/GATE_04_PUBLICATION_CONFIGURATION.md` **before** root `CURRENT_GATE_BLUEPRINT.md` is repurposed for Gate 5;
 - the archived Gate 4 blueprint remains historical architecture reference, not competing root authority;
-- if future Gates add a new artifact capability, they should extend the versioned configuration/protocol model rather than mutate old release promises.
+- if future Gates add a new artifact capability, they should extend the versioned configuration/protocol model rather than mutate old release promises;
+- a new idea discovered during implementation must fit the active Gate/issue scope budget, replace another item, move to a later Gate/issue, or trigger an explicit rebaseline;
+- AI output is not architecture authority and is not implementation proof without repository/test evidence;
+- every clean checkpoint must be resumable from Git + living docs + exact hashes without relying on one AI conversation or Terminal scrollback;
+- repeated deployment/publication operations must become executable scripts/runbooks before mainnet.
 
-**Do not let a material publication rule exist only in chat history.**
+**Do not let a material publication rule or critical operating procedure exist only in chat history.**
