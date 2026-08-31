@@ -84,6 +84,8 @@ Current verified Gate 4 implementation:
 
 **Exact next frontier:** bind the approved BirthPolicy code store/hash into the factory generation, have each publication copy and verify the exact policy creation bytes, then execute publication-owned ordinary `CREATE` with the three enforcement preimages so the companion permanently binds to the actual publication.
 
+The newly locked interactive-comic/Archive direction does **not** change this immediate Gate 4 frontier and does not currently require a `HELLBOX_ABI_V1` change. Gate 4 must preserve clean later-package/reward/state boundaries without embedding game logic into the publication kernel.
+
 ## Gate 4 issuance invariant
 
 For the standard native 216-copy profile, after Harrow's immediate #001–#006:
@@ -228,7 +230,62 @@ Harrow's Final 3 are never preselected by token ID and Harrow cannot choose them
 - still private/not publicly mintable
 - Gate 4 will use it to prove real Testnet mint → ownership → Archive/library → Reader
 
-SciVive is intentionally narrower than Native Issue #1.
+SciVive is intentionally narrower than Native Issue #1 and is not required to use the native interactive-comic structure.
+
+## Native owner experience direction
+
+A native Hellbox comic is intended to be more than a linear digital page reader.
+
+The private owner experience is a **finite, Harrow-authored interactive narrative graph**:
+
+```text
+comic stage/page
+    ↓
+final frame becomes an escape-room entrance
+    ↓
+escape / timed survival
+    ↓
+authored decision or consequence
+    ↓
+next pre-authored stage
+```
+
+Locked principles:
+
+- all canonical pages, stage variants, rooms, branches and endings are authored before PUBLISH;
+- AI may assist Harrow during production, testing and asset creation, but canonical story content is **not generated live by AI for the reader**;
+- early rooms teach the interaction language and difficulty rises toward the end;
+- community collaboration around difficult rooms is intentional;
+- progress saves between visits and meaningful progression must ultimately be server-authoritative;
+- story choices create legitimate surviving branches, not merely disguised right/wrong buttons;
+- every interactive issue has one intended/ideal surviving ending and at least one authored alternate surviving ending;
+- authored deaths may result from consequential choices and/or failure to complete a timed room;
+- branches should reconverge where practical so one creator can author and validate the issue without exponential content growth;
+- MARK/DEFECT can create trait-specific interactions, rooms, presentation and Harrow dialogue;
+- HELLBOUND should have genuine HELLBOUND-specific experiences;
+- ordinary/common copies must still be able to complete the core story and reach the ideal ending;
+- rarity changes the experience without becoming pay-to-win access to the core story.
+
+Birth rarity and experience history are different systems. MARK/DEFECT are permanent birth traits and do not change because a reader dies, escapes, earns an achievement, burns something or participates in rewards.
+
+## Archive / reward direction
+
+Archive is the digital preservation state: the sealed collectible is metaphorically protected under plastic/slab rather than handled.
+
+Current doctrine:
+
+- Archive is available only while the artifact remains SEALED;
+- archived copies cannot enter/play the interactive Reader;
+- archived copies cannot acquire handling-derived experience marks while archived;
+- **only archived copies earn ordinary official Archive rewards** under the current model;
+- official Archive earning is intended to be **rarity-weighted** from immutable MARK/DEFECT;
+- exact MARK/DEFECT weights, combination formula, emissions, reward asset and payout rules are **not locked yet**;
+- unarchive stops new accrual but the artifact may rearchive while still SEALED;
+- UNSEAL is irreversible and ends ordinary Archive eligibility under the current model.
+
+Harrow's immediate creator copies **#001–#006 earn zero official Archive rewards for six years after mint**. If archived during that period, their effective official reward weight is `0`.
+
+Future burn/consume mechanics may affect earning or effective reward power, but burn economics remain deliberately open and may never rewrite MARK/DEFECT birth rarity.
 
 ## Gate 4 V1 pricing / revenue boundary
 
@@ -358,21 +415,36 @@ README.md                          concise orientation
 CURRENT_GATE_BLUEPRINT.md          active detailed Gate architecture
 ```
 
-## Development workflow
+## Development / solo-operator workflow
+
+Hellbox must remain safely operable by one non-developer creator with a demanding primary career and fragmented availability.
+
+Core rules:
 
 - one implementation file at a time
 - complete replacement files, never splice patches
 - direct file + ZIP
 - exact destination path
 - one immediate Terminal action at a time
-- validate every backend/contract change before moving on
+- verify source/target hashes before replacement
+- validate every backend/contract/content change before moving on
 - verify deployments/live behavior
-- routine engineering decisions belong to the engineer
+- routine engineering decisions belong to the engineer/AI assistant
 - open technical decisions are researched/tested by the engineer
 - creator approval is reserved for product/economic/scarcity/authority/immutability/canon decisions
-- before each major implementation file, the engineer performs the internal checkpoint defined in `HELLBOX_PROJECT_STATE.md`
+- before each major implementation file, perform the internal checkpoint defined in `HELLBOX_PROJECT_STATE.md`
 - documentation contradiction sweeps are mandatory before synchronization is declared complete
+- repeated manual operations must become scripts, validators, generated interfaces or executable runbooks
+- no critical workflow may exist only in chat history, Terminal scrollback or Harrow's memory
+- after interruption/new session, prove actual Git/hash/test state rather than assuming the previous command finished
+- unexpected hashes, files, failing tests or unclear authority boundaries are stop-the-line conditions
 - the public prelaunch progress percentage represents **overall Hellbox completeness**, not current-Gate completion; formally review/recalculate it at each Gate close
+
+AI is expected to reduce workload through engineering, testing, narrative planning, puzzle design, asset production, validation and documentation. AI output receives the same tests/review as human output.
+
+AI may **not** autonomously publish irreversible releases, sign mainnet/treasury transactions, receive signing secrets, change frozen product promises, or substitute plausible-looking output for repository/test evidence.
+
+The finished production machine should be pre-engineered enough that Harrow can safely operate reviewed workflows in short, interrupted sessions without reproducing developer-only reasoning.
 
 ## Gate 4 security / economics
 
@@ -386,14 +458,37 @@ CURRENT_GATE_BLUEPRINT.md          active detailed Gate architecture
 - no per-publication custom-Solidity/audit treadmill
 - security cost is amortized across reusable reviewed versions/modules
 - V1 collector economics freeze the issue's payment asset, mint price and royalty rate; downstream routing/splits remain operational
-- do not hard-code an unlaunched reward token or today's downstream revenue split into the publication kernel
+- do not hard-code an unlaunched reward token, Archive-weight formula, burn modifier or today's downstream revenue split into the publication kernel
 - ERC-2981 royalty information does not guarantee marketplace enforcement or revenue
+- production randomness/failure policy must be manipulation-resistant before valuable rarity/timed-Final-3 behavior reaches mainnet
+- ownership-critical and mint-critical operation must not ultimately depend on one unmonitored RPC/provider
+- when authoritative truth is unavailable, unsafe writes fail closed rather than guessing
+
+Hellbox must remain worth owning if:
+- a future reward token never launches or has little value;
+- secondary royalties are zero;
+- secondary-market liquidity is poor;
+- Archive rewards are reduced or paused.
 
 Strong pre-mainnet durability requirement:
 
 > **dynamic when alive; durable when dead**
 
-The principle is preserved; the exact continuity/fallback mechanism remains open.
+Before Native Issue #1 mainnet release, documented backups and a successful clean-room recovery drill must prove that the platform/publication/Reader state can be recovered without relying on one workstation, one chat or Harrow's memory.
+
+## Risk controls
+
+The detailed risk register lives in `HELLBOX_PROJECT_STATE.md`. The highest-priority controls are:
+
+- **scope:** interactive issues use finite scope budgets, branch reconvergence, reusable room/trait components and a vertical slice before full production;
+- **solo operation:** recurring work becomes automation/runbooks and normal production cannot require daily Harrow intervention;
+- **content workload:** Gate 6 must produce a reusable narrative/package compiler with automated reachability, asset, trait-combination and ending validation;
+- **puzzle quality:** progressive difficulty, human playtesting, accessibility and fair timer/start/outage behavior are hard release requirements;
+- **immutable code:** unit/revert/fuzz/invariant/adversarial/static/Testnet evidence plus focused external review before mainnet;
+- **randomness:** never silently fall back to manipulable entropy; pause safely instead;
+- **economics:** rewards remain modular and cannot become a prerequisite for the comic/artifact to have value;
+- **infrastructure:** backups, low-noise monitoring, provider failover and clean-room restoration are required before first native mainnet release;
+- **handoff:** repository evidence must let a different AI/developer resume without oral reconstruction.
 
 ## Security / privacy
 
@@ -419,12 +514,12 @@ Do not resurrect old pre-privacy repository history.
 
 - Gate 4 — artifact kernel/factory/issuance/Testnet ownership proof
 - Gate 5 — Press V2 + private release builder + real mint UX
-- Gate 6 — ingest + deterministic art/metadata/package engine
-- Gate 7 — Seal/Archive/rewards/ERC-6551/Hellforge/evolution
+- Gate 6 — deterministic ingest/art/metadata + interactive narrative/package compiler
+- Gate 7 — Seal/Archive + rarity-weighted rewards + ERC-6551 + artifact history + Hellforge/evolution
 - Gate 8 — Hellion relationship depth
-- Gate 9 — freeze/security/accessibility/localization/content/durability hardening
-- Gate 10 — mainnet release candidate + first native issue
+- Gate 9 — freeze/security/accessibility/localization/content/performance/operations/recovery hardening
+- Gate 10 — deterministic mainnet release candidate + first native issue
 
-Native Issue #1 does not launch until the promised foundational artifact model is proven.
+Native Issue #1 does not launch until the promised foundational artifact model is proven **and** its interactive narrative package, path coverage, human playtesting, performance/accessibility, operational runbooks and clean-room recovery barrier pass.
 
 For full detail, read `HELLBOX_PROJECT_STATE.md`, then `CURRENT_GATE_BLUEPRINT.md`.
