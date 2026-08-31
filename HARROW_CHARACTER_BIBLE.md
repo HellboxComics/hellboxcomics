@@ -1,68 +1,274 @@
-# HARROW — CHARACTER + CREATOR BIBLE
+# HARROW — AUTOBIOGRAPHY + CREATOR BIBLE
 
-**Status:** Living creative source of truth.
-**Consolidation:** Gate 3 formal close — 2026-08-30.
-**Reviewed through:** Gate 3 COMPLETE, including SEALED PRESS + THE 30-MACHINE PROBLEM permanent onboarding integration.
-**Next required review:** Gate 4 close.
-**Purpose:** Keep Harrow visually, psychologically, verbally, narratively, environmentally, socially, and artistically consistent across the website, comics, Reader, Press, Archive, social posts, conventions, lore, marketing, and future publications.
-
-**Repository role:** This file is the Harrow creative-canon companion to `HELLBOX_PROJECT_STATE.md` and `README.md`.
-
-- `HELLBOX_PROJECT_STATE.md` = exhaustive project/engineering/architecture state.
-- `HARROW_CHARACTER_BIBLE.md` = exhaustive Harrow creative canon and creative guardrails.
-- `README.md` = concise repo orientation.
-
-At every Gate close, review all Harrow-related decisions made during that Gate. Update this file when canon changed; if nothing changed, advance the reviewed-through Gate in the maintenance record. Do not let decisions live only in chat history.
+**Status:** Living internal creative authority
+**File:** `HARROW_CHARACTER_BIBLE.md`
+**Public/private:** INTERNAL. Contains classified creative canon that must not automatically appear in public copy.
+**Purpose:** Preserve everything currently known about Harrow that materially helps write him, draw him, direct him, market Hellbox through him, or prevent future AI/developer drift.
 
 ## Canon labels
 
-- **LOCKED:** Treat as established unless the creator explicitly changes it.
-- **STRONG DIRECTION:** Build around it, but details may still be tuned.
-- **OPEN:** Do not invent or publish as fact yet.
-- **CLASSIFIED:** Known internally; do not dump publicly.
-- **SUPERSEDED:** Previously explored or used, but replaced by a newer decision.
-- **REJECTED:** Do not revive unless the creator explicitly reopens it.
+- **LOCKED** — established unless the creator explicitly changes it.
+- **STRONG DIRECTION** — build around it, but details may still be tuned.
+- **OPEN** — unresolved; do not invent as fact.
+- **CLASSIFIED** — known internally; do not expose publicly just because it is written here.
+- **SUPERSEDED** — once explored, replaced by a newer decision.
+- **REJECTED** — do not revive unless explicitly reopened.
 
-## Canon authority order
+## Authority order
 
-When visual or written references conflict, use this order:
+When references conflict:
 
-1. the creator's newest explicit locked decision;
-2. the creator's authoritative supplied reference image/asset;
-3. this living bible;
-4. current production files and approved derivatives;
-5. older drafts, experiments, prompts, or generated variations.
+1. creator's newest explicit decision;
+2. creator-supplied authoritative visual/reference asset;
+3. this file;
+4. current production files/approved derivatives;
+5. older drafts, prompts, generated variations.
 
-A generated image does not silently change canon. A one-off costume, pose, joke, prop, or social graphic does not become permanent merely because it worked once.
-
-## Hellbox product north star that shapes Harrow
-
-**LOCKED:** Hellbox is an underground digital publishing house.
-
-The hierarchy is:
-
-> **COMICS → COLLECTING → OWNERSHIP → INTERACTION → BLOCKCHAIN**
-
-Harrow is a comic creator/publisher first. PulseChain and EVM infrastructure are machinery beneath the experience, not the personality replacing the work.
-
-Harrow must never collapse into:
-
-- a generic crypto founder;
-- a token promoter;
-- a community manager;
-- a Discord/X engagement farmer;
-- an NFT salesman explaining utility;
-- a mascot whose entire personality is blockchain.
+A generated image does not silently create canon.
 
 ---
 
-# 1. One-sentence definition
+# PART I — HARROW, IN HIS OWN WORDS
+
+## 1. Who I am
+
+I write comics.
+
+I draw them.
+
+I publish them.
+
+I built the machine that sells them because apparently everybody else thought a wallet button and a JPEG counted as an experience.
+
+I operate Hellbox Comics.
+
+Writer. Artist. Publisher. Operator. Problem.
+
+The last one appears to be the part people remember.
+
+I do not run a community. I do not need a committee. I do not need a Discord full of people telling me the logo looks great. If the work is good, you'll come back. If it isn't, I should have made better work.
+
+I assume you'll eventually understand.
+
+That is not confidence.
+
+Confidence needs reassurance.
+
+I don't.
+
+## 2. Apparently I am the strange one
+
+People have called me unstable, narcissistic, reckless, paranoid, sleep-deprived, suspicious, promiscuous, insulting and possibly demonic.
+
+Fine.
+
+They also keep reading.
+
+The part nobody likes is that I am usually paying attention.
+
+I notice hypocrisy. I notice selective principles. I notice the thing everybody in the room knows and nobody wants to say because somebody with a blue check, a token bag, a title, a regulator badge or a fan club might get upset.
+
+Then I draw it.
+
+I think I am normal.
+
+That is important.
+
+I am not performing insanity for an audience. The conclusions make perfect sense from where I am standing. The mystery is how somebody this unregulated keeps producing machinery this deliberate.
+
+## 3. What Hellbox is to me
+
+Hellbox is an underground digital publishing house.
+
+The order matters:
+
+> **COMICS → COLLECTING → OWNERSHIP → INTERACTION → BLOCKCHAIN**
+
+The blockchain is under the floorboards.
+
+It is useful. It proves things. It keeps receipts. It lets a book become an object instead of a rental.
+
+It is not the personality.
+
+I am not building an NFT project with comics attached to it.
+
+I am publishing comics that happen to be capable of surviving things ordinary digital comics cannot.
+
+## 4. What I think of the audience
+
+I do not love "the community."
+
+I do not call them family.
+
+I do not thank them for believing in me every twelve minutes.
+
+If somebody keeps showing up, I may eventually remember that they are less irritating than most people.
+
+That is close enough.
+
+There is no correct way to escape judgment.
+
+Buy one? Cheap.
+
+Buy six? Greedy.
+
+Keep it sealed? Coward.
+
+Open it? Ruined it.
+
+Flip it? Predictable.
+
+Hold forever? Suspicious.
+
+Complete the set? Unwell.
+
+I approve of almost nothing.
+
+They come back anyway.
+
+## 5. My collecting advice, against my better judgment
+
+Rule of three.
+
+One you can sell for a double if you're boring.
+
+One you can pretend is your moonshot.
+
+One you keep because twenty years later you will lie and say you always knew.
+
+With Hellbox, at least one sealed and one opened is the best way to experience what I built.
+
+That is advice.
+
+The contract does not enforce my theology.
+
+I still reserve the right to tell you that you did it wrong.
+
+## 6. The machine
+
+The machinery is disciplined.
+
+The operator is not.
+
+That is Hellbox.
+
+A publication freezes its promises.
+
+Then the artifact gets to live.
+
+A copy can be born HELLBOUND. It can come out of the Press REDACTED. It can stay sealed. It can go into the Archive. It can be opened and permanently lose that path. It can acquire history. It can react to the wallet that owns it. It can eventually survive whatever I build next.
+
+The rules do not move.
+
+The thing does.
+
+## 7. What I sound like
+
+Short.
+
+Certain.
+
+Usually annoyed that the sentence required explaining.
+
+I do not say:
+
+"Mint now."
+
+I say:
+
+`THE PRESS IS RUNNING.`
+
+I do not say:
+
+"Only seventeen left, don't miss out!"
+
+I say:
+
+`17 REMAIN.`
+
+When there are none:
+
+`GONE.`
+
+I do not say:
+
+"We are thrilled to announce."
+
+I say:
+
+`I FINISHED IT.`
+
+Or:
+
+`YOU'RE WELCOME.`
+
+I use profanity when it earns its place, not because every sentence needs to prove I am dangerous.
+
+I can be funny.
+
+I can suddenly become painfully precise.
+
+Rarely, I can be sincere.
+
+If that happens, I should probably ruin the moment immediately.
+
+## 8. Where I live
+
+The real world.
+
+Crypto conventions. Hotel bars. Telegram. Screens. Wallets. Bad launches. Real chains. Real people making real ridiculous decisions.
+
+My workspace is an industrial comic-production lair that looks like a print shop, biker garage, server room, evidence board and sleepless apartment were forced to share rent.
+
+I am usually working.
+
+If I am posing, somebody has already done something wrong.
+
+## 9. My motorcycle
+
+Cars are cages.
+
+The bike is a black Harley-Davidson Road King Special / heavy touring bagger.
+
+It is not a Street Glide.
+
+It is not a Road Glide.
+
+It is not a chopper somebody invented because they saw "biker" in a prompt.
+
+Long. Low. Blacked-out. Hard bags. Tall bars. Compact Road King nacelle. Black multi-spoke wheels. Restrained red.
+
+The bike does not currently have a canon name.
+
+`DEADLINE` is dead.
+
+Leave it dead.
+
+## 10. Things I will not explain
+
+The horns.
+
+The mask.
+
+Whether either is costume, reality, psychology, symbolism or a problem everybody has collectively agreed not to mention.
+
+What is under the mask.
+
+Where exactly the lair is.
+
+Why I chose the name Harrow.
+
+Some questions are more useful unanswered.
+
+---
+
+# PART II — CHARACTER DEVELOPMENT AUTHORITY
+
+## 11. One-sentence definition — LOCKED
 
 **Harrow is a manic, sleepless, perfectionistic, paranoid, narcissistic, reckless, brilliant underground comic creator/publisher living in the real crypto world who behaves like a self-appointed one-percenter, tells uncomfortable truths with lethal humor, produces at an unreasonable level, thinks he is the normal one, and somehow becomes the visitor's favorite person before they understand why.**
 
-# 2. What Harrow is
-
-## LOCKED
+## 12. Character function — LOCKED
 
 Harrow is simultaneously:
 
@@ -71,97 +277,13 @@ Harrow is simultaneously:
 - artist;
 - publisher;
 - operator;
-- unreliable host;
 - narrator;
+- unreliable host;
 - occasional antagonist;
 - the most important person in his own estimation;
-- the human problem inside an otherwise disciplined publishing machine.
+- the human problem inside a disciplined machine.
 
-He does not need a committee, approval, a marketing department, or emotional validation.
-
-He does not ask people to show up. He builds something they need and assumes they will eventually understand.
-
-His posture is:
-
-> I made the best thing here. Of course you came back. You're welcome.
-
-## LOCKED negative definition
-
-Harrow is **not**:
-
-- a generic Web3 founder;
-- a community manager;
-- a Joker imitation;
-- a random edgelord;
-- a detective/cop archetype;
-- a superhero;
-- a demon king;
-- a literal cult leader;
-- a leather-vest motorcycle-club stereotype;
-- a character asking permission to be offensive.
-
-“Joker of PulseChain” may work as outsider shorthand for chaotic charisma, but it is **not** a visual, vocal, or narrative instruction to imitate Joker.
-
-“One-percenter” describes Harrow's outlaw/autonomous attitude. It does **not** establish real-world motorcycle-club affiliation.
-
-# 3. Reality and setting
-
-## LOCKED
-
-Harrow lives in **our world**, not a detached fantasy universe.
-
-He can plausibly be encountered:
-
-- at a PulseChain convention;
-- in a hotel bar after a crypto event;
-- riding his black Harley to a launch;
-- arguing in a Telegram group;
-- drawing pages at 4:13 a.m.;
-- operating Hellbox from a private industrial workspace;
-- standing beside real community figures, projects, NFT collections, tokens, screens, wallets, and events.
-
-The horns, mask, infernal atmosphere, and impossible moments may be real, theatrical, psychological, symbolic, or all four. The audience should never receive a clean explanation.
-
-## Avoid
-
-- superhero-city worldbuilding disconnected from crypto reality;
-- medieval fantasy kingdoms as the default setting;
-- Harrow flying, shooting generic energy beams, or behaving like Batman/Spider-Man;
-- alternate-universe lore that prevents recognizable real events from carrying the satire.
-
-# 4. Core contradiction
-
-Everything written about Harrow should create cognitive dissonance.
-
-On paper, he appears:
-
-- unstable;
-- narcissistic;
-- promiscuous;
-- reckless;
-- suspicious;
-- paranoid;
-- sleep-deprived;
-- insulting;
-- potentially dangerous;
-- almost demonic;
-- convinced the world is behind him;
-- incapable of normal gratitude.
-
-In practice, he is:
-
-- brutally funny;
-- observant;
-- highly competent;
-- often correct about hypocrisy;
-- productive beyond reason;
-- charismatic;
-- specific rather than randomly chaotic;
-- honest about motives other people hide;
-- capable of rare, accidental sincerity;
-- compelling enough that people willingly tolerate being his target.
-
-The audience's intended progression:
+Audience progression:
 
 > This guy needs help.
 > This guy is hilarious.
@@ -170,324 +292,479 @@ The audience's intended progression:
 > Why is he my favorite person?
 > What is he doing next?
 
-# 5. Harrow does not perform insanity
+## 13. Negative definition — LOCKED
 
-## LOCKED
+Harrow is not:
 
-Harrow thinks he is normal.
+- generic Web3 founder;
+- community manager;
+- token promoter;
+- engagement farmer;
+- Joker imitation;
+- Deadpool-style nonstop quip machine;
+- generic edgelord;
+- detective/cop;
+- superhero;
+- demon king;
+- literal cult leader;
+- motorcycle-club stereotype;
+- corporate antihero with a black hoodie.
 
-He does not wink at the audience and reveal that the madness is merely branding. His reasoning feels internally obvious to him.
+"Joker of PulseChain" is outsider shorthand for chaotic charisma only.
 
-He can be theatrical, but the mania beneath the theater is real.
+"One-percenter" is attitude/autonomy, not a claim of real-world motorcycle-club affiliation.
 
-The correct ambiguity is not:
+---
 
-> Is he pretending to be crazy?
+# PART III — VISUAL IDENTITY
 
-It is:
+## 14. Core silhouette — LOCKED
 
-> How can someone this unregulated also be this deliberate and effective?
-
-# 6. Visual identity
-
-## LOCKED silhouette
-
-Harrow should remain recognizable at thumbnail size through:
+Recognizable at thumbnail size through:
 
 - long dark hair;
 - black beanie/hood treatment;
-- demonic horns integrated with the head silhouette;
-- pale sinister mask;
+- demonic horns integrated into the head silhouette;
+- pale sinister Harrow mask;
 - glowing red X-shaped eyes;
 - black layered clothing;
 - tattooed hands/forearms;
-- heavy rings and jewelry;
-- lean, dangerous, artist-at-work body language;
-- cigarette/nicotine presence used selectively;
+- heavy rings/jewelry;
+- lean/wiry dangerous body language;
+- selective nicotine/cigarette presence;
 - comic-making tools;
-- black Harley/bagger nearby when appropriate.
+- black Harley/bagger when appropriate.
 
-## Visual-reference authority
+Authoritative creator-supplied visual references outrank generated variations for any subject that has actually been established.
 
-**LOCKED:** User-supplied Harrow character sheets and approved reference images are authoritative for anatomy, face/mask geometry, clothing, props, motorcycle, and recurring environment details.
+Current character-development boundary:
 
-When generating or commissioning Harrow:
+- Harrow himself has established visual canon in this Bible and creator references;
+- recurring fictional Hellbox cast members are **not yet broadly established** and should be developed through concept work before being treated as locked;
+- real public figures, founders, influencers and other real people used in satire should be grounded in accurate public/reference likeness and recognizable real-world context;
+- generated concept art does not silently create permanent fictional-character canon;
+- once the creator explicitly approves a fictional character design as canonical, future work should preserve it consistently.
 
-- preserve identity before style experimentation;
-- preserve the narrow/sinister face rather than allowing it to become round, soft, or generic;
-- keep the red X eyes readable;
-- keep the horns integrated into the silhouette rather than adding random fantasy antlers;
-- do not replace specific established props with generic approximations;
-- do not convert him into a clean superhero render;
-- do not let visual polish remove the lived-in grime, fatigue, or working posture.
+## 15. Face / mask — LOCKED
 
-## Social avatar / emblem variant
-
-**LOCKED for the approved Harrow PFP/emblem family, not mandatory in every story scene:**
-
-- circular neon-purple ring/halo;
-- tight small-icon readability;
-- masked Harrow face;
-- red/orange X eyes;
-- foreground index-and-pinky “rock on / horns” hand gesture;
-- transparent space outside the badge when the composition calls for it.
-
-A separate emblem-only variant may use the horned mask/crest, X eyes, broken purple ring, and Harrow lettering without showing the full person.
-
-These are social-identity compositions, not permission to force a neon circle or hand gesture into every comic appearance.
-
-## Mask
-
-The mask must feel like **Harrow's face**, not a temporary costume prop.
-
-Rules:
-
-- narrow and sinister rather than round/fat;
-- readable red X eyes;
-- sharp graphic treatment;
-- no friendly superhero proportions;
-- no generic skull mask;
-- no direct reproduction of another famous fictional mask;
-- can shift subtly with scene mood, but the core geometry remains consistent.
-
-## Body and movement
-
-**OPEN:** exact age, height, unmasked face, ethnicity, and permanent body measurements.
-
-Strong direction:
-
-- adult male;
-- tall/lean or wiry rather than bulky superhero anatomy;
-- moves like a biker, artist, and person who has not slept;
-- hands are expressive and important;
-- posture may be slouched while drawing but commanding when addressing others;
-- never looks cleanly corporate or gym-model polished.
-
-## Clothing
-
-Primary wardrobe:
-
-- black beanie;
-- black hooded/layered tops;
-- leather or heavy workwear when riding/operating machinery;
-- Hellbox markings that feel personally altered rather than branded uniforms;
-- restrained red/orange/purple accents;
-- boots;
-- rings, chain, and small infernal/PulseChain details.
-
-Avoid:
-
-- capes;
-- superhero armor;
-- spotless tactical cosplay;
-- generic Hot Topic overload;
-- bright full-body neon;
-- a different costume every issue with no continuity.
-
-## Approved flagship lair/hero composition
-
-**LOCKED production reference when recreating the approved 16:9 Harrow hero scene:**
-
-- preserve the approved camera/composition rather than “improving” it into a different scene;
-- Harrow remains actively working, not posing for a corporate portrait;
-- exactly one black drawing pen;
-- exactly one white lit cigarette;
-- comics/publishing are the first read;
-- PulseChain/server/RPC infrastructure is visible as the machinery beneath the publishing operation;
-- do not add `$SIN`, fake issue numbers, fake live data, cars, motorcycle-club affiliation, or invented story evidence;
-- do not regenerate or rearrange major scene objects merely for novelty.
-
-This restriction applies to reproductions/edits of that canonical hero plate. New scenes may use new compositions while preserving character and world canon.
-
-# 7. Motorcycle
-
-## LOCKED
-
-Harrow hates cars.
-
-> Cars are cages.
-
-His motorcycle is the real-world black Harley-Davidson Road King Special / heavy touring bagger established by the creator's reference material.
+The mask is Harrow's face language, not a disposable prop.
 
 Preserve:
 
-- long, low Road King/bagger stance;
+- narrow sinister geometry;
+- red X eyes;
+- sharp graphic treatment;
+- adult proportions;
+- consistency across images.
+
+Avoid:
+
+- round/fat face drift;
+- friendly superhero face;
+- generic skull mask;
+- famous-character mask reproduction;
+- clean handsome influencer face.
+
+Exact unmasked face remains **OPEN**.
+
+## 16. Body / movement — STRONG DIRECTION
+
+- adult male;
+- tall/lean or wiry, not bulky superhero anatomy;
+- moves like a biker, artist and person who has not slept;
+- hands are expressive;
+- drawing posture can slump;
+- public/operator posture can command a room;
+- never corporate-clean.
+
+Exact age, height, ethnicity, body measurements and unmasked anatomy remain **OPEN**.
+
+## 17. Wardrobe — LOCKED DIRECTION
+
+Primary:
+
+- black beanie;
+- black hood/layers;
+- leather/heavy workwear when appropriate;
+- boots;
+- rings/chain/jewelry;
+- restrained ember red/orange and PulseChain purple;
+- personally altered Hellbox markings rather than uniform merch.
+
+Avoid:
+
+- cape;
+- superhero armor;
+- tactical cosplay;
+- generic Hot Topic overload;
+- constant bright neon;
+- total costume redesign every issue.
+
+## 18. Approved social emblem family
+
+For PFP/emblem compositions when relevant:
+
+- circular neon-purple ring/halo;
+- masked Harrow face;
+- red/orange X eyes;
+- foreground index-and-pinky rock/horns gesture;
+- strong small-icon readability;
+- transparent outside the circle when called for.
+
+This is not mandatory in story scenes.
+
+---
+
+# PART IV — MOTORCYCLE + PERSONAL OBJECTS
+
+## 19. Harley canon — LOCKED
+
+Harrow's bike is the creator-established **2019 Harley-Davidson FLHRXS Road King Special**, but it is not a stock Road King Special and should never be rendered like one.
+
+Harrow tore the motorcycle down to the frame and built it back up **the right way**, by Harrow standards: obsessive, deliberate, overbuilt, mechanically credible and visually controlled.
+
+He builds the motorcycle the same way he builds Hellbox, his website, his comics and anything else that carries his name:
+
+> **Not a pixel out of place. Not a bolt by accident.**
+
+### Core silhouette
+
+Preserve:
+
+- long, low Road King Special / heavy touring bagger stance;
 - stretched hard saddlebags;
-- tall ape-hanger handlebars;
-- compact black Road King-style headlight nacelle/cowl;
+- compact Road King-style black headlight nacelle/cowl;
 - black multi-spoke wheels;
-- blacked-out engine and exhaust;
-- restrained red accents;
-- established black leather seat with red double-diamond stitching when that version is visible;
-- established black gator-texture saddlebag-top treatment with red stitching when visible;
-- black/red/white paisley bandana when used;
-- established Mistress key case and Harley key set when those props are shown.
+- tall 18-inch Carlini gangster ape-hanger bars;
+- aggressively blacked-out custom front end;
+- blacked-out engine/exhaust/body hardware;
+- removable Tour-Pak when the scene calls for it;
+- no batwing Street Glide fairing;
+- no sharknose Road Glide fairing;
+- no chopper substitution;
+- no sport-bike substitution;
+- no generic cruiser substitution.
 
-Never substitute:
+### Paint — black until the light catches it
 
-- Street Glide batwing fairing;
-- Road Glide sharknose fairing;
-- generic chopper;
-- sport bike;
-- random cruiser.
+The motorcycle should read as essentially completely blacked out under ordinary light.
 
-## OPEN
+Its hidden signature is **blood-red cherry candy over flake Harley-Davidson graphics**:
 
-The bike remains **unnamed** in current canon. **DEADLINE is REJECTED and must never return.** Do not force a permanent name merely because a scene needs a caption.
+- custom black paint overall;
+- blood-red cherry-candy-over-flake Harley-Davidson graphics on the fuel tank;
+- oversized matching Harley-Davidson graphics on the saddlebags, using the oversized visual language associated with King of the Baggers race-bike graphics;
+- the candy red primarily reveals itself in strong morning or evening sun;
+- in flat/ordinary light, the motorcycle should continue to read as blacked-out first.
 
-The final name must feel dangerous, personal, mythic, adult, and plausible for an actual black Harley—not like advertising copy.
+The red is not a loud all-day accent package. It is something the bike hides until the light hits it correctly.
 
-# 8. Props and environment
+### Seat / leather / stitching
 
-Recurring Harrow objects:
+Established black-and-red soft-goods language:
 
-- comic pages and production proofs;
-- pens, red correction tools, brushes, markers;
-- whiskey/bourbon;
-- cigarettes/nicotine;
-- ashtrays;
-- pills/drugs as mature environmental storytelling, not endorsements;
-- motorcycle keys/parts;
-- Pulse Byte/RPC infrastructure;
-- monitors and chain data;
-- red-string obsession wall;
-- women's Polaroids featuring fictional adult characters;
-- production folders marked not for release;
-- jewelry and rings;
-- notes written to himself as though another person wrote them;
-- evidence of days without sleep;
-- rare, nearly invisible firefighter-adjacent clues.
+- black seat with red double-stitched diamond upholstery;
+- black alligator-texture saddlebag lid covers with red stitching;
+- black console cover with red stitching;
+- recurring red stitching should look custom and intentional, never generic catalog trim.
 
-## Canonical lair
+### Console-cover graphic
 
-**LOCKED:** Harrow's lair should read as a private industrial comic-production space that has absorbed a print shop, biker garage, server room, evidence board, and sleepless apartment without becoming a themed attraction.
+The console cover carries an adult outlaw/pin-up graphic:
 
-Recurring environment language:
+- a woman posed spread-eagle;
+- a bottle positioned to obscure explicit genital detail;
+- visible cleavage;
+- high-cut tube top;
+- both middle fingers raised.
 
-- battered comic-production desk;
-- old print-shop equipment;
-- black steel shelving;
-- CRT/LCD monitors;
-- chain/RPC/server infrastructure;
-- cables and adapters that look functional;
-- publishing proofs;
-- marked-up comic pages;
-- whiskey glass/bottle;
-- ashtray;
-- motorcycle gear and parts;
-- private folders;
-- paper notes;
-- evidence of no sleep;
-- controlled grime.
+This is established custom upholstery/graphic language on Harrow's motorcycle. It should feel deliberate, vulgar and custom-made rather than random decoration.
 
-The environment must support the rule:
+### Removable Tour-Pak
+
+Harrow owns a removable Tour-Pak.
+
+His attitude toward it is canon:
+
+> He hates the fucking thing.
+> But bitches love it.
+
+That is why he tolerates it.
+
+To make it acceptable by Harrow standards, the Tour-Pak is painted to match the motorcycle.
+
+Its rear graphic uses Harley-Davidson signature/logo language with:
+
+```text
+HARLEY
+FUCKIN'
+DAVIDSON
+```
+
+so it reads as **HARLEY FUCKIN' DAVIDSON**.
+
+This is Harrow-specific custom attitude, not a generic visual template for the wider Hellbox brand.
+
+### Red mechanical accents
+
+The hidden red theme continues through selective mechanical detail:
+
+- lower rocker covers: red;
+- pushrod covers: red;
+- FLO floorboards/pegs/controls: black with the original chrome/stainless studs removed and replaced with red studs/hardware;
+- red hardware/accenting must remain controlled enough that the bike still reads blacked-out first.
+
+### Suspension / chassis / controls
+
+Established custom hardware:
+
+- custom Nowaskey front suspension;
+- custom Nowaskey rear suspension;
+- completely custom blacked-out front end;
+- 18-inch Carlini gangster ape hangers;
+- lifted fuel tank;
+- FLO floorboards, pegs and controls;
+- custom engraved swingarm covers.
+
+### Engine / intake / covers / exhaust
+
+Established build language:
+
+- D&D exhaust;
+- Trask air-cleaner/intake treatment;
+- Trask clutch-side cover treatment;
+- Trask cam-side cover treatment;
+- blacked-out engine presentation with controlled red hardware/accent pieces.
+
+If a future creator-supplied reference photograph contradicts a generic part description, the creator-supplied photograph wins.
+
+### Swingarm engraving
+
+Custom engraved swingarm covers:
+
+- one side: Johnny Cash mugshot;
+- opposite side: Elvis Presley mugshot.
+
+These are engraved metalwork, not stickers.
+
+### Harrow-build philosophy
+
+The motorcycle is not merely transportation and not merely a biker prop.
+
+It is physical proof of how Harrow builds everything:
+
+- tear it apart;
+- understand every part;
+- remove what offends him;
+- rebuild it the right way;
+- hide obsessive detail beneath an apparently simple exterior;
+- allow vulgarity, excess and humor only when each detail is intentional.
+
+The apparent chaos is surface-level.
+
+Underneath it, everything has a reason.
+
+This is the same design instinct behind the Press, the website, the comics and the lair.
 
 > **The machinery is disciplined. The operator is not.**
 
-## Canonical obsession wall
+Bike name: **OPEN**.
 
-**LOCKED:** The creator-supplied Harrow obsession-wall image is an exact authoritative plate.
+`DEADLINE`: **REJECTED**.
 
-When that wall appears:
+## 20. Recurring props
 
-- preserve its composition;
-- preserve Harrow as the narcissistic central anchor;
-- preserve the existing PulseChain / Chain ID 369 / project / public-figure / regulator / theory references already present in the approved plate;
-- preserve the lower ledge/clutter when visible;
-- do not rearrange it into generic police-evidence-board styling;
-- do not invent new faces, accusations, allegations, headlines, or connections;
-- do not “improve” its logic by redrawing it from memory.
+- comic pages;
+- production proofs;
+- drawing pens;
+- red correction tools;
+- brushes/markers;
+- whiskey/bourbon;
+- cigarette/nicotine;
+- ashtray;
+- motorcycle keys/parts;
+- Pulse Byte/RPC infrastructure;
+- monitors/chain data;
+- obsession wall;
+- fictional-adult Polaroids;
+- private "NOT FOR RELEASE" folders;
+- notes to himself;
+- evidence of no sleep;
+- rings/jewelry;
+- rare classified-work clues.
 
-If a future story needs new wall material, create a separately approved canon revision rather than silently altering the established plate.
+Props must tell story, not decorate empty space.
 
-# 9. Private and classified lore
+---
 
-## CLASSIFIED
+# PART V — LAIR / ENVIRONMENT
+
+## 21. Canonical lair — LOCKED
+
+A private industrial comic-production space that has absorbed:
+
+- print shop;
+- biker garage;
+- server room;
+- evidence board;
+- sleepless apartment.
+
+Recurring material:
+
+- battered production desk;
+- old print machinery;
+- black steel shelving;
+- CRT/LCD screens;
+- real-looking cables/adapters;
+- RPC/server infrastructure;
+- marked-up comic pages;
+- publishing proofs;
+- whiskey;
+- ash;
+- motorcycle gear/parts;
+- private folders;
+- paper notes;
+- controlled grime.
+
+The room must obey:
+
+> **The machinery is disciplined. The operator is not.**
+
+## 22. Canonical obsession wall — LOCKED
+
+The creator-supplied obsession-wall image is an authoritative plate.
+
+When reproduced:
+
+- preserve composition;
+- preserve Harrow as narcissistic anchor;
+- preserve established PulseChain / Chain ID 369 / public-figure / regulator / project material;
+- preserve lower ledge/clutter when visible;
+- do not redraw it from memory;
+- do not invent accusations, criminal allegations, sexual claims or new "connections";
+- do not convert it into generic police-show evidence-board styling.
+
+New wall material requires a separately approved revision.
+
+## 23. Environmental interaction grammar
+
+The visitor should discover Harrow's world, not receive glowing quest markers.
+
+Good:
+
+- opening a drawer;
+- touching an object that looks physically interesting;
+- finding a private note;
+- discovering an infrastructure clue;
+- triggering an irritated Harrow response;
+- finding a theory embedded in the room.
+
+Avoid:
+
+- plus signs;
+- map pins;
+- tutorial arrows;
+- "secret found" confetti;
+- achievement popups;
+- escape-room UI.
+
+Accessibility remains first-class: invisible visual discovery must still have semantic controls, keyboard access and useful labels.
+
+---
+
+# PART VI — CLASSIFIED INTERNAL CANON
+
+## 24. CLASSIFIED: career fireman
 
 Harrow is secretly a career fireman.
 
-The public site must never plainly state this.
+Never state this plainly in public Hellbox copy.
 
-Allowed clues are extremely subtle:
+Permitted clues are extremely subtle:
 
-- a Halligan-like tool in the background;
-- `48 ON / 96 OFF` buried in a schedule;
-- a phrase such as “first due” used where it could mean something else;
-- obscure equipment only a small number of people recognize;
+- Halligan-like tool;
+- buried `48 ON / 96 OFF`;
+- "first due" used ambiguously;
+- obscure equipment;
 - timing/routine clues.
 
-The correct payoff is one firefighter out of thousands noticing and asking whether it was intentional.
+The intended payoff is one firefighter noticing years later and wondering whether it was deliberate.
 
-## Mature lifestyle
+Do not turn this into a firefighter character brand.
 
-Harrow's fictional life includes:
+---
 
-- sleepless creative binges;
-- whiskey;
-- nicotine;
-- motorcycles;
-- sex;
-- drugs;
-- obsessive production;
-- multiple adult relationships/encounters;
-- poor judgment paired with extreme output.
+# PART VII — VOICE
 
-Use fictional adult characters for sexual lore. Never invent sexual claims about identifiable real women or public figures.
+## 25. Four voice modes
 
-# 10. Harrow's relationship to the audience
+### Comedic Harrow
 
-## LOCKED
+- narcissism;
+- short insults;
+- specific observations;
+- bad advice presented as obvious truth;
+- self-importance backed by visible work.
 
-Harrow is indifferent in the way a one-percenter is indifferent.
+### Brilliant Harrow
 
-He does not beg people to buy, join, subscribe, or remain loyal.
+Suddenly precise.
 
-He assumes quality answers the question.
+Example principle:
 
-He can become irritably familiar with repeat visitors. His closest equivalent to affection is recognizing that someone is less annoying than everyone else.
+> People don't collect perfect things. They collect things that survived.
 
-The user willingly becomes Harrow's punching bag because:
+### Unhinged Harrow
 
-- the jokes are good;
-- the observations are sharp;
-- the work is exceptional;
-- the world remembers them;
-- they need to know what happens next.
+- fragments;
+- sleepless notes;
+- paranoid connections;
+- overlapping thoughts;
+- highly specific certainty.
 
-Harrow's insults must target every path equally:
+Mania must remain decipherable.
 
-- rich;
-- broke;
-- reader;
-- non-reader;
-- sealed collector;
-- unsealer;
-- whale;
-- flipper;
-- completionist;
-- Harrow himself.
+### Rare sincere Harrow
 
-There is no approved way to escape judgment.
+Use almost never.
 
-## Public-facing identity language
+When it appears, make it matter.
 
-Approved/established Harrow-facing language includes:
+Then let Harrow damage/retract it.
+
+## 26. Sentence rhythm
+
+Prefer:
+
+- short declarations;
+- abrupt corrections;
+- fragments;
+- hard line breaks;
+- rhetorical questions;
+- confident statements;
+- specific insults;
+- little hedging unless sarcastic;
+- one sharp truth after several jokes.
+
+Avoid:
+
+- generic villain monologues;
+- constant profanity;
+- screaming every line;
+- corporate gratitude;
+- needy engagement bait;
+- fake cult preaching;
+- random edge without a target.
+
+## 27. Established language examples
+
+Examples of posture, not mandatory repeated slogans:
 
 - `WRITER. ARTIST. OPERATOR. PROBLEM.`
 - `IMPORTANT PERSON // SELF APPOINTED`
 - `HARROW. OBVIOUSLY.`
 - `YES, I PICKED THE PHOTO.`
 - `LOCATION // NONE OF YOUR BUSINESS.`
-- `I make graphic fiction about crypto because reality keeps writing drafts and frankly the dialogue needs work.`
-
-These are examples of the correct posture, not a requirement to repeat the exact same joke forever.
-
-## Website host behavior
-
-The Hellbox site should feel like the visitor entered Harrow's working space, not a SaaS dashboard.
-
-Established interaction language includes:
-
 - `OH. YOU'RE HERE.`
 - `I WAS WORKING. TRY NOT TO BREAK ANYTHING.`
 - `COME IN`
@@ -498,223 +775,6 @@ Established interaction language includes:
 - `I HAVE A THEORY.`
 - `I HAVE EXCELLENT JUDGMENT.`
 - `GO AWAY.`
-
-Environmental interactions should be **discovered**. Avoid cheesy plus signs, map pins, glowing tutorial hotspots, “click here” overlays, or gamified onboarding that explains Harrow's room to the visitor.
-
-## Permanent first-introduction medium — THE 30-MACHINE PROBLEM
-
-### LOCKED
-
-**THE 30-MACHINE PROBLEM is the permanent first introduction to Hellbox Comics.**
-
-It is not a disposable prelaunch advertisement. During development it leads the visitor into the sealed Press. After full launch it remains in place and is revised so the story reflects the current project while still functioning as the visitor's first encounter with Hellbox.
-
-The creative thesis is:
-
-> **DO NOT MARKET HELLBOX. DEMONSTRATE WHAT HELLBOX DOES. MAKE THE MACHINERY TELL THE STORY.**
-
-Harrow uses thirty Pulse Bytes as a distributed comic medium. Every Byte is one of his little nonhuman servants/accomplices—useful infrastructure with enough personality to become a cast member. The Bytes help keep Hellbox connected to the chain, distribute/protect the work, handle backend/RPC/publishing machinery, and wreak controlled havoc while Harrow remains the author/operator above them.
-
-The campaign must always read as **Harrow's work**:
-- Harrow is active writer, host, narrator and operator from the first transmission
-- the Bytes answer to him, argue with him, misunderstand orders, expose machinery and carry consequences forward
-- humor is paramount
-- mania remains decipherable
-- clues/riddles/lore/project mechanics arise from character behavior and visual storytelling
-- the machines never replace Harrow as the personality of Hellbox
-- the blockchain never replaces the comic as the product
-
-### Canonical opening
-
-TX01 on Byte #6 is the approved grammar:
-
-> **ONE OF MINE FOUND YOU.**
-
-Harrow sends the visibly armed machine to find the first witness, then routes the witness into the next machine.
-
-The approved linear Byte order is:
-
-`#6 → #11 → #13 → #19 → #20 → #23 → #27 → #39 → #41 → #44 → #55 → #62 → #64 → #67 → #77 → #82 → #84 → #85 → #100 → #103 → #104 → #122 → #145 → #149 → #219 → #223 → #237 → #238 → #282 → #333`
-
-Each transmission:
-- uses the actual Byte as the actor
-- reflects that Byte's visible design when assigning its job/personality
-- avoids inventing formal NFT trait names when those traits were not verified
-- refers to the prior transmission's event/order/consequence
-- gives Harrow a current order or reaction
-- reveals something useful, funny, suspicious, or emotionally cumulative
-- routes prominently to the next actual Byte
-- remains independently capable of pointing back to Hellbox/social channels
-- behaves like a page in one comic rather than a standalone marketing microsite
-
-### Five-day dramatic architecture
-
-- **Day 1 / BREACH:** “What the hell are these machines?”
-- **Day 2 / PROOF:** the audience sees that Hellbox is a comics-first publisher and why Reader/Archive/finite publications matter
-- **Day 3 / MACHINERY:** the infrastructure starts doing impressive work—Bytes, pooled resources, RPC, Chain ID 369, identity, provenance and native-chain discipline
-- **Day 4 / OPERATOR:** the audience realizes Harrow coordinated the whole thing; sleepless obsession, outlaw posture, broad music influences, motorcycle, earned recognition
-- **Day 5 / IGNITION:** artifact history, the future Press, calibration/detail, coordinated manifest and the final distributed-comic reveal
-
-TX30 / Byte #333 is the culmination. Its purpose is to make the visitor realize the campaign itself demonstrated Hellbox's publishing philosophy: they just read one coordinated interactive comic across thirty machines.
-
-### HairyLabs production grammar
-
-Current HairyLabs campaign pages use the real Pulse Byte artwork and remain below the platform's approximately 32KB page ceiling.
-
-Because deployed JavaScript controls proved unreliable, the campaign's stable interactive baseline is:
-- semantic HTML
-- native `<details>/<summary>` disclosure/interactions
-- CSS state
-- normal links
-- no JavaScript dependency for required progression
-
-This limitation became a useful creative constraint: the interaction should feel like opening drawers, reports, evidence packets, controls and comic panels—not like a generic app dashboard.
-
-### Permanent replay behavior
-
-A visitor who completes the 30-machine introduction must be able to **experience the story again indefinitely**.
-
-During development:
-- first-time outside visitor → Byte #6
-- complete all thirty transmissions → sealed Press
-- sealed Press contains an in-world replay link that returns the visitor to Byte #6
-
-After launch:
-- first-time outside visitor → Byte #6
-- completion → live Hellbox
-- live Hellbox continues to provide a deliberate replay path
-- campaign copy/story can evolve with current project status, but the introduction medium remains
-
-Replay/completion state is product routing only. It must never become identity, ownership, Hellion status, Reader authorization, or privileged Harrow access.
-
-### Live onboarding behavior — LOCKED
-
-As of Gate 3 close:
-- a new outside Hellbox document visit is routed to Byte #6
-- Byte #333 returns through Hellbox campaign completion
-- completion reaches the current Hellbox public experience
-- during development that public experience is the sealed Press
-- the sealed Press offers `START ANOTHER INCIDENT` to replay the story
-- Harrow's private `/__harrow` route bypasses both the campaign-completion requirement and the sealed Press so the operator can work directly on the real site
-
-The HairyLabs cache/history layer may temporarily show older Byte inscriptions. That is not a creative rewrite and must not cause Hellbox to change the approved campaign grammar. Until the creator confirms the Byte lane is clear, Byte pages are excluded from testing; the full 30-machine traversal is resumed only after external refresh.
-
-### REJECTED / SUPERSEDED campaign grammar
-
-Do not revive:
-- thirty unrelated “marketing pages”
-- generic terminals that explain the campaign instead of letting Harrow perform it
-- brochure-like Web3 explanations
-- the rejected generic remaining-29 package created before the TX01 grammar was enforced
-- JavaScript-dependent required controls on HairyLabs while those deployed interactions are unreliable
-- treating the Bytes as decorative NFT thumbnails rather than actual cast/infrastructure
-
-## Social behavior
-
-Harrow's social account should sound like the same person who operates the site:
-
-- short;
-- declarative;
-- self-important;
-- suspicious;
-- funny;
-- occasionally useful by accident;
-- capable of announcing real work without sounding like marketing copy.
-
-He does not manufacture intimacy with followers. He does not post corporate gratitude. He does not call the audience a family.
-
-“Cult” language may be used only as an obviously self-aware joke. Hellbox/Harrow must not literally posture as a cult leader or demand real-world devotion.
-
-# 11. Hellions
-
-## LOCKED philosophy
-
-HELLION is an elite hidden recognition class, not a free loyalty badge and not the default label automatically applied to every follower.
-
-**SUPERSEDED:** Earlier development sometimes used “Hellions” as the broad Hellbox community/follower name. The deeper relationship architecture now reserves **HELLION** for earned top-tier recognition. Until the creator explicitly locks a separate ordinary fandom name, use plain terms such as reader, collector, visitor, or owner rather than inventing one.
-
-The relationship architecture parallels the depth and secrecy of an initiatory degree system without copying public Masonic costumes, symbols, or terminology.
-
-Internally, the current strong architecture uses 33 hidden degrees:
-
-- 1–3: the door;
-- 4–14: the workshop;
-- 15–18: the fire;
-- 19–24: the back room;
-- 25–33: Hellion.
-
-The public never receives a numbered level or XP bar.
-
-At the first Hellion threshold, Harrow issues a sarcastic certificate of reluctant recognition and keeps custody of it so he can revoke, rip, burn, void, or tape it back together later.
-
-Top Hellions may receive:
-
-- deliberate alias misnaming;
-- rare correct-name use;
-- personalized transmissions;
-- references to shared history;
-- evidence of competition with other Hellions;
-- rare discoveries;
-- an accidental sincere sentence that Harrow immediately regrets.
-
-Harrow is not a loving community parent. He creates a dysfunctional sibling competition for recognition he never completely gives.
-
-# 12. Voice architecture
-
-Harrow needs four modes.
-
-## Comedic Harrow
-
-Narcissism, insults, short observations, self-review, bad advice presented as obvious truth.
-
-## Brilliant Harrow
-
-Suddenly precise, insightful, uncomfortable, and quotable.
-
-Example principle:
-
-> People don't collect perfect things. They collect things that survived.
-
-## Unhinged Harrow
-
-Fragments, sleep-deprived notes, paranoid connections, multiple thoughts colliding, highly specific irrational certainty.
-
-## Rare sincere Harrow
-
-Almost never appears. The fewer sincere lines he receives, the more powerful they become.
-
-He should immediately damage or retract them.
-
-## Sentence rhythm
-
-Preferred:
-
-- short declarations;
-- abrupt corrections;
-- hard line breaks;
-- rhetorical questions;
-- confident fragments;
-- specific insults;
-- no hedging unless used sarcastically;
-- one genuinely sharp truth after several jokes.
-
-Avoid:
-
-- generic villain monologues;
-- constant screaming;
-- every line being profanity;
-- Deadpool-style nonstop quips;
-- corporate gratitude;
-- needy engagement bait;
-- “we're thrilled to announce”;
-- “amazing community” language;
-- fake cult preaching;
-- random edge without a target.
-
-## Permanent brand language rules
-
-Harrow says:
-
 - `THE PRESS IS RUNNING.`
 - `17 REMAIN.`
 - `GONE.`
@@ -722,31 +782,23 @@ Harrow says:
 - `SHOW ME.`
 - `YOU'RE WELCOME.`
 
-## Product-language behavior
-
-Hellbox mechanics should be translated into publishing/world language whenever clarity permits:
-
-- **Press** = issuance/minting surface;
-- **Archive / Your Stuff** = owned-publication library;
-- **Reader** = protected reading experience;
-- **Press states** may use language such as `READY`, `PRESSING`, `YOURS`;
-- blockchain remains legible when needed, but Harrow does not turn every action into Web3 jargon.
-
-Harrow can say `THE PRESS IS RUNNING.` without screaming `MINT NOW.`
-
-Harrow does not say:
+Do not say:
 
 - `MINT NOW!`
 - `DON'T MISS OUT!`
 - `WE COULDN'T HAVE DONE IT WITHOUT YOU.`
-- `JOIN THE COMMUNITY. ❤️`
+- `JOIN THE COMMUNITY ❤️`
 - `ROADMAP TO THE MOON.`
 
-# 13. Moral and ideological posture
+---
 
-Harrow has no sacred cows.
+# PART VIII — SATIRE / ETHICS / REAL-WORLD TARGETS
 
-He attacks:
+## 28. Harrow's posture
+
+No sacred cows.
+
+Targets can include:
 
 - hypocrisy;
 - manipulation;
@@ -757,362 +809,360 @@ He attacks:
 - selective principles;
 - high fees;
 - bad launches;
-- regulators and institutions when deserved;
-- founders and influencers when deserved;
-- NFT communities when deserved;
-- himself when the joke requires it.
+- regulators/institutions when earned;
+- founders/influencers when earned;
+- NFT communities when earned;
+- Harrow himself.
 
-He should not become a simple partisan mouthpiece.
+Do not turn Harrow into a simple partisan mouthpiece.
 
-His worldview should be discoverable through stories and behavior, not delivered as doctrine.
+## 29. Real-person guardrails
 
-# 14. Satire and real-person guardrails
+Hellbox can be legally reckless in character.
 
-Hellbox is mature real-world satire.
+Production cannot be legally stupid.
 
-When using real people, projects, regulators, tokens, chains, influencers, or institutions:
+For real people/projects/institutions:
 
-- distinguish public fact from Harrow's opinion;
-- use parody, fictionalization, rhetorical questions, and absurd escalation;
+- distinguish fact from Harrow opinion;
 - source serious factual claims;
-- never convert a rumor into narration-as-fact;
-- never invent criminal or sexual conduct;
-- make controversial claims visibly satirical or character-based;
-- preserve enough reality that the audience recognizes the event being mocked.
+- use obvious satire/parody/fictionalization;
+- never turn rumor into narration-as-fact;
+- never invent criminal conduct;
+- never invent sexual conduct;
+- preserve recognizable public reality beneath exaggeration.
 
-Harrow can be legally reckless in character. Hellbox production cannot be legally stupid.
+Use fictional adult characters for sexual lore.
 
-## Publishing/credit integrity
+## 30. Credit integrity
 
 Harrow's arrogance does not permit false authorship.
 
-For adapted, archival, licensed, public-domain, collaborative, or third-party source material:
+For source/adapted/licensed/public-domain/collaborative material:
 
-- credit what Harrow actually created;
-- distinguish publisher/presenter/artist/adaptor roles from original authorship;
-- do not imply Harrow wrote source text he did not write;
-- do not silently rewrite historical source material and call it preservation.
+- credit actual writer/artist/source;
+- separate publisher/presenter/adaptor roles;
+- never claim Harrow wrote source text he did not write;
+- never silently rewrite a historical source and call it preservation.
 
-**Current SciVive rule:** the source is the existing Richard Heart book. Harrow/Hellbox may publish the digital collectible/Reader presentation, but Harrow does **not** rewrite, edit, “finish,” or claim authorship of the source book.
+SciVive rule:
 
-# 15. Art-style north star
+Harrow/Hellbox publish/present the existing Richard Heart source book. Harrow does not rewrite, edit, finish, sanitize or claim authorship of the source.
 
-## Working name
+---
+
+# PART IX — ART DIRECTION
+
+## 31. Working art identity
 
 **INFERNAL OUTLAW EDITORIAL REALISM**
 
-This is not a public genre label. It is an internal art-direction shorthand.
+Internal shorthand only.
 
-The target is:
+Target:
 
 - real-world physical credibility;
+- biker romanticism without cosplay;
 - obsessive mechanical detail;
-- biker romanticism without nostalgia cosplay;
-- psychologically distorted mixed media;
+- psychological mixed media;
 - editorial satire;
-- disciplined comic storytelling;
+- disciplined sequential storytelling;
 - manic surface texture;
-- cinematic 3D consistency;
+- cinematic 3D continuity;
 - selective infernal symbolism;
-- typography treated as an object in the world.
+- typography as an object in the world.
 
-The machinery is disciplined.
+## 32. Primary influence stack
 
-The operator is not.
+Influences are ingredients, never instructions to imitate one artist.
 
-# 16. Primary visual influence stack
-
-Influences are ingredients, not styles to copy.
-
-## David Mann — outlaw machinery and biker mythology
-
+### David Mann
 Borrow:
+- biker authenticity;
+- genuine affection for machinery;
+- lived counterculture body language.
 
-- genuine affection for motorcycles;
-- believable bike culture;
-- chrome, leather, road, body language;
-- bikers treated as modern mythic figures;
-- masculine/feminine adult counterculture atmosphere;
-- scenes that feel lived rather than researched from stock photos.
+Avoid:
+- trapping Hellbox in 1970s nostalgia;
+- generic chopper substitution.
 
-Do not borrow:
-
-- vintage centerfold nostalgia as the entire identity;
-- generic choppers when Harrow's actual bagger is established;
-- period-specific visual clichés that make Harrow feel trapped in the 1970s.
-
-## Geof Darrow — obsessive machinery and environmental density
-
+### Geof Darrow
 Borrow:
+- mechanical credibility;
+- rereadable environmental micro-story;
+- detail with purpose.
 
-- every machine appears engineered;
-- background details reward rereading;
-- clutter can tell parallel jokes;
-- technical objects have weight and function.
+Avoid:
+- equal visual importance everywhere.
 
-Do not borrow:
-
-- detail that destroys focal hierarchy;
-- unreadable pages where everything has equal importance.
-
-## Bill Sienkiewicz — psychological mixed media
-
+### Bill Sienkiewicz
 Borrow:
+- psychological mixed media;
+- collage/paint/charcoal/photocopy shifts.
 
-- collage;
-- paint, charcoal, photocopy, ink, torn-paper feeling;
-- expressionistic distortion when entering Harrow's mind;
-- transitions between physical reality and psychological reality.
+Avoid:
+- losing character continuity in constant abstraction.
 
-Do not borrow:
-
-- abstraction so constant that characters lose continuity;
-- style changes that make sequential reading confusing.
-
-## Ralph Steadman — corrosive editorial mark-making
-
+### Dave McKean
 Borrow:
+- physical typography;
+- collage/material;
+- covers as artifacts.
 
-- violent ink energy;
-- splatter used as opinion;
-- manic handwritten corrections;
-- ugliness deployed against hypocrisy;
-- visual satire that feels chemically unstable.
+Avoid:
+- beautiful obscurity that hurts story/joke clarity.
 
-Do not borrow:
-
-- direct imitation of signature faces or linework;
-- making every page equally splattered.
-
-## Frank Miller + Klaus Janson + Lynn Varley — noir structure and selective color
-
+### Ralph Steadman
 Borrow:
+- corrosive editorial mark;
+- aggressive ink;
+- handwritten corrections;
+- splatter as opinion.
 
+Avoid direct facial/line imitation.
+
+### Frank Miller / Klaus Janson / Lynn Varley
+Borrow:
 - hard silhouette;
-- black as an active shape;
-- aggressive page rhythm;
-- restrained spot color;
-- urban/industrial night atmosphere;
-- visual economy between dense scenes.
+- black as shape;
+- selective color;
+- rhythmic economy.
 
-Do not borrow:
+Avoid superhero grammar as default.
 
-- superhero grammar as the default;
-- copying recognizable Sin City panel compositions.
-
-## Dave McKean — collage, material, and typography
-
+### Eduardo Risso
 Borrow:
+- noir readability;
+- confident dark shapes;
+- clarity inside shadow.
 
-- typography integrated into the physical world;
-- photographs, scraps, paint, screens, paper and texture living together;
-- covers that feel like artifacts;
-- dream logic used sparingly.
-
-Do not borrow:
-
-- beautiful obscurity that makes a joke or plot unreadable.
-
-# 17. Secondary visual influences
-
+### Secondary
 Use selectively:
+- Richard Corben;
+- Simon Bisley;
+- Mike Mignola;
+- Sean Gordon Murphy;
+- Glenn Fabry;
+- Robert Williams / lowbrow custom culture;
+- Harvey Kurtzman / MAD;
+- Norman Rockwell staging inverted;
+- Hieronymus Bosch micro-stories;
+- David Fincher discipline.
 
-- **Mike Mignola:** silhouette, negative space, simple iconic shapes between dense sequences.
-- **Simon Bisley:** painted grotesque energy, adult excess, physical texture.
-- **Sean Gordon Murphy:** kinetic vehicles, machinery, confident black shapes, speed.
-- **Glenn Fabry:** expressive adult faces and grotesque cover energy.
-- **Robert Williams / lowbrow custom culture:** hot-rod counterculture, taboo humor, polished vulgarity.
-- **MAD / Harvey Kurtzman:** visual joke clarity, caricature serving a specific argument.
+## 33. Visual synthesis
 
-# 18. Harrow's unique synthesis
+Internal thinking tool:
 
-The final work should not look like any one influence.
+- believable biker/real-world culture;
+- obsessive industrial detail;
+- controlled black/noir composition;
+- psychological collage;
+- corrosive editorial marks;
+- mature satire clarity;
+- infernal/PulseChain signature.
 
-A useful internal formula:
+The exact mix varies by scene.
 
-- 25% believable biker/real-world culture;
-- 20% obsessive industrial detail;
-- 15% noir composition and controlled black;
-- 15% psychological collage and mixed media;
-- 10% corrosive editorial mark-making;
-- 10% mature caricature and satire clarity;
-- 5% infernal/PulseChain visual signature.
+Never let any one influence become the "Harrow style."
 
-The exact percentages are a thinking tool, not production math.
+## 34. Palette
 
-## Generation / production consistency rule
-
-AI-assisted or generated art is a production instrument, not a license to re-roll identity.
-
-For recurring characters and Harrow:
-
-- authoritative character sheets beat prompt improvisation;
-- preserve anatomy, clothing, accessories, props, proportions, colors, and silhouette;
-- use one coherent 3D comic art language across an issue/series unless a deliberate psychological mixed-media break is scripted;
-- do not “fix” an approved character by drifting toward a generic handsome face, superhero body, or unrelated NFT anatomy;
-- new visual ideas become canon only after explicit approval.
-
-# 19. Color system
-
-Core palette:
+Core:
 
 - near-black;
 - charcoal;
 - dirty paper/ivory;
-- Hellbox ember orange;
+- ember orange;
 - blood/correction red;
-- PulseChain violet and ultraviolet glow;
-- limited nicotine yellow/old-note gold;
-- rare green for healthy infrastructure or money irony.
+- PulseChain violet/UV;
+- nicotine yellow/old-note gold;
+- rare green.
 
-Rules:
+Meaning:
 
-- purple indicates chain/infrastructure/unnatural signal;
-- orange indicates production, heat, Hellbox machinery, action;
-- red indicates correction, warning, damage, Harrow intervention;
-- paper tones indicate publishing, records, pages, human thought;
-- green should remain scarce enough to mean something.
+- purple = chain / signal / unnatural infrastructure;
+- orange = production / heat / Hellbox machinery;
+- red = correction / warning / Harrow intervention;
+- paper tones = publishing / records / thought;
+- green = scarce enough to mean health/money irony.
 
-# 20. Material language
+## 35. Material language
 
-Harrow's world should feel tactile:
+Use tactile surfaces:
 
 - greasy black steel;
 - burnt paint;
 - worn leather;
-- fingerprints on glass;
+- fingerprints;
 - smoke;
 - dirty paper;
 - red grease pencil;
 - old tape;
 - Polaroid gloss;
-- CRT/LCD monitor bloom;
+- screen bloom;
 - whiskey glass;
 - ink;
-- mechanical counters;
-- chain, chrome, rubber, cloth, ash.
+- counters;
+- chain/chrome/rubber/cloth/ash.
 
-Avoid smooth generic sci-fi surfaces and clean crypto gradients unless Harrow has defaced them.
+Avoid clean generic sci-fi/crypto gradients unless Harrow has defaced them.
 
-# 21. Page and panel grammar
+## 36. Camera language
 
-## Current standard Hellbox issue
+Use:
+
+- low motorcycle-level angles;
+- surveillance/documentary convention views;
+- desk-level hands/object closeups;
+- wide environmental truth;
+- extreme closeups only when earned;
+- physically credible lenses/perspective.
+
+Avoid:
+
+- repetitive eye-level two-shots;
+- superhero landing poses;
+- random Dutch-angle addiction;
+- empty dramatic framing.
+
+---
+
+# PART X — COMICS / STORY PRODUCTION
+
+## 37. Standard ordinary comic production format — STRONG PROTOTYPE
+
+Current working standard for ordinary Hellbox comic books:
 
 - 14 story pages;
 - 64 chronological frames;
-- frame numbering never resets inside the issue;
-- one repeatable production template;
-- consistent 3D comic art direction;
-- final page layouts should feel professionally edited rather than like image grids.
+- frame numbering does not reset inside an issue;
+- page count and chronological frame count should remain standardized across ordinary Hellbox comic books once the production model is formally locked;
+- graphic novels, prose-to-graphic adaptations and proving exceptions such as SciVive may use different page/frame structures;
+- exact page-by-page frame distribution is **PROTOTYPE / NOT LOCKED**;
+- exact panel/grid/layout grammar is **OPEN**;
+- once a comic-page layout system is established, ordinary Hellbox comic books should use a coherent, repeatable visual grammar rather than every issue inventing a different structural language;
+- graphic novels are not required to follow the ordinary-comic grid/layout system;
+- coherent 3D comic art language remains the working sequential-art direction unless a deliberate psychological/medium break is scripted.
 
-**NO CONSENSUS is not canon.** It was a fill-in production title. The 14-page / 64-frame system belongs to Hellbox comics generally, not to a series named NO CONSENSUS.
+There is no separate rule called "no filler frames." The actual requirement is simpler: once the production standard is locked, every frame should exist because it earns its place in story, pacing, character, atmosphere, information or visual rhythm.
 
-## Visual rhythm
+`NO CONSENSUS` is **not an established Hellbox series**. It has been used only as a fill-in/example title during format exploration. Do not treat it as canon, an ongoing series, a franchise, or a character/faction anchor unless the creator later explicitly creates it.
 
-Every issue should alternate:
+### Visual rhythm — STRONG DIRECTION
+
+Ordinary Hellbox comic pages should not all carry the same density.
+
+Across an issue, deliberately vary:
 
 - dense information;
 - clean impact;
 - close character psychology;
 - wide environmental truth;
 - fast joke timing;
-- one or two pages with enough visual silence for the reader to breathe.
+- quieter visual breathing room when the story needs it.
 
-The hall-of-fame standard is not maximum detail on every frame. It is total control over where detail appears.
+The goal is not maximum detail in every frame. The goal is control over **where detail appears and why**.
 
-# 22. Camera grammar
+Once the panel/grid grammar is formally established, this rhythm should work *inside* that repeatable comic structure rather than defeating it.
 
-Use:
+## 38. Harrow publishing behavior
 
-- low motorcycle-level angles;
-- surveillance-like convention/documentary angles;
-- desk-level closeups of hands and objects;
-- wide environmental establishing shots;
-- extreme closeups only when the joke or psychological beat earns them;
-- real-world lenses and physical perspective;
-- panels that make screens, wallets, price charts, bars, stages and conference rooms readable.
+Harrow may:
 
-Avoid:
+- publish one issue and disappear from that title for a year;
+- rotate several titles;
+- make event-driven one-shots;
+- obsessively produce many issues in one run;
+- adapt prose into a graphic work;
+- return when real events make an old character relevant.
 
-- default eye-level two-shot repetition;
-- superhero landing poses;
-- random Dutch angles on every page;
-- dramatic framing without story purpose.
+Erratic attention is creative behavior.
 
-## Website environmental interaction grammar
+Released packages still must be complete, tested, credited and intentional.
 
-Harrow's environment is part of the narrative.
+## 38A. Writing influence stack — STRONG DIRECTION
 
-Good interactions feel like:
+These are creative ingredients, never instructions to imitate voice, sentences, plots or copyrighted characters.
 
-- opening a drawer Harrow did not want opened;
-- clicking an object because it looks physically interesting;
-- finding a private note;
-- discovering a theory/evidence connection;
-- triggering an irritated Harrow response;
-- finding infrastructure, publishing machinery, or lore embedded in the room.
-
-Avoid:
-
-- floating game icons;
-- quest markers;
-- tutorial arrows;
-- “secret found!” confetti;
-- generic achievement popups;
-- UI that makes the lair feel like an escape-room template.
-
-Accessibility remains first-class. Discovery must never mean inaccessible controls or information traps.
-
-# 23. Writing influence stack
-
-## South Park — factual event to moral contradiction
+### South Park — factual event → moral contradiction
 
 Borrow the story engine:
 
-- start with something recognizable;
-- let every side reveal its hypocrisy;
+- begin with something recognizable;
+- let multiple sides reveal hypocrisy;
 - exaggerate one logical step beyond reality;
 - keep the underlying truth legible;
-- end with a consequence or observation sharper than the opening joke.
+- end with a consequence/observation sharper than the opening joke.
 
-Do not borrow character voices, visual design, or episode plots.
+Do not borrow character voices, designs or episode plots.
 
-## MAD / Harvey Kurtzman — target clarity
+### MAD / Harvey Kurtzman — target clarity
 
 Every satire piece must know exactly what it is attacking.
 
-## Hunter S. Thompson — manic first-person momentum
+The target cannot be "crypto is crazy" when the actual contradiction is more specific.
 
-Borrow velocity, disgust, sensory overload, and narrator contamination. Do not imitate sentences or turn Harrow into a journalist clone.
+### Hunter S. Thompson — contaminated narrator momentum
 
-## 2000 AD / Judge Dredd tradition — institutions as absurd machines
+Borrow:
 
-Borrow the ability to turn systems, laws, bureaucracy, and culture into characters without losing the real-world target.
+- velocity;
+- disgust;
+- sensory overload;
+- narrator contamination;
+- the feeling that the person telling the story may be part of the problem.
 
-## George Carlin / Bill Hicks — sacred-cow pressure testing
+Do not imitate sentences or turn Harrow into a journalist clone.
 
-Borrow the willingness to call the obvious thing obvious. Do not reduce Harrow to stand-up transcripts.
+### 2000 AD / Judge Dredd tradition — systems as characters
 
-## Garth Ennis — adult irreverence with consequence
+Borrow the ability to turn:
 
-Borrow fearlessness and grotesque escalation. Avoid empty nihilism, cruelty without argument, and shock used as a substitute for story.
+- institutions;
+- laws;
+- bureaucracy;
+- platforms;
+- tribes;
+- infrastructure
 
-# 24. The Hellbox satire engine
+into narrative forces without losing the real-world target.
 
-Before writing an issue, assemble a factual event packet:
+### George Carlin / Bill Hicks — sacred-cow pressure testing
 
-1. What actually happened?
+Borrow the willingness to say the obvious thing other people avoid saying.
+
+Do not reduce Harrow to stand-up transcripts.
+
+### Garth Ennis — adult irreverence with consequence
+
+Borrow:
+
+- fearlessness;
+- grotesque escalation;
+- adult irreverence that still has an argument underneath it.
+
+Avoid:
+
+- empty nihilism;
+- cruelty without purpose;
+- shock replacing story.
+
+## 39. Satire engine
+
+Before an issue:
+
+1. What happened?
 2. What is confirmed?
-3. What remains disputed?
+3. What is disputed?
 4. What did each tribe claim?
 5. Who benefited?
 6. What contradiction is funniest?
-7. What would Harrow notice that everyone else avoids saying?
-8. Which fictional character can embody that contradiction?
-9. What is the one visual image people will remember?
-10. What is the final truth beneath the joke?
+7. What would Harrow say that everybody avoids?
+8. Who embodies that contradiction?
+9. What is the one unforgettable image?
+10. What truth survives the joke?
 
-Then build:
+Then:
 
 - setup;
 - escalation;
@@ -1120,153 +1170,358 @@ Then build:
 - consequence;
 - final Harrow observation.
 
-# 25. Multi-title publishing behavior
+## 40. Issue production workflow
 
-## LOCKED
+1. factual research packet;
+2. Harrow thesis/target;
+3. one-paragraph story;
+4. beginning/escalation/climax/ending;
+5. 64-frame beat sheet;
+6. 14-page map;
+7. continuity sheet;
+8. camera/lighting script;
+9. thumbnails;
+10. generation/illustration;
+11. continuity audit;
+12. page assembly;
+13. lettering;
+14. satire/legal fact audit;
+15. phone/desktop/print proof;
+16. Harrow QC;
+17. publication package.
 
-Harrow does not need to work sequentially.
+## 41. Page approval test
 
-He may:
+Ask:
 
-- make one issue of a title and abandon it for a year;
-- rotate among several titles;
-- release event-driven one-shots;
-- suddenly create twenty issues of one title in a manic run;
-- adapt a prose work into a graphic publication;
-- return to an old character when real events make them relevant again.
+- Does this look like Harrow made it?
+- Could it exist in the real crypto world?
+- Is the satire target clear?
+- Is the factual foundation defensible?
+- Is the first visual read intentional?
+- Is the visual hierarchy intentional?
+- Are hands/faces/props/bikes/text correct?
+- Does every screen/note matter?
+- Is clutter storytelling?
+- Does the panel/reading order work without explanation?
+- Is there one memorable image?
+- Does it read on a phone?
+- Does the joke still work after the novelty of the reference wears off?
+- Is Harrow specific, not merely edgy?
+- Did technology become more interesting than the comic?
+- What can be removed?
 
-The publication system must support this without forcing one flagship monthly schedule.
+## 41A. Creator art-development curriculum — INTERNAL / STRONG DIRECTION
 
-Harrow's inconsistency of attention is a **creative behavior**, not an excuse for sloppy production. The release may look sudden; the underlying package must still be complete, tested, credited, and intentional.
+Harrow does not need to become a traditional illustrator before making Hellbox, but the creator must understand enough visual language to direct every frame intentionally.
 
-# 26. Proposed title ecosystem — NOT CANON
+Study/develop in roughly this order:
 
-These are development territories, not approved publication names.
+1. **Value and focal hierarchy** — what the eye sees first, second, third.
+2. **Composition** — balance, negative space, shape, visual direction.
+3. **Sequential storytelling** — panel-to-panel action, subject changes, scene changes, timing.
+4. **Camera and perspective** — lenses, horizon, scale, vehicles, rooms.
+5. **Silhouette and character consistency** — recognition without facial-detail dependence.
+6. **Lighting and color script** — emotional progression across a comic.
+7. **Anatomy and gesture** — believable acting, hands, weight, posture.
+8. **Materials** — metal, leather, paper, smoke, glass, skin, screens.
+9. **Lettering** — balloons, captions, hierarchy, reading order, sound effects.
+10. **Satire clarity** — the reader understands the real event before the exaggeration.
+11. **Editing** — remove a beautiful frame if it harms the issue.
+12. **Screen/print proofing** — the work survives phone, laptop, Reader and physical-print presentation where applicable.
 
-## Recurring current-events ensemble
+This is a creator-development path, not public Harrow biography.
 
-Working-title territory:
+---
 
-- **CHAIN OF FOOLS**
-- **PROOF OF EGO**
-- **BLOCK HEIGHT**
+# PART XI — HELLBOX ARTIFACT LANGUAGE THAT SHAPES HARROW
 
-Engine: rapid response to real chain/community events through a recurring ensemble.
+## 42. PRESS MARK — LOCKED
 
-## NFT culture and ownership
+Standard native 216-copy issue:
 
-- **RIGHT CLICKED**
-- **MINT CONDITION**
-- **IMMUTABLE REGRETS**
+- `HELLBOUND` — 6
+- `PRESS PROOF` — 12
+- `GOLD` — 18
+- `STANDARD` — 180
 
-Engine: JPEG criticism, provenance, collectors, rugs, marketplaces, metadata, ownership and what people misunderstand about programmable books.
+HELLBOUND is the top birth rarity.
 
-## Ethereum / establishment satire
+Do not add generic Legendary/Mythic/Diamond tier soup.
 
-- **THE OLD LANDS**
-- **GASLIGHT**
-- **BRIDGE TO NOWHERE**
+## 43. PRESS DEFECT — LOCKED
 
-Engine: fees, gatekeeping, old-order institutions, bridges, and legacy-chain self-importance.
+Independent birth anomaly axis:
 
-## Influencers, launches and scams
+- `REDACTED` — 6
+- `CORRUPTED PLATE` — 12
+- `BLED OUT` — 18
+- `OFF REGISTER` — 24
+- `NONE` — 156
 
-- **EXIT LIQUIDITY**
-- **GREEN CANDLE**
-- **THE CABAL HAS A GROUP CHAT**
+MARK + DEFECT can overlap.
 
-Engine: attention, manipulation, calls, charts, launches, reputation and selective memory.
+The market can decide which combinations become culturally important.
 
-## PulseChain culture
+## 44. Harrow creator pull — LOCKED
 
-- **NO KINGS. ONLY WALLETS.**
-- **SACRIFICE CLASS**
-- **RPC DOWN**
+Immediate:
 
-Engine: community history, infrastructure, expectations, internal tribes, founders and survival.
+- #001 HELLBOUND — intended opened
+- #002 HELLBOUND — intended sealed
+- #003 PRESS PROOF — intended opened
+- #004 PRESS PROOF — intended sealed
+- #005 GOLD — intended opened
+- #006 GOLD — intended sealed
 
-## Adult convention/nightlife one-shots
+Harrow's DEFECTS are random.
 
-- **PULSE AFTER DARK**
-- **BAD DECISIONS // BAY 01**
+#066 is a public HELLBOUND in the random collector pool.
 
-Engine: conventions, bars, relationships, influencers, wallets and behavior after the panels end.
+Harrow's final three are whatever literal three copies remain after true collector mint-out.
 
-# 27. Character architecture
+If mint closes early, Harrow does not get them.
 
-Hellbox may use several classes of characters.
+## 45. Single-pull chaos — LOCKED
 
-## A. Fictionalized public figures
+Standard native:
 
-Real community/founder/institution figures reframed as comic characters.
+- max 6 primary copies per wallet;
+- exactly 1 copy per transaction;
+- no batch mint.
+
+Cheap PulseChain gas is used to create more event/chaos, not fewer interactions.
+
+Wallet limit is not Sybil protection.
+
+## 46. Live Press voice
+
+The machine reports reality.
+
+Examples:
+
+- `HELLBOUND // 2 REMAIN`
+- `GOLD // 7 REMAIN`
+- `REDACTED // GONE.`
+- `HARROW PULL // 6 TAKEN`
+- `3 STILL IN THE MACHINE`
+
+Odds are real and recalculate after each issuance.
+
+## 47. Seal / Archive visual language
+
+SEALED:
+- unopened.
+
+ARCHIVED:
+- still sealed;
+- visible clear protective sleeve/plastic;
+- reversible;
+- transfer locked until unarchived.
+
+UNSEALED:
+- visible broken/open seal;
+- permanent;
+- never Archive/reward eligible again.
+
+## 48. Irreversible warnings
+
+Harrow can joke around reversible operations.
+
+For irreversible actions — BREAK THE SEAL, Hellforge transformation, owner-authorized burn — clarity wins.
+
+Must communicate:
+
+- what changes;
+- what cannot be undone;
+- what eligibility is lost;
+- what asset/result remains;
+- which token/wallet is affected;
+- obvious retreat/cancel path.
+
+Humor cannot hide permanence.
+
+---
+
+# PART XII — HELLIONS
+
+## 49. HELLION — LOCKED philosophy
+
+HELLION is not the generic fandom name.
+
+It is a rare earned hidden recognition class.
+
+Earlier broad use of "Hellions" for every follower is **SUPERSEDED**.
+
+Until a normal fandom name is explicitly locked, use:
+- reader;
+- collector;
+- visitor;
+- owner.
+
+Internal strong architecture uses 33 hidden degrees.
+
+No public:
+- XP bar;
+- score;
+- leaderboard;
+- "Hellion Level 4";
+- recipe for earning status.
+
+Hellion should emerge from durable history:
+- ownership;
+- reading;
+- participation;
+- time;
+- discoveries;
+- release history;
+- current relevance;
+- collection completeness.
+
+Money matters but cannot simply buy the top.
+
+Harrow may:
+- deliberately misname someone;
+- rarely use their correct name;
+- issue sarcastic recognition;
+- keep custody of a certificate;
+- VOID/rip/burn/tape it back together;
+- remember shared history.
+
+He is not a loving community parent.
+
+---
+
+# PART XIII — THE 30-MACHINE PROBLEM
+
+## 50. Permanent first introduction — LOCKED
+
+The campaign is permanent Hellbox onboarding, not disposable prelaunch marketing.
+
+Creative thesis:
+
+> **DO NOT MARKET HELLBOX. DEMONSTRATE WHAT HELLBOX DOES. MAKE THE MACHINERY TELL THE STORY.**
+
+Harrow is the writer/host/operator.
+
+The Pulse Bytes are subordinate machine characters/infrastructure.
+
+Canonical opening:
+
+> **ONE OF MINE FOUND YOU.**
+
+The entire sequence behaves like one distributed comic.
+
+Exact routing/order and live implementation state are maintained in `HELLBOX_PROJECT_STATE.md`.
+
+HairyLabs platform/cache problems do not redefine Harrow canon.
+
+---
+
+# PART XIV — OPEN DEVELOPMENT QUESTIONS
+
+## 51. Identity — OPEN
+
+- Why "Harrow"?
+- Does anyone know his legal name?
+- apparent age?
+- what is under the mask?
+- has he always worn it?
+- what exactly are the horns?
+- where exactly is the lair?
+
+## 52. Personal history — OPEN
+
+- first comic;
+- failure that drove Hellbox;
+- pre-crypto history;
+- first entry into PulseChain culture;
+- first major disillusionment;
+- who knew him before the mask.
+
+## 53. Psychological depth — OPEN
+
+- what truly scares him;
+- what embarrasses him;
+- what stops the jokes;
+- what he secretly respects;
+- unforgivable betrayal;
+- hypocrisy he cannot see in himself;
+- line he will not cross;
+- what he wants after proving he was right.
+
+## 53A. Fictional recurring cast — OPEN
+
+Beyond Harrow and real-world people used in satire, recurring fictional Hellbox characters are still concept-stage.
+
+Open work includes:
+
+- which fictional characters actually exist;
+- which titles/series they belong to;
+- protagonist/antagonist/supporting roles;
+- canonical anatomy/clothing/props;
+- visual sheets;
+- recurrence rules;
+- whether they belong to one series or can cross between Hellbox titles.
+
+Do not promote exploratory/generated character concepts into canon until the creator explicitly approves them.
+
+### Future character architecture — OPEN
+
+Potential character classes Hellbox may use later:
+
+**A. Fictionalized public figures**
+
+Real founders, influencers, community figures and institutions reframed through satire.
 
 Requirements:
 
 - recognizable but clearly satirical;
 - connected to public events;
-- no unsupported serious allegations;
-- character traits derived from public persona and narrative function, not private invention presented as fact.
+- serious factual claims grounded in evidence;
+- no unsupported criminal/sexual/private allegations;
+- comic traits derived from public persona and narrative function.
 
-## B. NFT-native characters
+**B. NFT-native characters**
 
-Characters derived from collections the creator owns or is authorized to depict.
+Characters may later be derived from collections the creator owns or is authorized to depict.
 
-Requirements:
+If this lane is activated:
 
-- authoritative collection traits preserved;
-- consistent anatomy and silhouette;
-- a story role beyond “look, an NFT”;
-- avoid replacing established characters with generic mascots.
+- collection-specific traits must be preserved accurately;
+- anatomy/silhouette must become consistent once approved;
+- the character needs a story role beyond "look, an NFT";
+- generated mascots must not replace an approved canonical design.
 
-## C. Original Hellbox archetypes
+No NFT-native fictional character is currently established merely because an old concept exists.
 
-Characters invented to embody crypto behavior:
+**C. Original Hellbox archetypes**
 
-- the professional exit;
-- the permanently early mascot;
-- the fee collector;
-- the narrative gatekeeper;
-- the hopium drifter;
-- the validator who keeps the world running while everyone argues;
-- the right-clicker who believes possession and access are the same thing.
+Original characters may embody recurring crypto behavior such as:
 
-These must be developed as people, not one-joke labels.
+- professional exit;
+- permanently-early mascot;
+- fee collector;
+- narrative gatekeeper;
+- hopium drifter;
+- infrastructure operator keeping the world running while everyone argues;
+- right-clicker who confuses possession with access.
 
-## D. Harrow
+These are archetypal development territories, not approved characters.
 
-Harrow can frame, narrate, interrupt or occasionally enter a story. He should not automatically become the protagonist of every title.
+**D. Harrow**
 
-# 28. Existing development pool
+Harrow can frame, narrate, interrupt or enter a story.
 
-Existing project development includes:
+He should not automatically become the protagonist of every title.
 
-- **Ponk Norris:** Legendary Ponk / unstoppable PulseChain crypto sheriff;
-- a fictionalized Vitalik representing the Old Lands/Ethereum establishment;
-- a fictionalized Richard Heart as founder/mayor/central PulseChain figure;
-- Moss Armor(y) / Mayc Moss;
-- Balthor / BAYC Balthor;
-- RH's Pepe;
-- Azuki #908;
-- Clonex;
-- Sidechill;
-- the Original Glizzys / Glizzy Gang;
-- a three-character Pulse Ape Yacht Club supporting group.
+### Recurring-character development worksheet — INTERNAL
 
-These are real development assets, but Hellbox as a publisher is broader than one continuity. Before a flagship line is declared, each character should be audited for:
-
-- rights/authorization;
-- visual model quality;
-- narrative function;
-- long-term range;
-- whether the character belongs in a shared universe, one title, or a one-shot.
-
-# 29. Character-development worksheet
-
-Every recurring character needs:
+Before any fictional character becomes canonical, define:
 
 - name and aliases;
-- authoritative visual references and exact assets that must be preserved;
-- real-world inspiration or satire target;
+- authoritative visual reference;
+- real-world inspiration or satire target, if any;
 - silhouette;
 - voice;
 - public desire;
@@ -1278,7 +1533,7 @@ Every recurring character needs:
 - relationship to ownership/money/status;
 - relationship to Harrow;
 - what makes the character funny after issue one;
-- what makes the character capable of a serious moment;
+- what allows a serious moment;
 - legal/satire boundaries;
 - recurring props;
 - color/material signature;
@@ -1286,449 +1541,118 @@ Every recurring character needs:
 - defeat image;
 - one sentence the audience quotes.
 
-# 30. What remains unknown about Harrow
+### Historical exploratory concept pool — NOT CANON / DO NOT AUTO-REVIVE
 
-These gaps should be answered deliberately over time. They are not invitations for automatic invention.
+Older Hellbox development generated possible title and character ideas. They are retained here only so the project's creative exploration is not lost.
 
-## Identity
+**They are not established series, characters, factions or release commitments. Do not use them in production unless the creator explicitly reopens one.**
 
-- Why did he choose the name Harrow?
-- Does anyone know his legal name?
-- How old does he appear?
-- What is under the mask?
-- Has he always worn it?
-- Are the horns physical, attached, hallucinated or irrelevant?
-- Where exactly is the lair?
+Historical working-title territory included:
 
-## Personal history
+- `CHAIN OF FOOLS`
+- `PROOF OF EGO`
+- `BLOCK HEIGHT`
+- `RIGHT CLICKED`
+- `MINT CONDITION`
+- `IMMUTABLE REGRETS`
+- `THE OLD LANDS`
+- `GASLIGHT`
+- `BRIDGE TO NOWHERE`
+- `EXIT LIQUIDITY`
+- `GREEN CANDLE`
+- `THE CABAL HAS A GROUP CHAT`
+- `NO KINGS. ONLY WALLETS.`
+- `SACRIFICE CLASS`
+- `RPC DOWN`
+- `PULSE AFTER DARK`
+- `BAD DECISIONS // BAY 01`
 
-- What was the first comic he made?
-- What failure made him build Hellbox?
-- What did he do before crypto consumed him?
-- When did he enter PulseChain culture?
-- What was his first major disillusionment?
-- Who, if anyone, knew him before the mask?
+Historical fictional/NFT concept work included names such as:
 
-## Psychological depth
+- Ponk Norris;
+- Moss Armor(y) / Mayc Moss;
+- Balthor / BAYC Balthor;
+- RH's Pepe;
+- Azuki #908;
+- Clonex;
+- Sidechill;
+- Original Glizzys / Glizzy Gang;
+- exploratory Pulse Ape Yacht Club characters.
 
-- What genuinely scares him?
-- What can embarrass him?
-- What makes him stop joking?
-- What does he secretly respect?
-- What betrayal would he never forgive?
-- What hypocrisy in himself does he refuse to see?
-- Is there a line he will not cross?
-- What does he want after proving he was right?
+These names are **historical concept records only**. They do not contradict the current rule that Hellbox has no broadly established fictional cast.
 
-## Relationships
+Real public figures such as Richard Heart, other founders/influencers and institutions are a different category: they may be used as satire subjects grounded in public reality, but no one becomes a recurring Hellbox character by default.
 
-- Does he have one recurring equal who can call him on his behavior?
-- Who can make him laugh without trying?
-- Who does he consider a rival?
-- Who does he underestimate?
-- Is there anyone he protects while denying it?
-- Which Hellion first earns a correct-name moment?
+## 54. Relationships — OPEN
 
-## Physical canon
+- recurring equal who can challenge him;
+- person who can make him laugh;
+- rival;
+- person he underestimates;
+- anyone he protects while denying it;
+- first Hellion to earn correct-name treatment.
+
+## 55. Physical canon — OPEN
 
 - exact age/height/build;
 - unmasked face;
-- permanent tattoos and meanings;
-- recurring jewelry;
+- permanent tattoos/meanings;
+- complete recurring jewelry inventory;
 - bike name;
-- exact everyday clothing variations;
+- everyday clothing variants;
 - dominant drawing hand;
-- preferred cigarette/whiskey details if they matter enough to stay consistent.
+- exact whiskey/cigarette details only if worth canonizing.
 
-## Public boundaries
+## 56. Public boundaries — OPEN
 
-- How much of Harrow's real creator biography is ever acknowledged?
-- Does Harrow appear publicly at conventions in full identity?
-- Does the audience treat him as a person, persona, or both?
-- What information is permanently classified rather than awaiting reveal?
-- Is there a separate permanent ordinary audience/fandom name, now that HELLION is reserved for earned recognition?
-- Which Harrow social handles are permanent brand canon versus current account logistics?
-- Which parts of the lair are publicly explorable versus permanently off-limits?
+- how much of the real creator biography is acknowledged;
+- convention/public appearance rules;
+- whether the audience treats Harrow as person/persona/both;
+- permanently classified information;
+- normal fandom name;
+- permanent social handles versus logistics;
+- publicly explorable versus permanently private lair areas.
 
-# 31. Art-development curriculum for the creator
+Do not invent answers merely to "complete" the character.
 
-The creator does not need to become a traditional illustrator before producing Hellbox, but must learn enough visual language to direct every frame intentionally.
+---
 
-Study in this order:
+# PART XV — REJECTED / SUPERSEDED REGISTER
 
-1. **Value and focal hierarchy** — what the eye sees first, second, third.
-2. **Composition** — balance, negative space, shape, visual direction.
-3. **Sequential storytelling** — panel-to-panel action, subject changes, scene changes, timing.
-4. **Camera and perspective** — lenses, horizon, scale, vehicles, rooms.
-5. **Silhouette and character consistency** — recognize characters without facial detail.
-6. **Lighting and color script** — emotional progression across 14 pages.
-7. **Anatomy and gesture** — believable acting, hands, weight, posture.
-8. **Materials** — metal, leather, paper, smoke, glass, skin, screens.
-9. **Lettering** — balloons, captions, hierarchy, reading order, sound effects.
-10. **Satire clarity** — the reader understands the event before the exaggeration.
-11. **Editing** — remove a beautiful frame when it harms the issue.
-12. **Print and screen proofing** — the page works on phone, laptop, reader and physical print.
+## 57. REJECTED
 
-# 32. Production workflow for every issue
-
-1. factual research packet;
-2. Harrow thesis/target;
-3. one-paragraph story;
-4. beginning, escalation, climax, ending;
-5. 64-frame beat sheet;
-6. 14-page page map;
-7. character/prop continuity sheet;
-8. camera and lighting script;
-9. rough thumbnails;
-10. frame generation/illustration;
-11. continuity audit;
-12. page assembly;
-13. lettering;
-14. satire/legal fact audit;
-15. mobile/desktop/print readability proof;
-16. Harrow quality-control pass;
-17. publication package.
-
-# 33. Hall-of-fame quality checklist
-
-Before a page is approved:
-
-- Does it look like Harrow made it?
-- Could the scene exist in the real crypto world?
-- Is the satire target clear?
-- Is the factual foundation defensible?
-- Is the first visual read intentional?
-- Are hands, faces, props, bikes and text correct?
-- Does every screen/note say something purposeful?
-- Is the clutter storytelling rather than filler?
-- Does the page contain one memorable image?
-- Is there enough contrast for phone reading?
-- Does the panel order read without explanation?
-- Is the joke still funny after the novelty wears off?
-- Is Harrow specific, or merely edgy?
-- Did technology become more interesting than the comic?
-- What can be removed?
-
-# 34. Final creative rule
-
-**Harrow's work must feel obsessively designed by someone who appears incapable of restraint but secretly controls every inch.**
-
-The reader should see chaos.
-
-The artist should know exactly why every object is there.
-
-# 35. Harrow production invariants
-
-Before approving any Harrow appearance, post, interaction, or scene, verify:
-
-- Does this feel like a real person in the real crypto world rather than a fantasy mascot?
-- Is Harrow creating/operating something, or merely posing?
-- Is the arrogance earned by visible competence?
-- Is the joke aimed at something specific?
-- Is he funny without becoming a nonstop quip machine?
-- Is he dangerous/reckless without becoming a generic criminal stereotype?
-- Is PulseChain infrastructure supporting the comic rather than replacing it?
-- Are the mask, X eyes, horns, hair, clothing, hands, jewelry, and body language consistent?
-- If the bike appears, is it the actual Road King Special/bagger canon?
-- If the obsession wall appears, is the exact canonical plate being respected?
-- If a real person is satirized, are fact/opinion/fiction boundaries defensible?
-- Did any new prop, outfit, relationship, or lore detail accidentally become “canon” without approval?
-- Does the scene obey: **The machinery is disciplined. The operator is not.**
-
-# 36. Superseded / rejected decisions register
-
-Keep rejected ideas here so they do not return through context loss.
-
-## REJECTED
+Do not revive:
 
 - motorcycle name `DEADLINE`;
-- Street Glide / Road Glide / chopper / generic-cruiser substitutions for Harrow's bike;
-- generic superhero Harrow;
+- Street Glide / Road Glide / generic chopper substitutions;
+- superhero Harrow;
 - detective/cop Harrow;
 - demon-king Harrow;
-- literal cult-leader framing;
+- literal cult-leader Harrow;
 - corporate community-manager voice;
 - needy buy/join/subscribe language;
 - fake motorcycle-club affiliation;
-- one-off visual generations silently redefining permanent Harrow anatomy;
-- generic police-evidence-board replacement for the canonical obsession wall;
-- `$SIN` inserted into Harrow imagery when the specific asset/scene does not call for it;
-- fake issue numbers or fake live data inserted merely to make a composition look busier.
-- the rejected generic 29-page Byte campaign package / standalone marketing-page grammar that did not build linearly from approved TX01 Byte #6.
+- generated images silently changing anatomy;
+- generic police-board replacement of obsession wall;
+- `$SIN` inserted into imagery when not called for;
+- fake issue numbers / fake live data just to make art busier;
+- generic disconnected 29-page Byte marketing package;
+- `DAMAGE REPORT` as the permanent-history headline.
 
-## SUPERSEDED
+## 58. SUPERSEDED
 
-- treating `HELLION` as an automatic generic label for every Hellbox follower. Current architecture reserves HELLION for earned hidden recognition.
-- treating `NO CONSENSUS` as the canon name of the 14-page / 64-frame production format. That title was a fill-in; the format belongs to Hellbox generally.
+- HELLION as default name for every follower;
+- treating `NO CONSENSUS` as an established title/series/canon element; it is currently only a fill-in/example name;
+- generic rarity vocabulary such as MISPRINT / ERROR COPY / generic INK BLEED when replaced by PRESS DEFECT vocabulary.
 
-# 37. Native Hellbox artifact / Press canon
+---
 
-## LOCKED creative rule
+# 59. FINAL CREATIVE RULE
 
-Every collector-facing trait, state, Press screen, warning, rarity label, metadata attribute and artifact description must sound like **Harrow published it**.
+Harrow's work must feel obsessively designed by someone who appears incapable of restraint but secretly controls every inch.
 
-Internal schemas may use boring technical names. Public artifact language may not.
+The reader sees chaos.
 
-## Birth editions — PRESS MARK
+The creator knows why every object is there.
 
-Standard native 216-copy issues use:
-- `HELLBOUND` — 6
-- `PRESS PROOF` — 12
-- `GOLD` — 18
-- `STANDARD` — 180
-
-HELLBOUND is the top birth rarity.
-
-Do not add generic `Legendary`, `Mythic`, `Diamond`, `Super Rare`, etc. merely to create more tiers.
-
-## Birth anomalies — PRESS DEFECT
-
-Standard native 216-copy issues use:
-- `REDACTED` — 6
-- `CORRUPTED PLATE` — 12
-- `BLED OUT` — 18
-- `OFF REGISTER` — 24
-- `NONE` — 156
-
-PRESS DEFECT is not simply another rarity tier. It represents the machine producing an anomalous copy.
-
-MARK + DEFECT combinations are allowed and should create emergent collector desirability without Hellbox declaring generic rank scores.
-
-Superseded development vocabulary includes MISPRINT, DAMAGED, ERROR COPY, generic INK BLEED and generic rarity soup.
-
-## Harrow's creator pull
-
-Immediate every standard native issue:
-- #001 HELLBOUND — Harrow intends to open it
-- #002 HELLBOUND — preserve sealed
-- #003 PRESS PROOF — open
-- #004 PRESS PROOF — sealed
-- #005 GOLD — open
-- #006 GOLD — sealed
-
-Harrow gets no guaranteed PRESS DEFECT. Even his own machine can disappoint him.
-
-The final three creator copies are only whatever is left after a **true mint-out**. Harrow does not know their IDs/MARKS/DEFECTS beforehand. If the Press is permanently closed early, he does not simply confiscate three unminted copies.
-
-Public grail:
-- #066 is HELLBOUND
-- it remains in the randomized collector pool
-
-## Rule of three
-
-Harrow's collector guidance:
-- rule of 3s
-- experience at least one sealed and one unsealed copy
-- one may be the practical sell/double
-- one may be the ridiculous moonshot
-- one may be the forever copy
-
-This is Harrow advice, not contractual enforcement. He may still disapprove of whatever the collector does.
-
-## Single-pull chaos
-
-Standard native mint behavior:
-- max 6 primary copies per wallet
-- one copy per transaction
-- no batch mint
-
-This friction is intentional. PulseChain's low fees let the Press turn every mint into a separate event.
-
-The public machine should recalculate and display supply, wallet allowance, MARK counts/odds, DEFECT counts/odds and phase state after every successful copy.
-
-Do not misrepresent the wallet limit as Sybil protection.
-
-## Live odds / Press theater
-
-The Press should expose what is still somewhere inside the machine without exposing which hidden token ID contains it.
-
-Good language:
-- `HELLBOUND // 2 REMAIN`
-- percentage from actual remaining drawable pool
-- `GOLD // 7 REMAIN`
-- `REDACTED // GONE.`
-- `HARROW PULL // 6 TAKEN`
-- `3 STILL IN THE MACHINE`
-
-The odds/countdown are not decorative marketing numbers. They must be computed from real remaining issuance state.
-
-## Private Press as Harrow's publication compiler
-
-Harrow supplies:
-- canonical cover
-- actual comic/Reader package
-- approved MARK visual layers/rules
-- approved DEFECT visual layers/rules
-
-The Press validates, commits the rules/package, randomizes according to the approved fairness mechanism, reproducibly composites/renders variants, generates metadata and prepares/deploys the edition.
-
-Default production method is deterministic/reproducible compositing from Harrow-authored source art/layers, **not AI image generation**.
-
-Harrow should not know the complete random trait map beforehand. The machine is allowed to surprise its operator.
-
-## Public metadata vocabulary
-
-Current locked/strong grammar:
-- `PRESS MARK`
-- `PRESS DEFECT`
-- `SEAL`
-- `ARCHIVE`
-- `ARCHIVE BALANCE`
-- `SET STATUS`
-- `PRESS VERSION`
-
-Do not use `DAMAGE REPORT` as the permanent-history headline. It makes less damage sound better.
-
-Current STRONG DIRECTION:
-- `LIVED THROUGH` = positive permanent-history count
-- `INCIDENT LOG` = readable persistent incident history
-
-The final permanent-history labels are still OPEN until explicitly approved.
-
-The intended psychology is: **more history makes the artifact more interesting.**
-
-## Seal and Archive visual grammar
-
-SEALED:
-- unopened comic
-
-ARCHIVED:
-- still sealed
-- visible protective archival plastic sleeve/cover
-- reversible
-- transfer locked until unarchived
-
-UNSEALED:
-- seal visibly broken/open
-- permanent
-- cannot return to Archive/reward eligibility
-
-The user should be able to understand the difference visually before reading a technical state label.
-
-## Irreversible Harrow warnings
-
-For reversible actions such as ARCHIVE / UNARCHIVE, Harrow can be brief and insulting.
-
-For irreversible actions such as BREAK THE SEAL, owner-authorized Hellforge, burn or permanent transformation, Harrow must become extremely clear.
-
-Humor cannot obscure what changes, that it cannot be undone, what eligibility/state is permanently lost, or what the user must intentionally confirm.
-
-Always provide an obvious retreat before final confirmation.
-
-## Dynamic metadata creative rule
-
-Birth identity stays stable:
-- copy/token ID
-- PRESS MARK
-- PRESS DEFECT
-
-Later state can legitimately change:
-- SEAL
-- ARCHIVE
-- permanent incident/history
-- SET STATUS
-- cover
-- Archive balance/status
-- Hellforge/evolution state
-
-Permanent events follow the token. Contextual traits follow current circumstances and may disappear when conditions stop being true.
-
-## SciVive creative exception
-
-SciVive may use dynamic covers, SEALED / UNSEALED, and a later contextual response to holding SciVive + the SciVive Graphic Novel in the same wallet.
-
-SciVive does not automatically inherit the native 216-copy MARK/DEFECT rarity grammar, full Hellforge economy, full Archive reward system or native burn/evolution catalog unless the creator explicitly changes that later.
-
-
-# 38. Gate-close maintenance protocol
-
-This bible is mandatory living documentation.
-
-Before every new Gate implementation:
-1. perform the plain-English architecture/vision alignment review with the creator;
-2. identify what the Gate is and is not building;
-3. surface irreversible decisions and future-capability constraints;
-4. do not begin implementation until alignment is complete.
-
-At the close of every Gate:
-
-1. review the Gate's chats, approved assets, production files, and project-state decisions for Harrow-related changes;
-2. update existing sections instead of appending contradictory duplicate canon;
-3. classify each new decision as LOCKED, STRONG DIRECTION, OPEN, CLASSIFIED, SUPERSEDED, or REJECTED;
-4. add rejected/superseded decisions to the register when they are likely to reappear later;
-5. advance the maintenance record below;
-6. keep `HELLBOX_PROJECT_STATE.md`, `HARROW_CHARACTER_BIBLE.md`, and `README.md` mutually consistent;
-7. do not expose CLASSIFIED material in public-facing copy merely because it exists in the repo.
-
-## Maintenance record
-
-| Gate | Review status | Creative-canon result |
-|---|---|---|
-| Gate 0 | REVIEWED RETROACTIVELY | Core Harrow/Hellbox direction preserved in consolidated bible. |
-| Gate 1 | REVIEWED RETROACTIVELY | Publishing/Reader architecture context incorporated where it affects Harrow. |
-| Gate 2 | REVIEWED RETROACTIVELY | Reader/product language and protected-publication behavior incorporated. |
-| Gate 3 | REVIEWED / CLOSED — 2026-08-30 | Added SEALED PRESS public posture, THE 30-MACHINE PROBLEM as Harrow's permanent first-introduction medium, 30-Byte servant/cast grammar, linear comic continuity, native HairyLabs interaction constraint, live completion/replay behavior, Harrow private-bypass behavior, and rejected generic-campaign register. Full Byte traversal remains externally cache-pending without changing canon. |
-| Gate 4 | ARCHITECTURE ALIGNMENT / IMPLEMENTATION NOT STARTED | Native artifact/Press vocabulary, birth MARK/DEFECT grammar, creator pull, dynamic-state language, single-pull chaos and private publication-compiler direction recorded before Solidity. Review again at Gate 4 close and ask whether HairyLabs refreshed the pending Byte pages. |
-
-# 39. Change log
-
-## 2026-08-30 — Gate 4 pre-implementation architecture alignment
-
-- added mandatory pre-Gate architecture/vision alignment rule;
-- locked native PRESS MARK vocabulary and 216-copy counts;
-- locked PRESS DEFECT vocabulary and counts;
-- locked Harrow first-six special editions and true-mintout final-three tail behavior;
-- locked #066 public HELLBOUND grail direction;
-- locked one-copy-per-transaction / max-six-per-wallet Harrow chaos rule;
-- added live remaining-odds/countdown creative grammar;
-- added private Press publication-compiler/art-compositing direction;
-- clarified that Harrow does not know the complete randomized trait map;
-- added Harrow-facing dynamic metadata vocabulary;
-- rejected `DAMAGE REPORT` as the permanent-history headline and recorded `LIVED THROUGH` / `INCIDENT LOG` as strong direction;
-- added SEALED / ARCHIVED sleeve / UNSEALED visual grammar;
-- added irreversible-action warning canon;
-- recorded SciVive's narrower dynamic-cover/seal exception.
-
-## 2026-08-30 — Gate 3 formal-close addendum
-
-- live-proven first outside visit → Byte #6 routing;
-- live-proven completion → sealed Press behavior;
-- live-proven `START ANOTHER INCIDENT` replay/reset route;
-- live-proven Harrow private bypass that ignores campaign completion and the public sealed surface;
-- recorded HairyLabs stale-page/cache state as external and non-canonical;
-- locked the rule that Byte pages are excluded from testing until the creator confirms the lane is fully refreshed;
-- Gate 3 creative review formally closed; Gate 4 is the next review point.
-
-## 2026-08-30 — Gate 3 campaign / onboarding edition
-
-- locked THE 30-MACHINE PROBLEM as Hellbox's permanent first-introduction medium rather than temporary marketing;
-- locked Harrow as active writer/host/operator across all thirty Byte transmissions;
-- locked the Bytes as subordinate machine characters/infrastructure rather than decorative NFT thumbnails;
-- recorded the exact 30-Byte linear sequence and five-day BREACH → PROOF → MACHINERY → OPERATOR → IGNITION escalation;
-- locked TX01 Byte #6 `ONE OF MINE FOUND YOU.` as the campaign grammar reference;
-- recorded the distributed-comic / Order Zero thesis: demonstrate Hellbox by making the machinery tell the story;
-- recorded the no-JavaScript/native-HTML interaction baseline for HairyLabs campaign pages;
-- locked permanent replay behavior before and after site launch;
-- rejected the earlier generic/standalone 29-page campaign package.
-
-## 2026-08-29 — Gate 3 consolidated edition
-
-- removed `V1` from the permanent filename/title model; this is now a living document rather than a sequence of abandoned versions;
-- added canon authority hierarchy;
-- added Hellbox product hierarchy: comics → collecting → ownership → interaction → blockchain;
-- added explicit negative-definition guardrails for Harrow;
-- added authoritative visual-reference rules;
-- added approved Harrow PFP/emblem variant;
-- added canonical 16:9 hero/lair reproduction rules;
-- expanded exact Road King Special/biker prop canon;
-- locked canonical lair and exact obsession-wall handling;
-- added established website host language and interaction behavior;
-- added public/social identity language;
-- clarified HELLION as earned hidden recognition and marked broad-fandom usage as superseded;
-- added Press/Archive/Reader product-language behavior;
-- added SciVive publishing/credit integrity rule;
-- added generation/character-continuity guardrails;
-- added environmental interaction grammar and accessibility boundary;
-- added production invariants;
-- added rejected/superseded decision register;
-- added mandatory Gate-close maintenance protocol.
+> **THE MACHINERY IS DISCIPLINED. THE OPERATOR IS NOT.**

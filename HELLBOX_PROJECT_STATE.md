@@ -1,2097 +1,1914 @@
 # HELLBOX PROJECT STATE
 
-Last updated: 2026-08-30
-Current production branch: `main`
-Current live checkpoint: Gate 3 COMPLETE and pushed; Gate 4 pre-implementation architecture alignment substantially complete; no Gate 4 contract/tooling implementation has begun
-Current roadmap position: Gate 4 — HELLBOX ARTIFACT KERNEL + VERSIONED PUBLICATION FACTORY; next deliverable is the Publication Configuration Blueprint before Foundry/Solidity work
-Public repository identity: `Harrow <noreply@hellboxcomics.com>`
-Repository privacy status: scrubbed and verified after Gate 2; no personal identity references remain in commit identity, tracked content, commit messages, or historical paths
-Checkpoint-reference rule: use Gate/checkpoint names plus live validation results; do not treat commit hashes as durable handoff identifiers
-Broken Gate 0.2 backup branch: `backup-broken-gate02-20260828`
+**Status:** Authoritative cross-chat project handoff
+**Repository:** `main`
+**Current Gate:** Gate 4 — HELLBOX ARTIFACT KERNEL + VERSIONED PUBLICATION FACTORY
+**Current implementation checkpoint:** V1 publication kernel + release fingerprint + V1 full-deployment factory + factory tests implemented; reported regression **26 Solidity tests passed, 0 failed**
+**Exact next frontier:** publication issuance state machine
+**Mainnet:** prohibited during Gate 4
+
+This file intentionally combines project state, engineering handoff, development process and future-Gate continuity. It replaces separate root-level master-handoff and engineering-execution-standard documents **only because their durable rules are folded here in full**.
 
 ---
 
-## 1. PURPOSE
+# 1. DOCUMENT AUTHORITY — KEEP THE ROOT CLEAN
 
-This is the living handoff document for Hellbox Comics.
+## 1.1 Truth / conflict order
 
-Any future ChatGPT thread, Claude session, human developer, or other assistant should read this file before changing the project.
+Resolve truth in this order:
 
-It records:
-- current live state
-- locked product decisions
-- architecture
-- known bugs
-- workflow rules
-- completed work
-- deferred work
-- exact next step
-- files that must not be changed casually
+1. **Newest explicit creator instruction.**
+2. **`HELLBOX_PROJECT_STATE.md`** for cross-project product/technical architecture, workflow, handoff state, Gate boundaries and durable decisions.
+3. **`HARROW_CHARACTER_BIBLE.md`** for Harrow creative/visual/voice canon and creator-supplied visual-reference authority.
+4. **`CURRENT_GATE_BLUEPRINT.md`** for the detailed implementation contract of the Gate currently being built.
+5. **`README.md`** for concise orientation only.
+6. **Verified implementation evidence** — committed source, committed tests, compiler/test output and Testnet evidence — for determining *implementation progress*.
+7. Older chat/history only when it does not conflict with the above.
 
-If an old chat conflicts with this file, prefer the most recent explicit decision recorded here or in the current repository.
+Important distinction:
+
+- product promises and architecture come from authoritative documents/newest creator decisions;
+- **implementation progress comes from verified source/tests/live evidence**;
+- if a root document temporarily lags behind a just-verified Gate checkpoint, do not roll code backward to match stale progress prose;
+- instead synchronize the active Gate blueprint/project state at the next clean documentation checkpoint.
+
+This rule exists specifically to prevent a future thread from seeing an old sentence such as "Foundry is not installed" and undoing work that the repository already proves exists.
+
+**Authority/conflict order is not the same thing as bootstrap read order.** Fresh chats still read State → Bible → README → Current Gate Blueprint; the authority rules above govern how conflicts are resolved after all four have been read.
+
+## 1.2 Four authoritative root Markdown files
+
+The repository should have only four authoritative root Markdown documents:
+
+1. `HELLBOX_PROJECT_STATE.md` — full technical/product/handoff authority.
+2. `HARROW_CHARACTER_BIBLE.md` — Harrow autobiography, voice, visual and creative canon.
+3. `README.md` — concise repository orientation.
+4. `CURRENT_GATE_BLUEPRINT.md` — **full detailed architecture for the Gate currently being implemented**.
+
+Do not create additional root handoff/process/bible Markdown files.
+
+Do not create:
+- `HELLBOX_MASTER_PROJECT_HANDOFF.md`;
+- `HELLBOX_ENGINEERING_EXECUTION_STANDARD.md`;
+- versioned duplicate Harrow bibles;
+- copies of the current Gate blueprint inside `test/`.
+
+## 1.3 Root cleanliness must not destroy durable architecture
+
+`CURRENT_GATE_BLUEPRINT.md` is a working root filename, **not a disposable history mechanism**.
+
+At formal Gate close:
+
+1. reconcile durable Gate conclusions into this Project State;
+2. update Harrow Bible only if creative canon changed;
+3. update README;
+4. finalize the current Gate blueprint;
+5. archive that finalized blueprint under `docs/architecture/gates/` using a stable Gate-specific filename;
+6. only after the next Gate's architecture review is approved, replace root `CURRENT_GATE_BLUEPRINT.md` with the new Gate blueprint.
+
+For Gate 4, the archive target should be conceptually:
+
+```text
+docs/architecture/gates/GATE_04_PUBLICATION_CONFIGURATION.md
+```
+
+The archived Gate blueprint is reference history, not competing root authority.
+
+**Do not throw away Gate 4's field-by-field Publication Configuration Blueprint merely to keep the root short.** Gate 5 Press and later tooling still need that exact configuration/freeze contract. The root stays clean by archiving finalized Gate artifacts, not by deleting their detail.
+
+Chat history is not authoritative project storage.
 
 ---
 
-## 2. DEVELOPMENT WORKFLOW — LOCKED
-
-This repository is developed incrementally and must remain recoverable at every checkpoint.
-
-Do not use giant multi-file replacement packages by default.
-
-Work one file at a time.
-
-For every code/config change:
-1. Explain why that exact file is next.
-2. Provide the complete replacement file, never a patch requiring manual splicing.
-3. User places that one file in the exact repository path.
-4. Validate that only the expected file changed before committing when appropriate.
-5. User commits/deploys that one file.
-6. Verify the live result and/or backend behavior.
-7. Only then move to the next file.
-
-Interaction cadence is also locked:
-- give the user one immediate terminal action/validation step at a time
-- do not dump long batches of future commands
-- wait for the result of the current step before giving the next
-- if a deployment can lag, verify the actual live version rather than assuming the push has propagated
-
-Pre-Gate architecture alignment — mandatory:
-- before implementation begins on every new Gate, stop and restate the Gate in plain English
-- explicitly define what the Gate is meant to achieve and what it is **not** meant to build
-- identify irreversible/hard-to-change decisions before code is written
-- identify future capabilities that today's architecture must preserve
-- distinguish locked decisions from open decisions and ask the creator to resolve material open choices
-- define the Gate's acceptance path and non-goals
-- do not install tooling, create implementation files, or start coding until this alignment review is complete
-- record meaningful architectural decisions in the living documents before implementation if losing them would cause a future thread to build the wrong system
-
-For backend/API work:
-- test changed backend behavior immediately
-- isolate failures to the specific file/change that caused them
-- do not stack unverified backend changes
-- temporary test mechanisms must be explicitly removed after proof and their secrets deleted
-
-For static assets/runtime files:
-- if CSS/JS URLs are versioned, bump the cache version when the asset changes
-- do not assume a deployed file is active until the live page is confirmed to request the new version
-- Cloudflare edge cache can temporarily serve an older unversioned asset even after deployment; verify the versioned path and then verify the normal path after propagation
-
-Gate-close documentation procedure — mandatory:
-1. Finish technical acceptance for the Gate.
-2. Update `HELLBOX_PROJECT_STATE.md` as the authoritative project/engineering/product handoff.
-3. Review and update `HARROW_CHARACTER_BIBLE.md` as the authoritative Harrow creative-canon handoff. If no Harrow canon changed during the Gate, still advance its Gate maintenance record.
-4. Update `README.md` as the concise project-facing overview/setup/status document.
-5. Keep all three living documents mutually consistent and remove superseded/contradictory statements rather than merely appending new ones.
-6. Commit and verify each documentation file incrementally.
-7. Give the user a short macro-progress report that reflects actual project effort and risk, not simple gate-count percentages.
-8. Only then begin the next Gate.
-
-Living-document authority:
-- `HELLBOX_PROJECT_STATE.md` = exhaustive project, product, architecture, infrastructure, workflow, validation, risk, and exact-next-action authority
-- `HARROW_CHARACTER_BIBLE.md` = exhaustive Harrow visual, psychological, verbal, narrative, environmental, satire, social, and creative-canon authority
-- `README.md` = concise repository orientation and current operating status
-- important product/Harrow intersections must be reflected in both relevant authority documents so either handoff path preserves the decision
-- chat history is not an acceptable substitute for any of these files
-
-`HELLBOX_PROJECT_STATE.md` must be comprehensive enough that a new ChatGPT thread, Claude session, or competent human developer can continue immediately without asking the user to re-explain:
-- what Hellbox Comics is
-- product purpose and end goal
-- enough Harrow identity/voice/visual direction to understand the product, with full creative canon delegated to `HARROW_CHARACTER_BIBLE.md`
-- architecture and infrastructure
-- publication/Reader/Press/Archive model
-- locked decisions and non-goals
-- workflow and file-handoff rules
-- current production state
-- completed proofs
-- known risks/debt
-- exact next engineering action
-
-`HARROW_CHARACTER_BIBLE.md` maintenance:
-- it is a mandatory living repository document, not a one-time creative brief
-- review it at every Gate close
-- update it immediately when a meaningful Harrow canon, visual-reference, voice, lore, satire, social, website-host, environmental, or rejected/superseded creative decision changes
-- authoritative supplied visual references outrank older generated variations
-- preserve `LOCKED`, `STRONG DIRECTION`, `OPEN`, `CLASSIFIED`, `SUPERSEDED`, and `REJECTED` distinctions
-- do not let creative canon survive only in conversation history
-
-README maintenance:
-- keep `README.md` current between Gates
-- it is not a substitute for either living bible
-- README should stay concise enough for repository orientation while the two bibles carry exhaustive project and creative handoff context
-
-Repository privacy workflow — locked:
-- public Git identity is `Harrow <noreply@hellboxcomics.com>`
-- never expose the user's personal/legal identity in tracked project material, commit metadata, committed terminal logs, example paths, or public documentation
-- when copying terminal output into documentation, remove local usernames/hostnames and any private tokens/secrets
-- commit hashes are not durable handoff anchors; privacy/history maintenance can invalidate them
-- prefer Gate/checkpoint names, commit subjects, filenames, migrations, durable data state, and live acceptance results
-- old pre-privacy clones/history must never be merged back into `main`
-
-Living-document maintenance between formal Gate closes:
-- update this file immediately for major architecture, tokenomics, publication-rule, platform, security, ownership, deployment, or product-direction changes
-- update `HARROW_CHARACTER_BIBLE.md` immediately for meaningful Harrow canon, visual, voice, lore, environment, satire, social, or creative-direction changes
-- when a Harrow decision changes product behavior, record the consequence here as well
-- do NOT interrupt implementation to document every minor CSS/file change
-
-Localization workflow:
-- every new user-visible interaction/text added during development gets a canonical English locale key when created
-- secondary languages may temporarily fall back to English while English copy is still changing
-- after English copy freeze, run a full locale delta and final cross-language QA across every hotspot, button, link, state, drawer, error, announcement, Reader/Press/Archive state, metadata field and accessibility string
-
-Avoid unnecessary repository restructuring.
-
-Creative-canon handoff rule — locked:
-- `HARROW_CHARACTER_BIBLE.md` is the canonical creative reference for Harrow
-- do not reconstruct Harrow from chat memory when the bible or authoritative supplied reference assets answer the question
-- if a new explicit creator decision conflicts with the bible, the new decision wins and the bible must be updated
-- generated art does not silently create or change canon
-
-File handoff rules:
-- every replacement artifact/file must be delivered in **both** forms: a direct file and a ZIP copy
-- direct `.js` downloads have been unreliable for the user, so the ZIP is especially important for JavaScript, but still provide both
-- the user normally drops delivered items into the repository root
-- if the destination folder already exists in the repository, the ZIP contains only the replacement file(s) being handed off; do not recreate/nest the existing folder structure inside the archive
-- if the destination folder is new, include only the folder structure required so extraction from the repository root creates the correct new path
-- always state the exact destination path for every delivered file
-- always print the complete current terminal/deploy/verification command needed for the immediate step
-- never tell the user to look back at an earlier message for required commands
-
-Do not modify `src/index.js`, `wrangler.jsonc`, `.assetsignore`, or deployment structure casually.
-
-## 3. CURRENT REPOSITORY / DEPLOYMENT STATE
-
-The repository was recovered after a broken all-at-once Gate 0.2 deployment, then rebuilt incrementally.
-
-Current production state:
-- branch: `main`
-- Cloudflare deployment is live
-- Gate 0 foundation is complete
-- Gate 1 publication platform/data model is complete
-- Gate 2 SciVive Reader vertical slice is complete
-- Gate 2 closeout state bible and README are complete
-- Gate 3 identity, ownership authority, Archive integration, Reader authority wiring, sealed Press, and permanent first-introduction routing are complete
-- outside first-time document navigation to `hellboxcomics.com` now redirects to `https://hairylabs.io/page/6`
-- `/campaign-complete` sets only non-authoritative onboarding completion state and returns to the current Hellbox public experience
-- `/campaign-reset` clears only onboarding completion state and redirects to Byte #6
-- the sealed Press contains an accessible native replay link: `START ANOTHER INCIDENT`
-- valid Harrow `/__harrow` private access bypasses both campaign completion requirements and the sealed surface so development work can continue directly on the real site
-- Gate 3 introduced the permanent repo-root `HARROW_CHARACTER_BIBLE.md` creative-canon authority
-- Gate closeout now requires all three living documents: `HELLBOX_PROJECT_STATE.md`, `HARROW_CHARACTER_BIBLE.md`, and `README.md`
-- public Git history was privacy-rewritten after Gate 2; old pre-rewrite SHAs are intentionally obsolete
-- identify implementation checkpoints by commit subject/Gate rather than hard-coded SHA in handoff documentation
-- public site works in English and Spanish
-- current main frontend runtime query version: `20260829-gate3-archive-09d20a8`
-- current Gate 0.2 layout stylesheet cache generation remains `gate0-2-04`
-- GA4 is installed with Measurement ID `G-5E9EX1RE0Z`
-- GA4 Realtime was verified; Brave Shields can block the user's own Analytics requests
-- public/backend multi-chain foundation is live
-- production D1 database `hellbox-production` is bound to the Worker as `DB`
-- production R2 buckets remain `hellbox-public` and `hellbox-private`
-- SciVive protected Reader delivery is stored in `hellbox-private`
-- Worker publication APIs read D1 rather than a hardcoded publication registry
-- Worker Reader delivery pointers (`reader_manifest_key` and `private_prefix`) come from D1
-- Worker wallet authentication authority is D1-backed (`wallet-signature-d1-session`)
-- live health reports publication engine `publication-key-d1-v1`, registry source `d1`, `readerConfiguredCount: 1`, authentication engine `wallet-signature-d1-session`, and ownership engine `publication-contract-balance-d1-cache-v1`
-- SciVive remains intentionally private and not publicly enumerable
-- normal unauthenticated/public `/api/reader/scivive` returns HTTP `404` by design
-- the temporary Gate 2 preview route was removed after testing
-- temporary Cloudflare secret `HELLBOX_GATE2_READER_KEY` was permanently deleted after testing
-- Press prototype is usable enough to defer, but is not final
-
-### Gate 3.1 — SEALED PRESS — COMPLETE
-
-The launched-but-incomplete site is intentionally hidden behind a Harrow-themed prelaunch surface while development continues.
-
-Current sealed-surface facts:
-- public document navigation is intercepted Worker-first and serves `prelaunch.html`
-- `wrangler.jsonc` uses `assets.run_worker_first: true` so the Worker wins before static `index.html`
-- `HELLBOX_PRELAUNCH_MODE` is `sealed`
-- public sealed document responses use no-store/cache-eviction headers so stale Cloudflare/browser HTML cannot expose the old homepage
-- private owner/developer entry is `/__harrow`
-- reseal route is `/__harrow/reseal`
-- public status route is `/api/prelaunch/status`
-- private access uses Cloudflare secret `HELLBOX_PRELAUNCH_ACCESS_KEY`
-- the bypass cookie is secure/HttpOnly/SameSite=Strict and separate from all wallet/Reader/ownership authority
-- the secret is never placed in URLs, localStorage, tracked files, or public HTML
-- `.assetsignore` was tightened after static deployment was found capable of exposing repository internals
-- live `/.git/config` was verified HTTP `404`
-- a fresh outside mobile visit was verified to see `THE PRESS IS CLOSED`
-- a valid Harrow bypass session was verified to see the real development site
-- resealing was verified to restore the closed surface
-- this private Harrow bypass must remain higher-priority than any future public onboarding redirect
-
-### THE 30-MACHINE PROBLEM — CAMPAIGN COMPLETE; PERMANENT ONBOARDING INTEGRATION PENDING
-
-The marketing campaign is complete as a 30-transmission linear interactive comic distributed across thirty Pulse Bytes owned/controlled for the project. HairyLabs page caching/propagation is expected before the public-entry redirect is enabled.
-
-Permanent product decision:
-- **THE 30-MACHINE PROBLEM is Hellbox Comics' permanent first-introduction medium, not a disposable prelaunch stunt**
-- while the site is in development, first-time/outside visitors will be sent to Byte #6 before they see the sealed Press screen
-- after the full site launches, the same first-introduction path remains; its story is revised over time to reflect Hellbox's current status and the completion destination becomes the live Hellbox experience
-- visitors who have completed it can deliberately replay it as many times as they want
-- the sealed screen must gain an in-world replay control that clears only the campaign-completion marker and returns to Byte #6
-- campaign completion/replay state is **not authorization** and must never grant wallet identity, ownership, Reader access, Harrow bypass, or other privileged state
-
-Locked transmission sequence:
-
-`#6 → #11 → #13 → #19 → #20 → #23 → #27 → #39 → #41 → #44 → #55 → #62 → #64 → #67 → #77 → #82 → #84 → #85 → #100 → #103 → #104 → #122 → #145 → #149 → #219 → #223 → #237 → #238 → #282 → #333 → Hellbox`
-
-Campaign production rules:
-- TX01 / Byte #6, beginning `ONE OF MINE FOUND YOU.`, is the canonical creative/technical template
-- every transmission is introduced/created/narrated by Harrow from inside his world
-- every Byte is a distinct subordinate machine/servant/accomplice carrying a real Hellbox job
-- the actual Byte art is loaded from HairyLabs using the chain/contract/token thumbnail endpoint
-- each page is a comic page/panel experience, not a generic campaign landing page
-- every transmission explicitly inherits a consequence/clue/order from the prior Byte and routes to the next actual Byte
-- humor is mandatory; clues, riddles, lore and project explanation are delivered through Harrow/Byte behavior rather than brochure copy
-- HairyLabs Byte pages currently use **zero JavaScript** as the deployment-safe baseline; interactivity uses native HTML such as `<details>/<summary>` plus CSS
-- HairyLabs page payload ceiling is approximately `32,768` bytes; canonical campaign pages were kept comfortably below it
-- Byte #333 is the final reveal/exit and must route through Hellbox campaign completion rather than merely linking to `/`
-
-Campaign day architecture:
-- Day 1 / TX01–06 — **BREACH**: what are these machines and why did one find me?
-- Day 2 / TX07–12 — **PROOF**: Hellbox is a comics-first publisher; Reader/Archive/finite publication proof
-- Day 3 / TX13–18 — **MACHINERY**: pooled Byte infrastructure, RPC, Chain ID 369, identity, provenance, native-chain discipline
-- Day 4 / TX19–24 — **OPERATOR**: Harrow himself; sleepless obsession, outlaw posture, music, bike, earned recognition
-- Day 5 / TX25–30 — **IGNITION**: artifact history, Press, detail/calibration, manifest, final distributed-comic reveal
-
-Locked final narrative principle:
-> **DO NOT MARKET HELLBOX. DEMONSTRATE WHAT HELLBOX DOES. MAKE THE MACHINERY TELL THE STORY.**
-
-Rejected/superseded campaign work:
-- the earlier generic 29-page package that treated transmissions as loosely related marketing pages is invalid and must never be reused
-- the canonical remaining 29 pages were rebuilt from TX01's approved Byte #6 grammar
-- JavaScript-dependent campaign buttons are not the baseline while HairyLabs deployment behavior remains unreliable
-
-### Permanent first-visit flow — LIVE / LOCKED
-
-Current public behavior:
-
-`new visitor → hellboxcomics.com → Byte #6 → linear 30-Byte story → Byte #333 → /campaign-complete → current Hellbox experience`
-
-During development, the current Hellbox experience after completion is `THE PRESS IS CLOSED`.
-
-Replay behavior:
-
-`current Hellbox experience → START ANOTHER INCIDENT → /campaign-reset → Byte #6`
-
-Live routing/security facts:
-- ordinary outside document navigation without campaign-completion state redirects to `https://hairylabs.io/page/6`
-- `/campaign-complete` sets a secure HttpOnly SameSite=Lax, non-authoritative completion cookie and redirects to `/`
-- `/campaign-reset` clears that completion state and redirects to Byte #6
-- campaign redirect/completion/reset responses use no-store/no-cache semantics
-- APIs are handled before public onboarding routing; static assets remain available and are not trapped in the story
-- Harrow's valid `/__harrow` bypass is independent and takes priority over campaign completion and the sealed surface
-- campaign state grants no wallet identity, ownership, Reader access, Hellion status, or private Harrow privilege
-- Byte #333's final Hellbox exits now route through `https://hellboxcomics.com/campaign-complete`
-- `prelaunch.html` now contains an accessible normal link to `/campaign-reset`
-- after main launch, completion will return to the live Hellbox site while the first-introduction story remains permanent and is revised to reflect current project status
-
-### HairyLabs cache/history dependency — EXTERNAL / NON-BLOCKING
-
-The campaign code/content work is complete, but several HairyLabs Byte pages may temporarily display older inscribed/cached versions until HairyLabs refreshes or provides a history-clear/update control.
-
-Known pages awaiting external refresh when last checked:
-- Byte #6
-- Byte #11
-- Byte #13
-- Byte #19
-- Byte #20
-- Byte #23
-- Byte #104
-- Byte #223
-- Byte #333
-
-Locked testing rule while this external state remains:
-- **do not use any Byte page in acceptance/regression testing**
-- public-gated testing goes directly to Hellbox completion/prelaunch endpoints as appropriate
-- real-site/application testing uses the Harrow private bypass and the actual index/application
-- stale HairyLabs behavior is not a Hellbox failure
-- resume full `#6 → #333` end-to-end acceptance only after the creator explicitly confirms the Byte lane is fully refreshed/clear
-- at the end of every upcoming Gate, explicitly ask whether HairyLabs has refreshed the affected pages
-- do not reopen Hellbox code merely to compensate for HairyLabs cache/history lag unless an actual Hellbox defect is discovered
-
-Production D1 migrations applied:
-- `0001_publication_platform.sql`
-- `0002_refine_asset_location_identity.sql`
-- `0003_seed_scivive.sql`
-- `0004_connect_scivive_reader.sql`
-- `0005_wallet_identity.sql`
-- `0006_ownership_index.sql`
-
-Gate 3 durable wallet identity checkpoint:
-- wallet signing challenges are stored in D1 (`wallet_auth_challenges`)
-- challenges are single-use via durable `consumed_at`
-- wallet sessions are stored in D1 (`wallet_sessions`)
-- sessions are chain-aware, expiring, and revocable
-- live production test proved challenge → `personal_sign` → verify → D1 session → session restore → revocation → HTTP `401`
-- challenge replay returned HTTP `409`
-- live browser acceptance proved the real homepage can reach `VERIFIED` using a throwaway wallet and real production auth endpoints
-- identity remains separate from ownership (`VERIFIED` identity did not create an owned publication)
-- account/chain changes clear browser-side authenticated state
-- throwaway challenge/session records were deleted after testing
-- live browser acceptance tool: `tools/test_wallet_auth_ui.py`
-
-Gate 3 ownership/Archive/Reader authority checkpoint:
-- `wallet_publication_holdings` exists in production D1
-- `ownership_verification_events` exists in production D1
-- `active_wallet_publication_ownerships` view exists in production D1
-- D1 ownership records are evidence/cache only; blockchain state remains authoritative
-- one native ERC-721 collection contract per publication/release is the locked model
-- publication-level ownership is verified with that publication contract's `balanceOf(wallet)`
-- successful owned/not-owned observations are cached in D1 only for a bounded freshness window
-- RPC errors create audit/error evidence and must never silently rewrite a prior owner as `not_owned`
-- `/api/wallet-status` requires an authenticated D1-backed wallet session; unauthenticated calls return HTTP `401`
-- verified frontend Archive state comes from authenticated `/api/wallet-status`, never localStorage or browser claims
-- Reader manifest/page authorization and Archive ownership both call the same Worker ownership authority
-- browser/localStorage poisoning was explicitly tested and could not create an owned publication or enable Reader access
-- Reader regression acceptance passes at laptop, tablet, and mobile sizes using an authoritative owned fixture
-- live wallet identity acceptance passes after Archive integration
-- SciVive still has no deployed contract by design; therefore no positive on-chain owner can exist until Gate 4
-- because SciVive remains private, normal public Archive does not enumerate it and normal Reader requests continue to return HTTP `404`
-
-SciVive durable Reader binding:
-- package status: `draft`
-- private page prefix: `comics/scivive/001/reader/pages/`
-- Reader manifest key: `comics/scivive/001/reader/manifest.json`
-- validation errors: `0`
-- validation warnings: `1`
-- publishing enabled: `0`
-- Reader manifest registered as `reader-manifest`
-- Reader manifest access class: `reader_gated`
-- Reader manifest provider: `r2_private`
-- Reader manifest public retrievable: `0`
-
-Gate 2 private Reader storage:
-- canonical source PDF bytes: `8,433,084`
-- canonical source PDF SHA-256: `d105e16e991944b63d8e696c8236f5b4497d3c959119a87e580f46f2181bc548`
-- canonical source PDF page count: `461`
-- Reader presentation format: WebP facsimile pages
-- generated Reader pages: `461`
-- generated Reader page bytes: `156,576,522`
-- private objects in delivery plan: `462` total (manifest + 461 pages)
-- all `462/462` objects were downloaded back from remote R2 and matched local byte size + SHA-256
-- page `0001` was subsequently fetched through the production Worker and matched the local generated WebP byte-for-byte
-
-Gate 2 browser acceptance:
-- laptop `1440x900`: PASS
-- tablet `820x1180`: PASS
-- mobile `390x844`: PASS
-- browser acceptance test: `tools/test_reader_ui.py`
-- production publication/ownership data is not modified by that browser test
-- laptop/tablet verify the full web Reader control surface
-- compact phone layout verifies protected image display, next/previous navigation, close, page-fit presentation, and viewport containment
-- protected page transport uses authenticated `fetch` → Blob → `URL.createObjectURL(...)`, not direct protected URLs in `<img src>`
-- Reader is not implemented as an embedded PDF viewer
-
-Recovery history remains:
-- the repository was restored from the last known-good Gate 0 baseline after a broken all-at-once Gate 0.2 deployment
-- `main` was rebuilt incrementally from that recovered baseline
-- broken backup branch: `backup-broken-gate02-20260828`
-- the later privacy rewrite intentionally changed historical commit hashes across both branches
-
-The broken branch is forensic history only.
-Do not merge it wholesale into `main`.
-Do not restore or merge an old pre-privacy clone, bundle, or branch snapshot back into the live repository, because doing so could reintroduce scrubbed identity metadata.
-
-## 4. ACTIVE VISUAL / DEVICE TARGETS
-
-Website priority:
-1. exceptional PC/Mac browser experience
-2. polished and genuinely usable tablet/mobile web experience
-3. dedicated native mobile/tablet app later
-
-The website must be dialed in before native-app development begins.
-
-Current web acceptance sizes established in Gate 2:
-- laptop: `1440x900`
-- tablet: `820x1180`
-- phone: `390x844`
-
-Reader product rule:
-- laptop/desktop web is allowed the richest control surface
-- tablet web should retain strong Reader functionality
-- compact phone web may simplify controls when necessary, but must remain polished, readable, navigable, contained within the viewport, and ownership-safe
-- do not require desktop-control parity on compact phone layouts merely to claim responsiveness
-- long-term app-store mobile/tablet experience will be purpose-built after the website is mature
-
-Until dedicated widescreen monitors are available again:
-- optimize standard laptop/desktop
-- optimize tablet/mobile
-
-Deferred:
-- vertical widescreen
-- horizontal widescreen
-
-Widescreen-specific tuning resumes separately; do not force one breakpoint to serve every display.
-
-## 5. HELLBOX CORE PRODUCT — LOCKED
-
-Hellbox Comics is an underground digital publishing house.
+# 2. DEVELOPMENT OPERATING RULES — LOCKED
+
+## 2.1 One-file implementation workflow
+
+For implementation/config changes:
+
+1. explain why that exact file is next;
+2. provide a complete replacement file, never splice instructions;
+3. give direct file + ZIP;
+4. state exact destination;
+5. give one immediate Terminal action;
+6. wait for output;
+7. verify/test the change;
+8. only then move on.
+
+Do not stack unverified backend/contract changes.
+
+## 2.2 Pre-Gate architecture review
+
+Before every new Gate:
+
+- explain goal in plain English;
+- define non-goals;
+- identify collector/product promises affected;
+- identify irreversible/hard-to-change choices;
+- identify future capability that current architecture must preserve;
+- identify technical questions that remain open;
+- define acceptance path;
+- define stop/re-review conditions.
+
+Do not begin a Gate merely because the next code file seems obvious.
+
+## 2.3 What the engineer decides versus what Harrow decides
+
+### Routine engineering — engineer decides
+
+Do not ask Harrow to adjudicate:
+
+- mapping vs struct;
+- helper layout;
+- event indexing when semantics are unchanged;
+- custom-error naming;
+- normal OpenZeppelin composition;
+- test fixture organization;
+- defensive checks;
+- other implementation details that do not alter product behavior.
+
+### Open technical decisions — engineer researches/tests
+
+Examples:
+
+- randomness provider;
+- oracle/TWAP;
+- optimizer/via-ir;
+- renderer transport;
+- external protocol binding;
+- exact early-close mechanism.
+
+Research viable options, test them, compare risk/gas/dependencies/failure modes, and recommend one. Escalate only if options materially change collector experience, economics, trust or long-term architecture.
+
+### Creator/product decisions — ask Harrow
+
+Examples:
+
+- supply;
+- rarity counts;
+- creator allocation;
+- price philosophy;
+- royalties;
+- owner rights;
+- reversible/irreversible actions;
+- Harrow authority;
+- cross-chain scarcity;
+- public vocabulary/canon.
+
+## 2.4 Contradiction sweep
+
+Before declaring documentation synchronized, search for:
+
+- stale field names;
+- superseded deployment modes;
+- old version numbers;
+- old Gate status;
+- old authority terminology;
+- arithmetic/state contradictions;
+- statements saying a component does not exist when it now exists;
+- statements implying a future component already exists.
+
+Question:
+
+> Can two competent engineers read two sections and implement different behavior?
+
+If yes, documentation is not synchronized.
+
+
+## 2.5 Mandatory internal engineering checkpoint before every major implementation file
+
+Before creating or replacing a major contract/backend implementation file, the engineer answers internally:
+
+1. What exact Blueprint sections does this file implement?
+2. What collector/product invariants does it enforce?
+3. What does it deliberately **not** implement yet?
+4. What state must exist on-chain?
+5. What only needs cryptographic commitment?
+6. What belongs in D1/package/external protocols instead?
+7. What new authority, if any, does it introduce?
+8. Can that authority be narrower?
+9. Does it introduce a setter, upgrade path, proxy, initializer, external registration path, arbitrary transfer/burn power, custody, or hidden admin escape hatch?
+10. Is it reimplementing an established audited primitive unnecessarily?
+11. Does it change `HELLBOX_ABI_V1`, a commitment-field order, or a golden-vector encoding?
+12. Does it change a previously frozen collector/product promise?
+13. Can an unchanged reviewed publication version still be reused for later issues without another code change?
+14. What Foundry/tests prove the allowed behavior?
+15. What adversarial actions must fail?
+
+If #11 or #12 is yes, stop before coding unless the architecture explicitly authorized that change.
+
+Do **not** ask Harrow these routine engineering questions.
+
+## 2.6 Invariant ledger — maintain at meaningful checkpoints
+
+Maintain a compact mental/documentation ledger:
+
+| Locked rule / technical item | Implemented? | Tested? | Still open? |
+|---|---|---|---|
+| tokenId = copy number | yes/no | yes/no | yes/no |
+| final-three tail | yes/no | yes/no | mechanics/provider only if applicable |
+| production randomness | yes/no | yes/no | yes/no |
+| HELLBOUND total = 6 | yes/no | yes/no | yes/no |
+
+A prose rule is not "done" merely because it is documented.
+
+## 2.7 Testing standard
+
+Use the cheapest strong evidence appropriate to the boundary:
+
+- unit/revert/boundary tests;
+- fuzz tests;
+- invariant tests;
+- cross-language golden vectors;
+- static analysis;
+- ERC/interface conformance;
+- adversarial test contracts;
+- Testnet deployment;
+- real wallet/backend flows;
+- browser/device regression.
+
+Every checkpoint should prove both:
+
+```text
+ALLOWED THINGS WORK
+FORBIDDEN THINGS CANNOT HAPPEN
+```
+
+Do not churn stable public APIs merely to satisfy style-only lint notes. Security-relevant warnings must be investigated; style/optimization notes are tracked and revisited during hardening.
+
+---
+
+# 3. PRODUCT NORTH STAR — LOCKED
+
+Hellbox Comics is an underground digital publishing house operated by Harrow.
 
 Priority:
-1. comics
-2. collecting
-3. ownership
-4. interaction
-5. blockchain
 
-The blockchain is infrastructure underneath the publishing experience.
+> **COMICS → COLLECTING → OWNERSHIP → INTERACTION → BLOCKCHAIN**
 
-Hellbox is PulseChain-rooted but not permanently PulseChain-only.
+Blockchain is infrastructure, not the product headline.
 
-Future EVM expansion must be configuration-driven and use native deployments per chain.
+Core creative/engineering rule:
 
-Never bridge Hellbox NFTs.
+> **THE MACHINERY IS DISCIPLINED. THE OPERATOR IS NOT.**
 
-One conceptual publication is identified by a chain-independent `publicationKey`.
-
-A specific blockchain asset is identified by:
-`(chainId, contractAddress, tokenId)`
-
-For native Hellbox collectibles, the ERC-721 `tokenId` is the collector-facing Hellbox copy number; public assignment is randomized/shuffled rather than issued sequentially.
-
----
-
-## 6. HARROW — LOCKED CORE
-
-Harrow is:
-- writer
-- artist
-- publisher
-- operator
-- narrator
-- host
-- problem
-
-Harrow is manic, sleepless, perfectionistic, paranoid, narcissistic, reckless, brilliant, funny, suspicious, highly productive, promiscuous, and convinced he is normal.
-
-He behaves like a 1%er:
-- does not ask permission
-- does not seek approval
-- does not beg people to buy
-- assumes people return because the work is the best
-- treats fascination as inevitable
-
-Emotional target:
-- first reaction: “this dude is fucked”
-- then: “he is disturbingly observant”
-- then: “he is absolutely right”
-- eventually: “why is he my favorite person?”
-
-Harrow must not become:
-- a generic Web3 founder
-- a community manager
-- a Joker knockoff
-- a random edgelord
-- a detective/cop character
-- a superhero
-- a fantasy demon king
-
-He lives in the audience’s real world and should feel like someone who could appear at the next crypto convention.
-
-Core art-direction rule:
-**The machinery is disciplined. The operator is not.**
-
-Private lore:
-- Harrow is secretly a career fireman
-- never state this publicly
-- only extremely subtle clues are allowed
-
-Motorcycle:
-- black Harley-Davidson Road King Special / heavy bagger identity
-- Harrow hates cars: “Cars are cages.”
-- old bike name `DEADLINE` is rejected permanently
-- bike currently remains unnamed
-
----
-
-## 7. HARROW ART STYLE DIRECTION
-
-Working artistic identity:
-**Infernal Outlaw Editorial Realism**
-
-Primary study influences:
-- David Mann — biker authenticity, machine identity, outlaw atmosphere
-- Geof Darrow — obsessive machinery and dense visual storytelling
-- Bill Sienkiewicz — psychological instability and expressive mixed media
-- Dave McKean — artifacts, collage, typography, documents, memory
-- Ralph Steadman — manic marks, satirical aggression, handwritten disruption
-- Eduardo Risso — noir clarity, silhouettes, readable darkness
-
-Secondary influences:
-- Richard Corben
-- Simon Bisley
-- Harvey Kurtzman / MAD
-- South Park satire logic
-- Norman Rockwell staging, inverted into Hellbox
-- Hieronymus Bosch micro-stories
-- David Fincher visual discipline
-
-Do not imitate any single artist directly.
-
----
-
-## 8. HERO — CURRENT STATE
-
-Canonical hero asset URL:
-`https://cdn.hellboxcomics.com/assets/brand/hellbox/banners/hellbox-hero-production.png`
-
-Latest hero master is approved for production.
-
-Important hero rules:
-- no fake CSS pencil
-- no visible plus-sign hotspots
-- environmental discoveries should be invisible
-- `PUT THAT BACK` belongs on the production folder marked NOT FOR RELEASE
-- bike remains unnamed
-- Pulse Byte / infrastructure hotspot maps to actual infrastructure
-- Harrow, comic pages, bike, production folder, cabal/wall, infrastructure are meaningful discoverables
-
-Current recovered Gate 0.1 may not yet contain every later intended refinement.
-Reapply later changes incrementally, one file at a time, and verify.
-
----
-
-## 9. ENVIRONMENTAL DISCOVERY PHILOSOPHY
-
-Do not show:
-- plus signs
-- map pins
-- bouncing icons
-- “click here”
-- persistent hotspot circles
-
-Interactive objects should be discovered.
-
-Desktop:
-- subtle local lighting/contrast when approached
-- cursor/environment reaction
-- keyboard focus remains visible
-
-Mobile:
-- no hover dependency
-- subtle environmental disturbance
-- large invisible tap regions
-- no cheesy tutorial overlays
-
-Accessibility:
-- every hidden interaction still needs a useful accessible name
-- keyboard and screen reader access remain intact
-
----
-
-## 10. HELLION SYSTEM — LOCKED DIRECTION
-
-HELLION is not a cheap return-user badge.
-
-Hellion is the top-tier initiatory class.
-
-The relationship system should feel like a school the user did not know they enrolled in.
-
-Structural inspiration:
-- deep secret-degree / Masonic-style progression
-- hidden internal degrees
-- never publicly presented as XP or a normal loyalty program
-
-No public:
-- progress bar
-- score
-- leaderboard
-- “Hellion Level 4”
-- recipe for becoming Hellion
-
-A useful internal structure is 33 hidden degrees, with Hellion beginning only in the highest band.
-
-Hellion recognition should be rare, approximately top 1–5% of meaningful users once real behavior exists.
-
-Relationship model distinguishes:
-- permanent history
-- current standing
-- volatile favor
-
-Money matters but cannot fully buy status.
-
-Top hidden Hellion status should require balanced depth:
-- ownership
-- reading
-- participation
-- time
-- discoveries
-- release history
-- current relevance
-- collection completeness
-
-Hellion certificate:
-- sarcastic award made by Harrow
-- Harrow keeps custody
-- can be ripped/VOID/revoked later
-- history still records that the person once earned it
-- restored status can result in the certificate being taped back together
-
-Alias behavior:
-- Harrow may learn wallet alias/name
-- usually deliberately gets it slightly wrong
-- correct-name usage should be rare and emotionally meaningful
-
-Current local prototype must NOT cheaply award Hellion from localStorage interactions.
-
----
-
-## 11. COMIC / PUBLICATION FORMAT
-
-`NO CONSENSUS` is NOT canon.
-It was only a placeholder title during early format work.
-
-Current standard ordinary Hellbox comic issue format:
-- 14 story pages
-- 64 chronological frames
-- frame numbering never resets within an issue
-- repeated production template
-
-Harrow may:
-- create one issue and leave that title dormant for a year
-- rotate among multiple titles
-- publish one-shots
-- obsessively make many issues in one title
-- revisit dormant stories later
-
-Future titles, flagship series, main characters, and casts are still open.
-
-Editorial focus:
-- approximately 80–90% crypto / blockchain / real-world satire
-- factual blockchain happenings, culture, projects, tokens, NFT collections, community behavior
-- mature South Park-like satire
-- fictional stories grounded in recognizable real-world truths
-- no generic superhero fiction disconnected from the community
-
-Hellbox is mature/adult-oriented, not for children.
-
----
-
-## 12. NATIVE NFT / ARTIFACT ARCHITECTURE — LOCKED WORKING CONSTITUTION
-
-Hellbox is not building generic NFT collections.
-
-A native Hellbox comic is a **versioned programmable publishing artifact** whose release rules freeze while the object can continue changing according to those frozen rules.
-
-Core rule:
+Native artifact rule:
 
 > **THE RULES ARE IMMUTABLE. THE ARTIFACT IS ALIVE.**
 
-Preferred token standard:
-- ERC-721 / PRC-721 style individual copies
-- one unique token per copy
-- **token ID is the Hellbox copy number** for collector clarity
-- do not display a second independent copy-number system unless the creator explicitly reverses this decision
+The website should be exceptional on PC/Mac and polished/usable on tablet/mobile web before native-app development.
 
-### One publication = one native collection — LOCKED
+Accessibility target: practical WCAG 2.2 AA.
 
-Each publication/release gets its own native ERC-721 collection contract per chain.
+---
 
-Hellbox.com is the publisher/library that unifies those separate finite collections.
+# 4. WHAT HELLBOX IS NOT
 
-Never return to one endlessly growing master Hellbox collection.
+Do not turn Hellbox into:
+
+- generic mint site;
+- generic wallet-connect dashboard;
+- one giant master NFT collection;
+- bridged NFT system;
+- upgradeable publication contracts by default;
+- a DAO;
+- an NFT marketplace clone;
+- public publication-builder SaaS before Hellbox itself is mature;
+- a DeFi product wearing a comic skin;
+- generic XP loyalty software;
+- static PDF storefront;
+- architecture requiring bespoke Solidity/audit for every new issue.
+
+---
+
+# 5. REPOSITORY / PRIVACY
+
+Local repo used by the creator:
+
+`~/Desktop/hellbox-recovery`
+
+Public Git identity:
+
+`Harrow <noreply@hellboxcomics.com>`
+
+Never commit:
+
+- creator legal/personal identity;
+- personal email;
+- local username/hostname;
+- wallet seed/private keys;
+- Cloudflare/API secrets;
+- unsanitized terminal logs;
+- private Reader binaries;
+- temporary test credentials.
+
+Repository history was privacy-rewritten after Gate 2.
+
+Old pre-rewrite hashes are not durable handoff anchors.
+
+Broken forensic branch:
+
+`backup-broken-gate02-20260828`
+
+Never merge it wholesale.
+
+Prefer:
+- Gate/checkpoint names;
+- commit subjects;
+- file paths;
+- migration names;
+- live validation evidence.
+
+---
+
+# 6. CURRENT REPOSITORY SNAPSHOT — 2026-08-31 HANDOFF
+
+The supplied local repository shows:
+
+## Tracked Gate 4 implementation
+
+- `foundry.toml`
+- `foundry.lock`
+- `package.json`
+- `package-lock.json`
+- `lib/openzeppelin-contracts` submodule
+- `contracts/HellboxPublication.sol`
+- `contracts/HellboxPublicationFactory.sol`
+- `src/press/releaseFingerprint.js`
+- `test/HellboxPublication.t.sol`
+- `test/HellboxPublicationFactory.t.sol`
+- `test/HellboxPublicationGoldenVector.t.sol`
+- `test/press/releaseFingerprint.golden.mjs`
+
+Pinned OpenZeppelin source:
+
+- package version: `5.1.0`
+- submodule commit: `69c8def5f222ff96f2b5beff05dfba996368aa79`
+
+Toolchain snapshot:
+
+- Foundry `1.8.1` — verified in creator terminal output during Gate 4
+- Solidity `0.8.36`
+- exact Hellbox pragma `0.8.36`
+- EVM target `shanghai`
+- OpenZeppelin Contracts `v5.1.0`
+- optimizer/runs/via-ir still open pending evidence
+- Node `v26.8.1`
+- npm `11.19.0`
+
+Press fingerprint dependency:
+
+- `viem` `2.55.19`
+
+## Latest committed Gate 4 checkpoint by subject
+
+- `Add HellboxPublication V1 factory`
+- `Add HellboxPublication factory tests`
+
+## Reported test state
+
+The current test files contain:
+- 16 publication-kernel tests
+- 9 factory tests
+- 1 cross-language golden-vector test
+
+Total: **26**
+
+Creator/new engineering thread reports:
+- **26 passed**
+- **0 failed**
+
+This handoff treats that as the current verified creator-side checkpoint.
+
+## Documentation reset target
+
+The 2026-08-31 documentation reset is intended to leave four authoritative root Markdown files while preserving detailed finalized Gate architecture under `docs/architecture/gates/`.
+
+Deprecated/redundant documentation must not remain authoritative after the reset.
+
+Retired filenames may still be named in this Project State **only as historical/prohibition notes so future work does not recreate them**. Such a mention is not an active dependency.
+
+Retired/redundant documentation includes:
+
+- separate root `HELLBOX_ENGINEERING_EXECUTION_STANDARD.md`, whose durable execution rules are folded into this Project State;
+- accidental `test/PUBLICATION_CONFIGURATION_BLUEPRINT.md`;
+- obsolete/versioned Harrow bible copies;
+- obsolete standalone accessibility/localization standard after its durable requirements are folded here;
+- stale root `PUBLICATION_CONFIGURATION_BLUEPRINT.md` after its complete field-by-field architecture is migrated into Gate 4 `CURRENT_GATE_BLUEPRINT.md`.
+
+For Gate 4, **`CURRENT_GATE_BLUEPRINT.md` is now the surviving complete detailed architecture**. At formal Gate 4 close, archive that finalized current blueprint to:
+
+```text
+docs/architecture/gates/GATE_04_PUBLICATION_CONFIGURATION.md
+```
+
+The retired root `PUBLICATION_CONFIGURATION_BLUEPRINT.md` does **not** need to remain present until that later archive step.
+
+Remove `.DS_Store` debris and ignore it going forward.
+
+This reset is documentation cleanup only. It must not change application, contract, package, D1, R2, Worker, or deployment behavior.
+
+---
+
+# 7. PLATFORM / HOSTING ARCHITECTURE
+
+## Cloudflare
+
+- Worker backend: `src/index.js`
+- D1: `hellbox-production`
+- R2 public: `hellbox-public`
+- R2 private: `hellbox-private`
+- static binding: `ASSETS`
+- `wrangler.jsonc` uses Worker-first behavior
+
+Custom domains:
+- `cdn.hellboxcomics.com` → public delivery
+- `assets.hellboxcomics.com` → legacy/asset context as currently configured outside the core Reader path
+
+## Public site
+
+Main surface:
+- `index.html`
+- `style.css`
+- `gate02.css`
+- `app.js`
+
+Sealed development surface:
+- `prelaunch.html`
+
+Do not casually modify:
+- `src/index.js`
+- `wrangler.jsonc`
+- `.assetsignore`
+- `index.html`
+- `style.css`
+- `app.js`
+
+---
+
+# 8. GATES 0–3 — COMPLETE
+
+## Gate 0 — foundation
+
+Delivered:
+
+- recovered stable baseline after broken all-at-once attempt;
+- incremental workflow;
+- responsive web foundation;
+- environmental discovery system;
+- accessibility/localization foundation;
+- English/Spanish website UI;
+- GA4;
+- multi-chain registry/status foundation;
+- Press prototype;
+- repo privacy/recovery discipline.
+
+## Gate 1 — publication/data model
+
+Delivered:
+
+- D1 publication model;
+- chain-independent `publicationKey`;
+- package/schema model;
+- public/private asset location model;
+- SciVive seeded as first private publication;
+- Worker APIs reading D1 rather than hardcoded publication registry.
+
+## Gate 2 — protected Reader
+
+SciVive source:
+
+- PDF bytes: `8,433,084`
+- SHA-256: `d105e16e991944b63d8e696c8236f5b4497d3c959119a87e580f46f2181bc548`
+- pages: `461`
+
+Reader:
+
+- PDF → WebP reproducible build;
+- 461 protected pages;
+- 462 private R2 objects including manifest;
+- 462/462 downloaded and hash/size verified;
+- D1 manifest/prefix binding;
+- Worker/private-R2 delivery;
+- browser transport uses authenticated fetch → Blob → object URL;
+- no embedded source PDF;
+- laptop/tablet/mobile acceptance passed;
+- temporary preview auth removed;
+- public `/api/reader/scivive` remains 404.
+
+## Gate 3 — identity / ownership / Archive / public entry
+
+Delivered:
+
+- D1 wallet challenges;
+- single-use challenge consumption;
+- `personal_sign`;
+- expiring/revocable D1 sessions;
+- challenge replay rejection;
+- chain/account-change auth clearing;
+- authenticated `/api/wallet-status`;
+- D1 bounded ownership evidence/cache;
+- blockchain remains ownership authority;
+- Archive and Reader share the same Worker ownership verifier;
+- localStorage cannot grant ownership;
+- Reader ownership regression passed.
+
+### Gate 3.1 — SEALED PRESS
+
+Delivered:
+
+- `THE PRESS IS CLOSED`;
+- Harrow private route `/__harrow`;
+- `/__harrow/reseal`;
+- `/api/prelaunch/status`;
+- secure HttpOnly bypass cookie;
+- no-store/no-cache behavior;
+- `.assetsignore` hardened;
+- `/.git/config` verified 404.
+
+### Permanent public onboarding
+
+THE 30-MACHINE PROBLEM is permanent Hellbox first introduction.
+
+Live route:
+
+`new outside visitor → Byte #6 → ... → Byte #333 → /campaign-complete → current Hellbox`
+
+Replay:
+
+`current Hellbox → /campaign-reset → Byte #6`
+
+Campaign completion is routing only.
+
+It grants no:
+- wallet identity;
+- ownership;
+- Reader access;
+- Harrow private access;
+- Hellion status.
+
+Harrow private bypass outranks public onboarding.
+
+---
+
+# 9. HAIRYLABS EXTERNAL DEPENDENCY
+
+Known stale/history-refresh pages when last checked:
+
+- #6
+- #11
+- #13
+- #19
+- #20
+- #23
+- #104
+- #223
+- #333
+
+This is external/non-blocking.
+
+Until creator explicitly says the lane is clear:
+
+- do not include Byte pages in acceptance/regression;
+- public-gated tests may use Hellbox completion/prelaunch endpoints;
+- real application tests use Harrow private bypass;
+- do not change Hellbox merely to chase HairyLabs caching.
+
+Ask about HairyLabs refresh at every Gate close.
+
+## Pulse Byte / `$SPUNK` durable Hellbox-world note
+
+Real Pulse Byte NFTs can replenish/level their RPC-call allowance by being fed `$SPUNK`; `$SPUNK` burns in that reload loop.
+
+Hellbox may use this as recurring world humor around hungry Bytes / feeding infrastructure.
+
+Locked boundary:
+- the joke/mechanic concept is durable;
+- exact amounts, thresholds and formulas must come from authoritative Pulse Byte rules rather than being invented by Hellbox;
+- the timing/scope of deeper Hellbox integration remains **OPEN**;
+- do not smuggle `$SPUNK` mechanics into Gate 4 issuance merely because the lore exists.
+
+---
+
+# 10. READER PRODUCT
+
+Reader is central.
+
+Presentation classes:
+
+- `BOOK`
+- `COMIC`
+- future `ENHANCED`
+
+BOOK:
+- proven through SciVive.
+
+COMIC:
+- fixed page/spread reading;
+- future comic-specific behavior.
+
+ENHANCED:
+- deliberate artist-authored effects only;
+- no automatic gimmick animation.
+
+Reader principles:
+
+- art/content is the star;
+- UI disappears when not needed;
+- keyboard/touch;
+- paged/continuous;
+- fit page/width;
+- preloading;
+- accessibility;
+- protected ownership access;
+- no dishonest DRM claims.
+
+---
+
+# 11. HARROW
+
+Full creative authority lives in `HARROW_CHARACTER_BIBLE.md`.
+
+Cross-project summary:
+
+- writer;
+- artist;
+- publisher;
+- operator;
+- narrator;
+- host;
+- problem;
+- manic;
+- sleepless;
+- perfectionistic;
+- paranoid;
+- narcissistic;
+- reckless;
+- brilliant;
+- funny;
+- highly productive;
+- convinced he is normal.
+
+Not:
+- generic Web3 founder;
+- community manager;
+- Joker imitation;
+- superhero;
+- demon king;
+- generic edgelord.
+
+Private/classified:
+- career fireman;
+- never state publicly;
+- only subtle clues.
+
+Bike:
+- creator-established **2019 Harley-Davidson FLHRXS Road King Special**;
+- frame-up custom Harrow build, not stock;
+- blacked-out first, with blood-red cherry-candy-over-flake graphics that reveal in strong light;
+- full custom detail authority lives in `HARROW_CHARACTER_BIBLE.md`;
+- cars are cages;
+- `DEADLINE` rejected;
+- bike currently unnamed.
+
+---
+
+# 12. COMIC FORMAT — STRONG PROTOTYPE
+
+Current working standard for **ordinary Hellbox comic books**:
+
+- 14 story pages;
+- 64 chronological frames;
+- frame numbering does not reset inside an issue;
+- page count and chronological frame count are intended to remain standardized across ordinary Hellbox comics once the production model is formally locked.
+
+Still **OPEN / PROTOTYPE**:
+
+- exact page-by-page frame distribution;
+- exact panel/grid/layout grammar.
+
+Once the ordinary-comic layout grammar is established, it should remain coherent and repeatable across Hellbox comic books rather than every title inventing a new structural language.
+
+Exceptions:
+
+- graphic novels;
+- prose-to-graphic adaptations;
+- SciVive and similar proving/source-book cases.
+
+Those exceptions are not required to follow the ordinary-comic page/frame/grid structure.
+
+There is no separate locked rule called "no filler frames." The intended quality rule is that, once the production standard is finalized, each frame should earn its place in story, pacing, character, atmosphere, information or visual rhythm.
+
+`NO CONSENSUS` is **not an established Hellbox series**. It is currently only a fill-in/example title from format exploration. Do not create a series, cast, faction or canon around it unless the creator later explicitly establishes it.
+
+Harrow can rotate titles, publish one-shots and return to dormant series.
+
+Do not force monthly flagship behavior.
+
+---
+
+# 13. NATIVE PUBLICATION MODEL — LOCKED
+
+## One publication = one native ERC-721 collection
+
+Hellbox.com ties releases together as publisher/library.
+
+Never return to one giant master collection.
 
 Never bridge Hellbox NFTs.
 
-### Versioned immutable publication system — LOCKED
+Conceptual identity:
 
-Do not hand-code a bespoke contract implementation for every issue.
+`publicationKey`
 
-The platform uses:
-- standardized/audited `HellboxPublication` implementations/templates
-- `HellboxPublicationFactory`
-- one fresh publication instance per release
-- explicit immutable template/protocol version recorded for every deployed release
+Chain edition:
 
-Released publication instances are **not upgradeable**.
+`(chainId, contractAddress)`
 
-Future capability should come from:
-- newer approved publication-template versions for future releases
-- modular/external Hellbox protocols that old compatible releases can interact with
+Copy:
 
-Do not silently redefine an old version. Register a new version instead.
+`(chainId, contractAddress, tokenId)`
 
-Minimal proxy / clone deployment remains preferred **only if** Gate 4 proves good security, verification, explorer, marketplace, wallet and tooling compatibility on PulseChain. Full deployments remain an acceptable fallback.
+For native Hellbox:
 
-### Immutable launch configuration versus mutable artifact state
+> `tokenId = collector-facing copy number`
 
-Once a publication mint goes live, Harrow must lose the ability to rewrite that release's rules.
+No second visible copy-number system.
 
-Freeze at launch as applicable:
-- publication identity
-- template/protocol version
-- max supply
-- creator allocation policy
-- pricing policy and target/static amounts
-- accepted payment routes
-- mint schedule/phases
-- per-wallet allowances
-- 1-copy-per-transaction rule
-- royalty percentage
-- birth-trait vocabulary/counts
-- reserved/fixed copy rules
-- package/content commitment
-- base art/layer commitment
-- renderer/version rules
-- randomness/allocation rules
-- seal/archive capability
-- external protocol compatibility
-- other edition-specific promises shown by the Press
+## Versioning
 
-State may then legitimately change under those frozen rules:
-- SEALED / UNSEALED
-- ARCHIVED / AVAILABLE
-- dynamic covers
-- permanent incident/history state
-- contextual wallet-dependent traits
-- official Archive balance
-- Hellforge/evolution state
-- token-bound account assets
-- metadata output
-
-No publisher seizure, arbitrary confiscation, forced transfer, blacklist, arbitrary owner burn or ownership override.
-
-### Supply
-
-Standard native issue baseline:
-- max supply: **216**
-- 6 × 6 × 6
-- cap can never increase after launch
-- burns may reduce surviving supply
-- an issue may be permanently closed before reaching max supply; unminted capacity may be destroyed according to the final close/finalization design
-
-SciVive remains a special test publication with supply `5,555`.
-
-### Publication/package commitment
-
-Each release should cryptographically commit to the exact publication system Harrow approved before launch, including as practical:
-- canonical/base NFT cover
-- actual Reader/publication package
-- base publication/package digest
-- PRESS MARK assets/layers
-- PRESS DEFECT assets/layers
-- distribution manifest
-- reserved/fixed-copy manifest
-- renderer/compositor version/rules
-- pricing/mint-policy configuration
-- protocol/template version
-
-Protected Reader content does not need to be placed publicly on-chain merely to prove integrity.
+- standardized publication versions;
+- factory version/generation;
+- fresh collection per release;
+- released instances do not upgrade;
+- future versions/modules add capability;
+- V1 does not mutate into V2.
 
 ---
 
-## 13. COPY ASSIGNMENT, CREATOR PULL & BIRTH TRAITS
+# 14. STANDARD NATIVE 216 BIRTH MODEL — LOCKED
 
-### Token ID = copy number — LOCKED
+## Supply
 
-Collector-facing identity is simple:
+`216`
 
-`tokenId 66 = COPY #066`
+## PRESS MARK
 
-Public minting must **not** assign remaining token IDs predictably/sequentially.
+- HELLBOUND — 6
+- PRESS PROOF — 12
+- GOLD — 18
+- STANDARD — 180
 
-The allocation/reveal mechanism must:
-- shuffle/randomize the drawable copy IDs
-- preserve fixed/reserved IDs
-- prevent easy sniping of known grail IDs such as #066
-- make the unrevealed trait-to-ID map difficult for Harrow and collectors to predict/manipulate
-- be auditable and publicly defensible
-- avoid a secret publisher-controlled rarity map
-- be tested on PulseChain before the first native mainnet issue
+## PRESS DEFECT
 
-The exact randomness/oracle/reveal implementation is still OPEN for Gate 4 design/testing.
+- REDACTED — 6
+- CORRUPTED PLATE — 12
+- BLED OUT — 18
+- OFF REGISTER — 24
+- NONE — 156
 
-### Standard 216-copy PRESS MARK grammar — LOCKED
+MARK and DEFECT are separate permanent birth axes.
 
-Permanent primary birth class:
+## Harrow immediate six
 
-| PRESS MARK | Total | Meaning |
-|---|---:|---|
-| `HELLBOUND` | 6 | Top birth rarity; infernal/forbidden edition treatment |
-| `PRESS PROOF` | 12 | Harrow working-proof aesthetic: crop marks, corrections, production marks |
-| `GOLD` | 18 | Premium gold/foil NFT-readable treatment |
-| `STANDARD` | 180 | Canonical normal edition |
+- #001 HELLBOUND
+- #002 HELLBOUND
+- #003 PRESS PROOF
+- #004 PRESS PROOF
+- #005 GOLD
+- #006 GOLD
 
-Do not dilute this into generic `Rare / Legendary / Mythic / Platinum` NFT rarity soup.
+Harrow DEFECT remains random.
 
-### Standard 216-copy PRESS DEFECT grammar — LOCKED
+## Public grail
 
-A separate permanent birth axis:
+#066 is HELLBOUND and remains in random collector pool.
 
-| PRESS DEFECT | Total |
-|---|---:|
-| `REDACTED` | 6 |
-| `CORRUPTED PLATE` | 12 |
-| `BLED OUT` | 18 |
-| `OFF REGISTER` | 24 |
-| `NONE` | 156 |
+## Harrow tail
 
-PRESS MARK and PRESS DEFECT:
-- are separate axes
-- may overlap on the same public/randomized copy
-- remain permanent with the token across owners
-- do not change merely because the owner changes or later wallet conditions change
-- may disappear only if the original token itself is explicitly consumed/burned under an owner-authorized transformation
+Final three go to Harrow only after true collector mint-out.
 
-Earlier development labels such as `MISPRINT`, `DAMAGED`, `ERROR COPY`, generic `INK BLEED`, and the idea of many generic rarity tiers are superseded by this stronger publishing/Harrow vocabulary.
+They are not preselected.
 
-### Harrow creator allocation — LOCKED
-
-Harrow has a **maximum 9-copy creator allocation** on a standard native issue, all counted inside the fixed max supply.
-
-Immediate first six:
-
-| ID | PRESS MARK | Harrow's intended path |
-|---:|---|---|
-| #001 | HELLBOUND | open / break seal |
-| #002 | HELLBOUND | preserve sealed |
-| #003 | PRESS PROOF | open / break seal |
-| #004 | PRESS PROOF | preserve sealed |
-| #005 | GOLD | open / break seal |
-| #006 | GOLD | preserve sealed |
-
-These six are removed from the public draw immediately.
-
-PRESS DEFECT is **not** preset for Harrow. His copies participate in the same fair defect assignment process; sometimes Harrow gets lucky, sometimes he does not.
-
-Public grail:
-- #066 is HELLBOUND
-- #066 belongs to the randomized non-Harrow pool and must not be trivially snipable
-
-### Harrow tail reserve — LOCKED
-
-Harrow's final three are **not preselected**.
-
-After #001–#006 are removed:
-- the remaining IDs / PRESS MARKS / PRESS DEFECTS participate in the shared randomized mint pool
-- public/allowlist/free/reserve phases consume the pool
-- three issuance slots are held for the tail
-- only on a **true mint-out** do the final three copies left in the machine go to Harrow
-- Harrow does not know those IDs/marks/defects in advance
-- if Harrow permanently closes a release before true mint-out, he does **not** automatically receive the final three
-
-Press-facing creator language should make this transparent, e.g.:
-- `HARROW PULL // 6 TAKEN`
-- `3 STILL IN THE MACHINE`
-- the final three become Harrow's only at actual mint-out
-
-### Harrow rule of threes — CHARACTER GUIDANCE, NOT CONTRACT LAW
-
-Harrow's collector philosophy:
-- rule of 3s
-- at least one sealed and one unsealed copy to experience both paths
-- one copy may be the practical sell/double
-- one may be the ridiculous moonshot
-- one may be the forever copy
-
-This is advice from Harrow to collectors/Hellions-in-training. The contract does not enforce his personal collecting theology, and Harrow still does not necessarily approve of what they do.
+Early close forfeits the tail.
 
 ---
 
-## 14. MINT SCHEDULE, SINGLE-PULL CHAOS & TRANSPARENT ODDS
+# 15. ISSUANCE MATH — DO NOT GET THIS WRONG
 
-### Standard native wallet/transaction rule — LOCKED
+After #001–#006 leave the machine:
 
-- maximum primary allowance: **6 copies per wallet/publication**
-- **1 copy per transaction**
-- no public quantity/batch mint
-- contract must enforce quantity = 1; frontend-only enforcement is insufficient
-- all normal phases follow the same one-copy-per-transaction rule unless a future explicit release rule says otherwise
+```text
+candidatePoolRemaining   = 210
+nonTailIssuanceRemaining = 207
+```
 
-PulseChain gas is intentionally inexpensive enough that this friction is part of the experience.
+`collectorPullsRemaining` may appear in older explanatory notes, but the preferred implementation-facing name is `nonTailIssuanceRemaining` because reserved/free/allowlist/early/public primary issuances can all consume the same 207 non-tail capacity.
 
-Purpose:
-- slow rapid six-copy sweeps
-- create more interleaving among collectors
-- make every copy a separate Press event
-- recalculate rarity/defect odds after every issuance
-- create deliberate Harrow-style chaos
+The arithmetic and product promise do not change:
 
-This is **not** Sybil protection. One human can use multiple wallets; never claim otherwise.
+```text
+candidate pool = 210
+maximum non-tail primary issuances = 207
+```
 
-### Mint phase model — LOCKED REQUIREMENT
+The last three are still in the random candidate pool.
 
-The publication builder/contract model must support configurable immutable phases such as:
-- creator pull
-- reserved/partner claims
-- free claims
-- allowlist / whitelist
-- early Press access
-- public Press
+They are not removed in advance.
 
-Each phase can define before launch:
-- start/end or transition condition
-- total phase allocation/cap
-- per-wallet allowance
-- eligibility commitment/proof
-- free versus paid
-- price policy
-- rollover behavior
+Therefore the first collector draw after creator allocation sees all 210 candidates.
 
-Use scalable eligibility proofs such as Merkle-style claims where appropriate instead of embedding large bespoke wallet lists.
+If 4 HELLBOUND remain:
 
-Unless explicitly and transparently configured otherwise before a release:
-- all non-Harrow phases draw from the same remaining randomized copy pool
-- allowlist/free/early users do not secretly receive better birth-trait odds
+```text
+next-pull HELLBOUND odds = 4 / 210
+```
 
-### Live Press transparency — LOCKED PRODUCT REQUIREMENT
+NOT `4 / 207`.
 
-The public Press must expose live HTML overlays/screens showing as applicable:
-- total run
-- Harrow immediate pull
-- 3-copy tail reserve
-- phase allocations
-- minted / remaining
-- current phase
-- connected wallet
-- wallet eligibility
-- wallet allowance / used / remaining
-- free/reserve/WL status
-- payment routes
-- current quote
-- PRESS MARK remaining counts
-- PRESS DEFECT remaining counts
-- live percentages/odds
+Near true mint-out:
 
-Odds must be recalculated from the **actual remaining drawable pool**, not original supply.
+```text
+candidatePoolRemaining   = 4
+nonTailIssuanceRemaining = 1
+```
 
-Conceptual formula:
+After the final non-tail issuance:
 
-`remaining copies with trait / remaining drawable copies`
+```text
+candidatePoolRemaining   = 3
+nonTailIssuanceRemaining = 0
+```
 
-Update all relevant screens after every confirmed single-copy mint before the next pull.
+Those exact three become Harrow's tail.
 
-When a trait is exhausted, Harrow language may simply report:
-
-`GONE.`
+Any implementation using 207 as the initial random-candidate denominator is wrong.
 
 ---
 
-## 15. PRICING POLICY — PER PUBLICATION, IMMUTABLE AT LAUNCH
+# 16. STANDARD MINT RULES
 
-Every publication chooses and previews its pricing policy before mint starts.
+Standard native:
 
-Different releases may intentionally have different economics:
-- ordinary native issue target may be around `$6.66`
-- a labor-intensive graphic novel may target something like `$66.66`
-- future market response may justify different future-release pricing
-- changing a future release never changes an older one
+- lifetime primary cap = 6 per wallet;
+- max per transaction = 1;
+- batch mint = false.
+
+One copy per transaction is intentional chaos.
+
+It is not Sybil protection.
+
+Mint phases must support:
+
+- reserve/partner;
+- free;
+- allowlist;
+- early Press;
+- public Press.
+
+Unless frozen/disclosed otherwise, every ordinary non-Harrow phase draws from the same remaining random pool.
+
+No secret privileged rarity odds.
+
+---
+
+# 17. LIVE PRESS TRANSPARENCY
+
+Public Press should show real state:
+
+- run size;
+- minted/remaining;
+- current phase;
+- Harrow pull;
+- tail still in machine;
+- wallet;
+- eligibility;
+- lifetime used/remaining;
+- phase allowance;
+- free/reserve/WL status;
+- payment routes;
+- current quote;
+- remaining MARK counts/odds;
+- remaining DEFECT counts/odds;
+- transaction state;
+- ejected copy/result.
+
+After every successful single-copy mint:
+- refresh authoritative state;
+- recalculate odds;
+- only then allow next pull.
+
+No fake odds/countdowns.
+
+---
+
+# 18. PRICING MODEL
+
+Pricing is per release.
 
 Required policy modes:
 
-### FREE
+- `FREE`
+- `FIXED_STABLE`
+- `FIXED_PLS`
+- `USD_TARGET_DUAL`
 
-No primary payment.
+`FIXED_PLS`:
+- frozen PLS amount.
 
-### FIXED_STABLE
-
-Fixed stable/USD-style amount chosen before launch.
-
-### FIXED_PLS
-
-Fixed PLS amount chosen before launch.
-
-The amount does not float with USD value for that release.
-
-### USD_TARGET_DUAL
-
-The collector may choose:
-- fixed stable/USD route
-- current PLS equivalent of the frozen USD target
-
-Example:
-- release target freezes at `$6.66`
-- PLS amount changes at mint time as PLS/USD moves
-- Harrow is not editing the publication every minute
-
-The architecture should use a trusted pricing adapter/oracle/TWAP-style mechanism rather than manual Harrow updates.
+`USD_TARGET_DUAL`:
+- frozen USD/stable target;
+- collector can choose stable route or live PLS equivalent;
+- PLS quote comes from approved adapter/oracle/TWAP;
+- Harrow does not manually update the price.
 
 Collector protection:
-- current PLS quote shown clearly on Press
-- quote tolerance / maximum authorized PLS amount
-- if price moves beyond tolerance, revert rather than silently overcharge
-- excess handling/refund behavior must be explicit and tested
+- quote freshness;
+- tolerance/max authorization;
+- explicit rounding;
+- revert/refund policy.
 
-Exact PulseChain price-source/oracle design remains OPEN and must be researched/tested before locking.
-
-Publication mint terms freeze when mint goes live.
-
-Treasury/royalty routing should be designed so operational wallet rotation does not require mutating historical publication economics; routing contracts/modules may be preferable to changeable per-publication promises.
+Exact PulseChain price adapter is still open technical work.
 
 ---
 
-## 16. SEALED, ARCHIVE & UNSEALED STATE — LOCKED DIRECTION
+# 19. SEALED / ARCHIVE / UNSEALED — LOCKED PRODUCT MODEL
 
-These are different concepts.
+## SEALED
 
-### SEALED
+Unopened.
 
-- comic has never been opened/read
-- may be Archive-eligible
-- may participate in future official reward systems if that publication supports them
+Potentially Archive-eligible.
 
-### ARCHIVE — REVERSIBLE WHILE SEALED
+## ARCHIVE
 
-Archive is non-custodial:
-- NFT remains in current owner's wallet
-- owner may ARCHIVE
-- owner may UNARCHIVE
-- owner may later ARCHIVE again while the seal remains intact
+Reversible while sealed.
 
-While archived:
-- official accrual may run
-- NFT transfer execution is locked/reverts
-- Hellbox must not permit listing through its own UI
-- visual cover gains an archival plastic/protective sleeve treatment
-- compatible marketplaces should receive useful locked-state signaling where practical
+- NFT remains in wallet;
+- transfer execution locked;
+- Hellbox does not list it while archived;
+- visual protective sleeve;
+- unarchive stops earning/unlocks transfer;
+- may rearchive while still sealed.
 
-Important marketplace honesty:
-- third-party marketplaces may create/display off-chain signed listings without calling the token contract
-- Hellbox cannot guarantee that no third-party UI displays a listing
-- the contract **can** guarantee the actual transfer/sale execution cannot succeed while archived
+Third-party off-chain listings may still display; actual transfer must fail while archived.
 
-UNARCHIVE:
-- stops new official accrual
-- unlocks transfer
-- does **not** have to force claim already accrued official rewards
-- unclaimed official Archive balance may remain attached to the NFT and follow it to a later owner if transferred unclaimed
+## UNSEALED
 
-### UNSEALED — IRREVERSIBLE
+Permanent.
 
-Opening/reading breaks the seal permanently.
+Once opened:
+- cannot reseal;
+- cannot re-enter Archive;
+- cannot regain official reward eligibility.
 
-Once unsealed:
-- cannot reseal
-- can never become Archive/reward eligible again
-- cannot resume official Archive earning
-- metadata/cover reflects the broken seal permanently
-
-Before UNSEAL:
-- token must be out of Archive
-- official accrued reward must be finalized/paid/claimed or otherwise cleared according to the final protocol
-- official reward state becomes `0 / INELIGIBLE` afterward
-
-Every irreversible action must receive a Harrow-voiced, hard-to-miss warning and deliberate confirmation. Humor may surround the warning but must not obscure permanence.
+Irreversible actions require explicit Harrow warning and deliberate confirmation.
 
 ---
 
-## 17. DYNAMIC METADATA, ARTIFACT HISTORY & CONTEXT
+# 20. DYNAMIC METADATA / ARTIFACT STATE
 
-Metadata output must remain dynamic.
+Rules freeze.
 
-Do **not** permanently freeze one static JSON file for every token.
+Metadata output may change according to frozen rules.
 
-Freeze:
-- release rules
-- renderer/protocol version
-- canonical base assets/package
-- birth traits/assignments
-- immutable publication configuration
+Permanent birth:
+- token/copy ID;
+- PRESS MARK;
+- PRESS DEFECT.
 
-Allow metadata to reflect legitimate evolving state:
-- PRESS MARK
-- PRESS DEFECT
-- SEAL
-- ARCHIVE
-- permanent incident/history state
-- current contextual traits
-- official Archive balance/status
-- Hellforge/evolution state
-- cover changes
+Ruled state:
+- SEAL;
+- ARCHIVE;
+- cover;
+- permanent history;
+- Hellforge/evolution state;
+- official Archive status/balance;
+- contextual current-wallet traits.
 
-Marketplace refresh/update signaling must be supported so compatible markets know when dynamic metadata should be re-read.
+Permanent events follow the token.
 
-### Public Harrow-facing metadata grammar
+Contextual traits can appear/disappear with current conditions.
 
-Technical internals can use conventional code names. Collector-facing metadata must read like Harrow made it.
-
-Current stable/strong vocabulary:
-
-| Internal concept | Collector-facing Hellbox vocabulary |
-|---|---|
-| birth class | `PRESS MARK` |
-| birth anomaly | `PRESS DEFECT` |
-| sealed/unsealed | `SEAL` → `INTACT / BROKEN` |
-| archive state | `ARCHIVE` → e.g. `SLEEVED / AVAILABLE / INELIGIBLE` |
-| official accrual | `ARCHIVE BALANCE` |
-| series wallet condition | `SET STATUS` → e.g. `COMPLETE / MISSING PIECES` |
-| contract/protocol generation | `PRESS VERSION` |
-
-`DAMAGE REPORT` is rejected/superseded as the public name for permanent history because it makes lower sound better.
-
-Current **STRONG DIRECTION**, not yet final canon:
-- `LIVED THROUGH` = positive count of permanent incidents/history
-- `INCIDENT LOG` = the actual persistent history entries
-
-The goal is for more permanent history to make an artifact more interesting/desirable, not make it read like lower condition grade.
-
-### Permanent versus contextual state
-
-Permanent artifact events:
-- follow the token forever across owners
-- examples may include owner-authorized Hellforge transformation, burn-survivor history, event marks, permanent incident state
-- exact incident taxonomy remains open
-
-Contextual traits:
-- describe something true about the **current owner/context**
-- may appear/disappear without mutating permanent artifact history
-- example: current owner holds every issue in a series
-- selling one issue can turn `SET STATUS` from `COMPLETE` to `MISSING PIECES`
+Marketplace metadata-update signaling must be supported.
 
 ---
 
-## 18. TOKEN-BOUND ACCOUNTS, OFFICIAL REWARDS & HELLFORGE COMPATIBILITY
+# 21. ERC-6551 / REWARDS / HELLFORGE BOUNDARIES
 
-### ERC-6551 / token-bound account — REQUIRED FOR NATIVE ISSUE #1 CAPABILITY
+## ERC-6551
 
-Native Hellbox issues must be compatible with token-bound accounts before the first native mainnet issue.
+Native Issue #1 must remain compatible.
 
-The token-bound account is the NFT's general-purpose asset/account layer.
+Token-bound account:
+- general-purpose;
+- arbitrary assets;
+- controlled through token ownership;
+- no Harrow sweep authority.
 
-Do not give Hellbox seizure/sweep authority over arbitrary assets somebody places in that account.
+## Official Archive rewards
 
-### Official Archive reward accounting — SEPARATE SYSTEM
+Separate from arbitrary TBA asset balances.
 
-Do not equate:
-- arbitrary assets physically held in a token-bound account
-with
-- Hellbox's official Archive reward balance
+Preferred:
+- dedicated protocol accounting keyed to NFT;
+- owner can claim;
+- unclaimed balance can follow NFT if frozen protocol says so;
+- unarchive stops new accrual;
+- unseal permanently finalizes/clears eligibility.
 
-Preferred architecture:
-- dedicated Hellbox reward/vault/accounting protocol
-- official balance keyed to the NFT/artifact
-- NFT stays in owner's wallet
-- owner may claim official accrued rewards at any time
-- unclaimed official rewards can follow the NFT to the new owner
-- unarchiving stops new accrual but does not necessarily erase/force-claim the existing official balance
-- irreversible unseal clears/finalizes official accrual and permanently ends eligibility
+Before future reward-token launch:
+- do not publicly name `$SIN`;
+- use neutral `ARCHIVE BALANCE`.
 
-Before the future reward token is publicly launched:
-- do not expose `$SIN` by name in metadata/Press/public UI
-- use neutral language such as `ARCHIVE BALANCE`
+## Hellforge
 
-Future reward formulas remain OPEN.
+Modular/external where practical.
 
-### Hellforge / burn / evolution
+Requires current owner authorization.
 
-Before the first native mainnet issue, Native Issue #1 must be compatible with:
-- Hellforge
-- owner-authorized burn-to-transform
-- permanent evolution state
-- hidden traits
-- dynamic covers
-- permanent incident/history state
-- contextual wallet-dependent traits
+No publisher forced burn.
 
-Prefer modular/external Hellforge machinery where practical rather than hardcoding every future recipe into every publication contract.
-
-Hellforge must not be able to burn/transform a token merely because Harrow wants it changed. The current owner must deliberately authorize irreversible transformations.
-
-Burning must provide a direct compelling benefit/result to the participant; it cannot exist only to reduce supply or enrich surviving holders.
-
-The publication kernel needs the interfaces/state/event framework for future protocols without knowing every future recipe at birth.
-
-### Future $SIN
-
-$SIN remains future/classified.
-
-Do not front-run it publicly.
-
-Expected launch route remains PUMP.tires unless strategy changes.
-
-Do not build a bespoke ERC-20 merely because artifact architecture needs future reward compatibility.
+Burn/consume must produce a direct participant result, not merely reduce supply.
 
 ---
 
-## 18A. SCIVIVE — LOCKED TEST PUBLICATION / EXCEPTION
+# 22. SCIVIVE — PROVING EXCEPTION
 
-`publicationKey: scivive`
+`publicationKey = scivive`
 
-SciVive:
-- standalone publication
-- not Native Issue #1
-- PulseChain
-- ERC-721
-- max supply `5,555`
-- free primary mint
-- max 1 primary mint per wallet
-- max 1 per transaction
-- royalty `369` bps
-- Reader enabled
+Known:
 
-Newest SciVive capability direction supersedes the older blanket "no sealing" statement:
+- PulseChain;
+- ERC-721;
+- max supply 5,555;
+- free primary mint;
+- primary cap 1;
+- max per transaction 1;
+- royalty 369 bps;
+- Reader enabled.
 
-SciVive **may use**:
-- dynamic covers
-- SEALED / UNSEALED
-- later contextual visual/state change when the same wallet also owns the future SciVive Graphic Novel
+May use:
+- dynamic covers;
+- SEALED/UNSEALED;
+- later contextual reaction to holding SciVive Graphic Novel.
 
-SciVive still does **not** use the full native Hellbox artifact system unless explicitly reopened later:
-- no full Hellforge economy
-- no $SIN/Archive reward path
-- no native 216-copy PRESS MARK / PRESS DEFECT rarity grammar
-- no broad burn-to-transform program
-- no full native evolution stack
-
-SciVive source:
-- existing source book/package
-- EPUB exists
-- canonical PDF/Reader source exists
-- Harrow will NOT rewrite, edit, restore, sanitize or finish Richard Heart's book
-- Harrow is publisher/presenter, not source-book co-author/editor
+Does not automatically use:
+- native 216 MARK/DEFECT grammar;
+- full Archive reward economy;
+- full Hellforge;
+- broad burn/evolution system.
 
 Purpose:
-- prove mint → ownership → Archive/library recognition → protected Reader
-- exercise the publication factory and basic dynamic cover/seal primitives without pretending SciVive is Native Issue #1
 
-About one year after initial SciVive release:
-- planned graphic-novel adaptation
-- follows standard Hellbox comic production rules
-- exact supply/price remains open
-- may intentionally cost substantially more because of Harrow production labor
-
-Native Issue #1 is a separate launch barrier and does not go mainnet until the full artifact capability set is proven.
-
-## 19. READER — PRODUCT PRIORITY
-
-The Reader is the heart of the product.
-
-It must not feel like an embedded PDF viewer.
-
-Reader presentation classes:
-- BOOK
-- COMIC
-- future ENHANCED
-
-BOOK:
-- prose/facsimile, e.g. SciVive
-- Gate 2 proves BOOK via page-based WebP facsimile delivery from a verified source PDF
-
-COMIC:
-- fixed page/spread reading
-- later work can add comic-specific spread behavior without replacing the Reader architecture
-
-ENHANCED:
-- future artist-authored sound, timing, depth, lighting, frame effects
-- deliberate and restrained
-- no automatic gimmick animation
-
-Reader principles:
-- artwork/content is the star
-- UI disappears when not needed
-- fit page
-- fit width
-- paged
-- continuous
-- keyboard
-- touch/swipe
-- preloading
-- accessibility
-- optional sound with captions/transcripts where needed
-- ownership gate
-- protected assets
-- no dishonest DRM claims
-- protected pages must not rely on raw private URLs that can be dropped directly into `<img src>`
-- authenticated browser delivery should fetch protected bytes, convert them to Blob/object URLs, and revoke them when no longer needed
-
-Gate 2 implemented BOOK Reader foundation:
-- SciVive Reader manifest: `publications/scivive/reader/manifest.json`
-- manifest page count: `461`
-- deterministic page storage keys: `page-0001.webp` through `page-0461.webp`
-- reproducible source/render tool: `tools/build_scivive_reader.py`
-- reproducible private R2 upload/verification tool: `tools/upload_scivive_reader.py`
-- browser acceptance tool: `tools/test_reader_ui.py`
-- private R2 manifest: `comics/scivive/001/reader/manifest.json`
-- private R2 pages: `comics/scivive/001/reader/pages/page-0001.webp` through `page-0461.webp`
-- D1 is authoritative for Reader manifest key and private page prefix
-- Worker validates private manifest publication identity, page prefix, and page count before serving it
-- frontend uses authenticated blob transport for protected page images
-- adjacent page preloading is implemented
-- continuous mode lazy-loads protected blob images
-- normal public SciVive Reader request remains HTTP `404`
-
-Gate 2 authorization proof:
-- a narrowly scoped temporary Gate 2 preview session was created solely to prove production private delivery before Gate 3 ownership exists
-- the session loaded the real private 461-page manifest from production R2 through the Worker
-- page 1 returned HTTP `200`
-- Worker-delivered page 1 SHA-256: `822feb5e0b165ae9ba395d7eb1a8821a631951a80cafaae5b9604f2800c94171`
-- it matched the locally generated source page byte-for-byte
-- the temporary preview routes were then removed
-- `HELLBOX_GATE2_READER_KEY` was deleted from Cloudflare
-- public Reader protection was re-verified as HTTP `404`
-
-Browser acceptance at Gate 2 close:
-- laptop `1440x900`: PASS
-- tablet `820x1180`: PASS
-- mobile `390x844`: PASS
-- laptop/tablet exercise full fit/layout controls
-- phone intentionally hides desktop-only FIT PAGE / FIT WIDTH / CONTINUOUS controls below the compact breakpoint while preserving page display, previous/next, close, page-fit, and no horizontal overflow
-
-Important current boundary:
-- Gate 2 proves Reader delivery and UI
-- Gate 3 now proves production wallet identity plus shared Archive/Reader ownership authority
-- SciVive still has no deployed publication contract, so positive real ownership cannot exist until Gate 4
-- SciVive remains private/non-public and cannot be considered a production collector-access release until the testnet/mainnet publication path is deliberately advanced
-
-## 20. PRESS — PRIVATE BUILDER + PUBLIC MINT MACHINE
-
-The current Press visual/interface is a prototype.
-
-The future Press has two related but distinct roles.
-
-### A. HARROW PRIVATE / GATED PRESS — PUBLICATION COMPILER
-
-Harrow's private Press is the intake, package, contract and release builder.
-
-For every release it must eventually let Harrow provide/configure, validate and preview the complete release **before PUBLISH**.
-
-Minimum creative/package inputs:
-1. canonical/base NFT cover
-2. actual comic/Reader publication file/package
-3. Harrow-authored reusable PRESS MARK assets/layers/masks/rules
-4. Harrow-authored reusable PRESS DEFECT assets/layers/masks/rules
-5. release-specific metadata/copy
-6. publication economics and mint schedule
-7. artifact/protocol/version capabilities
-
-Automation pipeline — LOCKED DIRECTION:
-
-`INPUT → VALIDATE → PREVIEW → FREEZE COUNTS/RULES → COMMIT PACKAGE/ART RULES → RANDOMIZE/ASSIGN → RENDER VARIANTS → GENERATE METADATA → DEPLOY → OPEN PRESS`
-
-This is **not AI image generation by default**.
-
-Preferred system:
-- reproducible/deterministic compositing
-- canonical Harrow base cover
-- masks/overlays/typography/effects/transformation rules authored/approved by Harrow
-- automated rendering into final token-art variants
-- cryptographic commitment to package/rules before launch
-
-Harrow should not manually author every token combination and should not know the full hidden trait-to-ID map before reveal.
-
-Fixed MARK guarantee:
-- #001–#006 receive the established creator PRESS MARKS
-
-Everything else follows the approved random/allocation rules.
-
-PRESS DEFECT is not guaranteed to Harrow.
-
-The builder must validate that:
-- total MARK counts equal max supply
-- total DEFECT counts equal max supply
-- fixed assignments do not exceed distribution counts
-- Harrow immediate/tail reserve rules are coherent
-- phase allocations do not exceed drawable supply
-- pricing policy is complete
-- renderer/package can reproduce expected artifacts
-- all irreversible launch configuration is shown before signature/deployment/go-live
-
-### B. PUBLIC PRESS — COLLECTOR EXPERIENCE
-
-The production mint experience must feel like operating Hellbox publishing machinery, not a generic wallet + mint button.
-
-Public Press uses live HTML overlays over intentionally empty/dynamic regions in the final Press artwork.
-
-Required live information includes:
-- publication
-- current phase
-- wallet/identity
-- WL/free/reserve eligibility
-- max wallet allowance `6`
-- used / remaining allowance
-- max 1 per transaction
-- supply/minted/remaining
-- Harrow immediate pull `6`
-- Harrow tail reserve `3`
-- phase allocations/claims
-- payment modes
-- USD target/static amount
-- current PLS quote where applicable
-- quote validity/tolerance
-- live PRESS MARK remaining counts/odds
-- live PRESS DEFECT remaining counts/odds
-- state/fault information
-- transaction progress
-- ejected copy/token ID
-- resulting MARK/DEFECT/state
-
-The real physical lever remains the desired activation metaphor.
-
-Do not add fake CSS levers.
-
-After every successful single-copy mint:
-- refresh supply
-- refresh wallet allowance
-- refresh phase state
-- refresh drawable counts
-- recalculate MARK odds
-- recalculate DEFECT odds
-- show what just came out
-- only then permit/quote the next pull
-
-Irreversible actions such as UNSEAL / Hellforge / owner-authorized burn require a separate deliberate warning flow and are not hidden behind ordinary Press excitement.
+`mint → ownership → Archive/library recognition → protected Reader`
 
 ---
 
-## 21. PUBLICATION ENGINE / PACKAGE BUILDER — TARGET END STATE
+# 23. PRIVATE PRESS / PUBLICATION COMPILER — TARGET END STATE
 
-Desired workflow for a new publication:
+Harrow supplies:
 
-1. Harrow creates the actual comic/publication and canonical cover
-2. enter the gated private Press
-3. start NEW PUBLICATION
-4. upload/attach canonical Reader/publication package
-5. upload/attach canonical base NFT cover
-6. select/preview approved MARK/DEFECT layer families
-7. choose supply and creator rules
-8. choose pricing policy
-9. configure mint phases / claims / allowlist / free / reserve rules
-10. configure artifact capabilities/version
-11. validate package and distribution math
-12. preview representative token-art output
-13. preview Press/Archive/Reader/marketplace metadata
-14. preview the exact immutable configuration that will freeze
-15. commit package/art/rules
-16. deploy a fresh standardized versioned publication contract through the factory
-17. record deployment in Hellbox durable publication data
-18. choose/open the public Press according to the frozen schedule
+1. canonical cover;
+2. actual comic/Reader package;
+3. MARK layers/rules;
+4. DEFECT layers/rules;
+5. credits/metadata;
+6. economics;
+7. mint phases;
+8. capabilities/version.
 
-The package builder should ultimately generate reproducibly:
-- publication package manifest
-- Reader delivery manifest/pointers
-- contract deployment configuration
-- trait distribution manifest
-- fixed assignment manifest
-- renderer/compositor manifest/version
-- metadata
-- cryptographic digests/commitments
-- allowlist/eligibility commitments
-- pricing policy
-- phase configuration
-- verification/preview report
+Compiler:
 
-No:
-- manual frontend edits for each issue
-- bespoke Solidity implementation for each issue
-- hand-juggling R2 objects
-- hand-writing every metadata JSON
-- Harrow preselecting every random rarity combination
-- mutable release promises after mint goes live
+`INPUT → VALIDATE → PREVIEW → COMMIT → RANDOMIZE/ASSIGN → RENDER → METADATA → DEPLOY → VERIFY → OPEN PRESS`
 
-### Publication Configuration Blueprint — NEXT REQUIRED GATE 4 DELIVERABLE
+Default art pipeline:
+- deterministic/reproducible compositing;
+- Harrow-authored layers/masks/effects;
+- not AI generation by default.
 
-Before Foundry is installed or Solidity implementation begins, Gate 4 must produce and approve one complete schema/blueprint listing **every field the private Press must decide and freeze**.
+Harrow should not know the complete hidden random map in advance.
 
-At minimum it must cover:
-- identity/version
-- chain
-- supply
-- immediate creator pull
-- tail reserve
-- fixed IDs
-- trait distributions
-- art/package inputs
-- renderer/version
-- randomization/reveal policy
-- pricing mode
-- price targets/static amounts
-- accepted assets
-- mint phases
-- allowlist/claim commitments
-- per-wallet limit
-- one-per-transaction rule
-- royalty
-- treasury/routing
-- seal/archive capability
-- dynamic metadata capability
-- ERC-6551 compatibility
-- external protocol/Hellforge compatibility
-- package/content digest
-- freeze/finalization semantics
-
-This blueprint is the shared source from which future contract config, D1 data, private Press UI and validation tooling should derive.
-
-## 22. MULTI-CHAIN — LOCKED
-
-PulseChain is Hellbox's root and first chain.
-
-Gate 0 foundation now includes a tested multi-chain backend registry.
-
-Configured networks:
-- PulseChain mainnet — chain ID 369 — enabled/root
-- PulseChain Testnet V4 — chain ID 943 — development/testing configuration
-- Ethereum — configured, disabled
-- Base — configured, disabled
-- Base Sepolia — configured, disabled
-- Robinhood Chain — configured, disabled
-- Robinhood Chain Testnet — configured, disabled
-
-Verified backend behavior:
-- `/api/health` reports multi-chain-ready architecture
-- `/api/chains` returns seven configured networks
-- `/api/chain-status?chain=pulsechain` returns a live PulseChain block
-- `/api/chain-status?chain=base` correctly refuses Base because it is configured but inactive
-- publishing is disabled on all chains until a real Hellbox contract deployment is recorded
-
-Public `config/chains.js` exists as a dormant frontend foundation.
-It is intentionally NOT loaded by the current page because the first loader integration caused regressions.
-Do not re-enable it casually.
-
-Future chain activation should mean:
-- enable/add chain config
-- configure RPC
-- deploy/record that chain's standardized `HellboxPublication` implementation + `HellboxPublicationFactory`
-- deploy each publication as its own native release contract through the factory
-- record each publication's `(chainId, contractAddress)` deployment
-- enable publishing only for configured/validated native publication deployments
-
-No frontend fork.
-No new Reader.
-No new Archive.
-No NFT bridging.
-
-Do not display a chain selector when only one chain is active.
-The loaded publication determines the chain.
-
-Before multi-chain launch, eliminate frontend/backend registry drift with a shared/generated source of truth or automated parity validation.
+No future release should require:
+- bespoke Solidity;
+- hand-writing every metadata JSON;
+- manual R2 juggling;
+- manual rendering of every combination.
 
 ---
 
-## 23. LOCALIZATION — LOCKED DIRECTION
+# 24. PUBLISH FREEZE
 
-Localization covers the entire website experience, not just menus.
+`PUBLISH` is the irreversible release-configuration boundary.
 
-Gate 0 implementation:
-- English is canonical
-- canonical English catalog currently contains 815 semantic keys
-- Spanish contains matching 815 approved keys
-- Spanish is the Gate 0 proof/test secondary locale
-- desktop `ACCESS // LANGUAGE` control is live
-- `?lang=es` and persisted locale selection work
-- dynamic Harrow/dialogue/Press/Archive/Reader/interaction copy is keyed
-- no live Google translation runs in the visitor browser
-- no DOM-scraping translation engine
-- no arbitrary JavaScript-string extraction into locale JSON
-- deferred locales are hidden from the selector
+It resolves/commits:
+- identity;
+- chain/factory/version;
+- supply;
+- creator rules;
+- fixed copy rules;
+- trait distributions;
+- randomization policy;
+- package/art;
+- pricing;
+- phases;
+- wallet rules;
+- royalty/treasury;
+- capability policy;
+- renderer/version;
+- closure/authority rules.
 
-Google-assisted production workflow:
-- canonical English source
-- Google Cloud Translation machine draft
-- protected Hellbox terminology
-- Harrow voice/editorial adaptation
-- layout/accessibility QA
-- approved static JSON pack
+After PUBLISH:
+- no editable release promises.
 
-Build tool:
-- `tools/google_translate_locale.py`
-- API key comes from environment only
-- Google key is never stored in site/repo files
-- hard local source-character safety cap: 50,000 characters per run
-
-Current Google Cloud note:
-- temporary account has $300 trial credit / 90-day trial
-- use only for useful temporary/build-time work that remains free or explicitly approved
-- do not move production Hellbox infrastructure onto Google merely to consume trial credit
-- verify current free-tier/pricing again before future paid-capable use
-
-Deferred until canonical English wording is near final:
-- Brazilian Portuguese
-- Vietnamese
-- Indonesian
-- Hindi
-- Urdu
-- Ukrainian
-- Turkish
-- Simplified Chinese
-- Korean
-- Japanese
-- French
-- Arabic
-
-Every new user-visible string introduced after Gate 0 must receive a canonical English locale key when created.
-
-After English copy freeze:
-1. run a locale delta against existing packs
-2. translate only added/changed keys where practical
-3. perform Harrow voice adaptation
-4. perform full interaction QA
-5. test every hotspot, button, link, drawer, state, error, notification, metadata field, Reader state, Press state, Archive state and accessibility announcement
-6. add RTL support before Urdu/Arabic launch
-
-Publication language remains independent.
-A publication is translated only when an intentional localized edition exists.
+Artifact state may still evolve under those rules.
 
 ---
 
-## 24. ACCESSIBILITY — LOCKED IMPORTANCE
+# 25. GATE 4 IMPLEMENTATION — CURRENT
 
-Accessibility is a first-class product requirement.
+Detailed active architecture lives in `CURRENT_GATE_BLUEPRINT.md`.
 
-Target practical standard:
-- WCAG 2.2 AA
+## Proven V1 publication kernel
 
-Important support:
-- screen readers
-- keyboard navigation
-- visible keyboard focus
-- semantic dialogs
-- focus trapping/restoration
-- reduced motion
-- high contrast
-- larger text
-- safe touch targets
-- captions/transcripts for sound-dependent experiences
-- no progression/discovery requiring hearing
-- language metadata for assistive technology
-- future Reader accessibility
+`contracts/HellboxPublication.sol`
 
-Do not destroy environmental mystery to achieve accessibility.
-Use invisible semantic controls plus keyboard/screen-reader access.
+Current V1 uses:
 
----
+- OpenZeppelin `ERC721Royalty`;
+- no publication `Ownable`;
+- full-deployment constructor;
+- no proxy;
+- no initializer;
+- no delegatecall;
+- no upgrades;
+- actual `block.chainid`;
+- actual factory `msg.sender`;
+- constructor-side release digest recomputation;
+- digest mismatch revert;
+- frozen supply/wallet/creator/royalty/authority/capability config;
+- publication/package commitment roots;
+- config frozen provenance event.
 
-## 25. LOW-COST OPERATING REQUIREMENT
+ReleaseConfig currently includes:
 
-Hellbox is operated by a solo, part-time creator.
+- `publicationKey`
+- `collectionName`
+- `collectionSymbol`
+- `maxSupply`
+- `primaryLifetimeCap`
+- `maxPerTransaction`
+- immediate creator recipient/count
+- tail recipient/count
+- royalty receiver/bps
+- `publisherAuthority`
+- reader/seal/archive/dynamic-metadata/ERC6551/reward/Hellforge/contextual compatibility flags
 
-Recurring infrastructure costs should remain as low as practical.
+No caller-supplied factory version exists inside ReleaseConfig.
 
-Preferred architecture:
-- Cloudflare Worker/static assets
-- R2 public/private storage
-- D1 database
-- no always-on application server unless needed
-- no expensive indexer initially
-- no CMS unless justified
-- direct-to-R2 uploads for large publication packages
-- lazy Reader delivery
-- event indexing + `ownerOf` verification
+## HELLBOX_ABI_V1 — LOCKED
 
-Google Cloud:
-- temporary trial has $300 credit and a 90-day window
-- use for temporary/build-time work only when useful and free
-- current example: machine-draft localization
-- do not create a permanent production dependency on expiring trial resources
-- do not activate/upgrade paid Google Cloud use without explicit user decision
+Constants:
 
-Mainnet contract deployment belongs after product/testnet validation.
-PulseChain Testnet V4 should be used first when tPLS is available.
+- `COMMITMENT_SCHEME_VERSION = 1`
+- `CONFIG_SCHEMA_VERSION = 1`
+- `PUBLICATION_VERSION = 1`
+- `TEMPLATE_ID = keccak256("HELLBOX_PUBLICATION")`
+- `RELEASE_CONFIG_DOMAIN = keccak256("HELLBOX_ABI_V1:RELEASE_CONFIG")`
 
----
+Fingerprint uses:
 
-## 26. CURRENT RESPONSIVE STATUS
+`keccak256(abi.encode(domain, versions, template, actual chainId, actual factory, ReleaseConfig, CommitmentSet))`
 
-Current live checkpoint: Gate 3 COMPLETE — the authority system, sealed Press, permanent first-introduction routing, completion/replay flow, and private Harrow bypass are live-proven; Gate 4 is next.
+Never `abi.encodePacked`.
 
-Verified:
-- standard laptop/desktop remains usable
-- tablet Reader acceptance passes at `820x1180`
-- compact mobile Reader acceptance passes at `390x844`
-- full-screen standard desktop Press no longer falls back to the original overlap after removing the arbitrary 1699px Gate 0.2 ceiling
-- hidden hero/theory interactions function
-- English/Spanish switching functions
-- Gate 2 Reader UI passes browser acceptance at laptop, tablet, and phone sizes
-- compact phone Reader remains viewport-contained with working previous/next/close controls
-- versioned frontend runtime is live as `/app.js?v=20260829-gate3-archive-09d20a8`
+Golden vector is shared between JavaScript and Solidity.
 
-Known visual debt intentionally deferred:
-- Press prototype composition is tolerable but far from final
-- direct section anchors can land close to the fixed header
-- hero top is still partially sacrificed to fixed-header composition
-- hero copy still competes with `PUT THAT BACK`
-- transient Harrow response cards can cover nearby content
-- Harrow → Keep Up transition has excess vertical space
-- horizontal/vertical widescreen tuning remains outstanding
-- compact phone Reader intentionally has a reduced control surface compared with laptop/tablet; native mobile/tablet app comes later after website maturity
+## Canonical text rules implemented
 
-Do not reopen cosmetic Press work until the dedicated Press Gate unless a regression makes the prototype unusable.
+`publicationKey`:
+- 1–64 bytes;
+- lowercase ASCII `[a-z0-9]`;
+- single hyphen separators;
+- no leading/trailing/consecutive hyphen.
 
-## 27. CURRENT KNOWN RISKS
+`collectionName`:
+- 1–128 UTF-8 bytes;
+- Press must perform normalization before encoding.
 
-- Broken historical Gate 0.2 branch remains preserved and must never be merged wholesale.
-- CSS contains many historical overrides; future cleanup must be incremental.
-- Frontend `app.js` is large and monolithic.
-- Worker/backend `src/index.js` is large and monolithic.
-- D1 publication/Reader delivery, wallet identity, and shared Archive/Reader ownership authority are live; positive minted-owner proof remains legitimately unavailable because SciVive has no deployed contract until Gate 4.
-- SciVive package remains intentionally `draft` with 0 validation errors and 1 non-blocking warning.
-- SciVive remains intentionally private/non-public until real ownership authorization exists.
-- Real minting is not implemented.
-- NFT contract is not deployed.
-- Archive ownership logic is production-authoritative and chain-backed by design; it currently returns no positive SciVive ownership because Gate 4 has not yet supplied a real publication contract/mint.
-- Gate 2 used a temporary preview authorization solely for proof; it has been removed and its Cloudflare secret deleted. Do not resurrect it as production auth.
-- Reader browser transport now consumes the same Gate 3 wallet/session/ownership authority as Archive; positive collector access awaits Gate 4's first real contract/mint.
-- Current relationship/Hellion system is not server-authoritative.
-- Hidden hotspots make exhaustive manual QA difficult; build an internal hotspot inventory/debug mode before release candidate.
-- Frontend and backend chain registries can drift until a shared source/parity check exists.
-- Final internationalization is incomplete by design until English copy freezes.
-- GA4 can be blocked by privacy browsers/extensions; blocker behavior is not a site failure.
-- Current Press is only a visual/interaction prototype and must not dictate final Press architecture.
-- Current hero composition contains temporary hotspot-coordinate workarounds.
-- Cloudflare static-asset edge cache may briefly serve an older unversioned asset after deployment. Keep versioned JS/CSS references and verify the normal path after propagation.
-- Browser acceptance currently validates the Reader UI with mocked publication/Reader API responses so it cannot mutate production ownership state. Production private-byte delivery is separately proven through the Worker/R2 Gate 2 verification.
-- Public first-visit campaign routing is **not yet implemented**; the live site currently still goes directly to the sealed Press surface for outside visitors.
-- HairyLabs campaign pages require their platform-side cache/propagation before Hellbox should begin redirecting first-time public traffic to Byte #6.
-- The campaign-completion marker must remain non-authoritative and isolated from Harrow bypass, wallet session, ownership, Reader, and publication security state.
-- HairyLabs may temporarily serve stale historical Byte-page inscriptions for campaign pages; this is an external cache/history issue, not a Hellbox routing defect. Bytes are excluded from testing until the creator confirms the lane is clear.
+`collectionSymbol`:
+- 1–16 visible ASCII bytes.
 
-## 28. FILES THAT MUST NOT BE CHANGED CASUALLY
+## CommitmentSet
 
-`src/index.js`
-- Cloudflare Worker entrypoint / backend
-- test after every change
+V1 fixes an ordered 18-`bytes32` commitment envelope covering:
 
-`wrangler.jsonc`
-- deployment configuration
-- edit only for a specific binding/runtime requirement
+- publication manifest;
+- package;
+- fixed copy rules;
+- birth traits;
+- randomization policy;
+- renderer;
+- Reader;
+- pricing;
+- payment routes;
+- phases;
+- royalty;
+- treasury;
+- metadata;
+- capabilities;
+- protocol compatibility;
+- closure;
+- authority;
+- events.
 
-`.assetsignore`
-- controls public static deployment
-- do not alter casually
-
-`index.html`
-- public DOM structure
-- changes affect many frontend systems
-
-`style.css`
-- large historical cascade
-- test layout after every change
-
-`app.js`
-- main frontend runtime
-- test interactions after every change
+Changing meaning/order requires a new commitment/config version.
 
 ---
 
-## 29. EXACT NEXT STEP
+# 26. GATE 4 FACTORY — CURRENT
 
-Gate status:
-- Gate 0 COMPLETE
-- Gate 1 COMPLETE
-- Gate 2 COMPLETE
-- Gate 3 COMPLETE
-- **Gate 4 PRE-IMPLEMENTATION ARCHITECTURE ALIGNMENT COMPLETE ENOUGH TO BUILD THE BLUEPRINT**
-- no Gate 4 contract/tooling implementation has started
-- Foundry is **not installed**
+`contracts/HellboxPublicationFactory.sol`
 
-HairyLabs Byte-cache status remains external/non-blocking:
-- do not include Bytes in testing until the creator explicitly says the lane is clear
-- ask for refresh status at every upcoming Gate close
+V1:
 
-### Immediate next action in a new Gate 4 thread
+- full deployment using `new HellboxPublication(...)`;
+- `FACTORY_VERSION = 1`;
+- `PUBLICATION_VERSION = 1`;
+- template `HELLBOX_PUBLICATION`;
+- deployment mode `FULL_DEPLOYMENT`;
+- `Ownable2Step` on factory only;
+- renunciation disabled;
+- owner/publisher authority can rotate;
+- only factory owner can publish new official collections;
+- no power over already-deployed collector ownership/config.
 
-Read, in order:
+Provenance:
+
+- duplicate publicationKey hash rejected;
+- duplicate release digest rejected;
+- no `registerExisting()`;
+- no arbitrary authenticity setter;
+- minimal append-only lookup state;
+- richer event provenance;
+- exact runtime code hash is instance forensic evidence only;
+- defensive post-deploy check verifies:
+  - factory;
+  - chain;
+  - template;
+  - publication version;
+  - release digest;
+  - publicationKey.
+
+Factory cannot prove its own social legitimacy.
+
+Hellbox chain/version registry is the root declaring which factory is official.
+
+Do not invent a new on-chain registry contract solely for this.
+
+V1 has no shared implementation address.
+
+---
+
+# 27. GATE 4 EXACT NEXT FRONTIER — ISSUANCE STATE MACHINE
+
+Next implementation must establish deterministic issuance accounting without prematurely choosing a production randomness provider.
+
+Must cover:
+
+- max supply accounting;
+- lifetime primary mint accounting;
+- one-per-transaction enforcement;
+- immediate creator six;
+- fixed copy constraints;
+- candidate pool;
+- non-tail primary issuance capacity;
+- final-three true-mintout tail;
+- early-close tail forfeiture;
+- random-assignment interface boundary;
+- permanent token ID/copy assignment;
+- trait-count integrity.
+
+Do not build:
+- final oracle;
+- Archive rewards;
+- Hellforge recipes;
+- Gate 5 Press UX;
+- Gate 6 renderer pipeline.
+
+## Required issuance invariants
+
+Supply:
+- never exceed maxSupply;
+- cap never increases;
+- burn does not reopen primary mint capacity.
+
+Copy:
+- token ID unique/in range;
+- public issuance not sequential;
+- #066 remains drawable.
+
+Creator:
+- first six exact;
+- tail never awarded early;
+- tail exactly last three candidates at true mint-out;
+- early close forfeits tail.
+
+Wallet:
+- max one per transaction;
+- lifetime cap survives transfers/burns.
+
+Pool:
+- native start after creator six = 210 random candidates / 207 maximum non-tail primary issuances.
+
+Traits:
+- configured counts never exceeded;
+- fixed assignments consume totals correctly.
+
+Authority:
+- no authority can seize collector token;
+- no authority can increase supply;
+- no authority can rewrite fixed birth rules.
+
+---
+
+# 28. GATE 4 OPEN TECHNICAL DECISIONS
+
+Still open:
+
+1. production randomness/entropy/reveal mechanism;
+2. exact PulseChain USD/PLS price adapter;
+3. optimizer/runs/via-ir;
+4. metadata renderer transport/interface details;
+5. future external-protocol binding mechanics;
+6. exact early-close implementation.
+
+These are technical research/testing tasks, not invitations to invent product rules.
+
+---
+
+# 29. GATE 4 ACCEPTANCE / EXIT
+
+Gate 4 closes only after:
+
+## Factory reuse proof
+
+Same approved factory/template/version deploys:
+- SciVive test configuration;
+- second dummy publication;
+- no bespoke Solidity change.
+
+## Real Testnet ownership path
+
+`SciVive Testnet V4 mint → balanceOf(wallet) → Gate 3 Worker ownership → Archive/library owned → protected Reader opens`
+
+## Immutability proof
+
+No post-PUBLISH mutation path for:
+- supply;
+- identity;
+- creator allocation;
+- fixed rules;
+- trait totals;
+- pricing;
+- phases;
+- wallet limits;
+- royalty;
+- package/renderer commitments;
+- capability/closure policy.
+
+## Issuance proof
+
+Required state-machine invariants pass.
+
+## Documentation close
+
+Update:
+- this file;
+- Harrow Bible if canon changed;
+- README;
+- current Gate blueprint.
+
+Ask whether HairyLabs refreshed the pending Bytes.
+
+Only then start Gate 5.
+
+---
+
+# 30. FUTURE GATES — WORKING ROADMAP
+
+## Gate 5 — Press V2 + private release builder + real mint UX
+
+Before code, replace `CURRENT_GATE_BLUEPRINT.md` with an approved Gate 5 blueprint defining:
+
+Private Press:
+- Harrow auth;
+- draft lifecycle;
+- validation;
+- immutable freeze preview;
+- publish transaction;
+- deployment verification.
+
+Public Press:
+- wallet;
+- phase/eligibility;
+- allowance;
+- quote;
+- physical lever/single pull;
+- confirmation/ejection;
+- live odds refresh;
+- faults/sold-out.
+
+Do not build Gate 6 compositor or Gate 7 protocols here.
+
+## Gate 6 — ingest / package / dynamic metadata / rendering
+
+Blueprint must define:
+- package schema;
+- cover + Reader inputs;
+- MARK/DEFECT layer format;
+- deterministic compositor;
+- randomness/render boundary;
+- metadata renderer;
+- marketplace refresh;
+- reproducibility;
+- protected Reader ingest;
+- durability/fallback.
+
+## Gate 7 — artifact protocols
+
+Split into sub-checkpoints:
+- Seal/Archive;
+- official reward accounting;
+- ERC-6551;
+- permanent incident/history state;
+- contextual traits;
+- Hellforge/burn/evolution.
+
+Do not build one giant everything-contract.
+
+## Gate 8 — Hellion relationship system
+
+Server-authoritative durable relationship:
+- history;
+- standing;
+- favor;
+- privacy;
+- recognition;
+- revocation/restoration.
+
+No generic XP.
+
+## Gate 9 — freeze / audit / hardening / content
+
+- content/code freeze;
+- accessibility;
+- localization;
+- responsive/browser matrix;
+- privacy/consent;
+- performance;
+- analytics/SEO/legal;
+- threat model;
+- fuzz/invariant/static analysis;
+- targeted independent security review;
+- metadata/content continuity;
+- publisher continuity plan;
+- Native Issue #1 content readiness.
+
+## Gate 10 — mainnet release candidate
+
+- exact deployment runbook;
+- production versions/config;
+- monitoring;
+- SciVive production;
+- Native Issue #1 only after full hard release barrier.
+
+---
+
+# 31. NATIVE ISSUE #1 HARD RELEASE BARRIER
+
+SciVive may be simpler.
+
+The first native Hellbox comic must not make early collectors structurally inferior to later releases.
+
+Before Native Issue #1 mainnet, prove as promised:
+
+- versioned immutable collection;
+- 216 profile;
+- randomized copy assignment;
+- Harrow immediate/tail behavior;
+- PRESS MARK/DEFECT;
+- dynamic generated art/metadata;
+- mint phases;
+- one-at-a-time mint;
+- live odds;
+- chosen payment mode;
+- SEALED;
+- reversible ARCHIVE;
+- transfer lock;
+- irreversible UNSEALED;
+- official reward protocol behavior if promised;
+- ERC-6551;
+- permanent history;
+- contextual traits;
+- Hellforge;
+- owner-authorized burn/evolution;
+- marketplace refresh;
+- Reader ownership access;
+- clear irreversible warnings.
+
+---
+
+# 32. SECURITY / CASH-FLOW STANDARD
+
+Hellbox cannot require a new audit for every ~$6.66 issue.
+
+Security cost is amortized across reusable reviewed versions/modules.
+
+Use:
+- pinned OpenZeppelin;
+- established ERCs;
+- small custom Solidity;
+- AI review;
+- unit tests;
+- fuzz tests;
+- invariant tests;
+- static analysis;
+- adversarial tests;
+- Testnet;
+- targeted independent review after code freezes.
+
+Do not:
+- reimplement ERC-721;
+- bridge;
+- custody NFTs for Archive;
+- add publisher seizure;
+- build monolithic protocol;
+- make every publication new Solidity.
+
+A publication using unchanged reviewed versioned bytecode should not need a new full code audit just because title/art/config changed.
+
+ERC-2981 expresses royalty information; it does not guarantee every marketplace will enforce or pay royalties. Do not model secondary royalties as guaranteed cash flow.
+
+Operational continuity is a **STRONG PRE-MAINNET DURABILITY REQUIREMENT**, not a locked implementation mechanism:
+
+> **dynamic when alive; durable when dead**
+
+The principle must survive architecture decisions through Gate 9/mainnet hardening. The exact continuity/fallback mechanism remains OPEN and must be researched/tested rather than invented from this phrase alone. Possible mechanisms are not canon until explicitly selected.
+
+Future architecture should avoid requiring Hellbox infrastructure to remain online forever merely for an owned publication to retain meaningful identity.
+
+---
+
+# 33. ACCESSIBILITY / LOCALIZATION — FOLDED STANDARD
+
+The former standalone accessibility/localization document is retired **only after these durable requirements are preserved here**.
+
+Hellbox may be hostile in character.
+
+The product itself must not be hostile to disabled visitors.
+
+## 33.1 Accessibility target
+
+Practical baseline:
+
+> **WCAG 2.2 AA**
+
+Every new Hellbox feature must define its:
+
+- non-visual strategy;
+- non-audio strategy;
+- keyboard strategy;
+- focus behavior;
+- touch-target behavior;
+- reduced-motion behavior;
+- high-contrast behavior;
+- readable system/error/money/signature language;
+- localization/content-language behavior.
+
+Accessibility is not a skin added after launch.
+
+## 33.2 Blind / low-vision access
+
+Permanent requirements:
+
+- every functional control must be keyboard reachable and operable;
+- invisible/interactively discovered artwork must expose meaningful accessible control names;
+- pannable art rooms must support keyboard movement in addition to touch/drag, including directional keys and Home/End behavior where appropriate;
+- dialogs, drawers, Reader surfaces and access settings must announce themselves semantically;
+- modal/dialog focus must be contained appropriately;
+- Escape should close dismissible overlays;
+- focus should return to the triggering control after closure;
+- decorative images use empty alternative text;
+- informational images use concise useful alternative text;
+- status must never rely on color alone;
+- text enlargement and high-contrast modes must not hide controls or destroy layout;
+- comic packages should support creator/publication-supplied page summaries and optional panel descriptions rather than expecting assistive technology to interpret a flattened comic page with no alternative;
+- transcript/caption assets belong in the publication package when story information depends on audio.
+
+## 33.3 Deaf / hard-of-hearing access
+
+- sound is optional and off until the visitor intentionally enables it;
+- every spoken line, sound-dependent clue or timed audio event requires a caption, transcript or equivalent visible cue;
+- no discovery, ownership right, Reader access, publication content entitlement or relationship progression may require hearing;
+- future enhanced comics must let the creator author caption/sound-description equivalents alongside audio events.
+
+## 33.4 Motor / cognitive access
+
+- primary controls should provide at least a **44 × 44 CSS-pixel usable target** where practical;
+- precision drag must never be the only way to reach content;
+- moving content must be pausable;
+- reduced-motion preferences must suppress unnecessary ticker motion, ambient hotspot pulses, automatic nudges and transition effects;
+- interactions must remain understandable without forcing rushed/short time limits;
+- Harrow may insult the visitor in character, but system language about money, signatures, errors, ownership, irreversible actions and access must remain plain and unambiguous.
+
+## 33.5 Reader accessibility
+
+The Reader is one of the highest-priority accessibility surfaces.
+
+### BOOK mode
+
+Where legally/editorially appropriate:
+
+- support semantic/reflowable text;
+- preserve facsimile mode when source fidelity matters.
+
+### COMIC mode
+
+- support page-level descriptions supplied with the publication;
+- support optional panel-level descriptions when provided;
+- do not require a screen reader to infer flattened art with no authored alternative.
+
+### Navigation
+
+Reader access should remain available through:
+
+- keyboard;
+- swipe/touch;
+- paged navigation;
+- fit-page;
+- fit-width;
+- continuous mode where the publication supports it.
+
+These controls must not depend on animation.
+
+Reader progress should be announced accessibly without repeatedly interrupting screen-reader users.
+
+### Enhanced effects
+
+Enhanced effects must:
+
+- be individually suppressible where appropriate;
+- never replace the original art;
+- never replace required story information;
+- never make motion/audio mandatory for comprehension.
+
+## 33.6 Localization architecture
+
+Permanent rules:
+
+- source text/files use UTF-8;
+- documents declare language/direction correctly;
+- interface strings live outside layout code and load from locale packs;
+- publication language is independent of site-UI language;
+- dates, numbers, prices and pluralization should use locale-aware formatting once those surfaces become live;
+- Harrow-authored prose/jokes/insults require human voice adaptation, not blind literal machine translation;
+- RTL support must be designed before an RTL locale is exposed;
+- artwork is not blindly mirrored merely because UI direction changes.
+
+## 33.7 Current locale implementation evidence
+
+Current repository evidence shows:
+
+```text
+locales/en.json
+locales/es.json
+locales/pt-BR.json
+locales/manifest.json
+```
+
+However, **file presence is not the same thing as active product support**.
+
+Current application evidence also shows:
+
+- `app.js` intentionally describes the active interface as **English and Spanish only**;
+- `index.html` exposes Spanish as the selectable alternate language;
+- `locales/es.json` identifies an approved static Spanish locale/editorial pass;
+- `pt-BR` exists in the locale assets/manifest but is **not currently exposed as an active supported UI language**.
+
+Therefore current truth is:
+
+```text
+English            = canonical / active
+Spanish            = approved / active / proven
+Brazilian Portuguese = dormant/deferred asset, not currently exposed
+```
+
+Do not advertise Brazilian Portuguese support merely because `locales/pt-BR.json` exists.
+
+Do not delete the `pt-BR` asset merely because it is dormant unless a later cleanup explicitly proves it is obsolete.
+
+Additional languages remain deferred until intentionally reviewed/activated.
+
+## 33.8 Historical Gate 0 accessibility work that remains durable
+
+The earlier Gate 0/0.1 accessibility foundation included concepts such as:
+
+- skip navigation;
+- meaningful landmarks/dialog semantics;
+- keyboard-pannable interactive art rooms;
+- accessible names for invisible visual discoveries;
+- focus containment/restoration;
+- pause controls for moving thought/ticker content;
+- reduced-motion, larger-text and high-contrast controls;
+- forced-colors/system-contrast support;
+- compact mobile navigation;
+- separation of interface localization from Harrow's authored English voice.
+
+Future refactors must preserve equivalent functionality rather than deleting it because the old standalone standard is retired.
+
+## 33.9 Non-negotiable rule
+
+> **Every new Hellbox feature must ship with its non-visual, non-audio, keyboard, motion-reduced and localization/content-language strategy defined.**
+
+---
+
+# 34. MULTI-CHAIN
+
+PulseChain is root/first chain.
+
+Configured architecture already includes disabled future EVM networks.
+
+Native deployments per chain.
+
+Never bridge.
+
+Do not show chain selector when only one chain is active.
+
+Before first second-chain publication, explicitly lock a cross-chain edition/printing doctrine so later chain editions do not dilute the meaning of a PulseChain first edition.
+
+This doctrine remains OPEN strategic work.
+
+---
+
+# 35. LOW-COST OPERATIONS
+
+Hellbox is a solo/part-time creator project.
+
+Prefer:
+
+- Cloudflare Worker/static;
+- D1;
+- R2;
+- no always-on app server unless needed;
+- no expensive indexer initially;
+- no CMS unless justified;
+- direct-to-R2 large upload paths;
+- lazy Reader delivery;
+- reusable publication versions.
+
+Do not create infrastructure cost because a larger company would.
+
+---
+
+# 36. CURRENT KNOWN RISKS / DEBT
+
+- `app.js` large/monolithic;
+- `src/index.js` large/monolithic;
+- historical CSS overrides;
+- final Press art/UX not built;
+- final widescreen tuning deferred;
+- positive real SciVive owner still waits for Gate 4 Testnet deployment/mint;
+- full random assignment provider unresolved;
+- price adapter unresolved;
+- full dynamic renderer not built;
+- Archive rewards/ERC-6551/Hellforge remain later Gates;
+- relationship/Hellion not server-authoritative yet;
+- frontend/backend chain registry can drift until parity/generated source exists;
+- internationalization incomplete by design;
+- dynamic metadata durability/publisher-continuity strategy remains future hardening work;
+- HairyLabs Byte cache/history external;
+- current Forge/static-analysis output includes non-blocking style/optimization notes; investigate security-relevant warnings, but do not mutate stable ABI/semantics merely to satisfy lint style.
+
+---
+
+# 37. OPEN STRATEGIC ITEMS — DO NOT SILENTLY LOCK
+
+- publisher continuity covenant — **STRONG PRE-MAINNET DURABILITY REQUIREMENT:** `dynamic when alive; durable when dead`; exact technical mechanism OPEN;
+- dynamic-metadata fallback if Hellbox infrastructure disappears;
+- cross-chain edition lineage;
+- sealed versus unsealed value-balance doctrine;
+- launch-health KPIs beyond "sold out";
+- final permanent-history public label;
+- exact randomness provider;
+- exact price oracle;
+- Archive reward formulas;
+- Hellforge recipes;
+- Native Issue #1 exact title/content/price/royalty/phases.
+
+Future AI must not convert these into canon because it likes an idea.
+
+---
+
+# 38. ROOT-DOCUMENT HANDOFF PROCEDURE
+
+Every fresh development chat reads, in order:
+
 1. `HELLBOX_PROJECT_STATE.md`
 2. `HARROW_CHARACTER_BIBLE.md`
 3. `README.md`
+4. `CURRENT_GATE_BLUEPRINT.md`
+5. implementation files for the immediate frontier
 
-Then do **not** jump directly to Solidity.
+Before code it must state:
 
-First produce and review the **Publication Configuration Blueprint** defined in Section 21.
+- current Gate;
+- latest verified checkpoint;
+- exact next frontier;
+- relevant locked invariants;
+- open technical decisions;
+- non-goals;
+- contradictions found;
+- files that must not be touched yet.
 
-The blueprint must make explicit:
-- which fields are immutable at mint start
-- which state can change later according to frozen rules
-- which fields belong in the publication contract
-- which belong in factory/version registry
-- which belong in external protocols
-- which belong off-chain/D1/package manifests
-- what is cryptographically committed
-- what is publicly displayed on Press
-- what is open for later Gates but must be compatible from Native V1
+Then inspect the actual implementation files relevant to the immediate frontier and run the mandatory internal engineering checkpoint before writing a major file.
 
-After the creator approves that blueprint:
-- choose/install contract tooling
-- current recommendation: Foundry
-- repository currently has no `package.json`, lockfile, Foundry config, Hardhat config, `contracts/`, `test/`, or equivalent contract-tooling structure
-- `forge`, `cast`, and `anvil` are currently not installed
-- then begin the smallest one-file Gate 4 implementation step
+If implementation evidence is newer than stale progress prose, preserve the working implementation and synchronize the docs; do not backtrack.
 
-## 31. PRODUCTION GATE SYSTEM — WORKING ROADMAP REBASED 2026-08-30
-
-The earlier Gate 0–9 compression was useful, but the native Hellbox artifact model is now intentionally broader.
-
-The working roadmap is **Gate 0 through Gate 10** so early Native Issue #1 collectors do not receive a stripped-down artifact that later releases outperform structurally.
-
-This roadmap may be refined deliberately in future pre-Gate alignment reviews, but do not compress major artifact capabilities merely to preserve the old gate count.
-
-### GATE 0 — STABILIZATION & PLATFORM FOUNDATION — COMPLETE
-
-Foundation/recovery, responsive web, accessibility/localization, analytics, multi-chain foundation and safe workflow.
-
-### GATE 1 — PUBLICATION PLATFORM & DATA MODEL — COMPLETE
-
-D1 publication model, package/schema model, R2 public/private locations and SciVive private package.
-
-### GATE 2 — READER VERTICAL SLICE — COMPLETE
-
-461-page protected SciVive Reader, private R2 delivery, reproducible build/upload tooling and browser acceptance.
-
-### GATE 3 — IDENTITY, OWNERSHIP, ARCHIVE & PUBLIC ENTRY — COMPLETE
-
-D1 wallet identity/session, shared blockchain-authoritative ownership, Archive/Reader authority, SEALED PRESS, permanent 30-machine introduction, completion/reset and Harrow bypass.
-
-External only:
-- full Byte #6→#333 traversal waits for HairyLabs cache/history refresh and does not block future Gates
-
-### GATE 4 — HELLBOX ARTIFACT KERNEL + VERSIONED PUBLICATION FACTORY — CURRENT
-
-Goal:
-Create the immutable/versioned on-chain kernel every publication can build on without painting Native Issue #1 into a corner.
-
-Pre-implementation architecture alignment has established:
-- versioned non-upgradeable publication instances
-- one native ERC-721 collection per publication
-- tokenId = copy number
-- randomized anti-sniping public assignment
-- 216-copy native baseline
-- PRESS MARK / PRESS DEFECT permanent birth grammar
-- Harrow immediate six + true-mintout three-copy tail reserve
-- one-copy-per-transaction / max-six-per-wallet standard
-- pricing-policy modes
-- dynamic metadata requirement
-- SEALED / ARCHIVE / UNSEALED primitives
-- future ERC-6551 / reward / Hellforge compatibility
-- publication-package/art cryptographic commitment
-- private Press publication-compiler direction
-
-Gate 4 implementation should establish/test:
-- Publication Configuration Blueprint first
-- `HellboxPublication` versioned kernel/template
-- `HellboxPublicationFactory` / approved template registry
-- immutable configuration/finalization boundaries
-- supply enforcement
-- token/copy assignment architecture
-- mint schedule/config representation
-- pricing-policy interface/representation
-- royalty/event baseline
-- dynamic metadata/renderer interface
-- seal/archive-compatible primitives/interfaces as appropriate
-- external protocol compatibility points
-- package/content commitment
-- metadata update signaling
-- SciVive test deployment
-- second dummy publication deployment
-- real testnet mint reaching Gate 3 ownership → Archive → Reader
-
-Gate 4 is PulseChain Testnet V4 only.
-
-### GATE 5 — PRESS V2 + PRIVATE RELEASE/CONTRACT BUILDER + REAL MINT UX
-
-Private publication builder plus collector Press, pricing/phase UX, live dynamic screens, one-copy pulls and real mint transactions.
-
-### GATE 6 — INGEST + DYNAMIC METADATA + RARITY/RENDERING PACKAGE ENGINE
-
-Automated package intake, canonical cover/Reader ingest, deterministic MARK/DEFECT rendering, random assignment/reveal integration, metadata renderer and marketplace refresh signaling.
-
-### GATE 7 — ARTIFACT PROTOCOLS
-
-SEALED/UNSEALED, reversible Archive, transfer lock, official reward accounting, ERC-6551, permanent/contextual traits, dynamic covers, Hellforge, owner-authorized burn/evolution and protocol compatibility.
-
-### GATE 8 — RELATIONSHIP / HELLION PRODUCT DEPTH
-
-Durable relationship history, standing/favor, Hellion thresholds, certificates, aliases and privacy controls.
-
-### GATE 9 — EXPERIENCE/CONTENT FREEZE + AUDIT/HARDENING
-
-Final art/content, accessibility/localization, performance/privacy/analytics/SEO/legal, browser matrix, contract/security review and full Native Issue #1 prelaunch audit.
-
-### GATE 10 — RELEASE CANDIDATE / MAINNET + FIRST NATIVE ISSUE
-
-PulseChain mainnet production contracts/protocols, launch rehearsal, SciVive production path, first native Hellbox issue and full post-launch acceptance.
-
-### NATIVE ISSUE #1 HARD RELEASE BARRIER
-
-SciVive is allowed to be the proving exception.
-
-The first **native Hellbox comic issue** does not launch until all intended foundational artifact capabilities are proven so early adopters are not second-class collectors.
-
-Before Native Issue #1 mainnet, prove:
-- unique versioned publication contract
-- immutable release configuration
-- 216-copy standard grammar
-- tokenId/copy randomization
-- Harrow immediate/tail allocation
-- PRESS MARK / PRESS DEFECT
-- dynamic generated covers/metadata
-- marketplace metadata updates
-- all mint phases and one-copy-per-transaction rule
-- live odds/transparency
-- chosen payment policy / dynamic PLS pricing where used
-- SEALED / ARCHIVED / UNSEALED
-- non-custodial official reward compatibility
-- transfer locking while archived
-- ERC-6551
-- permanent incident/history state
-- contextual traits
-- Hellforge
-- owner-authorized burn/transformation
-- hidden traits/evolution
-- protocol/version recognition
-- complete Press warnings/UX
-
-### CURRENT CRITICAL PATH
-
-`Gate 4 artifact kernel → Gate 5 Press/builder → Gate 6 package/metadata/rendering → Gate 7 artifact protocols → Gate 8 Hellion → Gate 9 freeze/audit → Gate 10 mainnet`
-
-## 32. GATE 0 COMPLETION / DEFERRED BACKLOG
-
-Gate 0 was intentionally closed with known non-blocking visual debt.
-
-Deferred to later appropriate gates:
-- final Press production art/UX → Gate 5, with final freeze in Gate 9
-- hero structural composition/hotspot truth → Gate 9
-- stripper pole / `WHO'S NEXT?` / woman-crypto obsession-wall additions → Gate 9
-- widescreen/vertical layouts → Gate 9
-- all languages beyond Spanish → Gate 9 after English copy freeze
-- privacy/consent layer and final Analytics event taxonomy → Gate 9
-- mainnet contracts → Gate 10
-
-Localization permanent rule:
-Every future user-visible interaction must enter the English catalog at creation time and be included in final locale delta/QA.
+Do not ask Harrow to re-explain project architecture.
 
 ---
 
-## 33. EXACT NEXT ENGINEERING ACTION
+# 39. CONTEXT-LIMIT PROCEDURE
 
-**GATE 4 IMPLEMENTATION HAS NOT STARTED. DO NOT SKIP THE BLUEPRINT.**
+Do not keep coding until a chat collapses.
 
-Repository inspection already proved:
-- no `package.json`
-- no package-manager lockfile
-- no `foundry.toml`
-- no Hardhat config
-- no `contracts/`
-- no `test/` / `tests/` contract structure
-- `forge`, `cast`, `anvil` not installed
+At a clean checkpoint:
 
-Working tool recommendation remains **Foundry**, but installing it is **not** the immediate next action.
+1. run tests;
+2. commit/push if appropriate;
+3. synchronize `CURRENT_GATE_BLUEPRINT.md` if stale text could mislead the next engineer;
+4. update this file with the verified checkpoint/frontier;
+5. update Harrow Bible only if canon changed;
+6. update README;
+7. open a fresh chat using the root-document handoff order.
 
-### First Gate 4 deliverable in the new thread
+Do not archive/replace the current Gate blueprint merely because chat context changed. Archive it only at formal Gate close.
 
-Create the **Publication Configuration Blueprint**.
-
-It must enumerate every release field and classify each as:
-- immutable at mint-go-live
-- mutable artifact state under frozen rules
-- factory/template-registry state
-- publication-contract state
-- external-protocol state
-- D1/off-chain package state
-- cryptographic commitment
-- private-Press-only draft state
-- public Press/display state
-
-The blueprint must include at least:
-- publication identity
-- chain
-- template/protocol version
-- collection name/symbol
-- max supply
-- immediate Harrow six
-- true-mintout three-copy tail reserve
-- fixed IDs such as #066
-- PRESS MARK distribution
-- PRESS DEFECT distribution
-- randomization/allocation/reveal policy
-- canonical cover
-- Reader package
-- layer/manifests
-- renderer version
-- package/content digest
-- pricing mode
-- stable/USD target
-- static PLS amount
-- accepted payment routes
-- price adapter/oracle reference where applicable
-- quote/slippage rules
-- mint phases
-- phase caps
-- eligibility/Merkle commitments
-- wallet allowance 6
-- one-copy-per-transaction
-- royalty
-- treasury/routing
-- metadata/renderer interface
-- metadata refresh signaling
-- SEALED capability
-- ARCHIVE compatibility
-- UNSEAL behavior
-- ERC-6551 compatibility
-- external reward protocol compatibility
-- Hellforge/burn/evolution compatibility
-- event/indexing requirements
-- freeze/finalization state
-
-### After blueprint approval
-
-Then:
-1. install/initialize the chosen contract toolchain
-2. preserve one-file-at-a-time workflow
-3. create the smallest first Gate 4 contract/config file
-4. test immediately
-5. do not deploy mainnet
-6. do not use stale HairyLabs Bytes in testing
-
-### Gate 4 acceptance target
-
-`factory/template → SciVive Testnet V4 collection → 1-copy mint → Gate 3 balanceOf ownership → Archive owned → Reader opens`
-
-and:
-
-`same factory/template/version → second dummy publication without bespoke Solidity changes`
-
-Gate 4 must also prove that its kernel/config model does **not** prevent the full Native Issue #1 artifact requirements assigned to later Gates.
-
-At Gate 4 close:
-- update all three living documents
-- provide weighted progress
-- ask whether HairyLabs has refreshed Bytes #6, #11, #13, #19, #20, #23, #104, #223, #333
-
-## 30. RECOVERY AND PRIVACY RECORD
-
-### Recovery
-
-The repository was recovered after a broken all-at-once Gate 0.2 deployment.
-
-Locked recovery facts:
-- backup branch: `backup-broken-gate02-20260828`
-- the last known-good production tree was restored to `main`
-- recovery was validated by matching the recovered tree to the known-good tree before incremental development resumed
-- Gate 0, Gate 1, and Gate 2 were then rebuilt/advanced incrementally under the one-file-at-a-time workflow
-- exact pre-privacy commit/tree hashes are intentionally no longer recorded here because the later privacy rewrite changed the public history
-
-The broken backup branch is forensic history only.
-Do not merge it wholesale into `main`.
-
-### Repository privacy hardening — completed after Gate 2
-
-Public identity rule:
-- all Hellbox Git author/committer identity must be `Harrow <noreply@hellboxcomics.com>`
-- the user's personal/legal name, personal email, local machine username/hostname, or other directly identifying strings must not be introduced into tracked files, commit messages, examples, screenshots/logs committed to Git, or handoff documentation
-- use Harrow/project-level identifiers in public repository material
-
-Completed privacy work:
-- all historical commit author and committer identities were rewritten to Harrow
-- tracked-file identity references were scrubbed across historical snapshots
-- commit messages were scanned
-- historical filenames/paths were scanned
-- verification result: `0` non-Harrow commit identities
-- verification result: `0` historical commits containing the scrubbed personal identity strings
-- verification result: `0` historical paths containing those strings
-- both `main` and `backup-broken-gate02-20260828` were force-updated to the scrubbed histories using guarded `--force-with-lease`
-- GitHub remote branch refs were verified to match the scrubbed local branches
-- the local pre-scrub Git bundle was deleted
-- `.git/filter-repo` temporary rewrite data was deleted
-- temporary Gate 2 shell credentials were cleared
-
-Important consequence:
-- every pre-scrub commit hash is obsolete
-- do not use old chat logs or old documentation SHAs as authoritative repository checkpoints
-- do not resurrect an old clone/bundle without first ensuring it cannot reintroduce pre-scrub history
-- durable handoff references should use Gate names, commit subjects, file paths, schema/migration names, production state, and explicit validation evidence rather than SHA values
+Context exhaustion is a handoff event, not a reason to lose architecture.
 
 ---
 
-END OF CURRENT PROJECT STATE
+# 40. EXACT NEXT ACTION
+
+Current code checkpoint is factory + 26-test regression.
+
+The next engineering step is **not another handoff document** after the four canonical root documents are synchronized.
+
+It is Gate 4 issuance-state-machine work, beginning from the **full** `CURRENT_GATE_BLUEPRINT.md`.
+
+For Gate 4, that file must preserve the approved Publication Configuration Blueprint's field-by-field configuration/classification/freeze/preview/commitment detail **plus** the verified factory checkpoint and issuance semantics. A short summary is not a substitute.
+
+Before writing that code, the implementing engineer must restate:
+
+```text
+candidatePoolRemaining   = 210
+nonTailIssuanceRemaining = 207
+```
+
+and explain why the values differ.
+
+If it cannot, it has not understood the issuance model.
+
+---
+
+# 41. FINAL NON-REGRESSION LIST
+
+Stop before introducing:
+
+- one master NFT collection;
+- ERC-1155 replacement of native ERC-721 releases;
+- bridges;
+- publication proxy upgrades in V1;
+- generic publication owner;
+- publisher seizure/forced transfer;
+- unlimited creator mint;
+- max-supply increase;
+- sequential public copy assignment;
+- preselected final-three tail IDs;
+- using 207/non-tail capacity as the initial random-candidate denominator;
+- Harrow-controlled rarity reroll;
+- secret phase rarity advantages;
+- static metadata requirement for native issues;
+- custodial Archive staking;
+- TBA sweep authority;
+- publisher forced Hellforge burn;
+- per-release custom Solidity/audit treadmill;
+- generic XP Hellion;
+- localStorage ownership;
+- public protected Reader assets for convenience;
+- HairyLabs cache issues treated as Hellbox defects without evidence.
+
+The creator defines the machine's rules.
+
+The engineer builds the machine.

@@ -15,3 +15,6 @@ dist/
 .dev.vars
 .dev.vars.*
 !.dev.vars.example
+
+# macOS filesystem metadata
+.DS_Store
