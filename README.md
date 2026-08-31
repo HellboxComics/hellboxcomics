@@ -65,11 +65,14 @@ Current verified Gate 4 implementation:
 - OpenZeppelin Contracts `v5.1.0` pinned
 - `HellboxPublication.sol` V1 kernel implemented
 - JavaScript/Solidity `HELLBOX_ABI_V1` golden vector implemented
-- `HellboxPublicationFactory.sol` V1 implemented
-- factory provenance/uniqueness controls implemented
-- current regression: **26 Solidity tests passed / 0 failed**
+- deterministic issuance accounting core implemented
+- `HellboxPublicationFactory.sol` V1 implemented with size-safe full deployment
+- factory provenance/uniqueness + approved creation-code-hash controls implemented
+- factory runtime: **8,020 bytes** with **16,556 bytes EIP-170 headroom**
+- current regression: **40 Solidity tests passed / 0 failed**
+- issuance fuzz boundary: **256 runs passed**
 
-**Exact next frontier:** publication issuance state machine.
+**Exact next frontier:** deployment-time enforcement preimages + fixed-copy / birth-trait policy enforcement.
 
 ## Gate 4 issuance invariant
 
@@ -112,12 +115,16 @@ Cloudflare Worker — src/index.js
 On-chain publication model:
 
 ```text
+reviewed HellboxPublication V1 creation bytecode
+    ↓ exact hash approved per factory generation
 HellboxPublicationFactory V1
-    ↓
+    ↓ ordinary CREATE / full deployment
 fresh HellboxPublication V1 per release
 ```
 
 One publication/release = one native ERC-721 collection.
+
+V1 is not a clone/proxy/upgrade model, and does not use CREATE2.
 
 Never bridge Hellbox NFTs.
 
@@ -271,6 +278,7 @@ CURRENT_GATE_BLUEPRINT.md          active detailed Gate architecture
 - creator approval is reserved for product/economic/scarcity/authority/immutability/canon decisions
 - before each major implementation file, the engineer performs the internal checkpoint defined in `HELLBOX_PROJECT_STATE.md`
 - documentation contradiction sweeps are mandatory before synchronization is declared complete
+- the public prelaunch progress percentage represents **overall Hellbox completeness**, not current-Gate completion; formally review/recalculate it at each Gate close
 
 ## Gate 4 security / economics
 
