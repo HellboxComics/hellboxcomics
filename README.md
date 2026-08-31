@@ -66,13 +66,19 @@ Current verified Gate 4 implementation:
 - `HellboxPublication.sol` V1 kernel implemented
 - JavaScript/Solidity `HELLBOX_ABI_V1` golden vector implemented
 - deterministic issuance accounting core implemented
+- deployment-time enforcement-preimage digest anchors implemented without changing the frozen `HELLBOX_ABI_V1` release fingerprint
 - `HellboxPublicationFactory.sol` V1 implemented with size-safe full deployment
 - factory provenance/uniqueness + approved creation-code-hash controls implemented
-- factory runtime: **8,020 bytes** with **16,556 bytes EIP-170 headroom**
-- current regression: **40 Solidity tests passed / 0 failed**
+- `HellboxBirthPolicy.sol` non-upgradeable per-publication companion foundation implemented and independently tested
+- current post-push regression: **65 Solidity tests passed / 0 failed**
 - issuance fuzz boundary: **256 runs passed**
+- unoptimized Shanghai runtimes:
+  - `HellboxPublication`: **16,334 bytes** / **8,242 bytes EIP-170 headroom**
+  - `HellboxPublicationFactory`: **8,020 bytes** / **16,556 bytes EIP-170 headroom**
+  - `HellboxBirthPolicy`: **5,561 bytes** / **19,015 bytes EIP-170 headroom**
+- `HellboxBirthPolicy` initcode: **17,018 bytes** / **32,134 bytes EIP-3860 headroom**
 
-**Exact next frontier:** deployment-time enforcement preimages + fixed-copy / birth-trait policy enforcement.
+**Exact next frontier:** atomically wire the three enforcement preimages and immutable `HellboxBirthPolicy` companion through publication/factory deployment, then prove the combined publication initcode/runtime headroom before adding per-token MARK/DEFECT consumption.
 
 ## Gate 4 issuance invariant
 
@@ -112,7 +118,7 @@ Cloudflare Worker — src/index.js
     └── R2: hellbox-private
 ```
 
-On-chain publication model:
+On-chain publication model currently committed:
 
 ```text
 reviewed HellboxPublication V1 creation bytecode
@@ -121,6 +127,20 @@ HellboxPublicationFactory V1
     ↓ ordinary CREATE / full deployment
 fresh HellboxPublication V1 per release
 ```
+
+The reusable `HellboxBirthPolicy` companion contract is also implemented and tested, but **publication/factory deployment wiring is not complete yet**.
+
+Immediate target topology to prove:
+
+```text
+HellboxPublicationFactory V1
+    ↓ ordinary CREATE / full deployment
+HellboxPublication V1 constructor
+    ↓ atomic constructor-time CREATE
+HellboxBirthPolicy companion
+```
+
+That topology is conditional on exact combined EIP-170/EIP-3860 measurement. If it does not preserve safe deployment headroom, redesign the topology without introducing a setter, proxy, initializer, `delegatecall`, or upgrade escape hatch.
 
 One publication/release = one native ERC-721 collection.
 
@@ -284,8 +304,9 @@ CURRENT_GATE_BLUEPRINT.md          active detailed Gate architecture
 
 - minimize custom Solidity
 - use pinned audited OpenZeppelin primitives for solved standards
-- no publication proxy/upgrades in V1
+- no publication or birth-policy proxy/upgrades in V1
 - no generic publication owner
+- `HellboxBirthPolicy` has no publisher/admin setter surface; future state mutation must be narrowly bound to its publication state machine
 - no collector-token seizure/forced transfer
 - no per-publication custom-Solidity/audit treadmill
 - security cost is amortized across reusable reviewed versions/modules
