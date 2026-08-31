@@ -2,8 +2,8 @@
 
 **Gate:** Gate 4 — HELLBOX ARTIFACT KERNEL + VERSIONED PUBLICATION FACTORY
 **Status:** APPROVED / IMPLEMENTATION IN PROGRESS
-**Checkpoint:** V1 kernel + `HELLBOX_ABI_V1` + deterministic issuance core + size-safe V1 full-deployment factory implemented; verified post-push regression **40 passed / 0 failed**; factory runtime **8,020 bytes** with **16,556 bytes EIP-170 headroom**
-**Next frontier:** deployment-time enforcement preimages + fixed-copy / birth-trait policy enforcement
+**Checkpoint:** V1 kernel + `HELLBOX_ABI_V1` + deterministic issuance core + size-safe V1 full-deployment factory + versioned enforcement-preimage anchors + modular `HellboxBirthPolicy` foundation implemented; verified post-push regression **65 passed / 0 failed**; current unoptimized Shanghai runtimes: publication **16,334 bytes**, factory **8,020 bytes**, birth-policy module **5,561 bytes**
+**Next frontier:** atomically wire the three enforcement preimages and immutable per-publication `HellboxBirthPolicy` companion through publication/factory deployment, prove combined EIP-170/EIP-3860 headroom, then wire permanent per-token MARK/DEFECT consumption without selecting production randomness prematurely
 **Target chain:** PulseChain Testnet V4 only
 **Mainnet:** prohibited in Gate 4
 **Repository destination:** `CURRENT_GATE_BLUEPRINT.md`
@@ -42,7 +42,7 @@ Current proven Gate 4 implementation constraints:
 - each factory generation freezes an immutable `approvedPublicationCreationCodeHash`;
 - `publish(...)` accepts the exact reviewed publication creation bytecode, verifies its hash against that immutable approval, appends canonical constructor arguments, and deploys the fresh publication through ordinary EVM `CREATE`;
 - the former embedded `new HellboxPublication(...)` factory path is superseded because it pushed factory runtime above the EIP-170 limit once the issuance core landed;
-- verified unoptimized Shanghai sizes after the correction: `HellboxPublicationFactory` runtime **8,020 bytes** with **16,556 bytes** of EIP-170 headroom; `HellboxPublication` runtime **15,564 bytes**;
+- current verified unoptimized Shanghai sizes: `HellboxPublicationFactory` runtime **8,020 bytes** with **16,556 bytes** EIP-170 headroom; `HellboxPublication` runtime **16,334 bytes** with **8,242 bytes** EIP-170 headroom and **24,855-byte** initcode; standalone `HellboxBirthPolicy` runtime **5,561 bytes** with **19,015 bytes** EIP-170 headroom and **17,018-byte** initcode with **32,134 bytes** EIP-3860 headroom;
 - official factory provenance is append-only: no `registerExisting()`, no arbitrary provenance setters, and no post-deployment path that can manufacture authenticity for an external contract;
 - factory V1 rejects zero approved publication creation-code hash, unapproved supplied creation bytecode, duplicate `publicationKey` hashes, and duplicate release-config digests within that official factory/chain generation;
 - factory V1 records only minimal authenticity state (`isPublication`, release-digest lookup, publication-key lookup, ordered publication addresses) and emits richer provenance evidence in `PublicationPublished`;
@@ -50,10 +50,15 @@ Current proven Gate 4 implementation constraints:
 - after deployment, the factory defensively verifies reported factory, chain, template, publication version, release digest, and publication key before recording provenance;
 - an arbitrary self-declared factory is not automatically official: Hellbox's chain/version registry remains the root that designates which factory address/version + approved publication creation-code hash is official;
 - the deterministic issuance core is implemented behind a deterministic entropy-word/test-double boundary without selecting production randomness;
-- current Gate 4 regression checkpoint passes **40 Solidity tests total, 0 failed**:
+- versioned fixed-copy, birth-trait and randomization-policy enforcement domains/typed preimage hashes are implemented and permanently anchored to the corresponding `CommitmentSet` digests without changing `HELLBOX_ABI_V1`;
+- `HellboxBirthPolicy V1` is implemented as a standalone non-upgradeable per-publication companion foundation with constructor-only configuration, permanent `publication = msg.sender` binding, independent digest verification, native MARK/DEFECT inventory + fixed reservations, #066 HELLBOUND/random-pool eligibility enforcement, SciVive trait-disabled support, and no external mutation/admin surface at this checkpoint;
+- the companion is **not yet deployment-wired**: the publication does not yet create/store it and the factory does not yet transport the three policy preimages; no collector mint may be exposed on the assumption that this missing wiring already exists;
+- current Gate 4 post-push regression checkpoint passes **65 Solidity tests total, 0 failed**:
   - 16 `HellboxPublication` kernel tests;
   - 11 `HellboxPublicationFactory` provenance/deployability tests;
   - 12 deterministic issuance tests, including a 256-run fuzz boundary;
+  - 9 `HellboxPublicationPolicy` enforcement-anchor tests;
+  - 16 dedicated `HellboxBirthPolicy` module tests;
   - 1 Solidity↔JavaScript golden-vector test;
 - no publication has been deployed to mainnet; Gate 4 remains PulseChain Testnet V4 only;
 - do **not** use HairyLabs Byte pages for acceptance/regression testing until the creator explicitly clears the Byte lane.
@@ -339,7 +344,7 @@ old runtime margin                    = -7,540 bytes
 
 That factory was structurally undeployable under EIP-170.
 
-The approved creation-code-hash + ordinary-`CREATE` correction produced:
+At the factory-correction checkpoint, the approved creation-code-hash + ordinary-`CREATE` correction produced:
 
 ```text
 HellboxPublication runtime           = 15,564 bytes
@@ -348,6 +353,19 @@ HellboxPublicationFactory runtime    = 8,020 bytes
 HellboxPublicationFactory initcode   = 8,804 bytes
 factory EIP-170 runtime margin       = +16,556 bytes
 ```
+
+That table is historical evidence for the factory correction, not the current publication size after later policy-anchor work. Current verified unoptimized Shanghai sizes are:
+
+```text
+HellboxPublication runtime           = 16,334 bytes
+HellboxPublication initcode          = 24,855 bytes
+HellboxPublicationFactory runtime    = 8,020 bytes
+HellboxPublicationFactory initcode   = 8,804 bytes
+HellboxBirthPolicy runtime           = 5,561 bytes
+HellboxBirthPolicy initcode          = 17,018 bytes
+```
+
+The publication-created companion topology has **not** yet been compiled as one deployment graph. EIP-3860 proof therefore remains required after wiring; simple addition of the two standalone initcode sizes is not deployment proof.
 
 This remains `FULL_DEPLOYMENT`; it is not a clone/proxy/upgrade model.
 
@@ -1337,7 +1355,7 @@ commitmentsDigest       = 0xb6a0722a62b0309c6a082152ddff7e1ffc544669e8d690047a75
 releaseConfigDigest     = 0x66e6697d8fde60531eebed0882030a1c6beecf086b04926599a39878d4e0d15d
 ```
 
-Current proof status: `testJavascriptAndSolidityGoldenVectorMatch()` passes. The verified post-push Gate 4 regression is **40 passed / 0 failed** across kernel, factory, deterministic issuance and cross-language golden-vector suites. The issuance fuzz boundary passes 256 runs.
+Current proof status: `testJavascriptAndSolidityGoldenVectorMatch()` passes. The verified post-push Gate 4 regression is **65 passed / 0 failed** across kernel, factory, deterministic issuance, publication policy-anchor, modular birth-policy and cross-language golden-vector suites. The issuance fuzz boundary passes 256 runs.
 
 ## 36.4 Deployment-time enforcement preimages — LOCKED BOUNDARY
 
@@ -1367,14 +1385,18 @@ authorityPolicyDigest
 
 Current implementation boundary:
 
-- the size-safe factory currently appends ABI-encoded `ReleaseConfig`, `CommitmentSet`, and `expectedReleaseConfigDigest` to the exact approved publication creation bytecode;
-- enforcement preimages are **not yet transported** by the current constructor/factory interface;
-- the next implementation may deliberately evolve that pre-deployment V1 factory/publication interface to transport typed canonical enforcement payloads;
-- it must not use a post-deploy setter, uncommitted collector-affecting value, or generic arbitrary constructor-data escape hatch;
+- `HellboxPublication` now implements versioned canonical typed preimage hashing for `fixedCopyRulesDigest`, `birthTraitsDigest`, and `randomizationPolicyDigest`, permanently anchors those three commitment digests, and exposes mismatch-verification helpers/tests without changing `ReleaseConfig`, `CommitmentSet`, or the `HELLBOX_ABI_V1` fingerprint;
+- `HellboxBirthPolicy V1` uses the same canonical enforcement domains/typed structures and independently verifies all three supplied preimages against the frozen digest anchors while loading inventory/reservation/randomization-policy state;
+- the size-safe factory still appends only ABI-encoded `ReleaseConfig`, `CommitmentSet`, and `expectedReleaseConfigDigest` to the exact approved publication creation bytecode;
+- the publication constructor does **not yet receive** the three enforcement preimages, does **not yet create/store** its companion, and the factory does **not yet transport** those preimages;
+- therefore the next implementation may deliberately evolve the pre-deployment factory/publication call/constructor ABI to carry those narrow typed preimages, but it must not change the frozen release-fingerprint field order/meaning merely for convenience;
+- the preferred topology to test is atomic `HellboxPublication` constructor creation of exactly one `HellboxBirthPolicy`, because the companion's constructor can then bind `publication = msg.sender` with no setter/initializer/predicted-address trick;
+- that topology is conditional on exact combined compile/deployability evidence, including EIP-170 runtime and EIP-3860 initcode headroom; if it fails a chain boundary, stop and redesign rather than adding an upgrade/configuration escape hatch;
+- it must not use a post-deploy setter, uncommitted collector-affecting value, generic arbitrary constructor-data execution surface, proxy, clone, `delegatecall`, or arbitrary implementation registry;
 - any publication source/constructor change changes the exact creation bytecode and therefore requires recalculating the approved creation-code hash used by the factory generation;
 - no V1 factory/publication has been deployed yet, so a coherent pre-deployment V1 interface correction is allowed without pretending a deployed V1 was upgraded.
 
-This preserves the proven `HELLBOX_ABI_V1` golden vector while allowing committed policy to become real EVM enforcement.
+This preserves the proven `HELLBOX_ABI_V1` golden vector while moving already-committed policy toward real atomic EVM enforcement.
 
 **If implementation would require changing the release-fingerprint field order or field meaning instead, STOP.**
 
@@ -2254,10 +2276,25 @@ Already proven at this synchronization checkpoint:
   - lifetime primary wallet accounting survives transfer/burn;
   - true-mintout final-three tail transition;
   - SciVive reuse without native-216 assumptions;
-- **40 total Solidity tests passing, 0 failed**:
+- versioned publication-side enforcement-preimage anchors for fixed-copy, birth-trait and randomization policy, preserving `HELLBOX_ABI_V1`;
+- standalone `HellboxBirthPolicy V1` companion foundation:
+  - constructor-only permanent `publication = msg.sender` binding;
+  - independent verification of all three enforcement preimages;
+  - native MARK/DEFECT inventory validation;
+  - Harrow #001–#006 fixed MARK reservations;
+  - creator fixed DEFECT prohibition;
+  - #066 fixed HELLBOUND while random-pool eligible;
+  - randomization-policy boundary validation;
+  - SciVive trait-disabled shape;
+  - read-only external surface at this checkpoint and no publisher/admin mutation path;
+- current unoptimized Shanghai runtime sizes: publication **16,334 bytes**, factory **8,020 bytes**, birth-policy module **5,561 bytes**;
+- current standalone initcode sizes: publication **24,855 bytes**, birth-policy module **17,018 bytes**; combined deployment graph still unproven until wiring is compiled;
+- **65 total Solidity tests passing, 0 failed**:
   - 16 kernel;
   - 11 factory;
   - 12 deterministic issuance;
+  - 9 publication policy-anchor;
+  - 16 dedicated birth-policy;
   - 1 cross-language golden vector;
 - issuance fuzz boundary: **256 runs passed**.
 
@@ -2272,14 +2309,15 @@ Gate 4 must **not** pretend to finish:
 
 ---
 
-# 49A. INTERNAL ENGINEERING CHECKPOINT — ENFORCEMENT PREIMAGES + BIRTH POLICY
+# 49A. INTERNAL ENGINEERING CHECKPOINT — ATOMIC BIRTH-POLICY WIRING + TRAIT CONSUMPTION
 
-The deterministic issuance accounting checkpoint described below is now implemented and test-backed. This section remains the required architecture ledger for the **next** major Gate 4 Solidity slice: deployment-time enforcement preimages plus fixed-copy / MARK / DEFECT birth-policy enforcement.
+The deterministic issuance accounting core, publication-side enforcement digest anchors, and standalone modular birth-policy foundation are now implemented and test-backed. This section is the required architecture ledger for the next Gate 4 Solidity work: **atomically bind the existing `HellboxBirthPolicy` to each publication deployment before adding mutable per-token trait consumption or exposing collector minting.**
 
 ## 49A.1 Blueprint sections implemented / carried forward
 
-The implemented issuance core and next enforcement work derive primarily from:
+The implemented issuance/policy work and next wiring derive primarily from:
 
+- §8 factory/authenticity/deployability;
 - §10 supply & copy numbering;
 - §11 creator immediate/tail allocation;
 - §12 fixed copy rules;
@@ -2296,9 +2334,9 @@ The implemented issuance core and next enforcement work derive primarily from:
 - §43–45 validation/preview/PUBLISH constraints;
 - §46 standard native 216 profile.
 
-## 49A.2 Complete standard-native issuance state machine
+## 49A.2 Standard-native issuance state machine — implemented accounting, trait consumption pending
 
-### PUBLISH / initialization
+### PUBLISH / initialization semantics
 
 The release freezes `maxSupply = 216`.
 
@@ -2326,7 +2364,7 @@ nonTailIssuanceRemaining = 207
 
 The three future Harrow tail copies are still inside those 210 candidates. They are not known, removed or reserved by ID.
 
-Known remaining MARK inventory at that point:
+Known remaining MARK inventory after **future issuance-time consumption** of the six creator reservations must be:
 
 ```text
 HELLBOUND       4
@@ -2337,7 +2375,41 @@ STANDARD      180
 
 Remaining DEFECT inventory depends on the six actual randomized creator DEFECT results.
 
-### Every successful normal non-tail primary issuance
+### Reservation math before creator-trait consumption is wired
+
+At companion construction time the full MARK inventory still totals 216 and all configured fixed MARK rules are reserved:
+
+```text
+creator #001/#002 HELLBOUND      = 2 reserved
+creator #003/#004 PRESS PROOF    = 2 reserved
+creator #005/#006 GOLD           = 2 reserved
+#066 HELLBOUND                   = 1 reserved
+----------------------------------------------
+total fixed MARK reservations    = 7
+```
+
+Therefore the construction-time HELLBOUND state is:
+
+```text
+HELLBOUND inventory remaining          = 6
+HELLBOUND reserved remaining           = 3
+HELLBOUND random-assignable remaining  = 3
+```
+
+Across all MARK values, construction-time random-assignable total is `209`, because seven MARK positions are fixed/reserved.
+
+This does **not** change the collector next-copy probability after the creator six are actually consumed. At that future point:
+
+```text
+candidatePoolRemaining = 210
+HELLBOUND remaining    = 4
+#066 remains a random candidate and carries 1 reserved HELLBOUND
+other random-assignable HELLBOUND = 3
+```
+
+So the next-copy HELLBOUND probability is still exactly `4 / 210`. The implementation must preserve this by consuming creator reservations/inventory when the six creator copies receive their permanent birth identities; it must not pre-remove #066 from candidate selection.
+
+### Every successful normal non-tail primary issuance — required behavior after trait wiring
 
 Exactly one token is issued.
 
@@ -2358,19 +2430,6 @@ Reserved, free, allowlist, early and public phases may differ in eligibility/eco
 
 Transfer or burn does not restore primary allowance or primary issuance capacity.
 
-### Odds
-
-Immediately after the first six:
-
-```text
-HELLBOUND remaining = 4
-candidatePoolRemaining = 210
-
-next-pull HELLBOUND odds = 4 / 210
-```
-
-`207` is **never** the initial odds denominator.
-
 ### True mint-out
 
 Immediately before the final normal non-tail issuance:
@@ -2387,11 +2446,7 @@ candidatePoolRemaining   = 3
 nonTailIssuanceRemaining = 0
 ```
 
-Those exact three remaining candidate IDs are awarded to the configured tail recipient.
-
-They are not preselected.
-
-`tailAwarded` becomes true once.
+Those exact three remaining candidate IDs are awarded to the configured tail recipient. They are not preselected. `tailAwarded` becomes true once.
 
 ### Early permanent close
 
@@ -2405,79 +2460,129 @@ If early close is enabled and invoked before true mint-out:
 - `tailAwarded` remains false;
 - remaining unissued IDs cannot later be swept or reassigned by an admin escape hatch.
 
-## 49A.3 Logical state concepts required
+Exact early-close implementation remains open and is not part of the immediate atomic-wiring checkpoint.
 
-Exact storage layout is an engineering choice. The implementation must nevertheless represent or safely derive:
+## 49A.3 `HellboxBirthPolicy V1` — current module contract
+
+The standalone companion currently implements/validates:
 
 ```text
-totalPrimaryIssued
-candidatePoolRemaining
-nonTailIssuanceRemaining
-walletLifetimePrimaryUsed[address]
-primaryIssuanceClosed
-tailAwarded
-immediateCreatorAllocationComplete
-remaining candidate-copy identity / shuffle bookkeeping
-per-token permanent birth assignment
-remaining PRESS MARK inventory
-remaining PRESS DEFECT inventory
+BIRTH_POLICY_VERSION = 1
+MODULE_ID             = keccak256("HELLBOX_BIRTH_POLICY")
+publication           = msg.sender at construction
 ```
 
-A value should be derived rather than stored where doing so is simpler and equally provable.
+Its constructor receives:
 
-`tokenId` is the collector-facing copy number. There is no second visible copy-number system.
+- a narrow `PublicationBinding` containing already-frozen supply/creator/tail/digest anchors;
+- encoded fixed-copy policy preimage;
+- encoded birth-trait policy preimage;
+- encoded randomization-policy preimage.
 
-## 49A.4 Current implementation split before production randomness is selected
+It independently verifies the three canonical enforcement digests using the same domains as the publication anchors.
 
-Already implemented/tested:
+Current module semantics include:
 
-- supply and candidate-pool accounting;
-- standard native `210 / 207` initialization;
-- lifetime primary wallet accounting;
-- one token per internal normal primary issuance call;
-- immediate-six copy/recipient reservation and completion ordering;
-- #066 candidate eligibility until actually drawn;
-- sparse remaining-candidate bookkeeping;
-- deterministic in-range candidate draw boundary;
-- true-mintout final-three transition;
-- transfer/burn do not restore lifetime primary allowance;
-- SciVive reuse through the same issuance core;
-- deterministic/adversarial entropy-word test doubles.
+- native MARK inventory `6 / 12 / 18 / 180`;
+- native DEFECT inventory `6 / 12 / 18 / 24 / 156`;
+- fixed MARK reservations for #001–#006;
+- creator DEFECT fixed assignment prohibited;
+- #066 HELLBOUND while public-random-pool eligible;
+- duplicate axis/value/fixed-rule rejection;
+- reservation-over-inventory rejection;
+- randomization boundary requiring random non-sequential copy shuffle, global shared trait pool, independent MARK/DEFECT axes, shared-random creator DEFECT semantics, and no full preknown publisher rarity map;
+- trait-disabled reusable shape for SciVive;
+- read-only inventory/reservation inspection surfaces.
 
-Exact next deterministic enforcement slice:
+At this checkpoint it has **no external mutation/admin surface**. It does not have `Ownable`, initializer, proxy, upgrade, `delegatecall`, mint, burn, transfer, rarity setter, or publisher configuration function.
 
-- canonical deployment-time preimage encoding for `fixedCopyRulesDigest`, `birthTraitsDigest`, and the needed deterministic `randomizationPolicyDigest` boundary;
-- publication verification that each supplied preimage hashes to the already-bound commitment before collector issuance can activate;
-- exact #001–#006 fixed MARK enforcement while keeping their DEFECTS on the shared random process;
-- #066 HELLBOUND enforcement without removing #066 from the random candidate pool;
-- exact MARK inventory conservation;
-- exact DEFECT inventory conservation;
-- permanent per-token birth MARK/DEFECT identity;
-- authoritative remaining MARK/DEFECT inventory views for public Press odds;
-- no post-PUBLISH setter/configuration window;
-- preservation of the size-safe approved-creation-code factory path.
+Its current `*Remaining` values are construction-time policy/reservation state only. They are **not yet live post-mint Press odds** because per-token consumption has not been implemented.
 
-Still open for production finalization:
+## 49A.4 Atomic deployment topology — exact next checkpoint
 
-- entropy source/provider;
-- request/fulfillment timing;
-- reveal timing;
-- fallback/failure behavior;
-- exact manipulation-resistance proof;
-- production audit/reproducibility proof.
+Current committed deployment graph is still:
 
-The deterministic birth-policy/enforcement work must not be fused to a speculative entropy mechanism merely to finish Gate 4 faster.
+```text
+reviewed HellboxPublication creation bytecode
+        ↓ exact hash approved by factory generation
+HellboxPublicationFactory ordinary CREATE
+        ↓
+HellboxPublication
+```
 
-## 49A.5 On-chain vs committed data
+The module exists independently but is not connected to that graph.
+
+Preferred topology to test next:
+
+```text
+HellboxPublicationFactory ordinary CREATE
+        ↓
+HellboxPublication constructor
+        ↓  atomic constructor-time CREATE
+HellboxBirthPolicy companion
+```
+
+Reasons for preferring publication-created companion:
+
+- `HellboxBirthPolicy` can permanently bind `publication = msg.sender` to the actual publication;
+- no setter/initializer/configuration window is needed;
+- no predicted publication address or CREATE2 requirement is needed;
+- factory remains the publication deployer/provenance root;
+- publication + companion deployment succeeds or reverts atomically.
+
+This is a **preferred topology to prove, not yet a proven implementation fact**.
+
+Critical chain-size evidence before wiring:
+
+```text
+HellboxPublication runtime                = 16,334 bytes
+HellboxPublication EIP-170 margin         =  8,242 bytes
+HellboxPublication initcode               = 24,855 bytes
+
+HellboxBirthPolicy runtime                =  5,561 bytes
+HellboxBirthPolicy EIP-170 margin         = 19,015 bytes
+HellboxBirthPolicy initcode               = 17,018 bytes
+HellboxBirthPolicy EIP-3860 margin        = 32,134 bytes
+
+EIP-3860 publication-initcode limit       = 49,152 bytes
+```
+
+The simple standalone initcode sum (`24,855 + 17,018`) is below 49,152, but **that is not combined deployment proof**. Solidity may embed companion creation bytecode plus constructor/payload handling differently. Compile and measure the actual wired publication before accepting the topology.
+
+If the actual graph exceeds EIP-3860, EIP-170, or leaves unacceptable deployment headroom, stop and re-review topology. Do **not** solve the problem with a post-deploy setter, proxy, initializer, arbitrary implementation registry, `delegatecall`, or unbound companion.
+
+## 49A.5 Exact deployment-wiring requirements
+
+The next implementation checkpoint must:
+
+1. transport exactly the three narrow fixed-copy/birth-trait/randomization enforcement preimages through the factory/publication deployment path;
+2. leave `ReleaseConfig`, `CommitmentSet`, their field order/meaning and the `HELLBOX_ABI_V1` release fingerprint unchanged;
+3. build `HellboxBirthPolicy.PublicationBinding` only from already-validated publication config/commitment anchors;
+4. create exactly one companion during construction if the preferred topology passes exact compile/deployability tests;
+5. permanently store/expose the companion address in the publication with no setter/replacement path;
+6. prove malformed/decode-invalid/digest-mismatched policy data reverts the entire publication deployment;
+7. prove `birthPolicy.publication()` equals the deployed publication, not factory/publisher authority;
+8. preserve factory ordinary `CREATE`, immutable approved publication creation-code hash checking and post-deploy provenance checks;
+9. recalculate the approved publication creation-code hash because reviewed publication creation bytecode changes when constructor/module wiring lands;
+10. measure exact publication runtime/initcode and factory runtime/initcode after wiring, under the existing unoptimized Shanghai build baseline;
+11. keep SciVive's trait-disabled configuration deployable through the same reviewed publication version;
+12. introduce no generic arbitrary constructor-data execution surface;
+13. introduce no generic owner, rarity setter, activation window, proxy, clone, upgrade, arbitrary transfer/burn, seizure, or publisher reroll;
+14. keep production randomness/provider selection outside this deterministic deployment work.
+
+The factory may change its **pre-deployment call ABI** to transport these typed policy preimages. That is not permission to change the frozen release fingerprint or collector-facing promise schema.
+
+## 49A.6 On-chain vs committed data
 
 Must be on-chain or deterministically derivable on-chain when required for enforcement:
 
 - capacity/candidate state;
 - lifetime wallet use;
 - copy assignment/existence;
-- runtime fixed-rule enforcement;
-- runtime trait inventory;
+- fixed-rule enforcement;
+- runtime trait inventory once consumption is wired;
 - closure/tail state;
+- immutable companion binding;
 - narrow authority endpoint when an enabled action requires one.
 
 May remain rich committed package/D1 data when the EVM does not need it to enforce collector promises:
@@ -2490,18 +2595,17 @@ May remain rich committed package/D1 data when the EVM does not need it to enfor
 - publication content;
 - audit explanations.
 
-If a rich committed policy is needed by the EVM, use the §36.4 canonical preimage rule.
+If rich committed policy is needed by the EVM, use the §36.4 canonical preimage rule.
 
-## 49A.6 Authority
+## 49A.7 Authority / ABI / reuse boundaries
 
-The issuance state machine should introduce no new authority unless a frozen release feature genuinely requires it.
-
-It must not add:
+Atomic wiring and later trait consumption must not add:
 
 ```text
 generic publication owner
+generic birth-policy owner
 supply setter
-trait setter
+trait/rarity setter
 token seizure
 arbitrary transfer
 arbitrary burn
@@ -2509,23 +2613,22 @@ publisher rarity reroll
 external authenticity registration
 proxy/admin upgrade
 post-PUBLISH config editor
+companion replacement setter
 ```
 
-If early close is enabled, only the narrow frozen close authority may perform that one action.
+Future birth-policy mutation needed for actual issuance must be narrowly callable only by the permanently bound publication state machine. That is an internal enforcement relationship, not a publisher/admin authority surface.
 
-## 49A.7 ABI/reuse boundary
-
-Issuance/enforcement work must not change:
+The work must not change:
 
 ```text
-HELLBOX_ABI_V1 field order/meaning
+HELLBOX_ABI_V1 ReleaseConfig field order/meaning
 CommitmentSet order/meaning
 golden-vector semantics
 tokenId = copy number
 frozen collector promises
 ```
 
-Deployment-time policy preimages are allowed only because their digests are already bound by `CommitmentSet`.
+Deployment-time policy preimages are allowed because their digests are already bound by `CommitmentSet`.
 
 An unchanged reviewed V1 must remain reusable for future issues through configuration rather than per-issue Solidity changes.
 
@@ -2534,67 +2637,68 @@ An unchanged reviewed V1 must remain reusable for future issues through configur
 Current verified post-push regression:
 
 ```text
-HellboxPublication kernel tests     16
-HellboxPublicationFactory tests    11
-deterministic issuance tests       12
-cross-language golden vector        1
--------------------------------------
-TOTAL                              40 passed / 0 failed
+HellboxPublication kernel tests         16
+HellboxPublicationFactory tests        11
+deterministic issuance tests           12
+HellboxPublicationPolicy tests          9
+HellboxBirthPolicy tests               16
+cross-language golden vector            1
+-----------------------------------------
+TOTAL                                  65 passed / 0 failed
 
-issuance fuzz boundary             256 runs passed
+issuance fuzz boundary                 256 runs passed
 ```
 
-Current deterministic issuance suite proves:
+Current `HellboxBirthPolicy` dedicated suite proves, among other things:
 
-### Supply/capacity / candidate core
-- standard native initializes exactly `210 candidates / 207 non-tail issuances`;
-- each successful normal internal issuance decrements both counters exactly once;
-- immediate creator allocation must complete before normal issuance;
-- burn/transfer do not restore lifetime primary usage;
-- final normal issuance leaves exactly three candidates;
-- true mint-out awards the literal final three exactly once;
-- tail cannot award before true mint-out.
+- module identity/version and permanent constructor binding;
+- canonical legacy enforcement preimages remain compatible;
+- all three independent digest mismatch paths revert;
+- native MARK/DEFECT inventory validation;
+- Harrow creator MARK reservation shape;
+- creator fixed DEFECT prohibition;
+- #066 HELLBOUND reservation/random-pool eligibility shape;
+- duplicate fixed-copy rule rejection;
+- fixed reservation cannot exceed inventory;
+- birth inventory must equal frozen supply;
+- randomization requires global shared trait pool;
+- creator immediate rule count must match frozen binding;
+- SciVive-style trait-disabled reusable publication shape.
 
-### Copy identity / draw boundary
-- deterministic candidate selection remains in range;
-- removed candidates cannot be drawn again through the sparse-pool bookkeeping;
-- #066 remains candidate-eligible until actually drawn;
-- 256-run fuzz coverage confirms the uniform-index boundary remains inside the current candidate range.
+Still required before the atomic deployment-wiring checkpoint is complete:
 
-### Creator / wallet / reuse
-- #001–#006 immediate copy IDs go only to the configured creator recipient in the deterministic allocation core;
-- invalid immediate-copy initialization sets revert;
-- normal issuance rejects zero accounts without mutation;
-- lifetime primary accounting survives transfer and burn;
-- SciVive uses the same issuance core without standard-native 216-copy assumptions.
+- exact factory/publication transport encoding for the three policy preimages;
+- atomic companion construction from the publication constructor;
+- immutable publication companion address;
+- deployment-level malformed/mismatch reverts;
+- actual publication binding proof;
+- combined unoptimized Shanghai EIP-170/EIP-3860 size proof;
+- factory size/provenance regression after the wiring;
+- SciVive trait-disabled deployment through the wired graph;
+- full regression and adversarial tests.
 
-Still required before the birth-policy/enforcement slice is complete:
+After atomic wiring is proven, the next deterministic module slice must implement/test:
 
-### Trait conservation
-- #001–#006 MARKS are enforced exactly;
-- creator DEFECT is not guaranteed and uses the approved shared random process;
-- #066 is HELLBOUND while staying random-pool eligible;
+### Trait conservation / permanent birth identity
+- consuming #001–#006 fixed MARK reservations exactly once;
+- creator DEFECT uses the approved shared random process and consumes actual DEFECT inventory;
+- #066 remains HELLBOUND while staying candidate-random until drawn;
 - MARK totals remain exact;
 - DEFECT totals remain exact;
-- fixed assignments consume inventory correctly;
+- fixed assignments consume reservations + inventory correctly;
+- random assignments cannot consume reserved inventory needed by an undrawn fixed copy;
 - no underflow/over-allocation;
 - every issued/awarded copy gets exactly one value from each enabled birth axis;
-- authoritative remaining inventory produces the correct public odds denominator.
-
-### Enforcement preimages
-- canonical preimage encoding is test-vector backed;
-- matching `fixedCopyRulesDigest` / `birthTraitsDigest` / required `randomizationPolicyDigest` preimages are accepted;
-- any mismatch reverts before collector issuance can activate;
-- no uncommitted collector-affecting value can enter the release;
-- no post-deployment setter or generic arbitrary constructor-data escape hatch exists.
+- permanent token MARK/DEFECT values cannot be rerolled by publisher/admin action;
+- authoritative remaining inventory produces correct public next-copy odds using the actual candidate denominator.
 
 Still required later in Gate 4:
 
-### Authority / close / public mint
+### Authority / close / phases / public mint
 - unauthorized close fails;
 - early close is permanent and never awards tail;
 - no post-close mint succeeds;
-- no caller can mint over the frozen lifetime/phase rules;
+- no caller can mint over frozen lifetime/phase rules;
 - changing phases cannot reset lifetime usage;
 - no caller can force #066;
 - no caller can preselect tail IDs;
@@ -2608,7 +2712,6 @@ Still required later in Gate 4:
 - same reviewed factory/template/version deploys a second dummy publication without bespoke Solidity.
 
 Use fuzz/invariant tests as each remaining deterministic transition becomes concrete.
-
 
 ---
 
@@ -2814,12 +2917,16 @@ Additional implementation decisions now synchronized here:
 - [x] V1 factory generation immutably approves the exact `HellboxPublication` creation-bytecode hash; `publish(...)` hash-verifies supplied bytecode and uses ordinary `CREATE` while remaining `FULL_DEPLOYMENT`.
 - [x] Factory EIP-170 blocker is structurally resolved: runtime **8,020 bytes**, margin **+16,556 bytes**; embedded `new HellboxPublication(...)` deployment is superseded.
 - [x] Deterministic issuance accounting core is implemented/tested, including `210 / 207`, immediate-six ordering, #066 candidate eligibility, lifetime wallet accounting, sparse candidate draws, and true-mintout final-three behavior.
-- [x] Current verified Solidity regression = **40 passed / 0 failed** with issuance fuzz boundary **256 runs passed**.
+- [x] Publication-side versioned enforcement-preimage anchors for fixed-copy, birth-trait and randomization policy are implemented/tested without changing `HELLBOX_ABI_V1`.
+- [x] Standalone non-upgradeable `HellboxBirthPolicy V1` companion foundation is implemented/tested with constructor-only binding, native inventory/reservations, #066 rule shape, SciVive trait-disabled support and no external mutation/admin surface at this checkpoint.
+- [ ] Publication/factory → `HellboxBirthPolicy` atomic deployment wiring and exact combined EIP-170/EIP-3860 proof are not yet complete.
+- [ ] Per-token MARK/DEFECT consumption/assignment and authoritative live post-mint odds are not yet complete.
+- [x] Current verified Solidity regression = **65 passed / 0 failed** with issuance fuzz boundary **256 runs passed**.
 - [x] `template.factoryVersion` remains registry/deployment metadata and is not a caller-supplied `ReleaseConfig` field.
 - [x] Publication-level operational authority uses the canonical `publisherAuthority` name throughout.
 - [ ] Rotation-safe `publisherAuthority` endpoint strategy remains open before any mainnet release enables persistent publisher-authorized lifecycle actions.
 
-After this synchronization is committed, the next implementation frontier is **deployment-time enforcement preimages + fixed-copy / birth-trait enforcement**: make the already-committed fixed-copy, MARK, DEFECT and deterministic randomization-policy rules real EVM enforcement before exposing a collector mint.
+After this synchronization is committed, the next implementation frontier is **atomic publication/factory deployment wiring for the existing `HellboxBirthPolicy` companion and its three enforcement preimages**. Only after that graph is compile/size/provenance tested should Gate 4 add publication-only per-token MARK/DEFECT consumption and live odds. Do not expose a collector mint before both layers are real EVM enforcement.
 
 That implementation must preserve the already-proven standard native distinction:
 
