@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.36;
 
+import {HellboxBirthPolicy} from "../contracts/HellboxBirthPolicy.sol";
 import {HellboxPublication} from "../contracts/HellboxPublication.sol";
 import {HellboxPublicationFactory} from "../contracts/HellboxPublicationFactory.sol";
 
@@ -25,6 +26,8 @@ contract HellboxPublicationFactoryTest {
         0x5555555555555555555555555555555555555555;
     address internal constant NEXT_OWNER =
         0x6666666666666666666666666666666666666666;
+    address internal constant BIRTH_POLICY_CODE_STORE =
+        0x7777777777777777777777777777777777777777;
 
     uint256 internal constant FACTORY_VERSION = 1;
     uint256 internal constant PUBLICATION_VERSION = 1;
@@ -67,6 +70,18 @@ contract HellboxPublicationFactoryTest {
         );
 
         require(
+            factory.birthPolicyCodeStore() ==
+                BIRTH_POLICY_CODE_STORE,
+            "birth policy code store"
+        );
+
+        require(
+            factory.approvedBirthPolicyCreationCodeHash() ==
+                _birthPolicyCreationCodeHash(),
+            "approved birth policy creation code hash"
+        );
+
+        require(
             address(factory).code.length < EIP170_RUNTIME_LIMIT,
             "factory runtime exceeds EIP-170"
         );
@@ -83,6 +98,40 @@ contract HellboxPublicationFactoryTest {
 
         new HellboxPublicationFactory(
             address(this),
+            bytes32(0),
+            BIRTH_POLICY_CODE_STORE,
+            _birthPolicyCreationCodeHash()
+        );
+    }
+
+    function testFactoryRejectsZeroBirthPolicyCodeStore() public {
+        VM.expectPartialRevert(
+            HellboxPublicationFactory
+                .InvalidBirthPolicyCodeStore
+                .selector
+        );
+
+        new HellboxPublicationFactory(
+            address(this),
+            _publicationCreationCodeHash(),
+            address(0),
+            _birthPolicyCreationCodeHash()
+        );
+    }
+
+    function testFactoryRejectsZeroApprovedBirthPolicyCreationCodeHash()
+        public
+    {
+        VM.expectPartialRevert(
+            HellboxPublicationFactory
+                .InvalidApprovedBirthPolicyCreationCodeHash
+                .selector
+        );
+
+        new HellboxPublicationFactory(
+            address(this),
+            _publicationCreationCodeHash(),
+            BIRTH_POLICY_CODE_STORE,
             bytes32(0)
         );
     }
@@ -466,6 +515,18 @@ contract HellboxPublicationFactoryTest {
             "creation code hash changed"
         );
 
+        require(
+            factory.birthPolicyCodeStore() ==
+                BIRTH_POLICY_CODE_STORE,
+            "birth policy code store changed"
+        );
+
+        require(
+            factory.approvedBirthPolicyCreationCodeHash() ==
+                _birthPolicyCreationCodeHash(),
+            "birth policy creation code hash changed"
+        );
+
         HellboxPublication.ReleaseConfig memory config =
             _validConfig("hellbox-native-001");
 
@@ -581,7 +642,9 @@ contract HellboxPublicationFactoryTest {
     {
         factory = new HellboxPublicationFactory(
             address(this),
-            _publicationCreationCodeHash()
+            _publicationCreationCodeHash(),
+            BIRTH_POLICY_CODE_STORE,
+            _birthPolicyCreationCodeHash()
         );
     }
 
@@ -599,6 +662,14 @@ contract HellboxPublicationFactoryTest {
         returns (bytes32)
     {
         return keccak256(type(HellboxPublication).creationCode);
+    }
+
+    function _birthPolicyCreationCodeHash()
+        internal
+        pure
+        returns (bytes32)
+    {
+        return keccak256(type(HellboxBirthPolicy).creationCode);
     }
 
     function _validConfig(

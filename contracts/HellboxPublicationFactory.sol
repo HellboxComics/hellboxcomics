@@ -34,6 +34,20 @@ contract HellboxPublicationFactory is Ownable2Step {
     ///      runtime hash.
     bytes32 public immutable approvedPublicationCreationCodeHash;
 
+    /// @notice Inert HellboxBirthPolicyCodeStore selected for this factory
+    ///         generation.
+    /// @dev Factory-generation provenance only. Publications will copy the
+    ///      stored BirthPolicy creation bytes from runtime offset 1 and verify
+    ///      them against `approvedBirthPolicyCreationCodeHash` before CREATE.
+    ///      This is never caller-selected per publication.
+    address public immutable birthPolicyCodeStore;
+
+    /// @notice Exact keccak256 of the HellboxBirthPolicy creation bytes stored
+    ///         after runtime offset 1 in `birthPolicyCodeStore`.
+    /// @dev Factory-generation provenance only. This does not enter
+    ///      ReleaseConfig and does not change HELLBOX_ABI_V1.
+    bytes32 public immutable approvedBirthPolicyCreationCodeHash;
+
     // ---------------------------------------------------------------------
     // Minimal append-only provenance state
     // ---------------------------------------------------------------------
@@ -53,6 +67,10 @@ contract HellboxPublicationFactory is Ownable2Step {
     // ---------------------------------------------------------------------
 
     error InvalidApprovedPublicationCreationCodeHash();
+
+    error InvalidBirthPolicyCodeStore();
+
+    error InvalidApprovedBirthPolicyCreationCodeHash();
 
     error UnapprovedPublicationCreationCode(
         bytes32 expectedCreationCodeHash,
@@ -116,15 +134,34 @@ contract HellboxPublicationFactory is Ownable2Step {
     /// @param publicationCreationCodeHash keccak256 of the exact reviewed
     ///        HellboxPublication V1 creation bytecode approved for this factory
     ///        generation.
+    /// @param birthPolicyCodeStoreAddress Inert HellboxBirthPolicyCodeStore
+    ///        selected for this factory generation. It is intentionally frozen
+    ///        here rather than accepted from `publish(...)`.
+    /// @param birthPolicyCreationCodeHash keccak256 of the exact
+    ///        HellboxBirthPolicy creation bytes stored after runtime offset 1
+    ///        in the selected code store.
     constructor(
         address initialPublisherAuthority,
-        bytes32 publicationCreationCodeHash
+        bytes32 publicationCreationCodeHash,
+        address birthPolicyCodeStoreAddress,
+        bytes32 birthPolicyCreationCodeHash
     ) Ownable(initialPublisherAuthority) {
         if (publicationCreationCodeHash == bytes32(0)) {
             revert InvalidApprovedPublicationCreationCodeHash();
         }
 
+        if (birthPolicyCodeStoreAddress == address(0)) {
+            revert InvalidBirthPolicyCodeStore();
+        }
+
+        if (birthPolicyCreationCodeHash == bytes32(0)) {
+            revert InvalidApprovedBirthPolicyCreationCodeHash();
+        }
+
         approvedPublicationCreationCodeHash = publicationCreationCodeHash;
+        birthPolicyCodeStore = birthPolicyCodeStoreAddress;
+        approvedBirthPolicyCreationCodeHash =
+            birthPolicyCreationCodeHash;
     }
 
     /// @notice Ownership renunciation is intentionally disabled so the official
