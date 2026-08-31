@@ -12,8 +12,10 @@ import {ERC721Royalty} from "openzeppelin-contracts/contracts/token/ERC721/exten
 ///      The deterministic candidate pool, immediate-allocation ordering, wallet lifetime accounting,
 ///      and true-mintout tail boundary are implemented behind internal functions so they can be
 ///      exercised with deterministic test doubles before a production entropy provider is selected.
-///      Public mint phases, pricing/payment enforcement, committed trait-policy preimages, production
-///      randomness, early-close authority, metadata rendering, and later protocols remain to be wired.
+///      Canonical enforcement-preimage schemas and the three committed policy-digest anchors are now
+///      defined, but deployment-time transport, birth-policy activation, public mint phases,
+///      pricing/payment enforcement, production randomness, early-close authority, metadata rendering,
+///      and later protocols remain to be wired.
 contract HellboxPublication is ERC721Royalty {
     // ---------------------------------------------------------------------
     // HELLBOX_ABI_V1 protocol constants
@@ -28,6 +30,28 @@ contract HellboxPublication is ERC721Royalty {
         keccak256("HELLBOX_ABI_V1:RELEASE_CONFIG");
 
     uint256 public constant TOKEN_ID_START = 1;
+
+    // ---------------------------------------------------------------------
+    // Gate 4 enforcement-preimage domains
+    // ---------------------------------------------------------------------
+
+    /// @dev These domains version the canonical ABI-encoded preimages that may
+    ///      later be supplied at deployment time. They do not change
+    ///      HELLBOX_ABI_V1 or CommitmentSet field order.
+    bytes32 public constant FIXED_COPY_RULES_ENFORCEMENT_DOMAIN =
+        keccak256("HELLBOX_ENFORCEMENT_V1:FIXED_COPY_RULES");
+    bytes32 public constant BIRTH_TRAITS_ENFORCEMENT_DOMAIN =
+        keccak256("HELLBOX_ENFORCEMENT_V1:BIRTH_TRAITS");
+    bytes32 public constant RANDOMIZATION_POLICY_ENFORCEMENT_DOMAIN =
+        keccak256("HELLBOX_ENFORCEMENT_V1:RANDOMIZATION_POLICY");
+
+    bytes32 public constant ALLOCATION_CLASS_CREATOR_IMMEDIATE =
+        keccak256("CREATOR_IMMEDIATE");
+    bytes32 public constant ALLOCATION_CLASS_PUBLIC_RANDOM_POOL =
+        keccak256("PUBLIC_RANDOM_POOL");
+
+    bytes32 public constant PRESS_MARK_AXIS_ID = keccak256("PRESS_MARK");
+    bytes32 public constant PRESS_DEFECT_AXIS_ID = keccak256("PRESS_DEFECT");
 
     // ---------------------------------------------------------------------
     // Frozen constructor configuration
@@ -88,6 +112,69 @@ contract HellboxPublication is ERC721Royalty {
         bytes32 eventPolicyDigest;
     }
 
+    // ---------------------------------------------------------------------
+    // Canonical deployment-time enforcement preimages
+    // ---------------------------------------------------------------------
+
+    /// @notice One fixed-copy rule whose canonical ABI encoding can be
+    ///         committed by fixedCopyRulesDigest.
+    /// @dev Zero requiredMarkCode / requiredDefectCode means that axis is not
+    ///      fixed by this row. Rich human labels/art references remain covered
+    ///      by the package/publication commitments rather than duplicated here.
+    struct FixedCopyRuleEnforcement {
+        uint256 copyId;
+        bytes32 allocationClass;
+        bytes32 requiredMarkCode;
+        bytes32 requiredDefectCode;
+        address recipient;
+        bool publicRandomPoolEligible;
+        bytes32 reasonCode;
+    }
+
+    struct FixedCopyRulesEnforcement {
+        bool enabled;
+        FixedCopyRuleEnforcement[] rules;
+    }
+
+    struct BirthTraitValueEnforcement {
+        bytes32 code;
+        uint256 count;
+    }
+
+    /// @notice Enforcement subset for one birth-trait axis.
+    /// @dev assignmentMode / overlapPolicy are stable machine codes committed
+    ///      by this preimage. Collector-facing labels/layers remain in the
+    ///      richer committed package manifests.
+    struct BirthTraitAxisEnforcement {
+        bytes32 axisId;
+        bytes32 assignmentMode;
+        bytes32 overlapPolicy;
+        BirthTraitValueEnforcement[] values;
+    }
+
+    struct BirthTraitsEnforcement {
+        bool enabled;
+        BirthTraitAxisEnforcement[] axes;
+    }
+
+    /// @notice Deterministic randomization-policy boundary committed by
+    ///         randomizationPolicyDigest.
+    /// @dev Provider-specific details remain nested behind providerConfigDigest
+    ///      until the production entropy mechanism is selected and frozen.
+    struct RandomizationPolicyEnforcement {
+        bool enabled;
+        bytes32 policyId;
+        uint256 schemeVersion;
+        bytes32 providerConfigDigest;
+        bytes32 copyShuffleMode;
+        bytes32 fixedIdExclusionsDigest;
+        bytes32 traitPoolMode;
+        bool markDefectIndependent;
+        bytes32 creatorDefectFairness;
+        bytes32 publisherMapKnowledgePolicy;
+        bytes32 assignmentProofMode;
+    }
+
     string public publicationKey;
 
     uint256 public immutable releaseChainId;
@@ -119,6 +206,14 @@ contract HellboxPublication is ERC721Royalty {
 
     bytes32 public immutable publicationManifestDigest;
     bytes32 public immutable packageDigest;
+
+    /// @notice Exact policy commitments already bound by HELLBOX_ABI_V1.
+    /// @dev Stored individually because later deployment-time enforcement must
+    ///      compare canonical preimages against these frozen values.
+    bytes32 public immutable fixedCopyRulesDigest;
+    bytes32 public immutable birthTraitsDigest;
+    bytes32 public immutable randomizationPolicyDigest;
+
     bytes32 public immutable commitmentsDigest;
     bytes32 public immutable releaseConfigDigest;
 
@@ -203,6 +298,9 @@ contract HellboxPublication is ERC721Royalty {
     error InvalidCapabilityConfiguration();
     error MissingRequiredCommitment();
     error ReleaseConfigDigestMismatch(bytes32 expected, bytes32 computed);
+    error FixedCopyRulesDigestMismatch(bytes32 expected, bytes32 computed);
+    error BirthTraitsDigestMismatch(bytes32 expected, bytes32 computed);
+    error RandomizationPolicyDigestMismatch(bytes32 expected, bytes32 computed);
 
     error IssuanceStateAlreadyInitialized();
     error IssuanceStateNotInitialized();
@@ -342,6 +440,9 @@ contract HellboxPublication is ERC721Royalty {
 
         publicationManifestDigest = commitments.publicationManifestDigest;
         packageDigest = commitments.packageDigest;
+        fixedCopyRulesDigest = commitments.fixedCopyRulesDigest;
+        birthTraitsDigest = commitments.birthTraitsDigest;
+        randomizationPolicyDigest = commitments.randomizationPolicyDigest;
         commitmentsDigest = commitmentsDigest_;
         releaseConfigDigest = computedReleaseConfigDigest;
 
@@ -794,8 +895,90 @@ contract HellboxPublication is ERC721Royalty {
     }
 
     // ---------------------------------------------------------------------
-    // Internal commitment encoding
+    // Internal commitment / enforcement-preimage encoding
     // ---------------------------------------------------------------------
+
+    /// @dev Canonical Gate 4 fixed-copy enforcement preimage:
+    ///      keccak256(abi.encode(domain, typedPolicy)).
+    function _computeFixedCopyRulesDigest(
+        FixedCopyRulesEnforcement memory policy
+    ) internal pure returns (bytes32) {
+        return
+            keccak256(
+                abi.encode(
+                    FIXED_COPY_RULES_ENFORCEMENT_DOMAIN,
+                    policy
+                )
+            );
+    }
+
+    /// @dev Canonical Gate 4 birth-trait enforcement preimage:
+    ///      keccak256(abi.encode(domain, typedPolicy)).
+    function _computeBirthTraitsDigest(
+        BirthTraitsEnforcement memory policy
+    ) internal pure returns (bytes32) {
+        return
+            keccak256(
+                abi.encode(
+                    BIRTH_TRAITS_ENFORCEMENT_DOMAIN,
+                    policy
+                )
+            );
+    }
+
+    /// @dev Canonical Gate 4 deterministic randomization-policy preimage:
+    ///      keccak256(abi.encode(domain, typedPolicy)).
+    function _computeRandomizationPolicyDigest(
+        RandomizationPolicyEnforcement memory policy
+    ) internal pure returns (bytes32) {
+        return
+            keccak256(
+                abi.encode(
+                    RANDOMIZATION_POLICY_ENFORCEMENT_DOMAIN,
+                    policy
+                )
+            );
+    }
+
+    /// @dev Verifies only the already-bound commitment identity. This function
+    ///      deliberately does not activate issuance or create a post-deployment
+    ///      configuration path. Deployment-time transport/activation is the next
+    ///      coordinated factory/publication step.
+    function _verifyEnforcementPolicyDigests(
+        FixedCopyRulesEnforcement memory fixedCopyPolicy,
+        BirthTraitsEnforcement memory birthTraitsPolicy,
+        RandomizationPolicyEnforcement memory randomizationPolicy
+    ) internal view {
+        bytes32 computedFixedCopyRulesDigest =
+            _computeFixedCopyRulesDigest(fixedCopyPolicy);
+        if (computedFixedCopyRulesDigest != fixedCopyRulesDigest) {
+            revert FixedCopyRulesDigestMismatch(
+                fixedCopyRulesDigest,
+                computedFixedCopyRulesDigest
+            );
+        }
+
+        bytes32 computedBirthTraitsDigest =
+            _computeBirthTraitsDigest(birthTraitsPolicy);
+        if (computedBirthTraitsDigest != birthTraitsDigest) {
+            revert BirthTraitsDigestMismatch(
+                birthTraitsDigest,
+                computedBirthTraitsDigest
+            );
+        }
+
+        bytes32 computedRandomizationPolicyDigest =
+            _computeRandomizationPolicyDigest(randomizationPolicy);
+        if (
+            computedRandomizationPolicyDigest !=
+            randomizationPolicyDigest
+        ) {
+            revert RandomizationPolicyDigestMismatch(
+                randomizationPolicyDigest,
+                computedRandomizationPolicyDigest
+            );
+        }
+    }
 
     function _computeReleaseConfigDigest(
         uint256 chainId,
