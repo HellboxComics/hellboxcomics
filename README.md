@@ -70,15 +70,19 @@ Current verified Gate 4 implementation:
 - `HellboxPublicationFactory.sol` V1 implemented with size-safe full deployment
 - factory provenance/uniqueness + approved creation-code-hash controls implemented
 - `HellboxBirthPolicy.sol` non-upgradeable per-publication companion foundation implemented and independently tested
-- current post-push regression: **65 Solidity tests passed / 0 failed**
+- `HellboxBirthPolicyCodeStore.sol` immutable inert bytecode store implemented, committed, pushed and independently tested
+- code-store runtime begins with `STOP`; the remaining bytes are the exact `HellboxBirthPolicy` creation code
+- direct publication-constructor `new HellboxBirthPolicy(...)` topology was measured and rejected/restored because it left inadequate EIP-3860 deployment runway
+- current post-push regression: **69 Solidity tests passed / 0 failed**
 - issuance fuzz boundary: **256 runs passed**
+- dedicated code-store proofs: **4 passed / 0 failed**
 - unoptimized Shanghai runtimes:
   - `HellboxPublication`: **16,334 bytes** / **8,242 bytes EIP-170 headroom**
   - `HellboxPublicationFactory`: **8,020 bytes** / **16,556 bytes EIP-170 headroom**
   - `HellboxBirthPolicy`: **5,561 bytes** / **19,015 bytes EIP-170 headroom**
 - `HellboxBirthPolicy` initcode: **17,018 bytes** / **32,134 bytes EIP-3860 headroom**
 
-**Exact next frontier:** atomically wire the three enforcement preimages and immutable `HellboxBirthPolicy` companion through publication/factory deployment, then prove the combined publication initcode/runtime headroom before adding per-token MARK/DEFECT consumption.
+**Exact next frontier:** bind the approved BirthPolicy code store/hash into the factory generation, have each publication copy and verify the exact policy creation bytes, then execute publication-owned ordinary `CREATE` with the three enforcement preimages so the companion permanently binds to the actual publication.
 
 ## Gate 4 issuance invariant
 
@@ -128,19 +132,33 @@ HellboxPublicationFactory V1
 fresh HellboxPublication V1 per release
 ```
 
-The reusable `HellboxBirthPolicy` companion contract is also implemented and tested, but **publication/factory deployment wiring is not complete yet**.
+The reusable `HellboxBirthPolicy` companion and immutable inert `HellboxBirthPolicyCodeStore` are implemented and tested, but **publication/factory code-store wiring is not complete yet**.
 
 Immediate target topology to prove:
 
 ```text
+approved HellboxBirthPolicyCodeStore
+    ↓ runtime byte 0 = STOP
+    ↓ bytes [1..] = exact approved BirthPolicy creation code
+
 HellboxPublicationFactory V1
+    ↓ binds approved publication creation hash
+    ↓ binds approved BirthPolicy code store + creation-code hash
     ↓ ordinary CREATE / full deployment
+
 HellboxPublication V1 constructor
-    ↓ atomic constructor-time CREATE
+    ↓ EXTCODECOPY policy creation bytes from offset 1
+    ↓ verify exact approved creation-code hash
+    ↓ append canonical BirthPolicy constructor args
+    ↓ ordinary CREATE executed by the publication
+
 HellboxBirthPolicy companion
+    publication = actual HellboxPublication
 ```
 
-That topology is conditional on exact combined EIP-170/EIP-3860 measurement. If it does not preserve safe deployment headroom, redesign the topology without introducing a setter, proxy, initializer, `delegatecall`, or upgrade escape hatch.
+The direct `new HellboxBirthPolicy(...)` publication-constructor embed was measured at **42,840 bytes of publication initcode** before the real native constructor payload and was rejected/restored because the practical deployment runway was too small. Do not resurrect that topology merely because it remained technically below the hard EIP-3860 ceiling in the experiment.
+
+The code-store path must still receive exact post-wiring EIP-170/EIP-3860/deployment-payload proof and may not introduce a setter, proxy, initializer, `delegatecall`, CREATE2 dependency or upgrade escape hatch.
 
 One publication/release = one native ERC-721 collection.
 
@@ -158,6 +176,10 @@ Standard native baseline:
 - primary lifetime wallet cap: `6`
 - max per transaction: `1`
 - batch mint: false
+- V1 primary payment: **PLS only**
+- per-issue PLS mint price: frozen at PUBLISH and allowed to differ by issue
+- native primary mint window: exactly **66 days + 6 hours + 6 minutes + 6 seconds** from that issue's frozen go-live time
+- sellout may finish sooner; the published deadline cannot be extended or reopened
 
 PRESS MARK:
 
@@ -184,7 +206,12 @@ Harrow's DEFECTS remain random.
 
 #066 is a public HELLBOUND and remains in the random candidate pool.
 
-Harrow's final three are the literal final three candidates left only after true non-tail mint-out. They are not preselected. Early permanent close forfeits that tail.
+Harrow's Final 3 are never preselected by token ID and Harrow cannot choose them.
+
+- if all allowed non-tail issuances finish before the native deadline, the literal final three candidates go to Harrow at true mint-out;
+- if the native deadline arrives first while more than three candidates remain, exactly three remaining candidates must go to Harrow through the final approved unbiased closure mechanism;
+- every other still-unminted candidate is permanently extinguished and can never be reopened or minted later;
+- #066, if still present at expiry, participates under the same unbiased remaining-candidate rule.
 
 ## SciVive
 
@@ -196,11 +223,58 @@ Harrow's final three are the literal final three candidates left only after true
 - max 1 primary copy/wallet
 - max 1/tx
 - royalty 369 bps
+- explicitly exempt from the native `66d 6h 6m 6s` mint-window rule
 - protected 461-page Reader
 - still private/not publicly mintable
 - Gate 4 will use it to prove real Testnet mint → ownership → Archive/library → Reader
 
 SciVive is intentionally narrower than Native Issue #1.
+
+## Gate 4 V1 pricing / revenue boundary
+
+V1 pricing scope is intentionally narrow:
+
+- `FREE` for SciVive/proving releases explicitly configured free;
+- `FIXED_PLS` for native Hellbox issues;
+- no V1 stablecoin mint route;
+- no V1 USD-target pricing;
+- no V1 PLS/USD oracle, adapter or conversion path.
+
+Frozen per issue at PUBLISH:
+
+- accepted primary payment asset;
+- primary mint price;
+- headline ERC-2981 royalty rate/BPS;
+- native go-live/deadline where applicable;
+- supply/copy/rarity promises.
+
+Operationally mutable downstream of receipt:
+
+- mint-proceeds destinations/splits;
+- royalty-proceeds destinations/splits;
+- reward-pool routing;
+- future reward-token identity/address/tokenomics;
+- buy/burn/reward strategy;
+- project-funding allocation.
+
+The publication should point at durable Hellbox routing endpoints rather than hard-code today's final downstream wallets/splits into every issue.
+
+Current operating concept — **not protocol-locked**:
+
+```text
+ROYALTIES
+1/3 → Feed Harrow and future plans
+1/3 → holder reward pool in native token
+1/3 → buy/burn future reward-token mechanism
+
+MINT PROCEEDS
+1/3 → Feed Harrow and future plans
+2/3 → buy future Hellbox reward token
+      ├─ 1/2 → holder reward pool
+      └─ 1/2 → burn
+```
+
+No reward-token name, address, supply, emissions, formula, distribution or tokenomics is locked by Gate 4.
 
 ## Reader / ownership
 
@@ -307,9 +381,12 @@ CURRENT_GATE_BLUEPRINT.md          active detailed Gate architecture
 - no publication or birth-policy proxy/upgrades in V1
 - no generic publication owner
 - `HellboxBirthPolicy` has no publisher/admin setter surface; future state mutation must be narrowly bound to its publication state machine
+- `HellboxBirthPolicyCodeStore` is inert immutable infrastructure, not an admin/economic control surface
 - no collector-token seizure/forced transfer
 - no per-publication custom-Solidity/audit treadmill
 - security cost is amortized across reusable reviewed versions/modules
+- V1 collector economics freeze the issue's payment asset, mint price and royalty rate; downstream routing/splits remain operational
+- do not hard-code an unlaunched reward token or today's downstream revenue split into the publication kernel
 - ERC-2981 royalty information does not guarantee marketplace enforcement or revenue
 
 Strong pre-mainnet durability requirement:
