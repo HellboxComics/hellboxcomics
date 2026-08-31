@@ -28,6 +28,8 @@ contract HellboxPublicationFactoryTest {
 
     uint256 internal constant FACTORY_VERSION = 1;
     uint256 internal constant PUBLICATION_VERSION = 1;
+    uint256 internal constant EIP170_RUNTIME_LIMIT = 24_576;
+
     bytes32 internal constant TEMPLATE_ID =
         keccak256("HELLBOX_PUBLICATION");
     bytes32 internal constant DEPLOYMENT_MODE =
@@ -39,11 +41,11 @@ contract HellboxPublicationFactoryTest {
     uint256 internal constant CONFIG_SCHEMA_VERSION = 1;
 
     function testFactoryIdentityAndInitialAuthority() public {
-        HellboxPublicationFactory factory =
-            new HellboxPublicationFactory(address(this));
+        HellboxPublicationFactory factory = _newFactory();
 
         require(factory.owner() == address(this), "owner");
         require(factory.pendingOwner() == address(0), "pending owner");
+
         require(
             factory.FACTORY_VERSION() == FACTORY_VERSION,
             "factory version"
@@ -57,15 +59,40 @@ contract HellboxPublicationFactoryTest {
             factory.DEPLOYMENT_MODE() == DEPLOYMENT_MODE,
             "deployment mode"
         );
+
+        require(
+            factory.approvedPublicationCreationCodeHash() ==
+                _publicationCreationCodeHash(),
+            "approved creation code hash"
+        );
+
+        require(
+            address(factory).code.length < EIP170_RUNTIME_LIMIT,
+            "factory runtime exceeds EIP-170"
+        );
+
         require(factory.publicationCount() == 0, "initial count");
     }
 
+    function testFactoryRejectsZeroApprovedCreationCodeHash() public {
+        VM.expectPartialRevert(
+            HellboxPublicationFactory
+                .InvalidApprovedPublicationCreationCodeHash
+                .selector
+        );
+
+        new HellboxPublicationFactory(
+            address(this),
+            bytes32(0)
+        );
+    }
+
     function testOwnerPublishesAndRegistersAuthenticPublication() public {
-        HellboxPublicationFactory factory =
-            new HellboxPublicationFactory(address(this));
+        HellboxPublicationFactory factory = _newFactory();
 
         HellboxPublication.ReleaseConfig memory config =
             _validConfig("hellbox-native-001");
+
         HellboxPublication.CommitmentSet memory commitments =
             _commitments();
 
@@ -75,34 +102,41 @@ contract HellboxPublicationFactoryTest {
             config,
             commitments
         );
+
         bytes32 publicationKeyHash =
             keccak256(bytes(config.publicationKey));
 
         address publicationAddress = factory.publish(
             config,
             commitments,
-            expectedDigest
+            expectedDigest,
+            _publicationCreationCode()
         );
 
         require(publicationAddress != address(0), "publication");
+
         require(
             factory.isPublication(publicationAddress),
             "is publication"
         );
+
         require(
             factory.publicationByReleaseDigest(expectedDigest) ==
                 publicationAddress,
             "digest lookup"
         );
+
         require(
             factory.publicationByKeyHash(publicationKeyHash) ==
                 publicationAddress,
             "key lookup"
         );
+
         require(
             factory.publicationCount() == 1,
             "publication count"
         );
+
         require(
             factory.publications(0) == publicationAddress,
             "ordered publication"
@@ -115,23 +149,28 @@ contract HellboxPublicationFactoryTest {
             publication.factory() == address(factory),
             "reported factory"
         );
+
         require(
             publication.releaseChainId() == block.chainid,
             "reported chain"
         );
+
         require(
             publication.TEMPLATE_ID() == TEMPLATE_ID,
             "reported template"
         );
+
         require(
             publication.PUBLICATION_VERSION() ==
                 PUBLICATION_VERSION,
             "reported publication version"
         );
+
         require(
             publication.releaseConfigDigest() == expectedDigest,
             "reported digest"
         );
+
         require(
             keccak256(bytes(publication.publicationKey())) ==
                 publicationKeyHash,
@@ -139,12 +178,62 @@ contract HellboxPublicationFactoryTest {
         );
     }
 
-    function testNonOwnerCannotPublish() public {
-        HellboxPublicationFactory factory =
-            new HellboxPublicationFactory(address(this));
+    function testUnapprovedPublicationCreationCodeIsRejected() public {
+        HellboxPublicationFactory factory = _newFactory();
 
         HellboxPublication.ReleaseConfig memory config =
             _validConfig("hellbox-native-001");
+
+        HellboxPublication.CommitmentSet memory commitments =
+            _commitments();
+
+        bytes32 expectedDigest = _releaseDigest(
+            block.chainid,
+            address(factory),
+            config,
+            commitments
+        );
+
+        bytes memory unapprovedCreationCode = hex"00";
+
+        VM.expectPartialRevert(
+            HellboxPublicationFactory
+                .UnapprovedPublicationCreationCode
+                .selector
+        );
+
+        factory.publish(
+            config,
+            commitments,
+            expectedDigest,
+            unapprovedCreationCode
+        );
+
+        require(
+            factory.publicationCount() == 0,
+            "unapproved code changed count"
+        );
+
+        require(
+            factory.publicationByReleaseDigest(expectedDigest) ==
+                address(0),
+            "unapproved digest recorded"
+        );
+
+        require(
+            factory.publicationByKeyHash(
+                keccak256(bytes(config.publicationKey))
+            ) == address(0),
+            "unapproved key recorded"
+        );
+    }
+
+    function testNonOwnerCannotPublish() public {
+        HellboxPublicationFactory factory = _newFactory();
+
+        HellboxPublication.ReleaseConfig memory config =
+            _validConfig("hellbox-native-001");
+
         HellboxPublication.CommitmentSet memory commitments =
             _commitments();
 
@@ -160,16 +249,23 @@ contract HellboxPublicationFactoryTest {
                 keccak256("OwnableUnauthorizedAccount(address)")
             )
         );
+
         VM.prank(OUTSIDER);
-        factory.publish(config, commitments, expectedDigest);
+
+        factory.publish(
+            config,
+            commitments,
+            expectedDigest,
+            _publicationCreationCode()
+        );
     }
 
     function testDuplicatePublicationKeyIsRejected() public {
-        HellboxPublicationFactory factory =
-            new HellboxPublicationFactory(address(this));
+        HellboxPublicationFactory factory = _newFactory();
 
         HellboxPublication.ReleaseConfig memory firstConfig =
             _validConfig("hellbox-native-001");
+
         HellboxPublication.CommitmentSet memory commitments =
             _commitments();
 
@@ -183,11 +279,13 @@ contract HellboxPublicationFactoryTest {
         address firstPublication = factory.publish(
             firstConfig,
             commitments,
-            firstDigest
+            firstDigest,
+            _publicationCreationCode()
         );
 
         HellboxPublication.ReleaseConfig memory secondConfig =
             _validConfig("hellbox-native-001");
+
         secondConfig.collectionName =
             "Hellbox Native Issue #1 - Repriced";
 
@@ -208,16 +306,19 @@ contract HellboxPublicationFactoryTest {
                 .DuplicatePublicationKey
                 .selector
         );
+
         factory.publish(
             secondConfig,
             commitments,
-            secondDigest
+            secondDigest,
+            _publicationCreationCode()
         );
 
         require(
             factory.publicationCount() == 1,
             "duplicate key changed count"
         );
+
         require(
             factory.publicationByKeyHash(
                 keccak256(bytes(firstConfig.publicationKey))
@@ -227,11 +328,11 @@ contract HellboxPublicationFactoryTest {
     }
 
     function testDuplicateReleaseDigestIsRejected() public {
-        HellboxPublicationFactory factory =
-            new HellboxPublicationFactory(address(this));
+        HellboxPublicationFactory factory = _newFactory();
 
         HellboxPublication.ReleaseConfig memory firstConfig =
             _validConfig("hellbox-native-001");
+
         HellboxPublication.CommitmentSet memory commitments =
             _commitments();
 
@@ -245,7 +346,8 @@ contract HellboxPublicationFactoryTest {
         address firstPublication = factory.publish(
             firstConfig,
             commitments,
-            firstDigest
+            firstDigest,
+            _publicationCreationCode()
         );
 
         HellboxPublication.ReleaseConfig memory secondConfig =
@@ -256,16 +358,19 @@ contract HellboxPublicationFactoryTest {
                 .DuplicateReleaseConfigDigest
                 .selector
         );
+
         factory.publish(
             secondConfig,
             commitments,
-            firstDigest
+            firstDigest,
+            _publicationCreationCode()
         );
 
         require(
             factory.publicationCount() == 1,
             "duplicate digest changed count"
         );
+
         require(
             factory.publicationByReleaseDigest(firstDigest) ==
                 firstPublication,
@@ -276,13 +381,12 @@ contract HellboxPublicationFactoryTest {
     function testSamePublicationKeyCanExistInSeparateFactoryGeneration()
         public
     {
-        HellboxPublicationFactory firstFactory =
-            new HellboxPublicationFactory(address(this));
-        HellboxPublicationFactory secondFactory =
-            new HellboxPublicationFactory(address(this));
+        HellboxPublicationFactory firstFactory = _newFactory();
+        HellboxPublicationFactory secondFactory = _newFactory();
 
         HellboxPublication.ReleaseConfig memory config =
             _validConfig("hellbox-native-001");
+
         HellboxPublication.CommitmentSet memory commitments =
             _commitments();
 
@@ -292,6 +396,7 @@ contract HellboxPublicationFactoryTest {
             config,
             commitments
         );
+
         bytes32 secondDigest = _releaseDigest(
             block.chainid,
             address(secondFactory),
@@ -307,22 +412,27 @@ contract HellboxPublicationFactoryTest {
         address firstPublication = firstFactory.publish(
             config,
             commitments,
-            firstDigest
+            firstDigest,
+            _publicationCreationCode()
         );
+
         address secondPublication = secondFactory.publish(
             config,
             commitments,
-            secondDigest
+            secondDigest,
+            _publicationCreationCode()
         );
 
         require(
             firstPublication != secondPublication,
             "distinct factory publications"
         );
+
         require(
             firstFactory.isPublication(firstPublication),
             "first provenance"
         );
+
         require(
             secondFactory.isPublication(secondPublication),
             "second provenance"
@@ -330,8 +440,7 @@ contract HellboxPublicationFactoryTest {
     }
 
     function testOwnershipUsesTwoStepRotation() public {
-        HellboxPublicationFactory factory =
-            new HellboxPublicationFactory(address(this));
+        HellboxPublicationFactory factory = _newFactory();
 
         factory.transferOwnership(NEXT_OWNER);
 
@@ -339,6 +448,7 @@ contract HellboxPublicationFactoryTest {
             factory.owner() == address(this),
             "owner changed before acceptance"
         );
+
         require(
             factory.pendingOwner() == NEXT_OWNER,
             "pending owner"
@@ -350,8 +460,15 @@ contract HellboxPublicationFactoryTest {
         require(factory.owner() == NEXT_OWNER, "rotated owner");
         require(factory.pendingOwner() == address(0), "pending cleared");
 
+        require(
+            factory.approvedPublicationCreationCodeHash() ==
+                _publicationCreationCodeHash(),
+            "creation code hash changed"
+        );
+
         HellboxPublication.ReleaseConfig memory config =
             _validConfig("hellbox-native-001");
+
         HellboxPublication.CommitmentSet memory commitments =
             _commitments();
 
@@ -367,13 +484,21 @@ contract HellboxPublicationFactoryTest {
                 keccak256("OwnableUnauthorizedAccount(address)")
             )
         );
-        factory.publish(config, commitments, expectedDigest);
+
+        factory.publish(
+            config,
+            commitments,
+            expectedDigest,
+            _publicationCreationCode()
+        );
 
         VM.prank(NEXT_OWNER);
+
         address publicationAddress = factory.publish(
             config,
             commitments,
-            expectedDigest
+            expectedDigest,
+            _publicationCreationCode()
         );
 
         require(
@@ -383,14 +508,14 @@ contract HellboxPublicationFactoryTest {
     }
 
     function testOwnershipRenunciationIsDisabled() public {
-        HellboxPublicationFactory factory =
-            new HellboxPublicationFactory(address(this));
+        HellboxPublicationFactory factory = _newFactory();
 
         VM.expectPartialRevert(
             HellboxPublicationFactory
                 .OwnershipRenunciationDisabled
                 .selector
         );
+
         factory.renounceOwnership();
 
         require(
@@ -402,11 +527,11 @@ contract HellboxPublicationFactoryTest {
     function testWrongExpectedDigestCannotBecomeOfficialProvenance()
         public
     {
-        HellboxPublicationFactory factory =
-            new HellboxPublicationFactory(address(this));
+        HellboxPublicationFactory factory = _newFactory();
 
         HellboxPublication.ReleaseConfig memory config =
             _validConfig("hellbox-native-001");
+
         HellboxPublication.CommitmentSet memory commitments =
             _commitments();
 
@@ -416,29 +541,64 @@ contract HellboxPublicationFactoryTest {
             config,
             commitments
         );
+
         bytes32 wrongDigest =
             bytes32(uint256(correctDigest) ^ uint256(1));
 
         VM.expectPartialRevert(
             HellboxPublication.ReleaseConfigDigestMismatch.selector
         );
-        factory.publish(config, commitments, wrongDigest);
+
+        factory.publish(
+            config,
+            commitments,
+            wrongDigest,
+            _publicationCreationCode()
+        );
 
         require(
             factory.publicationCount() == 0,
             "failed deploy recorded"
         );
+
         require(
             factory.publicationByReleaseDigest(wrongDigest) ==
                 address(0),
             "wrong digest recorded"
         );
+
         require(
             factory.publicationByKeyHash(
                 keccak256(bytes(config.publicationKey))
             ) == address(0),
             "failed key recorded"
         );
+    }
+
+    function _newFactory()
+        internal
+        returns (HellboxPublicationFactory factory)
+    {
+        factory = new HellboxPublicationFactory(
+            address(this),
+            _publicationCreationCodeHash()
+        );
+    }
+
+    function _publicationCreationCode()
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return type(HellboxPublication).creationCode;
+    }
+
+    function _publicationCreationCodeHash()
+        internal
+        pure
+        returns (bytes32)
+    {
+        return keccak256(type(HellboxPublication).creationCode);
     }
 
     function _validConfig(

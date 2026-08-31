@@ -3,7 +3,6 @@ pragma solidity 0.8.36;
 
 import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 import {Ownable2Step} from "openzeppelin-contracts/contracts/access/Ownable2Step.sol";
-
 import {HellboxPublication} from "./HellboxPublication.sol";
 
 /// @title HellboxPublicationFactory
@@ -11,7 +10,13 @@ import {HellboxPublication} from "./HellboxPublication.sol";
 ///         HellboxPublication collections from frozen release configuration.
 /// @dev Authenticity is rooted outside this contract by Hellbox recognizing this
 ///      factory address as an approved factory for the target chain/version.
-///      This factory proves only what it physically deployed.
+///
+///      V1 uses ordinary CREATE and exact approved HellboxPublication creation
+///      bytecode supplied at publish time. The creation code is hash-bound to
+///      this factory generation instead of being embedded in factory runtime.
+///
+///      This remains FULL_DEPLOYMENT. There is no CREATE2, clone, proxy,
+///      initializer, delegatecall, implementation registry, or upgrade path.
 contract HellboxPublicationFactory is Ownable2Step {
     // ---------------------------------------------------------------------
     // Version / architecture identity
@@ -22,6 +27,12 @@ contract HellboxPublicationFactory is Ownable2Step {
 
     bytes32 public constant TEMPLATE_ID = keccak256("HELLBOX_PUBLICATION");
     bytes32 public constant DEPLOYMENT_MODE = keccak256("FULL_DEPLOYMENT");
+
+    /// @notice Exact creation-code hash approved for this factory generation.
+    /// @dev Registry/factory provenance only. This is not a ReleaseConfig field,
+    ///      does not change HELLBOX_ABI_V1, and is not a universal instance
+    ///      runtime hash.
+    bytes32 public immutable approvedPublicationCreationCodeHash;
 
     // ---------------------------------------------------------------------
     // Minimal append-only provenance state
@@ -40,6 +51,13 @@ contract HellboxPublicationFactory is Ownable2Step {
     // ---------------------------------------------------------------------
     // Errors
     // ---------------------------------------------------------------------
+
+    error InvalidApprovedPublicationCreationCodeHash();
+
+    error UnapprovedPublicationCreationCode(
+        bytes32 expectedCreationCodeHash,
+        bytes32 actualCreationCodeHash
+    );
 
     error DuplicateReleaseConfigDigest(
         bytes32 releaseConfigDigest,
@@ -76,6 +94,10 @@ contract HellboxPublicationFactory is Ownable2Step {
     ///         by this approved factory.
     /// @dev Block number, timestamp, transaction, and log position are already
     ///      inherent in the chain and are intentionally not duplicated in state.
+    ///
+    ///      `publisherAuthority` here is the factory publishing authority
+    ///      observed for this deployment, not the publication-level operational
+    ///      authority stored in HellboxPublication.ReleaseConfig.
     event PublicationPublished(
         address indexed publication,
         bytes32 indexed releaseConfigDigest,
@@ -91,9 +113,19 @@ contract HellboxPublicationFactory is Ownable2Step {
     /// @param initialPublisherAuthority Initial authority allowed to publish new
     ///        Hellbox collections through this factory. This may later rotate
     ///        through Ownable2Step, including to a Safe or other controller.
+    /// @param publicationCreationCodeHash keccak256 of the exact reviewed
+    ///        HellboxPublication V1 creation bytecode approved for this factory
+    ///        generation.
     constructor(
-        address initialPublisherAuthority
-    ) Ownable(initialPublisherAuthority) {}
+        address initialPublisherAuthority,
+        bytes32 publicationCreationCodeHash
+    ) Ownable(initialPublisherAuthority) {
+        if (publicationCreationCodeHash == bytes32(0)) {
+            revert InvalidApprovedPublicationCreationCodeHash();
+        }
+
+        approvedPublicationCreationCodeHash = publicationCreationCodeHash;
+    }
 
     /// @notice Ownership renunciation is intentionally disabled so the official
     ///         V1 factory cannot be permanently bricked by an accidental call.
@@ -108,8 +140,14 @@ contract HellboxPublicationFactory is Ownable2Step {
 
     /// @notice Deploys one new HellboxPublication V1 collection from an already
     ///         frozen HELLBOX_ABI_V1 release configuration.
-    /// @dev V1 deliberately uses ordinary CREATE via `new`, not CREATE2, clones,
-    ///      proxies, initializers, delegatecall, or an upgrade mechanism.
+    ///
+    /// @dev V1 deliberately uses ordinary CREATE with exact hash-approved
+    ///      creation bytecode, not CREATE2, clones, proxies, initializers,
+    ///      delegatecall, an implementation registry, or an upgrade mechanism.
+    ///
+    ///      Keeping publication creation code out of this factory's runtime
+    ///      prevents HellboxPublication growth from making the factory itself
+    ///      undeployable under EIP-170.
     ///
     ///      The expected release digest must already have been computed against
     ///      this factory address and the current chain ID. HellboxPublication
@@ -117,35 +155,38 @@ contract HellboxPublicationFactory is Ownable2Step {
     function publish(
         HellboxPublication.ReleaseConfig calldata config,
         HellboxPublication.CommitmentSet calldata commitments,
-        bytes32 expectedReleaseConfigDigest
+        bytes32 expectedReleaseConfigDigest,
+        bytes calldata publicationCreationCode
     ) external onlyOwner returns (address publicationAddress) {
         bytes32 publicationKeyHash = keccak256(bytes(config.publicationKey));
 
-        address existingByKey = publicationByKeyHash[publicationKeyHash];
-        if (existingByKey != address(0)) {
-            revert DuplicatePublicationKey(
-                publicationKeyHash,
-                existingByKey
-            );
-        }
-
-        address existingByDigest =
-            publicationByReleaseDigest[expectedReleaseConfigDigest];
-        if (existingByDigest != address(0)) {
-            revert DuplicateReleaseConfigDigest(
-                expectedReleaseConfigDigest,
-                existingByDigest
-            );
-        }
-
-        HellboxPublication.ReleaseConfig memory config_ = config;
-        HellboxPublication.CommitmentSet memory commitments_ = commitments;
-
-        HellboxPublication publication = new HellboxPublication(
-            config_,
-            commitments_,
+        _rejectDuplicatePublication(
+            publicationKeyHash,
             expectedReleaseConfigDigest
         );
+
+        bytes memory creationCode = publicationCreationCode;
+        bytes32 actualCreationCodeHash = keccak256(creationCode);
+
+        if (
+            actualCreationCodeHash !=
+            approvedPublicationCreationCodeHash
+        ) {
+            revert UnapprovedPublicationCreationCode(
+                approvedPublicationCreationCodeHash,
+                actualCreationCodeHash
+            );
+        }
+
+        publicationAddress = _deployPublication(
+            creationCode,
+            config,
+            commitments,
+            expectedReleaseConfigDigest
+        );
+
+        HellboxPublication publication =
+            HellboxPublication(publicationAddress);
 
         _verifyDeployment(
             publication,
@@ -153,15 +194,17 @@ contract HellboxPublicationFactory is Ownable2Step {
             expectedReleaseConfigDigest
         );
 
-        publicationAddress = address(publication);
         bytes32 runtimeCodeHash = publicationAddress.codehash;
 
         // Provenance becomes official only after all defensive checks pass.
         isPublication[publicationAddress] = true;
+
         publicationByReleaseDigest[
             expectedReleaseConfigDigest
         ] = publicationAddress;
+
         publicationByKeyHash[publicationKeyHash] = publicationAddress;
+
         publications.push(publicationAddress);
 
         emit PublicationPublished(
@@ -180,6 +223,71 @@ contract HellboxPublicationFactory is Ownable2Step {
     }
 
     // ---------------------------------------------------------------------
+    // Deployment helpers
+    // ---------------------------------------------------------------------
+
+    function _rejectDuplicatePublication(
+        bytes32 publicationKeyHash,
+        bytes32 expectedReleaseConfigDigest
+    ) internal view {
+        address existingByKey =
+            publicationByKeyHash[publicationKeyHash];
+
+        if (existingByKey != address(0)) {
+            revert DuplicatePublicationKey(
+                publicationKeyHash,
+                existingByKey
+            );
+        }
+
+        address existingByDigest =
+            publicationByReleaseDigest[expectedReleaseConfigDigest];
+
+        if (existingByDigest != address(0)) {
+            revert DuplicateReleaseConfigDigest(
+                expectedReleaseConfigDigest,
+                existingByDigest
+            );
+        }
+    }
+
+    /// @dev Reconstructs exactly the initcode Solidity would use for a normal
+    ///      full deployment: reviewed creation bytecode followed by standard ABI
+    ///      constructor arguments. CREATE executes from this factory, so the
+    ///      publication constructor still records `msg.sender` as the factory.
+    function _deployPublication(
+        bytes memory creationCode,
+        HellboxPublication.ReleaseConfig calldata config,
+        HellboxPublication.CommitmentSet calldata commitments,
+        bytes32 expectedReleaseConfigDigest
+    ) internal returns (address publicationAddress) {
+        bytes memory constructorArguments = abi.encode(
+            config,
+            commitments,
+            expectedReleaseConfigDigest
+        );
+
+        bytes memory initCode = bytes.concat(
+            creationCode,
+            constructorArguments
+        );
+
+        assembly ("memory-safe") {
+            publicationAddress := create(
+                0,
+                add(initCode, 0x20),
+                mload(initCode)
+            )
+
+            if iszero(publicationAddress) {
+                let size := returndatasize()
+                returndatacopy(0, 0, size)
+                revert(0, size)
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------------
     // Defensive provenance verification
     // ---------------------------------------------------------------------
 
@@ -189,6 +297,7 @@ contract HellboxPublicationFactory is Ownable2Step {
         bytes32 expectedReleaseConfigDigest
     ) internal view {
         address reportedFactory = publication.factory();
+
         if (reportedFactory != address(this)) {
             revert DeploymentFactoryMismatch(
                 address(this),
@@ -197,6 +306,7 @@ contract HellboxPublicationFactory is Ownable2Step {
         }
 
         uint256 reportedChainId = publication.releaseChainId();
+
         if (reportedChainId != block.chainid) {
             revert DeploymentChainMismatch(
                 block.chainid,
@@ -205,6 +315,7 @@ contract HellboxPublicationFactory is Ownable2Step {
         }
 
         bytes32 reportedTemplateId = publication.TEMPLATE_ID();
+
         if (reportedTemplateId != TEMPLATE_ID) {
             revert DeploymentTemplateMismatch(
                 TEMPLATE_ID,
@@ -214,6 +325,7 @@ contract HellboxPublicationFactory is Ownable2Step {
 
         uint256 reportedPublicationVersion =
             publication.PUBLICATION_VERSION();
+
         if (reportedPublicationVersion != PUBLICATION_VERSION) {
             revert DeploymentPublicationVersionMismatch(
                 PUBLICATION_VERSION,
@@ -223,6 +335,7 @@ contract HellboxPublicationFactory is Ownable2Step {
 
         bytes32 reportedReleaseConfigDigest =
             publication.releaseConfigDigest();
+
         if (
             reportedReleaseConfigDigest !=
             expectedReleaseConfigDigest
@@ -235,6 +348,7 @@ contract HellboxPublicationFactory is Ownable2Step {
 
         bytes32 reportedPublicationKeyHash =
             keccak256(bytes(publication.publicationKey()));
+
         if (
             reportedPublicationKeyHash !=
             expectedPublicationKeyHash
