@@ -3,9 +3,9 @@
 **Status:** Authoritative cross-chat project handoff
 **Repository:** `main`
 **Current Gate:** Gate 4 — HELLBOX ARTIFACT KERNEL + VERSIONED PUBLICATION FACTORY
-**Current implementation checkpoint:** V1 publication kernel + `HELLBOX_ABI_V1` release fingerprint + deterministic issuance core + size-safe V1 full-deployment factory + versioned enforcement-preimage anchors + modular `HellboxBirthPolicy` + immutable inert `HellboxBirthPolicyCodeStore` + factory-generation code-store/hash binding + atomic publication-owned BirthPolicy deployment are implemented and pushed; verified regression **79 Solidity tests passed, 0 failed**; issuance fuzz boundary **256 runs**; current unoptimized Shanghai runtimes are publication **16,411 bytes**, factory **9,423 bytes**, birth-policy module **5,561 bytes**, code store **62 bytes**; measured native publication `CREATE` payload is **31,665 bytes** with **17,487 bytes** of EIP-3860 headroom
-**Exact next frontier:** wire publication-only per-token MARK/DEFECT assignment and inventory consumption through the permanently bound `HellboxBirthPolicy` so every issued copy receives one immutable birth identity and the Press can expose authoritative remaining inventory/odds; preserve creator MARK reservations, shared-random creator DEFECT semantics, #066 HELLBOUND/public-pool eligibility, no publisher rerolls, and keep the final production entropy/provider decision separately OPEN
-**New locked owner-experience direction:** a normal Hellbox comic release may present publicly as the same finite collectible, but the private owner Reader is a finite Harrow-authored interactive narrative: comic stages lead into frame-native escape rooms, timed survival, authored branches, alternate endings, death outcomes and trait-specific interactions. AI may assist Harrow during issue production, but published owner paths/pages/rooms are pre-authored and finite; no canonical story page is generated live by AI at read time. This expands later Reader/package/Archive work and does **not** change the immediate Gate 4 per-token birth-trait consumption frontier or require a `HELLBOX_ABI_V1` change.
+**Current implementation checkpoint:** V1 publication kernel + `HELLBOX_ABI_V1` release fingerprint + deterministic issuance core + size-safe V1 full-deployment factory + versioned enforcement-preimage anchors + modular `HellboxBirthPolicy` + immutable inert `HellboxBirthPolicyCodeStore` + factory-generation code-store/hash binding + atomic publication-owned BirthPolicy deployment + publication-only one-time MARK/DEFECT assignment/inventory consumption across the internal immediate-creator, normal non-tail and Final-3 issuance state machine are implemented and pushed; verified regression **85 Solidity tests passed, 0 failed**; issuance fuzz boundary **256 runs**; current unoptimized Shanghai runtimes are publication **16,411 bytes**, factory **9,423 bytes**, birth-policy module **9,123 bytes**, and actual deployed code-store payload **20,609 bytes** with **3,967 bytes** of EIP-170 headroom (the compiler-reported nominal runtime stub is **62 bytes**); measured native publication `CREATE` payload remains **31,665 bytes** with **17,487 bytes** of EIP-3860 headroom
+**Exact next frontier:** complete the Gate 4 production-randomness/native-timed-closure architecture checkpoint before opening collector minting: select and prove the entropy request/fulfillment/fallback boundary that feeds normal copy assignment and unbiased native-expiry Final-3 selection, then implement phase eligibility, V1 `FREE`/`FIXED_PLS` payment enforcement and the public collector mint path one file at a time. No external mint endpoint opens until randomness, payment, phase and closure behavior fail closed and pass focused/full regression.
+**New locked owner-experience direction:** a normal Hellbox comic release may present publicly as the same finite collectible, but the private owner Reader is a finite Harrow-authored interactive narrative: comic stages lead into frame-native escape rooms, timed survival, authored branches, alternate endings, death outcomes and trait-specific interactions. AI may assist Harrow during issue production, but published owner paths/pages/rooms are pre-authored and finite; no canonical story page is generated live by AI at read time. This expands later Reader/package/Archive work and does **not** change the immediate Gate 4 randomness/payment/phase/closure frontier or require a `HELLBOX_ABI_V1` change.
 **New locked future Press direction:** after Hellbox's own Press is mature, a separate independent-creator launch lane may let outside authors/artists deploy their own non-Hellbox titles and make conforming packages readable in the Hellbox Reader. Outside titles never receive Hellbox-native title stamps/canon/reward status merely for using the Press; creators remain responsible for their own canonical asset hosting; Harrow's proprietary comic-generation machinery remains private; exact launch prerequisites and fee/royalty economics remain OPEN.
 **New locked token/settlement separation direction:** Harrow is a comic creator/publisher and Press operator, not a crypto-founder identity. Any future Hellbox-endorsed/project-used token remains separate from Hellbox publication-contract control: official Hellbox project wallets do not deploy that token, Hellbox does not hold token admin keys or control permanently locked liquidity, and official Hellbox wallets may later acquire an already-public token through ordinary market transactions before/after endorsement. Public statements must describe actual launch/control/holdings facts truthfully. Customer-facing Hellbox commerce remains PLS-denominated/on-chain rather than USD checkout, while back-office accounting still records required transaction-time fiat fair-market values separately.
 **Mainnet:** prohibited during Gate 4
@@ -85,20 +85,26 @@ Chat history is not authoritative project storage.
 
 # 2. DEVELOPMENT OPERATING RULES — LOCKED
 
-## 2.1 One-file implementation workflow
+## 2.1 One-file / one-command operator workflow — LOCKED
 
 For implementation/config changes:
 
 1. explain why that exact file is next;
 2. provide a complete replacement file, never splice instructions;
-3. give direct file + ZIP;
-4. state exact destination;
-5. give one immediate Terminal action;
-6. wait for output;
-7. verify/test the change;
-8. only then move on.
+3. give a direct file + ZIP;
+4. state the exact destination;
+5. Harrow downloads the ZIP into `~/Downloads`;
+6. give exactly **one Bash command/block for the current turn**;
+7. that Bash verifies package/current-source/target hashes and installs the file in the correct repo path — no manual file placement;
+8. wait for the complete Terminal output;
+9. verify focused/full tests, production sizes, diff checks and Git status as applicable;
+10. only then stage, commit, push or move to the next file.
 
-Do not stack unverified backend/contract changes.
+Code changes return to **one implementation file at a time**. Do not batch source, test or configuration files merely to reduce operator steps. A multi-file code package requires a new explicit creator exception after explaining why the files cannot be safely isolated; prior general permission to batch code is not active.
+
+Documentation may be batched **only at the final deployment layer**: independently rebuild/review each affected authoritative document in dependency/authority order, run contradiction sweeps across the complete candidate set, and then install the finished documents through one atomic ZIP/Bash and normally one documentation checkpoint. Installation batching is not review or engineering batching.
+
+Never queue later Terminal commands before Harrow has returned the current command's output. Do not stack unverified backend/contract changes.
 
 ## 2.2 Pre-Gate architecture review
 
@@ -630,22 +636,23 @@ Press fingerprint dependency:
 - `Add modular publication birth policy`
 - `Bind BirthPolicy infrastructure to factory generation`
 - `Wire atomic BirthPolicy deployment into publications`
+- `Enforce atomic birth trait assignment during issuance`
 
 ## Verified test / deployability state
 
 The current committed test suites contain:
 - 16 publication-kernel tests;
 - 21 factory/provenance/atomic-deployment tests;
-- 12 deterministic issuance tests;
+- 13 deterministic issuance + atomic trait-assignment tests;
 - 9 publication enforcement-preimage anchor/golden-policy tests;
-- 16 dedicated modular birth-policy tests;
+- 21 dedicated modular birth-policy tests;
 - 4 dedicated immutable code-store tests;
 - 1 cross-language `HELLBOX_ABI_V1` golden-vector test.
 
-Total: **79**
+Total: **85**
 
-Verified creator-side evidence after the atomic wiring push:
-- **79 passed**;
+Verified creator-side evidence after the trait-enforcement push:
+- **85 passed**;
 - **0 failed**;
 - issuance fuzz boundary: **256 runs passed**;
 - `HellboxPublication` runtime: **16,411 bytes**;
@@ -654,15 +661,21 @@ Verified creator-side evidence after the atomic wiring push:
 - `HellboxPublicationFactory` runtime: **9,423 bytes**;
 - factory EIP-170 runtime margin: **15,153 bytes**;
 - `HellboxPublicationFactory` creation size: **10,499 bytes**;
-- `HellboxBirthPolicy` runtime: **5,561 bytes**;
-- birth-policy EIP-170 runtime margin: **19,015 bytes**;
-- `HellboxBirthPolicy` initcode: **17,018 bytes**;
-- birth-policy EIP-3860 initcode margin: **32,134 bytes**;
-- `HellboxBirthPolicyCodeStore` runtime: **62 bytes**;
+- `HellboxBirthPolicy` runtime: **9,123 bytes**;
+- birth-policy EIP-170 runtime margin: **15,453 bytes**;
+- `HellboxBirthPolicy` initcode: **20,608 bytes**;
+- birth-policy EIP-3860 initcode margin: **28,544 bytes**;
+- compiler-reported `HellboxBirthPolicyCodeStore` nominal runtime stub: **62 bytes**;
+- actual constructor-returned deployed code-store runtime (`STOP || HellboxBirthPolicy.creationCode`): **20,609 bytes**;
+- actual deployed code-store EIP-170 runtime margin: **3,967 bytes**;
+- future BirthPolicy growth must measure the actual deployed code-store `address.code.length`; the compiler-reported 62-byte stub is not the production EIP-170 measure;
+- code-store creation size: **20,871 bytes**;
+- code-store EIP-3860 creation margin: **28,281 bytes**;
 - measured native publication `CREATE` payload including constructor arguments: **31,665 bytes**;
 - measured EIP-3860 headroom for that native publication payload: **17,487 bytes**;
 - production `HellboxPublication`/factory source contains **0** direct `new HellboxBirthPolicy(...)` or `type(HellboxBirthPolicy).creationCode` embeds;
-- local HEAD and `origin/main` matched at the verified checkpoint after push;
+- `HELLBOX_ABI_V1` `ReleaseConfig` + `CommitmentSet` structure hash remained unchanged;
+- local HEAD and `origin/main` matched after pushing `Enforce atomic birth trait assignment during issuance`;
 - `git diff --check`: clean;
 - worktree: clean.
 
@@ -686,9 +699,15 @@ The dedicated birth-policy/code-store suites additionally prove:
 - duplicate fixed-copy rules and invalid inventory/fairness shapes revert;
 - native MARK inventory and reservations match the frozen 216-copy model;
 - native DEFECT inventory matches the frozen 216-copy model with no fixed creator DEFECT reservations;
-- Harrow #001–#006 fixed MARK rules and #066 HELLBOUND/public-random-pool reservation shape are represented correctly;
-- the randomization policy requires the approved global shared trait-pool model;
-- a trait-disabled reusable publication shape such as SciVive is accepted;
+- Harrow #001–#006 fixed MARK reservations are consumed exactly once while their DEFECTS remain shared-random;
+- #066 remains candidate-eligible until drawn, then consumes its fixed HELLBOUND reservation exactly once;
+- only the permanently bound publication may call `assignBirthIdentity`; no publisher/admin caller receives that authority;
+- every applicable issued copy receives one permanent MARK and one permanent DEFECT; duplicate/reroll assignment reverts;
+- random assignment cannot consume inventory reserved for an undrawn fixed copy;
+- issuance failure during trait assignment rolls supply, wallet, candidate and trait inventory state back atomically;
+- enabled-axis remaining inventory stays equal to candidate inventory after the immediate creator allocation, and reaches zero after the literal Final 3;
+- transfer and burn do not restore allowance, inventory or rewrite stored birth identity;
+- a trait-disabled reusable publication shape such as SciVive assigns a permanent zero/zero identity without inventing traits;
 - code-store runtime is exactly inert `STOP || HellboxBirthPolicy.creationCode`.
 
 This is the current verified Gate 4 engineering checkpoint.
@@ -1341,7 +1360,7 @@ P(#066) + P(other candidate) × P(random HELLBOUND among the other candidates)
 = 4/210
 ```
 
-The current module has not yet wired issuance-time consumption, so these are validated construction-time reservation semantics, not yet live mutable Press odds.
+The current module now consumes inventory atomically through the internal issuance state machine. These reservation semantics are live authoritative on-chain state after assignment; Gate 5 Press/API odds must derive from actual `candidatePoolRemaining` plus BirthPolicy remaining inventory rather than maintaining a second rarity ledger.
 
 Near true mint-out:
 
@@ -2001,7 +2020,7 @@ There is no post-deployment activation setter or temporary configuration window.
 
 ## BirthPolicy deployment-size experiment and code-store correction — implemented/proven
 
-A direct publication-constructor `new HellboxBirthPolicy(...)` experiment was compiled and then **rejected/restored without commit** because it consumed too much publication initcode runway:
+A pre-trait-consumption direct publication-constructor `new HellboxBirthPolicy(...)` experiment was compiled and then **rejected/restored without commit** because it consumed too much publication initcode runway. Its numbers are historical evidence for rejecting that topology, not current-policy size measurements:
 
 ```text
 HellboxPublication runtime after direct embed = 16,411 bytes
@@ -2027,7 +2046,7 @@ Focused proof:
 - copied payload hash equals the BirthPolicy creation-code hash;
 - ordinary calls are inert.
 
-Current full post-push regression: **79/79 tests passed, 0 failed**, issuance fuzz boundary **256 runs**.
+Current full post-push regression: **85/85 tests passed, 0 failed**, issuance fuzz boundary **256 runs**.
 
 The code store is now proven **and integrated** infrastructure. Production publication/factory source contains no direct BirthPolicy creation-code embed. The measured native publication `CREATE` payload after integration is **31,665 bytes**, leaving **17,487 bytes** of EIP-3860 headroom.
 
@@ -2137,8 +2156,9 @@ Current companion facts:
 - its constructor permanently sets `publication = msg.sender`;
 - it narrowly decodes the fixed-copy, birth-trait and randomization policy preimages and independently verifies each digest;
 - it validates/stores inventory, fixed reservations and randomization-policy boundaries;
-- at this checkpoint it exposes read-only policy/inventory surfaces and **no external mutation/admin surface**;
-- per-token trait consumption/assignment remains the next unfinished module step.
+- it exposes policy/inventory/birth-identity views plus one narrow `assignBirthIdentity(tokenId, entropyWord)` enforcement endpoint callable only by its permanently bound publication;
+- it has no publisher/admin setter, reroll, replacement, upgrade or generic execution surface;
+- successful immediate creator, normal non-tail and Final-3 issuance consume and store immutable birth identity atomically.
 
 Implemented deployment graph:
 
@@ -2178,102 +2198,100 @@ Do not add a post-deploy policy setter/initializer/activation window. Do not add
 
 ---
 
-# 27. GATE 4 EXACT NEXT FRONTIER — PER-TOKEN MARK/DEFECT CONSUMPTION
+# 27. GATE 4 VERIFIED BIRTH-TRAIT ENFORCEMENT + NEXT RANDOMNESS/CLOSURE FRONTIER
 
-The deterministic issuance accounting core, deployment-time enforcement anchors, modular BirthPolicy, inert code store and atomic publication-owned companion deployment are now implemented and tested without selecting the final production randomness provider.
+The deterministic internal issuance accounting core, deployment-time enforcement anchors, modular BirthPolicy, inert code store, atomic publication-owned companion deployment and one-time per-token MARK/DEFECT consumption are now implemented, tested, committed and pushed without selecting the final production randomness provider or exposing a collector mint endpoint.
 
 ## Implemented / tested
 
 Current `HellboxPublication` proves or represents:
 
 - frozen max-supply accounting;
-- `candidatePoolRemaining`;
-- `nonTailIssuanceRemaining`;
+- `candidatePoolRemaining` and separate `nonTailIssuanceRemaining`;
 - standard native `210 / 207` initialization;
 - immediate creator-copy reservation/issuance ordering;
 - normal issuance blocked until the immediate allocation is complete;
-- sparse remaining-candidate bookkeeping;
-- unique in-range candidate draws;
+- sparse remaining-candidate bookkeeping and unique in-range draws;
 - #066 remains candidate-eligible until actually drawn;
-- lifetime primary wallet accounting;
-- transfer and burn do not restore primary lifetime allowance;
-- one normal primary token per internal issuance call;
-- true-mintout detection;
-- literal final-three remaining-candidate tail award;
-- tail cannot be awarded before true mint-out;
-- SciVive can use the same deterministic issuance core without native 216-copy assumptions;
+- lifetime primary wallet accounting that transfer/burn cannot restore;
+- true-mintout detection and literal final-three tail award;
+- SciVive reuse without native-216 trait assumptions;
 - deterministic entropy-word/test-double boundary without selecting production entropy;
-- canonical fixed-copy/birth-trait/randomization enforcement domains, typed preimage hashing and immutable digest anchors;
-- constructor-time copy/hash/create of exactly one immutable BirthPolicy companion;
-- permanent companion provenance where `birthPolicy.publication() == publication`.
+- canonical enforcement domains/digest anchors and immutable BirthPolicy provenance;
+- internal issuance-time calls into the bound BirthPolicy for immediate creator, normal non-tail and Final-3 copies;
+- atomic inventory accounting: pending immediate copies plus candidate pool must equal enabled-axis remaining inventory;
+- failed assignment reverts candidate removal, wallet usage, issuance counters and trait inventory together.
 
 Current `HellboxBirthPolicy` proves or represents:
 
 - versioned `BIRTH_POLICY_VERSION = 1` / `MODULE_ID = keccak256("HELLBOX_BIRTH_POLICY")`;
-- constructor-only configuration;
-- permanent `publication = msg.sender` binding;
-- no proxy, initializer, upgrade, ownership/admin or publisher mutation surface at this checkpoint;
-- narrow typed deployment preimages for fixed-copy, birth-trait and randomization policy;
-- independent digest verification against all three frozen commitment anchors;
-- native MARK inventory `6 / 12 / 18 / 180`;
-- native DEFECT inventory `6 / 12 / 18 / 24 / 156`;
-- fixed MARK reservations for Harrow #001–#006;
-- creator DEFECT fixed assignment prohibited so those DEFECTS remain shared-random;
-- #066 fixed HELLBOUND rule while remaining public-random-pool eligible;
-- reservation-over-inventory and duplicate-rule rejection;
-- randomization boundary requires random non-sequential copy shuffle, global shared trait pool, independent MARK/DEFECT axes, shared-random creator DEFECT semantics and no full preknown publisher rarity map;
-- trait-disabled reusable publication shape for SciVive;
-- read-only inventory/reservation surfaces needed as the foundation for live Press odds.
+- constructor-only configuration and permanent `publication = msg.sender` binding;
+- no proxy, initializer, ownership/admin or publisher mutation surface;
+- one narrow publication-only `assignBirthIdentity(tokenId, entropyWord)` enforcement endpoint;
+- independent verification of fixed-copy, birth-trait and randomization policy preimages;
+- native MARK inventory `6 / 12 / 18 / 180` and DEFECT inventory `6 / 12 / 18 / 24 / 156`;
+- exact one-time consumption of Harrow #001–#006 fixed MARK reservations;
+- shared-random creator DEFECT consumption;
+- #066 fixed HELLBOUND reservation protected from unrelated random draws and consumed only when #066 is drawn;
+- one permanent MARK and one permanent DEFECT for each applicable native copy;
+- independent MARK/DEFECT entropy derivation domain-separated by the frozen randomization-policy digest, publication, token ID and axis;
+- random assignment that excludes still-reserved fixed-copy inventory;
+- permanent `birthIdentityAssigned`, `birthMark` and `birthDefect` token state with duplicate/reroll rejection;
+- authoritative remaining-inventory views after each successful assignment;
+- trait-disabled SciVive assignment that records zero/zero identity without inventing traits.
 
 Current verification includes:
 
-- **79/79** full Solidity regression;
+- **85/85** full Solidity regression;
 - **21/21** factory/provenance/atomic-deployment tests;
-- **16/16** dedicated `HellboxBirthPolicy` tests;
+- **21/21** dedicated `HellboxBirthPolicy` tests;
 - **4/4** dedicated immutable code-store tests;
 - **9/9** publication policy-anchor tests;
-- **12/12** deterministic issuance tests;
+- **13/13** deterministic issuance/atomic-trait tests;
+- **16/16** publication-kernel tests;
+- **1/1** Solidity↔JavaScript golden-vector test;
 - issuance fuzz boundary **256 runs**;
-- current unoptimized Shanghai runtimes: publication **16,411 bytes**, factory **9,423 bytes**, BirthPolicy **5,561 bytes**, code store **62 bytes**;
-- measured native publication `CREATE` payload **31,665 bytes** with **17,487 bytes** EIP-3860 headroom.
+- current unoptimized Shanghai runtimes: publication **16,411 bytes**, factory **9,423 bytes**, BirthPolicy **9,123 bytes**; actual deployed code-store runtime **20,609 bytes** with **3,967 bytes** of EIP-170 headroom (compiler-reported nominal runtime stub **62 bytes**);
+- BirthPolicy initcode **20,608 bytes** and code-store creation size **20,871 bytes**;
+- measured native publication `CREATE` payload **31,665 bytes** with **17,487 bytes** EIP-3860 headroom;
+- `HELLBOX_ABI_V1` structure unchanged;
+- production direct BirthPolicy creation-code embeds: **0**.
+
+The on-chain remaining inventories are now authoritative state. The public Press/API presentation of those values and user-facing next-pull odds is still future interface work; it must read the enforced values rather than reconstructing an independent rarity ledger.
 
 ## Not implemented yet — do not overclaim
 
 The current code does **not** yet complete:
 
-- issuance-time consumption of creator fixed MARK reservations;
-- one-time per-issued-copy MARK assignment;
-- one-time per-issued-copy DEFECT assignment;
-- random creator DEFECT assignment through the final approved shared-random process;
-- permanent on-chain per-token MARK/DEFECT birth identity;
-- normal-issuance MARK/DEFECT inventory consumption;
-- authoritative live post-mint remaining MARK/DEFECT inventories and next-pull odds;
-- integration proving trait inventory cannot be consumed twice, skipped, restored by transfer/burn or changed by publisher/admin action;
-- native timed-expiry closure implementation and permanent extinguishment of non-tail leftovers;
-- phase eligibility and PLS-only/FREE V1 economics;
-- public collector mint endpoint;
-- final production entropy provider/reveal/fallback semantics.
-
-The module's current `*Remaining` views are still construction-time policy/reservation state. They must not be presented as live Press odds until issuance-time consumption is wired and tested.
+- the production entropy request/fulfillment/reveal/fallback mechanism;
+- manipulation-resistant unpredictability for public collector copy assignment;
+- native timed-expiry closure when more than three candidates remain;
+- unbiased expiry Final-3 selection and permanent extinguishment of every non-selected candidate;
+- phase eligibility enforcement;
+- V1 `FREE` / exact `FIXED_PLS` payment enforcement and over/underpayment behavior;
+- the public collector mint endpoint;
+- the stable primary-proceeds routing boundary for paid mints;
+- public Press/API display of authoritative live inventory/odds;
+- PulseChain Testnet V4 end-to-end collector mint acceptance.
 
 ## Exact next engineering objective
 
-Wire publication-only birth-trait assignment/consumption into the permanently bound `HellboxBirthPolicy`.
+Before another major Solidity file is written, complete a focused Gate 4 architecture/research checkpoint for **production randomness + native timed closure**.
 
-The next implementation checkpoint must:
+That checkpoint must:
 
-1. allow only the permanently bound publication state machine to trigger BirthPolicy consumption/assignment;
-2. consume Harrow #001–#006 fixed MARK reservations exactly as frozen and never give those creator copies fixed DEFECTS;
-3. keep creator DEFECTS in the same shared-random pool as public copies;
-4. preserve #066's fixed HELLBOUND DEFECT while keeping #066 eligible in the public random copy pool until drawn;
-5. assign exactly one MARK and exactly one DEFECT to every applicable issued native copy, with trait-disabled SciVive remaining valid;
-6. decrement the correct remaining inventories exactly once and prevent double-consumption;
-7. permanently store/expose each token's immutable birth MARK/DEFECT identity without adding publisher rerolls or setters;
-8. make remaining inventory/odds surfaces authoritative after each successful issuance;
-9. ensure failed issuance/trait assignment reverts atomically so publication supply/accounting and BirthPolicy inventory cannot drift apart;
-10. prove transfer, burn, Archive state and later Reader activity cannot restore or rewrite consumed birth rarity;
-11. preserve deterministic testability without prematurely choosing the final production randomness provider;
-12. keep `HELLBOX_ABI_V1`, publication authenticity, payment economics, Archive rewards, Reader progress and game logic out of this trait-consumption implementation.
+1. compare viable PulseChain-compatible entropy mechanisms, dependencies, cost, latency, liveness and manipulation surfaces;
+2. define request/fulfillment/fallback behavior for ordinary candidate assignment and native timed-expiry Final-3 selection;
+3. preserve deterministic local tests while preventing caller, publisher, validator or operator choice of valuable copy IDs/traits;
+4. define safe timeout/provider-failure behavior that fails closed rather than substituting timestamp, caller input or another manipulable source;
+5. preserve #066 participation and actual `candidatePoolRemaining` denominators;
+6. prove timed expiry awards exactly three through the approved unbiased boundary and permanently extinguishes every other unminted candidate;
+7. preserve SciVive's timer/Final-3 exemption;
+8. keep `HELLBOX_ABI_V1`, Archive/reward logic, Reader progress and interactive game state unchanged;
+9. identify the exact first implementation file and its isolated focused/full validation plan;
+10. keep collector minting closed until randomness, phase, payment and closure enforcement are all test-backed.
+
+After that architecture checkpoint is locked, implement the remaining Gate 4 mint lifecycle **one file and one Bash at a time**.
 
 Do not build:
 - Archive rewards;
@@ -2289,8 +2307,8 @@ Do not build:
 
 Still open:
 
-1. exact publication-only MARK/DEFECT consumption/assignment mechanics within the permanently bound BirthPolicy;
-2. production randomness/entropy/reveal mechanism, including unbiased Final-3 selection at native timed expiry when more than three candidates remain;
+1. production randomness/entropy request/fulfillment/reveal/fallback mechanism, including unbiased Final-3 selection at native timed expiry when more than three candidates remain;
+2. exact native timed-closure transaction trigger/liveness model;
 3. optimizer/runs/via-ir;
 4. metadata renderer transport/interface details;
 5. future external-protocol binding mechanics;
@@ -2973,7 +2991,7 @@ Gate 4 must therefore avoid:
 - experience-mark mutators;
 - game-progress storage in the publication.
 
-The code-store/BirthPolicy atomic deployment wiring is now complete. The immediate Gate 4 frontier is publication-only per-token MARK/DEFECT assignment/consumption with authoritative live remaining inventory/odds.
+The code-store/BirthPolicy atomic deployment wiring and publication-only per-token MARK/DEFECT assignment/consumption inside the internal issuance state machine are now complete. The immediate Gate 4 frontier is the production-randomness/native-timed-closure architecture checkpoint, followed by one-file implementation of phase, V1 payment and public collector mint enforcement.
 
 ---
 
@@ -3351,9 +3369,9 @@ Response:
 - final Press art/UX not built;
 - final widescreen tuning deferred;
 - positive real SciVive owner still waits for Gate 4 Testnet deployment/mint;
-- per-token MARK/DEFECT consumption/assignment is not yet wired into live issuance;
-- authoritative live post-mint MARK/DEFECT inventory/odds are not yet available;
-- full random assignment provider unresolved, including timed-expiry Final-3 selection;
+- public Press/API presentation of the now-authoritative on-chain MARK/DEFECT inventory/odds is not yet wired;
+- production random assignment provider is unresolved, including timed-expiry Final-3 selection;
+- phase eligibility, V1 FREE/FIXED_PLS payment enforcement and public collector mint endpoint are not yet implemented;
 - full dynamic renderer not built;
 - revenue-routing controller/gated operational split management not yet implemented;
 - Archive rewards/ERC-6551/Hellforge remain later Gates;
@@ -3444,10 +3462,10 @@ At a clean checkpoint:
 3. record exact hashes/counts/sizes/evidence;
 4. commit/push if appropriate;
 5. record any intentionally uncommitted file names and exact hashes;
-6. synchronize `CURRENT_GATE_BLUEPRINT.md` if stale text could mislead the next engineer;
-7. update this file with the verified checkpoint/frontier;
-8. update Harrow Bible only if canon changed;
-9. update README;
+6. independently rebuild affected authoritative documents in dependency/authority order;
+7. run cross-document contradiction sweeps;
+8. install the finished documentation set through one atomic ZIP/Bash when safe;
+9. update Harrow Bible only if canon changed;
 10. preserve or generate any runbook/status artifact needed to resume without Terminal scrollback;
 11. open a fresh chat using the root-document handoff order.
 
@@ -3476,65 +3494,71 @@ immutable inert BirthPolicy code store implemented / passing
 factory-generation policy store/hash binding implemented / passing
 atomic publication-owned BirthPolicy CREATE implemented / passing
 publication ↔ companion provenance    implemented / passing
+publication-only birth assignment     implemented / passing
+creator fixed-MARK consumption        implemented / passing
+shared-random creator DEFECTS         implemented / passing
+#066 reservation + candidate behavior implemented / passing
+issuance ↔ inventory conservation     implemented / passing
+immutable per-token birth identity    implemented / passing
 publication runtime                   16,411 bytes
 publication EIP-170 margin            +8,165 bytes
 publication creation size             26,737 bytes
-birth-policy runtime                   5,561 bytes
-birth-policy EIP-170 margin           +19,015 bytes
-birth-policy initcode                 17,018 bytes
-birth-policy EIP-3860 margin          +32,134 bytes
+birth-policy runtime                   9,123 bytes
+birth-policy EIP-170 margin           +15,453 bytes
+birth-policy initcode                 20,608 bytes
+birth-policy EIP-3860 margin          +28,544 bytes
 factory runtime                        9,423 bytes
 factory EIP-170 margin                +15,153 bytes
 factory creation size                 10,499 bytes
-code-store runtime                        62 bytes
+code-store compiler runtime stub          62 bytes
+code-store actual deployed runtime     20,609 bytes
+code-store actual EIP-170 margin       +3,967 bytes
+code-store creation size               20,871 bytes
+code-store EIP-3860 margin            +28,281 bytes
 native publication CREATE payload     31,665 bytes
 native EIP-3860 payload headroom      +17,487 bytes
 factory/atomic suite                    21 passed / 0 failed
-code-store focused tests                4 passed / 0 failed
-Solidity regression                    79 passed / 0 failed
+BirthPolicy focused tests               21 passed / 0 failed
+issuance/trait focused tests             13 passed / 0 failed
+code-store focused tests                 4 passed / 0 failed
+Solidity regression                    85 passed / 0 failed
 issuance fuzz                          256 runs passed
 ```
 
-The next engineering step is **publication-only per-token MARK/DEFECT assignment and BirthPolicy inventory consumption**, producing immutable token birth identity and authoritative live remaining inventory/odds without introducing publisher rerolls or prematurely locking the production randomness provider.
+The next action is **not to open a collector mint endpoint yet**. First complete the production-randomness/native-timed-closure architecture checkpoint required by Section 27 and the active Gate 4 blueprint.
 
-Before touching source, the implementing engineer must read the full `CURRENT_GATE_BLUEPRINT.md` sections governing:
+The research/review must resolve or explicitly preserve:
 
-- fixed copy rules;
-- birth trait axes;
-- randomness/allocation/reveal;
-- issuance accounting;
-- permanently bound BirthPolicy authority;
-- authority boundaries;
-- public Press runtime odds.
+- normal candidate-assignment entropy request/fulfillment/fallback;
+- unbiased native-expiry Final-3 selection when more than three candidates remain;
+- liveness, timeout and provider-failure behavior;
+- manipulation resistance against collector, publisher, operator and validator influence;
+- cost/dependency impact on PulseChain Testnet V4 and future mainnet;
+- deterministic Foundry test-double compatibility;
+- no timestamp/caller/manual fallback;
+- exact first one-file implementation checkpoint after the architecture decision.
 
-The code-store deployment topology is now proven and must be preserved:
-
-> factory-generation approved store/hash → publication copies/verifies exact policy creation bytes → publication executes ordinary `CREATE` → immutable BirthPolicy points back to that publication.
-
-Do not reintroduce embedded BirthPolicy creation bytecode into publication initcode.
-
-The next consumption wiring must preserve:
+The already-proven trait invariants must remain intact:
 
 ```text
+after Harrow immediate #001-#006:
 candidatePoolRemaining   = 210
 nonTailIssuanceRemaining = 207
+MARK inventory remaining = 210
+DEFECT inventory remaining = 210
 ```
 
-and explain why the values differ.
+and:
+- Harrow #001–#006 retain their fixed MARKS and shared-random DEFECTS;
+- #066 stays candidate-eligible until drawn and then receives HELLBOUND;
+- each applicable token receives exactly one immutable birth identity;
+- no publisher/admin rarity selection, setter or reroll exists;
+- failed assignment reverts issuance/accounting atomically;
+- `HELLBOX_ABI_V1` remains unchanged.
 
-It must also preserve:
-- Harrow #001–#006 fixed MARK reservations;
-- shared-random creator DEFECTS;
-- #066 fixed HELLBOUND while remaining in the public random copy pool until drawn;
-- one-time irreversible birth rarity;
-- atomic issuance/accounting/trait-consumption consistency;
-- no publisher/admin rarity selection or reroll.
+After the entropy/closure architecture is locked, continue with exactly **one implementation file and one Bash command per turn**. Collector mint remains closed until production randomness, phase eligibility, V1 payment enforcement and native closure are all test-backed.
 
-Do not expose a collector mint until per-token MARK/DEFECT consumption is wired, authoritative live odds are proven, and the remaining Gate 4 payment/phase/closure/randomness requirements are satisfied.
-
-The current production-randomness decision remains intentionally open.
-
-The newly locked independent-creator Press lane and future-token separation doctrine are **later product architecture**, not reasons to widen this next Solidity change.
+The newly locked independent-creator Press lane, interactive Reader/Archive direction and future-token separation doctrine remain later product architecture and do not widen this Gate 4 frontier.
 
 ---
 

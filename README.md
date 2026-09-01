@@ -64,7 +64,7 @@ Current verified Gate 4 implementation:
 - EVM `shanghai`
 - OpenZeppelin Contracts `v5.1.0` pinned
 - `HellboxPublication.sol` V1 kernel implemented
-- JavaScript/Solidity `HELLBOX_ABI_V1` golden vector implemented
+- JavaScript/Solidity `HELLBOX_ABI_V1` golden vector implemented and unchanged by trait enforcement
 - deterministic issuance accounting core implemented
 - deployment-time enforcement-preimage digest anchors implemented without changing the frozen `HELLBOX_ABI_V1` release fingerprint
 - `HellboxPublicationFactory.sol` V1 implemented with size-safe full deployment
@@ -72,23 +72,32 @@ Current verified Gate 4 implementation:
 - `HellboxBirthPolicy.sol` non-upgradeable per-publication companion implemented and independently tested
 - `HellboxBirthPolicyCodeStore.sol` immutable inert bytecode store implemented and independently tested
 - factory generation permanently binds the approved BirthPolicy code store and exact BirthPolicy creation-code hash
-- every publication now copies/verifies the approved policy bytes and creates its own permanently bound BirthPolicy atomically during deployment
+- every publication copies/verifies the approved policy bytes and creates its own permanently bound BirthPolicy atomically during deployment
 - malformed stores, wrong hashes and invalid policy preimages fail the whole publication deployment instead of registering a bad release
 - direct publication-constructor `new HellboxBirthPolicy(...)` topology remains rejected; production source contains no direct BirthPolicy creation-code embed
-- current post-push regression: **79 Solidity tests passed / 0 failed**
+- the internal immediate creator, normal non-tail and Final-3 issuance paths now assign and consume one immutable per-token MARK/DEFECT identity atomically; no collector-facing mint endpoint exists yet
+- only the permanently bound publication can call BirthPolicy assignment; no publisher/admin setter or reroll exists
+- Harrow #001–#006 fixed MARKS, shared-random creator DEFECTS and #066 HELLBOUND/public-candidate behavior are enforced and tested
+- enabled-axis trait inventory remains synchronized with pending immediate copies + actual candidate pool; failed assignment reverts issuance/accounting together
+- current post-push regression: **85 Solidity tests passed / 0 failed**
 - issuance fuzz boundary: **256 runs passed**
-- factory/provenance/atomic deployment suite: **21 passed / 0 failed**
-- dedicated code-store proofs: **4 passed / 0 failed**
+- focused suites:
+  - factory/provenance/atomic deployment: **21 / 21**
+  - BirthPolicy: **21 / 21**
+  - issuance/atomic traits: **13 / 13**
+  - code store: **4 / 4**
 - unoptimized Shanghai runtimes:
   - `HellboxPublication`: **16,411 bytes** / **8,165 bytes EIP-170 headroom**
   - `HellboxPublicationFactory`: **9,423 bytes** / **15,153 bytes EIP-170 headroom**
-  - `HellboxBirthPolicy`: **5,561 bytes** / **19,015 bytes EIP-170 headroom**
-  - `HellboxBirthPolicyCodeStore`: **62 bytes**
+  - `HellboxBirthPolicy`: **9,123 bytes** / **15,453 bytes EIP-170 headroom**
+  - `HellboxBirthPolicyCodeStore`: actual deployed inert runtime **20,609 bytes** / **3,967 bytes EIP-170 headroom** (`forge build --sizes` nominal runtime stub: **62 bytes**)
+- BirthPolicy initcode: **20,608 bytes** / **28,544 bytes EIP-3860 headroom**
+- code-store creation size: **20,871 bytes** / **28,281 bytes EIP-3860 headroom**
 - measured native publication deployment payload: **31,665 bytes** / **17,487 bytes EIP-3860 headroom**
 
-**Exact next frontier:** assign and consume each issued copy's permanent MARK/DEFECT birth traits through its bound BirthPolicy, so remaining rarity inventory/odds become live and trustworthy. Preserve Harrow #001–#006 fixed MARKS, random creator DEFECTS, #066 HELLBOUND/public-pool eligibility, no publisher rerolls, and keep the final production randomness provider separately OPEN.
+**Exact next frontier:** complete the production-randomness/native-timed-closure architecture checkpoint before exposing collector minting. Select and prove the entropy request/fulfillment/fallback model for normal candidate assignment and unbiased native-expiry Final-3 selection; then implement phase eligibility, V1 `FREE`/`FIXED_PLS` payment enforcement and the public collector mint path one file at a time.
 
-The interactive-comic, Archive/reward, future independent-creator Press and future-token directions do **not** widen this immediate Gate 4 frontier and do not require a `HELLBOX_ABI_V1` change.
+The interactive-comic, Archive/reward, future independent-creator Press and future-token directions do **not** widen this immediate Gate 4 randomness/payment/phase/closure frontier and do not require a `HELLBOX_ABI_V1` change.
 
 ## Gate 4 issuance invariant
 
@@ -460,18 +469,20 @@ Hellbox must remain safely operable by one non-developer creator with a demandin
 
 Core rules:
 
-- one implementation file at a time
+- one implementation/config file at a time; no general multi-file code batching
 - complete replacement files, never splice patches
-- direct file + ZIP
-- exact destination path
-- one immediate Terminal action at a time
-- verify source/target hashes before replacement
+- direct file + ZIP downloaded into `~/Downloads`
+- hash-verified Bash places the file in its exact repo path; no manual file placement
+- exactly one Bash command/block per turn, then inspect its complete output before the next command
+- verify source/target/package hashes before replacement
 - validate every backend/contract/content change before moving on
-- verify deployments/live behavior
+- verify focused/full tests, production sizes, deployments/live behavior and Git state as applicable
 - routine engineering decisions belong to the engineer/AI assistant
 - open technical decisions are researched/tested by the engineer
 - creator approval is reserved for product/economic/scarcity/authority/immutability/canon decisions
 - before each major implementation file, perform the internal checkpoint defined in `HELLBOX_PROJECT_STATE.md`
+- documentation is independently rebuilt in dependency/authority order; only the final reviewed install/checkpoint may be bundled
+- documentation installation batching is not permission to batch review or code engineering
 - documentation contradiction sweeps are mandatory before synchronization is declared complete
 - repeated manual operations must become scripts, validators, generated interfaces or executable runbooks
 - no critical workflow may exist only in chat history, Terminal scrollback or Harrow's memory
@@ -491,7 +502,7 @@ The finished production machine should be pre-engineered enough that Harrow can 
 - use pinned audited OpenZeppelin primitives for solved standards
 - no publication or birth-policy proxy/upgrades in V1
 - no generic publication owner
-- `HellboxBirthPolicy` has no publisher/admin setter surface; future state mutation must be narrowly bound to its publication state machine
+- `HellboxBirthPolicy` has one narrow publication-only birth-assignment endpoint and no publisher/admin setter, reroll or replacement surface
 - `HellboxBirthPolicyCodeStore` is inert immutable infrastructure, not an admin/economic control surface
 - no collector-token seizure/forced transfer
 - no per-publication custom-Solidity/audit treadmill
