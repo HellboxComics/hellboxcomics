@@ -79,25 +79,31 @@ Current verified Gate 4 implementation:
 - only the permanently bound publication can call BirthPolicy assignment; no publisher/admin setter or reroll exists
 - Harrow #001–#006 fixed MARKS, shared-random creator DEFECTS and #066 HELLBOUND/public-candidate behavior are enforced and tested
 - enabled-axis trait inventory remains synchronized with pending immediate copies + actual candidate pool; failed assignment reverts issuance/accounting together
-- current post-push regression: **85 Solidity tests passed / 0 failed**
+- frozen drand `evmnet` configuration, stateless verifier and actual PulseChain Testnet valid/invalid proof execution are implemented
+- every factory generation deploys and permanently binds one equivalent verifier; no replacement/admin path exists
+- permanent verifier and factory-binding regression are committed
+- current post-push regression: **97 Solidity tests passed / 0 failed**
 - issuance fuzz boundary: **256 runs passed**
 - focused suites:
   - factory/provenance/atomic deployment: **21 / 21**
   - BirthPolicy: **21 / 21**
   - issuance/atomic traits: **13 / 13**
   - code store: **4 / 4**
+  - drand verifier: **8 / 8**
+  - factory verifier binding: **4 / 4**
 - unoptimized Shanghai runtimes:
   - `HellboxPublication`: **16,411 bytes** / **8,165 bytes EIP-170 headroom**
-  - `HellboxPublicationFactory`: **9,423 bytes** / **15,153 bytes EIP-170 headroom**
+  - `HellboxPublicationFactory`: **9,733 bytes** / **14,843 bytes EIP-170 headroom**
+  - `HellboxDrandEvmnetVerifier`: **8,689 bytes** / **15,887 bytes EIP-170 headroom**
   - `HellboxBirthPolicy`: **9,123 bytes** / **15,453 bytes EIP-170 headroom**
   - `HellboxBirthPolicyCodeStore`: actual deployed inert runtime **20,609 bytes** / **3,967 bytes EIP-170 headroom** (`forge build --sizes` nominal runtime stub: **62 bytes**)
 - BirthPolicy initcode: **20,608 bytes** / **28,544 bytes EIP-3860 headroom**
 - code-store creation size: **20,871 bytes** / **28,281 bytes EIP-3860 headroom**
 - measured native publication deployment payload: **31,665 bytes** / **17,487 bytes EIP-3860 headroom**
 
-**Exact next frontier:** complete the production-randomness/native-timed-closure architecture checkpoint before exposing collector minting. Select and prove the entropy request/fulfillment/fallback model for normal candidate assignment and unbiased native-expiry Final-3 selection; then implement phase eligibility, V1 `FREE`/`FIXED_PLS` payment enforcement and the public collector mint path one file at a time.
+**Exact next frontier:** first synchronize the two legacy factory-test placeholder provider digests to the frozen drand digest with no production-code change. Then bind the approved verifier into publications, enforce the one-time Prize Vault bootstrap as the first non-tail issuance, and implement FIFO proof fulfillment plus native timed closure. Only after those pass may Gate 4 add phase eligibility, exact `FREE`/`FIXED_PLS` payment and the public collector mint path.
 
-The interactive-comic, Archive/reward, future independent-creator Press and future-token directions do **not** widen this immediate Gate 4 randomness/payment/phase/closure frontier and do not require a `HELLBOX_ABI_V1` change.
+The interactive-comic, Prize Vault campaign, Continuity Covenant, Archive/reward, future independent-creator Press and future-token directions do **not** authorize a `HELLBOX_ABI_V1` change or collector mint opening before the current Gate 4 safeguards pass.
 
 ## Gate 4 issuance invariant
 
@@ -112,7 +118,14 @@ Those values are intentionally different.
 
 The final Harrow three are not preselected or removed from the 210-candidate pool. They are the literal final three candidates left after all 207 allowed non-tail primary issuances.
 
-Therefore the initial next-pull odds denominator is **210**, not 207.
+The seventh successful mint event is now locked as the one-time Prize Vault draw. It sees all **210** candidates and is **not guaranteed to mint token/copy #007**. After it succeeds:
+
+```text
+candidatePoolRemaining   = 209
+nonTailIssuanceRemaining = 206
+```
+
+The first ordinary collector draw uses the live 209-candidate pool and authoritative remaining trait inventory.
 
 ## Current architecture
 
@@ -214,6 +227,20 @@ Harrow immediate copies:
 - #005/#006 GOLD
 
 Harrow's DEFECTS remain random.
+
+Repeating promotional Prize Vault:
+
+- after Harrow's six, the **seventh successful mint event** is the first non-tail issuance and goes privately to the active approved Prize Vault;
+- it draws blindly from the same 210 candidates and receives no guaranteed copy ID, MARK or DEFECT;
+- it may draw #066;
+- it consumes one non-tail slot, leaving 209 candidates / 206 non-tail issuances before ordinary phases;
+- Harrow cannot preview, choose, reroll, withdraw or claim the result;
+- the vault may accumulate one random issue copy plus optional Harrow-funded promotional assets until a puzzle winner claims it;
+- optional tokens/value are never guaranteed and do not come from the Archive reward pool;
+- while unclaimed, prize copies have effective official Archive reward weight `0`;
+- after claim, Harrow may activate a fresh vault/secret for a new repeatable puzzle campaign.
+
+The preferred low-cost design is an immutable smart-contract Prize Vault plus an offline Prize Capsule generator and recipient-bound commit/reveal claim—not a Harrow-controlled EOA/private key. The generator separates the public commitment, a Harrow-facing escape-room authoring kit and independently held sealed recovery/claim material; the authoring kit cannot claim by itself. Only manifest-listed assets are official prize contents, and Harrow/household/operators/custodians are publicly ineligible.
 
 #066 is a public HELLBOUND and remains in the random candidate pool.
 
@@ -421,15 +448,11 @@ Harrow private access:
 
 Campaign completion never grants wallet, Reader, ownership or Harrow-private authority.
 
-## HairyLabs testing exclusion
+## HairyLabs testing status
 
-Until the creator explicitly confirms the Byte lane is refreshed, do not use Byte pages in acceptance/regression.
+**Resolved 2026-09-01:** the prior Byte-page problem was an indexing issue. Pages `#6 #11 #13 #19 #20 #23 #104 #223 #333` are repaired and the old acceptance/regression exclusion is lifted.
 
-Known externally stale pages when last checked:
-
-```text
-#6 #11 #13 #19 #20 #23 #104 #223 #333
-```
+Do not keep reviving or asking about this resolved blanket exclusion. A future incident needs fresh evidence and a newly scoped response.
 
 Pulse Byte / `$SPUNK` world note, exact mechanics excluded from Gate 4 issuance:
 
@@ -437,6 +460,25 @@ Pulse Byte / `$SPUNK` world note, exact mechanics excluded from Gate 4 issuance:
 - `$SPUNK` burns in that loop;
 - Hellbox may use the hungry-Byte/feeding-infrastructure joke;
 - exact amounts, thresholds, formulas and deeper Hellbox integration timing remain outside this Gate unless explicitly resolved from authoritative Byte rules.
+
+## Publisher continuity / 666 Covenant
+
+Hellbox is now formally designed to be **dynamic when alive and durable when dead**.
+
+While active, Harrow keeps exclusive control of official canon, the official Press and unpublished secret sauce. Published artifacts/Reader packages must not die solely because Harrow disappears, a workstation fails, Cloudflare is lost or PulseChain becomes unusable.
+
+Locked inactivity clock:
+
+```text
+666 days + 6 hours + 6 minutes + 6 seconds
+= 57,564,366 seconds
+```
+
+After that period, continuity becomes permissionlessly activatable. A voluntary nuclear path must use repeated warnings and a cancelable public timelock.
+
+Activation may release/mirror infrastructure, published packages and a static Rescue Reader. It does **not** automatically publish unreleased stories, spoilers, personal identity, seed phrases, private legal files or the right to make new official Harrow canon. Without a legal successor, official canon freezes.
+
+A separate Continuity Reserve funds durable storage/recovery; it is not the Archive reward pool and must not depend on speculative DeFi yield. Exact contracts, legal escrow, storage and drill implementation remain later-Gate work, but Native Issue #1 cannot launch until continuity/recovery tests pass.
 
 ## Important repository paths
 
@@ -536,6 +578,8 @@ The detailed risk register lives in `HELLBOX_PROJECT_STATE.md`. The highest-prio
 - **puzzle quality:** progressive difficulty, human playtesting, accessibility and fair timer/start/outage behavior are hard release requirements;
 - **immutable code:** unit/revert/fuzz/invariant/adversarial/static/Testnet evidence plus focused external review before mainnet;
 - **randomness:** never silently fall back to manipulable entropy; pause safely instead;
+- **Prize Vault:** same unbiased draw, no Harrow claim/withdraw/reroll power, anti-front-running claim, no reward farming while unclaimed;
+- **continuity:** exact heartbeat, Rescue Reader/packages, separate reserve, legal succession and permissionless recovery activation before mainnet;
 - **economics:** rewards remain modular and cannot become a prerequisite for the comic/artifact to have value;
 - **infrastructure:** backups, low-noise monitoring, provider failover and clean-room restoration are required before first native mainnet release;
 - **handoff:** repository evidence must let a different AI/developer resume without oral reconstruction.
@@ -563,11 +607,11 @@ Do not resurrect old pre-privacy repository history.
 ## Roadmap
 
 - Gate 4 — artifact kernel/factory/issuance/Testnet ownership proof
-- Gate 5 — Press V2 + private release builder + real mint UX
-- Gate 6 — deterministic ingest/art/metadata + interactive narrative/package compiler
-- Gate 7 — Seal/Archive + rarity-weighted rewards + ERC-6551 + artifact history + Hellforge/evolution
+- Gate 5 — Press V2 + private release builder + real mint UX + Prize Vault campaign controls
+- Gate 6 — deterministic ingest/art/metadata + interactive narrative/package compiler + Prize Capsule/Rescue Reader packaging
+- Gate 7 — Seal/Archive + rarity-weighted rewards + ERC-6551 + artifact history + Hellforge/evolution + separate Continuity Reserve hooks
 - Gate 8 — Hellion relationship depth
-- Gate 9 — freeze/security/accessibility/localization/content/performance/operations/recovery hardening
+- Gate 9 — freeze/security/accessibility/localization/content/performance/operations/continuity/legal recovery hardening
 - Gate 10 — deterministic mainnet release candidate + first native issue
 
 Native Issue #1 does not launch until the promised foundational artifact model is proven **and** its interactive narrative package, path coverage, human playtesting, performance/accessibility, operational runbooks and clean-room recovery barrier pass.
