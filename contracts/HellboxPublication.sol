@@ -3,6 +3,7 @@ pragma solidity 0.8.36;
 
 import {ERC721} from "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import {ERC721Royalty} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Royalty.sol";
+import {HellboxBirthPolicy} from "./HellboxBirthPolicy.sol";
 
 /// @title HellboxPublication
 /// @notice Gate 4 V1 publication kernel: constructor-frozen release identity,
@@ -12,10 +13,10 @@ import {ERC721Royalty} from "openzeppelin-contracts/contracts/token/ERC721/exten
 ///      The deterministic candidate pool, immediate-allocation ordering, wallet lifetime accounting,
 ///      and true-mintout tail boundary are implemented behind internal functions so they can be
 ///      exercised with deterministic test doubles before a production entropy provider is selected.
-///      Canonical enforcement-preimage schemas and the three committed policy-digest anchors are now
-///      defined, but deployment-time transport, birth-policy activation, public mint phases,
-///      pricing/payment enforcement, production randomness, early-close authority, metadata rendering,
-///      and later protocols remain to be wired.
+///      Canonical enforcement-preimage schemas and the three committed policy-digest anchors are
+///      defined, and constructor-time BirthPolicy deployment is wired through an immutable inert
+///      code store. Public mint phases, pricing/payment enforcement, production randomness,
+///      early-close authority, metadata rendering, and later protocols remain to be wired.
 contract HellboxPublication is ERC721Royalty {
     // ---------------------------------------------------------------------
     // HELLBOX_ABI_V1 protocol constants
@@ -175,6 +176,20 @@ contract HellboxPublication is ERC721Royalty {
         bytes32 assignmentProofMode;
     }
 
+    /// @notice Narrow constructor-only transport for the factory-generation
+    ///         BirthPolicy infrastructure and the three committed enforcement
+    ///         preimages.
+    /// @dev The official factory constructs this context from its own immutable
+    ///      code-store provenance plus publish-time preimages. It is not part of
+    ///      HELLBOX_ABI_V1 and does not alter ReleaseConfig or CommitmentSet.
+    struct BirthPolicyDeploymentContext {
+        address codeStore;
+        bytes32 approvedCreationCodeHash;
+        bytes fixedCopyPolicyPreimage;
+        bytes birthTraitsPolicyPreimage;
+        bytes randomizationPolicyPreimage;
+    }
+
     string public publicationKey;
 
     uint256 public immutable releaseChainId;
@@ -216,6 +231,11 @@ contract HellboxPublication is ERC721Royalty {
 
     bytes32 public immutable commitmentsDigest;
     bytes32 public immutable releaseConfigDigest;
+
+    /// @notice Exactly one constructor-created HellboxBirthPolicy companion.
+    /// @dev Immutable by design: no setter, replacement, proxy, initializer,
+    ///      or post-deployment activation path exists.
+    address public immutable birthPolicy;
 
     bool public immutable configFrozen;
     uint256 public immutable frozenAtBlock;
@@ -301,6 +321,10 @@ contract HellboxPublication is ERC721Royalty {
     error FixedCopyRulesDigestMismatch(bytes32 expected, bytes32 computed);
     error BirthTraitsDigestMismatch(bytes32 expected, bytes32 computed);
     error RandomizationPolicyDigestMismatch(bytes32 expected, bytes32 computed);
+    error InvalidBirthPolicyCodeStore(address codeStore, uint256 runtimeCodeSize);
+    error InvalidBirthPolicyCodeStorePrefix(address codeStore, uint8 actualPrefix);
+    error BirthPolicyCreationCodeHashMismatch(bytes32 expected, bytes32 computed);
+    error BirthPolicyDeploymentProducedNoCode();
 
     error IssuanceStateAlreadyInitialized();
     error IssuanceStateNotInitialized();
@@ -387,7 +411,8 @@ contract HellboxPublication is ERC721Royalty {
     constructor(
         ReleaseConfig memory config,
         CommitmentSet memory commitments,
-        bytes32 expectedReleaseConfigDigest
+        bytes32 expectedReleaseConfigDigest,
+        BirthPolicyDeploymentContext memory birthPolicyContext
     ) ERC721(config.collectionName, config.collectionSymbol) {
         _validateReleaseConfig(config, commitments);
 
@@ -446,6 +471,12 @@ contract HellboxPublication is ERC721Royalty {
         commitmentsDigest = commitmentsDigest_;
         releaseConfigDigest = computedReleaseConfigDigest;
 
+        birthPolicy = _deployBirthPolicy(
+            config,
+            commitments,
+            birthPolicyContext
+        );
+
         configFrozen = true;
         frozenAtBlock = block.number;
         frozenAtTimestamp = block.timestamp;
@@ -463,6 +494,119 @@ contract HellboxPublication is ERC721Royalty {
             commitments.publicationManifestDigest,
             commitments.packageDigest
         );
+    }
+
+    // ---------------------------------------------------------------------
+    // Constructor-only BirthPolicy deployment
+    // ---------------------------------------------------------------------
+
+    /// @dev Copies only code-store runtime bytes [1..], verifies that exact
+    ///      payload against factory-generation provenance, appends the canonical
+    ///      HellboxBirthPolicy constructor arguments, and executes ordinary
+    ///      CREATE from this publication. Any failure reverts this publication
+    ///      construction atomically.
+    function _deployBirthPolicy(
+        ReleaseConfig memory config,
+        CommitmentSet memory commitments,
+        BirthPolicyDeploymentContext memory context
+    ) internal returns (address policyAddress) {
+        bytes memory creationCode = _copyApprovedBirthPolicyCreationCode(
+            context.codeStore,
+            context.approvedCreationCodeHash
+        );
+
+        HellboxBirthPolicy.PublicationBinding memory binding =
+            HellboxBirthPolicy.PublicationBinding({
+                maxSupply: config.maxSupply,
+                immediateCreatorRecipient: config.immediateCreatorRecipient,
+                immediateCreatorCount: config.immediateCreatorCount,
+                tailReserveCount: config.tailReserveCount,
+                fixedCopyRulesDigest: commitments.fixedCopyRulesDigest,
+                birthTraitsDigest: commitments.birthTraitsDigest,
+                randomizationPolicyDigest: commitments.randomizationPolicyDigest
+            });
+
+        bytes memory constructorArguments = abi.encode(
+            binding,
+            context.fixedCopyPolicyPreimage,
+            context.birthTraitsPolicyPreimage,
+            context.randomizationPolicyPreimage
+        );
+
+        bytes memory initCode = bytes.concat(
+            creationCode,
+            constructorArguments
+        );
+
+        assembly ("memory-safe") {
+            policyAddress := create(
+                0,
+                add(initCode, 0x20),
+                mload(initCode)
+            )
+
+            if iszero(policyAddress) {
+                let size := returndatasize()
+                let ptr := mload(0x40)
+                returndatacopy(ptr, 0, size)
+                revert(ptr, size)
+            }
+        }
+
+        if (policyAddress.code.length == 0) {
+            revert BirthPolicyDeploymentProducedNoCode();
+        }
+    }
+
+    function _copyApprovedBirthPolicyCreationCode(
+        address codeStore,
+        bytes32 approvedCreationCodeHash
+    ) internal view returns (bytes memory creationCode) {
+        uint256 runtimeCodeSize = codeStore.code.length;
+
+        if (
+            codeStore == address(0) ||
+            approvedCreationCodeHash == bytes32(0) ||
+            runtimeCodeSize <= 1
+        ) {
+            revert InvalidBirthPolicyCodeStore(
+                codeStore,
+                runtimeCodeSize
+            );
+        }
+
+        uint256 prefix;
+        assembly ("memory-safe") {
+            extcodecopy(codeStore, 0x00, 0, 1)
+            prefix := byte(0, mload(0x00))
+        }
+
+        if (prefix != 0) {
+            revert InvalidBirthPolicyCodeStorePrefix(
+                codeStore,
+                uint8(prefix)
+            );
+        }
+
+        uint256 creationCodeLength = runtimeCodeSize - 1;
+        creationCode = new bytes(creationCodeLength);
+
+        assembly ("memory-safe") {
+            extcodecopy(
+                codeStore,
+                add(creationCode, 0x20),
+                1,
+                creationCodeLength
+            )
+        }
+
+        bytes32 actualCreationCodeHash = keccak256(creationCode);
+        if (actualCreationCodeHash != approvedCreationCodeHash) {
+            revert BirthPolicyCreationCodeHashMismatch(
+                approvedCreationCodeHash,
+                actualCreationCodeHash
+            );
+        }
     }
 
     // ---------------------------------------------------------------------

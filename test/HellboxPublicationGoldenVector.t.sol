@@ -3,6 +3,21 @@ pragma solidity 0.8.36;
 
 import {HellboxPublication} from "../contracts/HellboxPublication.sol";
 
+/// @dev Test-only inert code store used solely to instantiate the publication
+///      while preserving the pre-existing HELLBOX_ABI_V1 golden CommitmentSet.
+///      Companion correctness is covered by the dedicated BirthPolicy/factory
+///      integration suites; this file must not rewrite its independent vectors.
+contract GoldenVectorBirthPolicyCodeStore {
+    constructor() {
+        // runtime[0] = STOP; runtime[1..] is tiny creation code that returns
+        // a one-byte STOP runtime and ignores appended constructor arguments.
+        bytes memory runtimeCode = hex"00600060005360016000f3";
+        assembly ("memory-safe") {
+            return(add(runtimeCode, 0x20), mload(runtimeCode))
+        }
+    }
+}
+
 /// @notice Cross-language golden vector for HELLBOX_ABI_V1.
 /// @dev The expected values in this file were produced independently by
 ///      test/press/releaseFingerprint.golden.mjs using viem. If the JavaScript
@@ -50,11 +65,25 @@ contract HellboxPublicationGoldenVectorTest {
             commitments
         );
 
+        GoldenVectorBirthPolicyCodeStore store =
+            new GoldenVectorBirthPolicyCodeStore();
+
+        HellboxPublication.BirthPolicyDeploymentContext memory context =
+            HellboxPublication.BirthPolicyDeploymentContext({
+                codeStore: address(store),
+                approvedCreationCodeHash:
+                    keccak256(hex"600060005360016000f3"),
+                fixedCopyPolicyPreimage: bytes(""),
+                birthTraitsPolicyPreimage: bytes(""),
+                randomizationPolicyPreimage: bytes("")
+            });
+
         HellboxPublication publication =
             new HellboxPublication(
                 config,
                 commitments,
-                localDeploymentDigest
+                localDeploymentDigest,
+                context
             );
 
         require(

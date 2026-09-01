@@ -2,6 +2,8 @@
 pragma solidity 0.8.36;
 
 import {HellboxPublication} from "../contracts/HellboxPublication.sol";
+import {HellboxBirthPolicy} from "../contracts/HellboxBirthPolicy.sol";
+import {HellboxBirthPolicyCodeStore} from "../contracts/HellboxBirthPolicyCodeStore.sol";
 
 interface PolicyVm {
     function expectPartialRevert(bytes4 revertData) external;
@@ -13,12 +15,14 @@ contract HellboxPublicationPolicyHarness is HellboxPublication {
     constructor(
         ReleaseConfig memory config,
         CommitmentSet memory commitments,
-        bytes32 expectedReleaseConfigDigest
+        bytes32 expectedReleaseConfigDigest,
+        BirthPolicyDeploymentContext memory birthPolicyContext
     )
         HellboxPublication(
             config,
             commitments,
-            expectedReleaseConfigDigest
+            expectedReleaseConfigDigest,
+            birthPolicyContext
         )
     {}
 
@@ -399,10 +403,24 @@ contract HellboxPublicationPolicyTest {
             commitments
         );
 
+        HellboxBirthPolicyCodeStore store =
+            new HellboxBirthPolicyCodeStore();
+
+        HellboxPublication.BirthPolicyDeploymentContext memory context =
+            HellboxPublication.BirthPolicyDeploymentContext({
+                codeStore: address(store),
+                approvedCreationCodeHash:
+                    keccak256(type(HellboxBirthPolicy).creationCode),
+                fixedCopyPolicyPreimage: abi.encode(_fixedCopyPolicy()),
+                birthTraitsPolicyPreimage: abi.encode(_birthTraitsPolicy()),
+                randomizationPolicyPreimage: abi.encode(_randomizationPolicy())
+            });
+
         publication = new HellboxPublicationPolicyHarness(
             config,
             commitments,
-            expectedDigest
+            expectedDigest,
+            context
         );
     }
 
@@ -420,7 +438,10 @@ contract HellboxPublicationPolicyTest {
         config.maxPerTransaction = 1;
 
         config.immediateCreatorRecipient = CREATOR;
-        config.immediateCreatorCount = 6;
+        // The golden fixed-copy preimage contains exactly one creator-immediate
+        // row plus the #066 public-pool row. Keep this harness binding aligned
+        // so the real BirthPolicy companion validates the same golden vectors.
+        config.immediateCreatorCount = 1;
 
         config.tailRecipient = TAIL;
         config.tailReserveCount = 3;

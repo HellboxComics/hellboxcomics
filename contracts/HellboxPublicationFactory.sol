@@ -4,6 +4,7 @@ pragma solidity 0.8.36;
 import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 import {Ownable2Step} from "openzeppelin-contracts/contracts/access/Ownable2Step.sol";
 import {HellboxPublication} from "./HellboxPublication.sol";
+import {HellboxBirthPolicy} from "./HellboxBirthPolicy.sol";
 
 /// @title HellboxPublicationFactory
 /// @notice Gate 4 V1 factory for manufacturing official full-deployment
@@ -47,6 +48,16 @@ contract HellboxPublicationFactory is Ownable2Step {
     /// @dev Factory-generation provenance only. This does not enter
     ///      ReleaseConfig and does not change HELLBOX_ABI_V1.
     bytes32 public immutable approvedBirthPolicyCreationCodeHash;
+
+    /// @notice Narrow publish-time transport for the three committed
+    ///         BirthPolicy enforcement preimages.
+    /// @dev This struct intentionally excludes the code-store address/hash,
+    ///      which remain immutable factory-generation provenance.
+    struct BirthPolicyPreimages {
+        bytes fixedCopyPolicyPreimage;
+        bytes birthTraitsPolicyPreimage;
+        bytes randomizationPolicyPreimage;
+    }
 
     // ---------------------------------------------------------------------
     // Minimal append-only provenance state
@@ -101,6 +112,12 @@ contract HellboxPublicationFactory is Ownable2Step {
     error DeploymentReleaseDigestMismatch(bytes32 expected, bytes32 actual);
 
     error DeploymentPublicationKeyMismatch(bytes32 expected, bytes32 actual);
+
+    error DeploymentBirthPolicyMissing();
+    error DeploymentBirthPolicyPublicationMismatch(
+        address expected,
+        address actual
+    );
 
     error OwnershipRenunciationDisabled();
 
@@ -189,10 +206,13 @@ contract HellboxPublicationFactory is Ownable2Step {
     ///      The expected release digest must already have been computed against
     ///      this factory address and the current chain ID. HellboxPublication
     ///      independently recomputes and verifies that digest in its constructor.
+    ///      The three enforcement preimages are narrow constructor transport only;
+    ///      the factory-owned code-store address/hash remain generation immutables.
     function publish(
         HellboxPublication.ReleaseConfig calldata config,
         HellboxPublication.CommitmentSet calldata commitments,
         bytes32 expectedReleaseConfigDigest,
+        BirthPolicyPreimages calldata birthPolicyPreimages,
         bytes calldata publicationCreationCode
     ) external onlyOwner returns (address publicationAddress) {
         bytes32 publicationKeyHash = keccak256(bytes(config.publicationKey));
@@ -219,7 +239,8 @@ contract HellboxPublicationFactory is Ownable2Step {
             creationCode,
             config,
             commitments,
-            expectedReleaseConfigDigest
+            expectedReleaseConfigDigest,
+            birthPolicyPreimages
         );
 
         HellboxPublication publication =
@@ -296,12 +317,27 @@ contract HellboxPublicationFactory is Ownable2Step {
         bytes memory creationCode,
         HellboxPublication.ReleaseConfig calldata config,
         HellboxPublication.CommitmentSet calldata commitments,
-        bytes32 expectedReleaseConfigDigest
+        bytes32 expectedReleaseConfigDigest,
+        BirthPolicyPreimages calldata birthPolicyPreimages
     ) internal returns (address publicationAddress) {
+        HellboxPublication.BirthPolicyDeploymentContext memory
+            birthPolicyContext = HellboxPublication.BirthPolicyDeploymentContext({
+                codeStore: birthPolicyCodeStore,
+                approvedCreationCodeHash:
+                    approvedBirthPolicyCreationCodeHash,
+                fixedCopyPolicyPreimage:
+                    birthPolicyPreimages.fixedCopyPolicyPreimage,
+                birthTraitsPolicyPreimage:
+                    birthPolicyPreimages.birthTraitsPolicyPreimage,
+                randomizationPolicyPreimage:
+                    birthPolicyPreimages.randomizationPolicyPreimage
+            });
+
         bytes memory constructorArguments = abi.encode(
             config,
             commitments,
-            expectedReleaseConfigDigest
+            expectedReleaseConfigDigest,
+            birthPolicyContext
         );
 
         bytes memory initCode = bytes.concat(
@@ -393,6 +429,24 @@ contract HellboxPublicationFactory is Ownable2Step {
             revert DeploymentPublicationKeyMismatch(
                 expectedPublicationKeyHash,
                 reportedPublicationKeyHash
+            );
+        }
+
+        address reportedBirthPolicy = publication.birthPolicy();
+        if (
+            reportedBirthPolicy == address(0) ||
+            reportedBirthPolicy.code.length == 0
+        ) {
+            revert DeploymentBirthPolicyMissing();
+        }
+
+        address reportedBirthPolicyPublication =
+            HellboxBirthPolicy(reportedBirthPolicy).publication();
+
+        if (reportedBirthPolicyPublication != address(publication)) {
+            revert DeploymentBirthPolicyPublicationMismatch(
+                address(publication),
+                reportedBirthPolicyPublication
             );
         }
     }

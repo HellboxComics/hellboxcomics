@@ -2,6 +2,8 @@
 pragma solidity 0.8.36;
 
 import {HellboxPublication} from "../contracts/HellboxPublication.sol";
+import {HellboxBirthPolicy} from "../contracts/HellboxBirthPolicy.sol";
+import {HellboxBirthPolicyCodeStore} from "../contracts/HellboxBirthPolicyCodeStore.sol";
 
 interface IssuanceVm {
     function expectPartialRevert(bytes4 revertData) external;
@@ -15,12 +17,14 @@ contract HellboxPublicationIssuanceHarness is HellboxPublication {
     constructor(
         HellboxPublication.ReleaseConfig memory config,
         HellboxPublication.CommitmentSet memory commitments,
-        bytes32 expectedReleaseConfigDigest
+        bytes32 expectedReleaseConfigDigest,
+        HellboxPublication.BirthPolicyDeploymentContext memory birthPolicyContext
     )
         HellboxPublication(
             config,
             commitments,
-            expectedReleaseConfigDigest
+            expectedReleaseConfigDigest,
+            birthPolicyContext
         )
     {}
 
@@ -594,7 +598,7 @@ contract HellboxPublicationIssuanceTest {
         HellboxPublication.ReleaseConfig memory config =
             _sciViveConfig();
         HellboxPublication.CommitmentSet memory commitments =
-            _commitments();
+            _commitmentsForConfig(config);
 
         bytes32 expectedDigest = _releaseDigest(
             block.chainid,
@@ -607,7 +611,8 @@ contract HellboxPublicationIssuanceTest {
             new HellboxPublicationIssuanceHarness(
                 config,
                 commitments,
-                expectedDigest
+                expectedDigest,
+                _birthPolicyContext(config)
             );
 
         uint256[] memory noImmediateCopies = new uint256[](0);
@@ -710,7 +715,8 @@ contract HellboxPublicationIssuanceTest {
             new HellboxPublicationIssuanceHarness(
                 config,
                 commitments,
-                expectedDigest
+                expectedDigest,
+                _birthPolicyContext(config)
             );
     }
 
@@ -811,15 +817,41 @@ contract HellboxPublicationIssuanceTest {
         pure
         returns (HellboxPublication.CommitmentSet memory commitments)
     {
+        return _commitmentsForConfig(_native216Config());
+    }
+
+    function _commitmentsForConfig(
+        HellboxPublication.ReleaseConfig memory config
+    ) internal pure returns (
+        HellboxPublication.CommitmentSet memory commitments
+    ) {
+        (
+            HellboxPublication.FixedCopyRulesEnforcement memory fixedPolicy,
+            HellboxPublication.BirthTraitsEnforcement memory birthPolicy,
+            HellboxPublication.RandomizationPolicyEnforcement memory randomPolicy
+        ) = _deploymentPolicies(config);
+
         commitments.publicationManifestDigest =
             keccak256("publication-manifest-v1");
         commitments.packageDigest = keccak256("package-v1");
-        commitments.fixedCopyRulesDigest =
-            keccak256("fixed-copy-rules-v1");
-        commitments.birthTraitsDigest =
-            keccak256("birth-traits-v1");
-        commitments.randomizationPolicyDigest =
-            keccak256("randomization-policy-v1");
+        commitments.fixedCopyRulesDigest = keccak256(
+            abi.encode(
+                keccak256("HELLBOX_ENFORCEMENT_V1:FIXED_COPY_RULES"),
+                fixedPolicy
+            )
+        );
+        commitments.birthTraitsDigest = keccak256(
+            abi.encode(
+                keccak256("HELLBOX_ENFORCEMENT_V1:BIRTH_TRAITS"),
+                birthPolicy
+            )
+        );
+        commitments.randomizationPolicyDigest = keccak256(
+            abi.encode(
+                keccak256("HELLBOX_ENFORCEMENT_V1:RANDOMIZATION_POLICY"),
+                randomPolicy
+            )
+        );
         commitments.rendererRulesDigest =
             keccak256("renderer-rules-v1");
         commitments.readerPolicyDigest =
@@ -846,6 +878,82 @@ contract HellboxPublicationIssuanceTest {
             keccak256("authority-policy-v1");
         commitments.eventPolicyDigest =
             keccak256("event-policy-v1");
+    }
+
+    function _birthPolicyContext(
+        HellboxPublication.ReleaseConfig memory config
+    ) internal returns (
+        HellboxPublication.BirthPolicyDeploymentContext memory context
+    ) {
+        (
+            HellboxPublication.FixedCopyRulesEnforcement memory fixedPolicy,
+            HellboxPublication.BirthTraitsEnforcement memory birthPolicy,
+            HellboxPublication.RandomizationPolicyEnforcement memory randomPolicy
+        ) = _deploymentPolicies(config);
+
+        HellboxBirthPolicyCodeStore store =
+            new HellboxBirthPolicyCodeStore();
+
+        context.codeStore = address(store);
+        context.approvedCreationCodeHash =
+            keccak256(type(HellboxBirthPolicy).creationCode);
+        context.fixedCopyPolicyPreimage = abi.encode(fixedPolicy);
+        context.birthTraitsPolicyPreimage = abi.encode(birthPolicy);
+        context.randomizationPolicyPreimage = abi.encode(randomPolicy);
+    }
+
+    function _deploymentPolicies(
+        HellboxPublication.ReleaseConfig memory config
+    ) internal pure returns (
+        HellboxPublication.FixedCopyRulesEnforcement memory fixedPolicy,
+        HellboxPublication.BirthTraitsEnforcement memory birthPolicy,
+        HellboxPublication.RandomizationPolicyEnforcement memory randomPolicy
+    ) {
+        uint256 immediateCount = config.immediateCreatorCount;
+        HellboxPublication.FixedCopyRuleEnforcement[] memory rules =
+            new HellboxPublication.FixedCopyRuleEnforcement[](immediateCount);
+
+        for (uint256 i = 0; i < immediateCount; ++i) {
+            rules[i] = HellboxPublication.FixedCopyRuleEnforcement({
+                copyId: i + 1,
+                allocationClass: keccak256("CREATOR_IMMEDIATE"),
+                requiredMarkCode: bytes32(0),
+                requiredDefectCode: bytes32(0),
+                recipient: config.immediateCreatorRecipient,
+                publicRandomPoolEligible: false,
+                reasonCode: keccak256("TEST_CREATOR_IMMEDIATE")
+            });
+        }
+
+        fixedPolicy.enabled = immediateCount > 0;
+        fixedPolicy.rules = rules;
+
+        birthPolicy.enabled = false;
+        birthPolicy.axes =
+            new HellboxPublication.BirthTraitAxisEnforcement[](0);
+
+        bytes32 fixedDigest = keccak256(
+            abi.encode(
+                keccak256("HELLBOX_ENFORCEMENT_V1:FIXED_COPY_RULES"),
+                fixedPolicy
+            )
+        );
+
+        randomPolicy.enabled = true;
+        randomPolicy.policyId = keccak256("HELLBOX_TEST_RANDOMIZATION_V1");
+        randomPolicy.schemeVersion = 1;
+        randomPolicy.providerConfigDigest =
+            keccak256("HELLBOX_TEST_PROVIDER_CONFIG");
+        randomPolicy.copyShuffleMode =
+            keccak256("RANDOM_NON_SEQUENTIAL");
+        randomPolicy.fixedIdExclusionsDigest = fixedDigest;
+        randomPolicy.traitPoolMode = bytes32(0);
+        randomPolicy.markDefectIndependent = false;
+        randomPolicy.creatorDefectFairness = bytes32(0);
+        randomPolicy.publisherMapKnowledgePolicy =
+            keccak256("NO_FULL_PREKNOWN_MAP");
+        randomPolicy.assignmentProofMode =
+            keccak256("HELLBOX_TEST_ASSIGNMENT_PROOF");
     }
 
     function _releaseDigest(
