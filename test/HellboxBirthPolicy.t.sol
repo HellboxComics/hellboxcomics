@@ -5,12 +5,13 @@ import {HellboxBirthPolicy} from "../contracts/HellboxBirthPolicy.sol";
 
 interface BirthPolicyVm {
     function expectPartialRevert(bytes4 revertData) external;
+    function prank(address msgSender) external;
 }
 
 /// @notice Gate 4 V1 tests for the constructor-frozen per-publication
-///         HellboxBirthPolicy companion.
-/// @dev No production randomness provider or per-token trait consumption is
-///      selected by this checkpoint.
+///         HellboxBirthPolicy companion and one-time birth-trait consumption.
+/// @dev Assignment is proven behind an entropy-word test boundary; the final
+///      production randomness provider remains deliberately unselected.
 contract HellboxBirthPolicyTest {
     BirthPolicyVm internal constant VM =
         BirthPolicyVm(
@@ -19,6 +20,8 @@ contract HellboxBirthPolicyTest {
 
     address internal constant CREATOR =
         0x1111111111111111111111111111111111111111;
+    address internal constant OTHER =
+        0x7777777777777777777777777777777777777777;
 
     bytes32 internal constant FIXED_DOMAIN =
         0xbccff8f643f5da5339d34355670c5a9387d1c6d13f3e7fbcee8044749777c57c;
@@ -245,6 +248,150 @@ contract HellboxBirthPolicyTest {
             policy.randomizationPublisherMapKnowledgePolicy() ==
                 keccak256("NO_FULL_PREKNOWN_MAP"),
             "map knowledge"
+        );
+    }
+
+    // ---------------------------------------------------------------------
+    // Publication-only assignment / conservation
+    // ---------------------------------------------------------------------
+
+    function testOnlyBoundPublicationCanAssignBirthIdentity() public {
+        HellboxBirthPolicy policy = _deployNative();
+
+        VM.expectPartialRevert(
+            HellboxBirthPolicy.UnauthorizedPublicationCaller.selector
+        );
+        VM.prank(OTHER);
+        policy.assignBirthIdentity(1, 123);
+
+        require(!policy.birthIdentityAssigned(1), "unauthorized assignment");
+        require(policy.markInventoryRemainingTotal() == 216, "mark mutation");
+        require(
+            policy.defectInventoryRemainingTotal() == 216,
+            "defect mutation"
+        );
+    }
+
+    function testCreatorAssignmentsConsumeFixedMarksAndSharedDefects() public {
+        HellboxBirthPolicy policy = _deployNative();
+
+        for (uint256 tokenId = 1; tokenId <= 6; ++tokenId) {
+            (bytes32 markCode, bytes32 defectCode) =
+                policy.assignBirthIdentity(tokenId, tokenId * 369);
+
+            require(
+                markCode == _expectedCreatorMark(tokenId),
+                "creator mark assignment"
+            );
+            require(_isKnownDefect(defectCode), "creator defect assignment");
+            require(policy.birthIdentityAssigned(tokenId), "creator assigned");
+            require(policy.birthMark(tokenId) == markCode, "stored mark");
+            require(policy.birthDefect(tokenId) == defectCode, "stored defect");
+        }
+
+        bytes32 hellbound = keccak256("HELLBOUND");
+        bytes32 pressProof = keccak256("PRESS_PROOF");
+        bytes32 gold = keccak256("GOLD");
+        bytes32 standard = keccak256("STANDARD");
+
+        require(policy.markInventoryRemainingTotal() == 210, "mark total");
+        require(policy.defectInventoryRemainingTotal() == 210, "defect total");
+        require(policy.markReservedRemainingTotal() == 1, "mark reserve total");
+        require(policy.defectReservedRemainingTotal() == 0, "defect reserves");
+
+        require(policy.markRemaining(hellbound) == 4, "hellbound remaining");
+        require(policy.markRemaining(pressProof) == 10, "proof remaining");
+        require(policy.markRemaining(gold) == 16, "gold remaining");
+        require(policy.markRemaining(standard) == 180, "standard remaining");
+
+        require(policy.markReservedRemaining(hellbound) == 1, "#066 reserve");
+        require(policy.markReservedRemaining(pressProof) == 0, "proof reserve");
+        require(policy.markReservedRemaining(gold) == 0, "gold reserve");
+        require(policy.randomAssignableMarkTotal() == 209, "random mark total");
+        require(
+            policy.randomAssignableMarkRemaining(hellbound) == 3,
+            "random hellbound"
+        );
+    }
+
+    function testBirthIdentityCannotBeRerolledOrDoubleConsumed() public {
+        HellboxBirthPolicy policy = _deployNative();
+
+        (bytes32 markCode, bytes32 defectCode) =
+            policy.assignBirthIdentity(1, 111);
+
+        uint256 markTotal = policy.markInventoryRemainingTotal();
+        uint256 defectTotal = policy.defectInventoryRemainingTotal();
+        uint256 markReserved = policy.markReservedRemainingTotal();
+
+        VM.expectPartialRevert(
+            HellboxBirthPolicy.BirthIdentityAlreadyAssigned.selector
+        );
+        policy.assignBirthIdentity(1, 999999);
+
+        require(policy.birthMark(1) == markCode, "mark rerolled");
+        require(policy.birthDefect(1) == defectCode, "defect rerolled");
+        require(policy.markInventoryRemainingTotal() == markTotal, "mark double consume");
+        require(
+            policy.defectInventoryRemainingTotal() == defectTotal,
+            "defect double consume"
+        );
+        require(
+            policy.markReservedRemainingTotal() == markReserved,
+            "reservation double consume"
+        );
+    }
+
+    function testRandomAssignmentsCannotConsumeUndrawn066Reservation() public {
+        HellboxBirthPolicy policy = _deployNative();
+
+        for (uint256 tokenId = 1; tokenId <= 6; ++tokenId) {
+            policy.assignBirthIdentity(tokenId, tokenId * 369);
+        }
+
+        for (uint256 tokenId = 7; tokenId <= 216; ++tokenId) {
+            if (tokenId == 66) {
+                continue;
+            }
+            policy.assignBirthIdentity(tokenId, tokenId * 1_000_003);
+        }
+
+        bytes32 hellbound = keccak256("HELLBOUND");
+
+        require(!policy.birthIdentityAssigned(66), "#066 assigned early");
+        require(policy.markInventoryRemainingTotal() == 1, "last mark total");
+        require(policy.defectInventoryRemainingTotal() == 1, "last defect total");
+        require(policy.markReservedRemainingTotal() == 1, "last reservation");
+        require(policy.markRemaining(hellbound) == 1, "reserved hellbound lost");
+        require(policy.markReservedRemaining(hellbound) == 1, "#066 reserve lost");
+        require(policy.randomAssignableMarkTotal() == 0, "random marks remain");
+
+        (bytes32 markCode, bytes32 defectCode) =
+            policy.assignBirthIdentity(66, 0x066);
+
+        require(markCode == hellbound, "#066 not hellbound");
+        require(_isKnownDefect(defectCode), "#066 defect");
+        require(policy.birthIdentityAssigned(66), "#066 not assigned");
+        require(policy.markInventoryRemainingTotal() == 0, "mark conservation");
+        require(policy.defectInventoryRemainingTotal() == 0, "defect conservation");
+        require(policy.markReservedRemainingTotal() == 0, "reserve conservation");
+        require(policy.randomAssignableMarkTotal() == 0, "mark tail");
+        require(policy.randomAssignableDefectTotal() == 0, "defect tail");
+    }
+
+    function testAssignmentRejectsOutOfRangeCopyIds() public {
+        HellboxBirthPolicy policy = _deployNative();
+
+        VM.expectPartialRevert(HellboxBirthPolicy.InvalidCopyId.selector);
+        policy.assignBirthIdentity(0, 1);
+
+        VM.expectPartialRevert(HellboxBirthPolicy.InvalidCopyId.selector);
+        policy.assignBirthIdentity(217, 1);
+
+        require(policy.markInventoryRemainingTotal() == 216, "invalid mark mutation");
+        require(
+            policy.defectInventoryRemainingTotal() == 216,
+            "invalid defect mutation"
         );
     }
 
@@ -503,6 +650,19 @@ contract HellboxBirthPolicyTest {
             "disabled defects"
         );
         require(policy.randomizationEnabled(), "disabled random");
+
+        (bytes32 markCode, bytes32 defectCode) =
+            policy.assignBirthIdentity(1, 123);
+        require(markCode == bytes32(0), "disabled mark assignment");
+        require(defectCode == bytes32(0), "disabled defect assignment");
+        require(policy.birthIdentityAssigned(1), "disabled identity");
+        require(policy.birthMark(1) == bytes32(0), "disabled stored mark");
+        require(policy.birthDefect(1) == bytes32(0), "disabled stored defect");
+
+        VM.expectPartialRevert(
+            HellboxBirthPolicy.BirthIdentityAlreadyAssigned.selector
+        );
+        policy.assignBirthIdentity(1, 456);
     }
 
     // ---------------------------------------------------------------------
@@ -796,6 +956,27 @@ contract HellboxBirthPolicyTest {
         HellboxBirthPolicy.RandomizationPolicyEnforcement memory policy
     ) internal pure returns (bytes32) {
         return keccak256(abi.encode(RANDOM_DOMAIN, policy));
+    }
+
+    function _expectedCreatorMark(
+        uint256 tokenId
+    ) internal pure returns (bytes32) {
+        if (tokenId <= 2) {
+            return keccak256("HELLBOUND");
+        }
+        if (tokenId <= 4) {
+            return keccak256("PRESS_PROOF");
+        }
+        return keccak256("GOLD");
+    }
+
+    function _isKnownDefect(bytes32 defectCode) internal pure returns (bool) {
+        return
+            defectCode == keccak256("REDACTED") ||
+            defectCode == keccak256("CORRUPTED_PLATE") ||
+            defectCode == keccak256("BLED_OUT") ||
+            defectCode == keccak256("OFF_REGISTER") ||
+            defectCode == keccak256("NONE");
     }
 
     function _assertCreator(

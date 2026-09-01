@@ -15,8 +15,10 @@ import {HellboxBirthPolicy} from "./HellboxBirthPolicy.sol";
 ///      exercised with deterministic test doubles before a production entropy provider is selected.
 ///      Canonical enforcement-preimage schemas and the three committed policy-digest anchors are
 ///      defined, and constructor-time BirthPolicy deployment is wired through an immutable inert
-///      code store. Public mint phases, pricing/payment enforcement, production randomness,
-///      early-close authority, metadata rendering, and later protocols remain to be wired.
+///      code store, and issued copies consume immutable birth MARK/DEFECT identity through
+///      that companion atomically with issuance. Public mint phases, pricing/payment
+///      enforcement, production randomness, early-close authority, metadata rendering,
+///      and later protocols remain to be wired.
 contract HellboxPublication is ERC721Royalty {
     // ---------------------------------------------------------------------
     // HELLBOX_ABI_V1 protocol constants
@@ -329,6 +331,11 @@ contract HellboxPublication is ERC721Royalty {
     error IssuanceStateAlreadyInitialized();
     error IssuanceStateNotInitialized();
     error InvalidImmediateCreatorCopySet(uint256 expected, uint256 actual);
+    error ImmediateCreatorCopyPolicyMismatch(
+        uint256 index,
+        uint256 expectedTokenId,
+        uint256 suppliedTokenId
+    );
     error InvalidCopyId(uint256 tokenId);
     error DuplicateImmediateCreatorCopy(uint256 tokenId);
     error CandidateCopyUnavailable(uint256 tokenId);
@@ -352,6 +359,11 @@ contract HellboxPublication is ERC721Royalty {
     error TailAlreadyAwarded();
     error TailCandidateInvariant(uint256 remaining, uint256 required);
     error PrimarySupplyInvariant(uint256 issued, uint256 supply);
+    error BirthInventoryAccountingInvariant(
+        bytes32 axisId,
+        uint256 inventoryRemaining,
+        uint256 expectedRemaining
+    );
 
     // ---------------------------------------------------------------------
     // Events
@@ -693,12 +705,23 @@ contract HellboxPublication is ERC721Royalty {
 
         candidatePoolRemaining = maxSupply;
 
+        HellboxBirthPolicy policy = HellboxBirthPolicy(birthPolicy);
+
         for (uint256 i = 0; i < immediateCount; ++i) {
             uint256 tokenId = immediateCopyIds[i];
             _validateCopyId(tokenId);
 
             if (isImmediateCreatorCopy[tokenId]) {
                 revert DuplicateImmediateCreatorCopy(tokenId);
+            }
+
+            uint256 expectedTokenId = policy.policyImmediateCopyAt(i);
+            if (tokenId != expectedTokenId) {
+                revert ImmediateCreatorCopyPolicyMismatch(
+                    i,
+                    expectedTokenId,
+                    tokenId
+                );
             }
 
             isImmediateCreatorCopy[tokenId] = true;
@@ -714,6 +737,7 @@ contract HellboxPublication is ERC721Royalty {
         issuanceStateInitialized = true;
 
         _assertOpenCandidateAccounting();
+        _assertBirthInventoryAccounting();
 
         emit IssuanceStateInitialized(
             candidatePoolRemaining,
@@ -725,9 +749,12 @@ contract HellboxPublication is ERC721Royalty {
 
     /// @dev Issues one previously verified immediate creator copy. The copy ID
     ///      must already have been removed from candidate eligibility during
-    ///      issuance bootstrap. Birth-trait assignment will be inserted before
-    ///      this mint when the committed trait preimage is wired.
-    function _issueImmediateCreatorCopy(uint256 tokenId) internal {
+    ///      issuance bootstrap. `entropyWord` is an input boundary only; the
+    ///      final production entropy provider remains deliberately open.
+    function _issueImmediateCreatorCopy(
+        uint256 tokenId,
+        uint256 entropyWord
+    ) internal {
         _requireIssuanceStateInitialized();
 
         if (immediateCreatorAllocationComplete) {
@@ -742,6 +769,8 @@ contract HellboxPublication is ERC721Royalty {
 
         _assertPrimarySupplyAvailable();
 
+        _assignBirthIdentity(tokenId, entropyWord);
+
         immediateCreatorCopyIssued[tokenId] = true;
         ++immediateCreatorIssued;
         ++totalPrimaryIssued;
@@ -749,6 +778,8 @@ contract HellboxPublication is ERC721Royalty {
         if (immediateCreatorIssued == immediateCreatorCount) {
             immediateCreatorAllocationComplete = true;
         }
+
+        _assertBirthInventoryAccounting();
 
         _safeMint(immediateCreatorRecipient, tokenId);
 
@@ -809,12 +840,14 @@ contract HellboxPublication is ERC721Royalty {
             candidatePoolRemaining
         );
         tokenId = _removeCandidateAtIndex(candidateIndex);
+        _assignBirthIdentity(tokenId, entropyWord);
 
         walletLifetimePrimaryUsed[primaryAccount] = used + 1;
         --nonTailIssuanceRemaining;
         ++totalPrimaryIssued;
 
         _assertOpenCandidateAccounting();
+        _assertBirthInventoryAccounting();
 
         if (nonTailIssuanceRemaining == 0) {
             if (candidatePoolRemaining != tailReserveCount) {
@@ -847,7 +880,9 @@ contract HellboxPublication is ERC721Royalty {
     /// @dev Awards the literal final candidate set after true non-tail mint-out.
     ///      No tail IDs are preselected. This function deliberately has no
     ///      external authority endpoint in this checkpoint.
-    function _awardTailAfterTrueMintOut() internal {
+    function _awardTailAfterTrueMintOut(
+        uint256 entropyWord
+    ) internal {
         _requireIssuanceStateInitialized();
 
         if (tailReserveCount == 0) {
@@ -887,9 +922,12 @@ contract HellboxPublication is ERC721Royalty {
             // Every remaining candidate goes to the same frozen tail recipient,
             // so selection order no longer affects collector fairness.
             uint256 tokenId = _removeCandidateAtIndex(0);
+            _assignBirthIdentity(tokenId, entropyWord);
 
             ++tailAwardedCount;
             ++totalPrimaryIssued;
+
+            _assertBirthInventoryAccounting();
 
             _safeMint(tailRecipient, tokenId);
 
@@ -1023,6 +1061,56 @@ contract HellboxPublication is ERC721Royalty {
                 totalPrimaryIssued,
                 maxSupply
             );
+        }
+    }
+
+    /// @dev Internal enforcement bridge only. HellboxBirthPolicy permanently
+    ///      rejects every caller except this publication, and a revert here
+    ///      reverts the surrounding issuance transaction atomically.
+    function _assignBirthIdentity(
+        uint256 tokenId,
+        uint256 entropyWord
+    ) internal returns (bytes32 markCode, bytes32 defectCode) {
+        return
+            HellboxBirthPolicy(birthPolicy).assignBirthIdentity(
+                tokenId,
+                entropyWord
+            );
+    }
+
+    /// @dev While immediate creator copies are pending they have already been
+    ///      removed from candidate eligibility but have not yet consumed birth
+    ///      inventory. Afterwards every remaining enabled-axis inventory total
+    ///      must equal the actual candidate pool exactly.
+    function _assertBirthInventoryAccounting() internal view {
+        HellboxBirthPolicy policy = HellboxBirthPolicy(birthPolicy);
+        uint256 pendingImmediate =
+            immediateCreatorCount - immediateCreatorIssued;
+        uint256 expectedRemaining =
+            candidatePoolRemaining + pendingImmediate;
+
+        if (policy.pressMarkEnabled()) {
+            uint256 markRemainingTotal =
+                policy.markInventoryRemainingTotal();
+            if (markRemainingTotal != expectedRemaining) {
+                revert BirthInventoryAccountingInvariant(
+                    PRESS_MARK_AXIS_ID,
+                    markRemainingTotal,
+                    expectedRemaining
+                );
+            }
+        }
+
+        if (policy.pressDefectEnabled()) {
+            uint256 defectRemainingTotal =
+                policy.defectInventoryRemainingTotal();
+            if (defectRemainingTotal != expectedRemaining) {
+                revert BirthInventoryAccountingInvariant(
+                    PRESS_DEFECT_AXIS_ID,
+                    defectRemainingTotal,
+                    expectedRemaining
+                );
+            }
         }
     }
 

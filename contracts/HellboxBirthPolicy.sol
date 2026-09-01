@@ -5,10 +5,12 @@ pragma solidity 0.8.36;
 /// @notice Gate 4 V1 non-upgradeable per-publication companion for committed
 ///         fixed-copy, birth-trait, and deterministic randomization policy.
 /// @dev Constructor-configured only. The deploying publication is permanently
-///      bound as `publication`. This checkpoint validates/stores policy
-///      inventory and fixed reservations. Per-token trait consumption remains
-///      deliberately deferred until the randomness assignment boundary is
-///      finalized.
+///      bound as `publication`. Release-level inventory and fixed reservations
+///      are frozen at construction; only that bound publication may consume
+///      them to assign each token's permanent birth identity exactly once.
+///      The caller supplies an entropy word through the publication state
+///      machine; this module domain-separates MARK/DEFECT draws but deliberately
+///      does not choose the final production entropy provider.
 contract HellboxBirthPolicy {
     // ---------------------------------------------------------------------
     // Module / enforcement protocol constants
@@ -47,6 +49,9 @@ contract HellboxBirthPolicy {
         keccak256("SHARED_RANDOM");
     bytes32 public constant PUBLISHER_MAP_NO_FULL_PREKNOWN_MAP =
         keccak256("NO_FULL_PREKNOWN_MAP");
+
+    bytes32 public constant BIRTH_ASSIGNMENT_ENTROPY_DOMAIN =
+        keccak256("HELLBOX_BIRTH_ASSIGNMENT_V1");
 
     uint256 public constant TOKEN_ID_START = 1;
 
@@ -164,6 +169,10 @@ contract HellboxBirthPolicy {
     mapping(uint256 tokenId => bool eligible)
         public fixedCopyPublicRandomPoolEligible;
 
+    mapping(uint256 tokenId => bool assigned) public birthIdentityAssigned;
+    mapping(uint256 tokenId => bytes32 markCode) public birthMark;
+    mapping(uint256 tokenId => bytes32 defectCode) public birthDefect;
+
     uint256 public immutable fixedCopyRuleCount;
 
     bool public randomizationEnabled;
@@ -233,6 +242,16 @@ contract HellboxBirthPolicy {
     error CreatorDefectMustRemainSharedRandom(uint256 tokenId);
     error InvalidRandomizationPolicy();
 
+    error UnauthorizedPublicationCaller(address caller);
+    error BirthIdentityAlreadyAssigned(uint256 tokenId);
+    error BirthTraitInventoryExhausted(bytes32 axisId);
+    error FixedTraitReservationUnavailable(
+        uint256 tokenId,
+        bytes32 axisId,
+        bytes32 code
+    );
+    error BirthTraitSelectionInvariant(bytes32 axisId, uint256 selectedIndex);
+
     // ---------------------------------------------------------------------
     // Events
     // ---------------------------------------------------------------------
@@ -248,6 +267,12 @@ contract HellboxBirthPolicy {
         uint256 defectInventoryTotal,
         uint256 markReservedTotal,
         uint256 defectReservedTotal
+    );
+
+    event BirthIdentityAssigned(
+        uint256 indexed tokenId,
+        bytes32 indexed markCode,
+        bytes32 indexed defectCode
     );
 
     // ---------------------------------------------------------------------
@@ -780,6 +805,237 @@ contract HellboxBirthPolicy {
             policy.publisherMapKnowledgePolicy;
         randomizationAssignmentProofMode =
             policy.assignmentProofMode;
+    }
+
+    // ---------------------------------------------------------------------
+    // Publication-only birth assignment / one-time inventory consumption
+    // ---------------------------------------------------------------------
+
+    /// @notice Consumes the frozen MARK/DEFECT inventory for one token and
+    ///         permanently records its birth identity.
+    /// @dev Callable only by the publication that deployed this companion.
+    ///      `entropyWord` is an input boundary supplied by the publication;
+    ///      the final production entropy-provider decision remains outside
+    ///      this module. Fixed reservations are consumed exactly for their
+    ///      configured token, while random draws cannot consume inventory
+    ///      still reserved for an unassigned fixed copy.
+    function assignBirthIdentity(
+        uint256 tokenId,
+        uint256 entropyWord
+    ) external returns (bytes32 markCode, bytes32 defectCode) {
+        if (msg.sender != publication) {
+            revert UnauthorizedPublicationCaller(msg.sender);
+        }
+
+        _validateCopyId(tokenId);
+
+        if (birthIdentityAssigned[tokenId]) {
+            revert BirthIdentityAlreadyAssigned(tokenId);
+        }
+
+        if (pressMarkEnabled) {
+            bytes32 requiredMark = fixedCopyRequiredMark[tokenId];
+
+            if (requiredMark != bytes32(0)) {
+                markCode = _consumeFixedMark(tokenId, requiredMark);
+            } else {
+                markCode = _consumeRandomMark(
+                    _axisEntropy(tokenId, PRESS_MARK_AXIS_ID, entropyWord)
+                );
+            }
+        }
+
+        if (pressDefectEnabled) {
+            bytes32 requiredDefect = fixedCopyRequiredDefect[tokenId];
+
+            if (requiredDefect != bytes32(0)) {
+                defectCode = _consumeFixedDefect(
+                    tokenId,
+                    requiredDefect
+                );
+            } else {
+                defectCode = _consumeRandomDefect(
+                    _axisEntropy(
+                        tokenId,
+                        PRESS_DEFECT_AXIS_ID,
+                        entropyWord
+                    )
+                );
+            }
+        }
+
+        birthIdentityAssigned[tokenId] = true;
+        birthMark[tokenId] = markCode;
+        birthDefect[tokenId] = defectCode;
+
+        emit BirthIdentityAssigned(tokenId, markCode, defectCode);
+    }
+
+    function _consumeFixedMark(
+        uint256 tokenId,
+        bytes32 code
+    ) private returns (bytes32) {
+        if (
+            markReservedRemaining[code] == 0 ||
+            markRemaining[code] == 0 ||
+            markReservedRemainingTotal == 0 ||
+            markInventoryRemainingTotal == 0
+        ) {
+            revert FixedTraitReservationUnavailable(
+                tokenId,
+                PRESS_MARK_AXIS_ID,
+                code
+            );
+        }
+
+        --markReservedRemaining[code];
+        --markReservedRemainingTotal;
+        --markRemaining[code];
+        --markInventoryRemainingTotal;
+
+        return code;
+    }
+
+    function _consumeFixedDefect(
+        uint256 tokenId,
+        bytes32 code
+    ) private returns (bytes32) {
+        if (
+            defectReservedRemaining[code] == 0 ||
+            defectRemaining[code] == 0 ||
+            defectReservedRemainingTotal == 0 ||
+            defectInventoryRemainingTotal == 0
+        ) {
+            revert FixedTraitReservationUnavailable(
+                tokenId,
+                PRESS_DEFECT_AXIS_ID,
+                code
+            );
+        }
+
+        --defectReservedRemaining[code];
+        --defectReservedRemainingTotal;
+        --defectRemaining[code];
+        --defectInventoryRemainingTotal;
+
+        return code;
+    }
+
+    function _consumeRandomMark(
+        uint256 entropyWord
+    ) private returns (bytes32 code) {
+        uint256 randomAssignableTotal =
+            markInventoryRemainingTotal - markReservedRemainingTotal;
+
+        if (randomAssignableTotal == 0) {
+            revert BirthTraitInventoryExhausted(PRESS_MARK_AXIS_ID);
+        }
+
+        uint256 selectedIndex = _uniformIndex(
+            entropyWord,
+            randomAssignableTotal
+        );
+        uint256 cursor;
+
+        for (uint256 i = 0; i < _markValueCodes.length; ++i) {
+            code = _markValueCodes[i];
+            uint256 available =
+                markRemaining[code] - markReservedRemaining[code];
+
+            if (selectedIndex < cursor + available) {
+                --markRemaining[code];
+                --markInventoryRemainingTotal;
+                return code;
+            }
+
+            cursor += available;
+        }
+
+        revert BirthTraitSelectionInvariant(
+            PRESS_MARK_AXIS_ID,
+            selectedIndex
+        );
+    }
+
+    function _consumeRandomDefect(
+        uint256 entropyWord
+    ) private returns (bytes32 code) {
+        uint256 randomAssignableTotal =
+            defectInventoryRemainingTotal - defectReservedRemainingTotal;
+
+        if (randomAssignableTotal == 0) {
+            revert BirthTraitInventoryExhausted(PRESS_DEFECT_AXIS_ID);
+        }
+
+        uint256 selectedIndex = _uniformIndex(
+            entropyWord,
+            randomAssignableTotal
+        );
+        uint256 cursor;
+
+        for (uint256 i = 0; i < _defectValueCodes.length; ++i) {
+            code = _defectValueCodes[i];
+            uint256 available =
+                defectRemaining[code] - defectReservedRemaining[code];
+
+            if (selectedIndex < cursor + available) {
+                --defectRemaining[code];
+                --defectInventoryRemainingTotal;
+                return code;
+            }
+
+            cursor += available;
+        }
+
+        revert BirthTraitSelectionInvariant(
+            PRESS_DEFECT_AXIS_ID,
+            selectedIndex
+        );
+    }
+
+    function _axisEntropy(
+        uint256 tokenId,
+        bytes32 axisId,
+        uint256 entropyWord
+    ) private view returns (uint256) {
+        return uint256(
+            keccak256(
+                abi.encode(
+                    BIRTH_ASSIGNMENT_ENTROPY_DOMAIN,
+                    randomizationPolicyDigest,
+                    publication,
+                    tokenId,
+                    axisId,
+                    entropyWord
+                )
+            )
+        );
+    }
+
+    /// @dev Unbiased deterministic range reduction for a uniform 256-bit word.
+    ///      Rehashing is only the range-reduction retry path; it is not a
+    ///      production entropy source.
+    function _uniformIndex(
+        uint256 entropyWord,
+        uint256 upperBound
+    ) private pure returns (uint256) {
+        uint256 limit =
+            type(uint256).max -
+            (type(uint256).max % upperBound);
+
+        uint256 value = entropyWord;
+        uint256 retry;
+
+        while (value >= limit) {
+            value = uint256(
+                keccak256(
+                    abi.encode(value, upperBound, retry)
+                )
+            );
+            ++retry;
+        }
+
+        return value % upperBound;
     }
 
     // ---------------------------------------------------------------------

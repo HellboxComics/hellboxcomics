@@ -34,8 +34,11 @@ contract HellboxPublicationIssuanceHarness is HellboxPublication {
         _initializeIssuanceState(immediateCopyIds);
     }
 
-    function issueImmediateCreatorCopy(uint256 tokenId) external {
-        _issueImmediateCreatorCopy(tokenId);
+    function issueImmediateCreatorCopy(
+        uint256 tokenId,
+        uint256 entropyWord
+    ) external {
+        _issueImmediateCreatorCopy(tokenId, entropyWord);
     }
 
     function issueNonTailPrimary(
@@ -51,8 +54,10 @@ contract HellboxPublicationIssuanceHarness is HellboxPublication {
             );
     }
 
-    function awardTailAfterTrueMintOut() external {
-        _awardTailAfterTrueMintOut();
+    function awardTailAfterTrueMintOut(
+        uint256 entropyWord
+    ) external {
+        _awardTailAfterTrueMintOut(entropyWord);
     }
 
     function burnForTest(uint256 tokenId) external {
@@ -67,10 +72,10 @@ contract HellboxPublicationIssuanceHarness is HellboxPublication {
     }
 }
 
-/// @notice Gate 4 deterministic issuance-state checkpoint tests.
-/// @dev This suite proves only the currently implemented issuance core.
-///      It deliberately does not claim completion of production entropy,
-///      trait-inventory enforcement, phase/pricing policy, or early close.
+/// @notice Gate 4 deterministic issuance + immutable birth-identity checkpoint tests.
+/// @dev This suite proves atomic candidate/accounting/BirthPolicy consumption behind
+///      an entropy-word test boundary. It deliberately does not claim completion
+///      of the production entropy provider, phase/pricing policy, or early close.
 contract HellboxPublicationIssuanceTest {
     IssuanceVm internal constant VM =
         IssuanceVm(
@@ -151,6 +156,11 @@ contract HellboxPublicationIssuanceTest {
             publication.isCandidateCopyAvailable(216),
             "#216 must remain candidate"
         );
+
+        HellboxBirthPolicy policy = _birthPolicy(publication);
+        require(policy.markInventoryRemainingTotal() == 216, "initial marks");
+        require(policy.defectInventoryRemainingTotal() == 216, "initial defects");
+        require(policy.markReservedRemainingTotal() == 7, "initial reserves");
     }
 
     function testInitializationRejectsBadImmediateCopySets() public {
@@ -175,6 +185,14 @@ contract HellboxPublicationIssuanceTest {
         );
         publication.initializeIssuanceState(duplicate);
 
+        uint256[] memory policyMismatch = _immediateCopyIds();
+        policyMismatch[5] = 7;
+
+        VM.expectPartialRevert(
+            HellboxPublication.ImmediateCreatorCopyPolicyMismatch.selector
+        );
+        publication.initializeIssuanceState(policyMismatch);
+
         uint256[] memory outOfRange = _immediateCopyIds();
         outOfRange[5] = 217;
 
@@ -197,8 +215,15 @@ contract HellboxPublicationIssuanceTest {
         HellboxPublicationIssuanceHarness publication =
             _deployInitializedNative216();
 
-        for (uint256 tokenId = 1; tokenId <= 5; ++tokenId) {
-            publication.issueImmediateCreatorCopy(tokenId);
+        for (
+            uint256 creatorTokenId = 1;
+            creatorTokenId <= 5;
+            ++creatorTokenId
+        ) {
+            publication.issueImmediateCreatorCopy(
+                creatorTokenId,
+                creatorTokenId
+            );
         }
 
         require(
@@ -215,7 +240,7 @@ contract HellboxPublicationIssuanceTest {
             0
         );
 
-        publication.issueImmediateCreatorCopy(6);
+        publication.issueImmediateCreatorCopy(6, 6);
 
         require(
             publication.immediateCreatorAllocationComplete(),
@@ -238,7 +263,7 @@ contract HellboxPublicationIssuanceTest {
         VM.expectPartialRevert(
             HellboxPublication.ImmediateCreatorCopyNotReserved.selector
         );
-        publication.issueImmediateCreatorCopy(7);
+        publication.issueImmediateCreatorCopy(7, 7);
 
         uint256[6] memory issueOrder = [
             uint256(6),
@@ -250,7 +275,7 @@ contract HellboxPublicationIssuanceTest {
         ];
 
         for (uint256 i = 0; i < issueOrder.length; ++i) {
-            publication.issueImmediateCreatorCopy(issueOrder[i]);
+            publication.issueImmediateCreatorCopy(issueOrder[i], issueOrder[i]);
         }
 
         require(
@@ -274,6 +299,8 @@ contract HellboxPublicationIssuanceTest {
             "immediate mint changed non-tail"
         );
 
+        HellboxBirthPolicy policy = _birthPolicy(publication);
+
         for (uint256 tokenId = 1; tokenId <= 6; ++tokenId) {
             require(
                 publication.ownerOf(tokenId) == CREATOR,
@@ -283,12 +310,27 @@ contract HellboxPublicationIssuanceTest {
                 publication.immediateCreatorCopyIssued(tokenId),
                 "immediate issue flag"
             );
+            require(policy.birthIdentityAssigned(tokenId), "creator birth identity");
+            require(
+                policy.birthMark(tokenId) == _expectedCreatorMark(tokenId),
+                "creator birth mark"
+            );
+            require(policy.birthDefect(tokenId) != bytes32(0), "creator defect");
         }
+
+        require(policy.markInventoryRemainingTotal() == 210, "creator mark total");
+        require(policy.defectInventoryRemainingTotal() == 210, "creator defect total");
+        require(policy.markReservedRemainingTotal() == 1, "#066 reserve total");
+        require(policy.markRemaining(keccak256("HELLBOUND")) == 4, "hellbound 4");
+        require(
+            policy.markReservedRemaining(keccak256("HELLBOUND")) == 1,
+            "#066 hellbound reserve"
+        );
 
         VM.expectPartialRevert(
             HellboxPublication.ImmediateCreatorAllocationAlreadyComplete.selector
         );
-        publication.issueImmediateCreatorCopy(1);
+        publication.issueImmediateCreatorCopy(1, 1);
     }
 
     // ---------------------------------------------------------------------
@@ -328,6 +370,23 @@ contract HellboxPublicationIssuanceTest {
             publication.isCandidateCopyAvailable(66),
             "#066 disappeared without draw"
         );
+
+        HellboxBirthPolicy policy = _birthPolicy(publication);
+        require(policy.birthIdentityAssigned(tokenId), "normal birth identity");
+        require(policy.birthMark(tokenId) != bytes32(0), "normal mark");
+        require(policy.birthDefect(tokenId) != bytes32(0), "normal defect");
+        require(policy.markInventoryRemainingTotal() == 209, "normal mark total");
+        require(policy.defectInventoryRemainingTotal() == 209, "normal defect total");
+        require(
+            policy.markInventoryRemainingTotal() ==
+                publication.candidatePoolRemaining(),
+            "mark/candidate drift"
+        );
+        require(
+            policy.defectInventoryRemainingTotal() ==
+                publication.candidatePoolRemaining(),
+            "defect/candidate drift"
+        );
     }
 
     function testCopy066StaysEligibleUntilActuallyDrawn() public {
@@ -363,6 +422,20 @@ contract HellboxPublicationIssuanceTest {
             "#066 remained after draw"
         );
         require(publication.ownerOf(66) == PRIMARY_B, "#066 owner");
+
+        HellboxBirthPolicy policy = _birthPolicy(publication);
+        require(policy.birthIdentityAssigned(66), "#066 birth identity");
+        require(
+            policy.birthMark(66) == keccak256("HELLBOUND"),
+            "#066 hellbound"
+        );
+        require(policy.birthDefect(66) != bytes32(0), "#066 defect");
+        require(
+            policy.markReservedRemaining(keccak256("HELLBOUND")) == 0,
+            "#066 reservation not consumed"
+        );
+        require(policy.markInventoryRemainingTotal() == 208, "#066 mark total");
+        require(policy.defectInventoryRemainingTotal() == 208, "#066 defect total");
     }
 
     function testWalletLifetimeCapSurvivesTransferAndBurn() public {
@@ -378,6 +451,16 @@ contract HellboxPublicationIssuanceTest {
                 i
             );
         }
+
+        HellboxBirthPolicy policy = _birthPolicy(publication);
+        bytes32 transferredMark = policy.birthMark(tokenIds[0]);
+        bytes32 transferredDefect = policy.birthDefect(tokenIds[0]);
+        bytes32 burnedMark = policy.birthMark(tokenIds[1]);
+        bytes32 burnedDefect = policy.birthDefect(tokenIds[1]);
+        uint256 markRemainingBeforeOwnershipChanges =
+            policy.markInventoryRemainingTotal();
+        uint256 defectRemainingBeforeOwnershipChanges =
+            policy.defectInventoryRemainingTotal();
 
         require(
             publication.walletLifetimePrimaryUsed(PRIMARY_A) == 6,
@@ -401,6 +484,27 @@ contract HellboxPublicationIssuanceTest {
         );
 
         publication.burnForTest(tokenIds[1]);
+
+        require(policy.birthMark(tokenIds[0]) == transferredMark, "transfer mark changed");
+        require(
+            policy.birthDefect(tokenIds[0]) == transferredDefect,
+            "transfer defect changed"
+        );
+        require(policy.birthMark(tokenIds[1]) == burnedMark, "burn mark changed");
+        require(
+            policy.birthDefect(tokenIds[1]) == burnedDefect,
+            "burn defect changed"
+        );
+        require(
+            policy.markInventoryRemainingTotal() ==
+                markRemainingBeforeOwnershipChanges,
+            "transfer/burn restored marks"
+        );
+        require(
+            policy.defectInventoryRemainingTotal() ==
+                defectRemainingBeforeOwnershipChanges,
+            "transfer/burn restored defects"
+        );
 
         require(
             publication.walletLifetimePrimaryUsed(PRIMARY_A) == 6,
@@ -435,6 +539,41 @@ contract HellboxPublicationIssuanceTest {
         require(
             publication.nonTailIssuanceRemaining() == 201,
             "failed cap check changed non-tail"
+        );
+    }
+
+    function testBirthAssignmentFailureRevertsIssuanceAtomically() public {
+        HellboxPublicationIssuanceHarness publication =
+            _deployReadyNative216();
+        HellboxBirthPolicy policy = _birthPolicy(publication);
+
+        VM.prank(address(publication));
+        policy.assignBirthIdentity(66, 0xBEEF);
+
+        uint256 markRemaining = policy.markInventoryRemainingTotal();
+        uint256 defectRemaining = policy.defectInventoryRemainingTotal();
+
+        VM.expectPartialRevert(
+            HellboxBirthPolicy.BirthIdentityAlreadyAssigned.selector
+        );
+        publication.issueNonTailPrimary(
+            PRIMARY_A,
+            PRIMARY_A,
+            65
+        );
+
+        require(publication.candidatePoolRemaining() == 210, "candidate rollback");
+        require(publication.nonTailIssuanceRemaining() == 207, "non-tail rollback");
+        require(publication.totalPrimaryIssued() == 6, "issued rollback");
+        require(
+            publication.walletLifetimePrimaryUsed(PRIMARY_A) == 0,
+            "wallet rollback"
+        );
+        require(publication.isCandidateCopyAvailable(66), "#066 rollback");
+        require(policy.markInventoryRemainingTotal() == markRemaining, "mark rollback");
+        require(
+            policy.defectInventoryRemainingTotal() == defectRemaining,
+            "defect rollback"
         );
     }
 
@@ -482,7 +621,7 @@ contract HellboxPublicationIssuanceTest {
         VM.expectPartialRevert(
             HellboxPublication.TailNotReady.selector
         );
-        publication.awardTailAfterTrueMintOut();
+        publication.awardTailAfterTrueMintOut(0xA11CE);
 
         require(!publication.tailAwarded(), "premature tail flag");
         require(publication.balanceOf(TAIL) == 0, "premature tail balance");
@@ -545,13 +684,19 @@ contract HellboxPublicationIssuanceTest {
 
         require(found == 3, "did not find literal final three");
 
-        publication.awardTailAfterTrueMintOut();
+        publication.awardTailAfterTrueMintOut(0xA11CE);
 
         require(publication.tailAwarded(), "tail flag");
         require(publication.tailAwardedCount() == 3, "tail count");
         require(publication.balanceOf(TAIL) == 3, "tail balance");
         require(publication.candidatePoolRemaining() == 0, "pool after tail");
         require(publication.totalPrimaryIssued() == 216, "final supply");
+
+        HellboxBirthPolicy policy = _birthPolicy(publication);
+        require(policy.markInventoryRemainingTotal() == 0, "final mark conservation");
+        require(policy.defectInventoryRemainingTotal() == 0, "final defect conservation");
+        require(policy.markReservedRemainingTotal() == 0, "final mark reservations");
+        require(policy.defectReservedRemainingTotal() == 0, "final defect reservations");
 
         for (uint256 i = 0; i < finalCandidates.length; ++i) {
             require(
@@ -564,12 +709,24 @@ contract HellboxPublicationIssuanceTest {
                 ),
                 "tail copy still candidate"
             );
+            require(
+                policy.birthIdentityAssigned(finalCandidates[i]),
+                "tail birth identity"
+            );
+            require(
+                policy.birthMark(finalCandidates[i]) != bytes32(0),
+                "tail mark"
+            );
+            require(
+                policy.birthDefect(finalCandidates[i]) != bytes32(0),
+                "tail defect"
+            );
         }
 
         VM.expectPartialRevert(
             HellboxPublication.TailAlreadyAwarded.selector
         );
-        publication.awardTailAfterTrueMintOut();
+        publication.awardTailAfterTrueMintOut(0xA11CE);
 
         publication.burnForTest(firstNormalToken);
 
@@ -639,6 +796,14 @@ contract HellboxPublicationIssuanceTest {
 
         require(tokenId >= 1 && tokenId <= 5_555, "scivive token range");
         require(publication.ownerOf(tokenId) == PRIMARY_A, "scivive owner");
+
+        HellboxBirthPolicy policy = _birthPolicy(publication);
+        require(policy.birthIdentityAssigned(tokenId), "scivive identity");
+        require(policy.birthMark(tokenId) == bytes32(0), "scivive mark");
+        require(policy.birthDefect(tokenId) == bytes32(0), "scivive defect");
+        require(policy.markInventoryRemainingTotal() == 0, "scivive marks");
+        require(policy.defectInventoryRemainingTotal() == 0, "scivive defects");
+
         require(
             publication.walletLifetimePrimaryUsed(PRIMARY_A) == 1,
             "scivive lifetime"
@@ -656,7 +821,7 @@ contract HellboxPublicationIssuanceTest {
         VM.expectPartialRevert(
             HellboxPublication.TailNotConfigured.selector
         );
-        publication.awardTailAfterTrueMintOut();
+        publication.awardTailAfterTrueMintOut(0xA11CE);
     }
 
     function testFuzzUniformIndexAlwaysStaysInsideCandidateRange(
@@ -724,7 +889,7 @@ contract HellboxPublicationIssuanceTest {
         HellboxPublicationIssuanceHarness publication
     ) internal {
         for (uint256 tokenId = 1; tokenId <= 6; ++tokenId) {
-            publication.issueImmediateCreatorCopy(tokenId);
+            publication.issueImmediateCreatorCopy(tokenId, tokenId);
         }
     }
 
@@ -738,6 +903,24 @@ contract HellboxPublicationIssuanceTest {
         for (uint256 i = 0; i < ids.length; ++i) {
             ids[i] = i + 1;
         }
+    }
+
+    function _birthPolicy(
+        HellboxPublicationIssuanceHarness publication
+    ) internal view returns (HellboxBirthPolicy) {
+        return HellboxBirthPolicy(publication.birthPolicy());
+    }
+
+    function _expectedCreatorMark(
+        uint256 tokenId
+    ) internal pure returns (bytes32) {
+        if (tokenId <= 2) {
+            return keccak256("HELLBOUND");
+        }
+        if (tokenId <= 4) {
+            return keccak256("PRESS_PROOF");
+        }
+        return keccak256("GOLD");
     }
 
     function _baseConfig()
@@ -909,6 +1092,13 @@ contract HellboxPublicationIssuanceTest {
         HellboxPublication.BirthTraitsEnforcement memory birthPolicy,
         HellboxPublication.RandomizationPolicyEnforcement memory randomPolicy
     ) {
+        if (
+            keccak256(bytes(config.publicationKey)) ==
+            keccak256(bytes("hellbox-native-001"))
+        ) {
+            return _nativePolicies();
+        }
+
         uint256 immediateCount = config.immediateCreatorCount;
         HellboxPublication.FixedCopyRuleEnforcement[] memory rules =
             new HellboxPublication.FixedCopyRuleEnforcement[](immediateCount);
@@ -954,6 +1144,160 @@ contract HellboxPublicationIssuanceTest {
             keccak256("NO_FULL_PREKNOWN_MAP");
         randomPolicy.assignmentProofMode =
             keccak256("HELLBOX_TEST_ASSIGNMENT_PROOF");
+    }
+
+    function _nativePolicies() internal pure returns (
+        HellboxPublication.FixedCopyRulesEnforcement memory fixedPolicy,
+        HellboxPublication.BirthTraitsEnforcement memory birthPolicy,
+        HellboxPublication.RandomizationPolicyEnforcement memory randomPolicy
+    ) {
+        HellboxPublication.FixedCopyRuleEnforcement[] memory rules =
+            new HellboxPublication.FixedCopyRuleEnforcement[](7);
+        bytes32 creatorClass = keccak256("CREATOR_IMMEDIATE");
+        bytes32 publicClass = keccak256("PUBLIC_RANDOM_POOL");
+        bytes32 creatorReason = keccak256("HARROW_IMMEDIATE");
+
+        rules[0] = _nativeRule(
+            1,
+            creatorClass,
+            keccak256("HELLBOUND"),
+            CREATOR,
+            false,
+            creatorReason
+        );
+        rules[1] = _nativeRule(
+            2,
+            creatorClass,
+            keccak256("HELLBOUND"),
+            CREATOR,
+            false,
+            creatorReason
+        );
+        rules[2] = _nativeRule(
+            3,
+            creatorClass,
+            keccak256("PRESS_PROOF"),
+            CREATOR,
+            false,
+            creatorReason
+        );
+        rules[3] = _nativeRule(
+            4,
+            creatorClass,
+            keccak256("PRESS_PROOF"),
+            CREATOR,
+            false,
+            creatorReason
+        );
+        rules[4] = _nativeRule(
+            5,
+            creatorClass,
+            keccak256("GOLD"),
+            CREATOR,
+            false,
+            creatorReason
+        );
+        rules[5] = _nativeRule(
+            6,
+            creatorClass,
+            keccak256("GOLD"),
+            CREATOR,
+            false,
+            creatorReason
+        );
+        rules[6] = _nativeRule(
+            66,
+            publicClass,
+            keccak256("HELLBOUND"),
+            address(0),
+            true,
+            keccak256("PUBLIC_GRAIL")
+        );
+        fixedPolicy.enabled = true;
+        fixedPolicy.rules = rules;
+
+        HellboxPublication.BirthTraitValueEnforcement[] memory marks =
+            new HellboxPublication.BirthTraitValueEnforcement[](4);
+        marks[0] = _nativeValue(keccak256("HELLBOUND"), 6);
+        marks[1] = _nativeValue(keccak256("PRESS_PROOF"), 12);
+        marks[2] = _nativeValue(keccak256("GOLD"), 18);
+        marks[3] = _nativeValue(keccak256("STANDARD"), 180);
+
+        HellboxPublication.BirthTraitValueEnforcement[] memory defects =
+            new HellboxPublication.BirthTraitValueEnforcement[](5);
+        defects[0] = _nativeValue(keccak256("REDACTED"), 6);
+        defects[1] = _nativeValue(keccak256("CORRUPTED_PLATE"), 12);
+        defects[2] = _nativeValue(keccak256("BLED_OUT"), 18);
+        defects[3] = _nativeValue(keccak256("OFF_REGISTER"), 24);
+        defects[4] = _nativeValue(keccak256("NONE"), 156);
+
+        HellboxPublication.BirthTraitAxisEnforcement[] memory axes =
+            new HellboxPublication.BirthTraitAxisEnforcement[](2);
+        axes[0] = HellboxPublication.BirthTraitAxisEnforcement({
+            axisId: keccak256("PRESS_MARK"),
+            assignmentMode: keccak256("FIXED_PLUS_RANDOM_REMAINING"),
+            overlapPolicy: keccak256("INDEPENDENT"),
+            values: marks
+        });
+        axes[1] = HellboxPublication.BirthTraitAxisEnforcement({
+            axisId: keccak256("PRESS_DEFECT"),
+            assignmentMode: keccak256("RANDOM_REMAINING"),
+            overlapPolicy: keccak256("INDEPENDENT"),
+            values: defects
+        });
+        birthPolicy.enabled = true;
+        birthPolicy.axes = axes;
+
+        randomPolicy.enabled = true;
+        randomPolicy.policyId =
+            keccak256("HELLBOX_RANDOMIZATION_TEST_V1");
+        randomPolicy.schemeVersion = 1;
+        randomPolicy.providerConfigDigest =
+            keccak256("TEST_PROVIDER_CONFIG");
+        randomPolicy.copyShuffleMode =
+            keccak256("RANDOM_NON_SEQUENTIAL");
+        randomPolicy.fixedIdExclusionsDigest = keccak256(
+            abi.encode(
+                keccak256("HELLBOX_ENFORCEMENT_V1:FIXED_COPY_RULES"),
+                fixedPolicy
+            )
+        );
+        randomPolicy.traitPoolMode = keccak256("GLOBAL_SHARED");
+        randomPolicy.markDefectIndependent = true;
+        randomPolicy.creatorDefectFairness = keccak256("SHARED_RANDOM");
+        randomPolicy.publisherMapKnowledgePolicy =
+            keccak256("NO_FULL_PREKNOWN_MAP");
+        randomPolicy.assignmentProofMode =
+            keccak256("TEST_ASSIGNMENT_PROOF");
+    }
+
+    function _nativeRule(
+        uint256 copyId,
+        bytes32 allocationClass,
+        bytes32 markCode,
+        address recipient,
+        bool eligible,
+        bytes32 reasonCode
+    ) internal pure returns (
+        HellboxPublication.FixedCopyRuleEnforcement memory rule
+    ) {
+        rule.copyId = copyId;
+        rule.allocationClass = allocationClass;
+        rule.requiredMarkCode = markCode;
+        rule.requiredDefectCode = bytes32(0);
+        rule.recipient = recipient;
+        rule.publicRandomPoolEligible = eligible;
+        rule.reasonCode = reasonCode;
+    }
+
+    function _nativeValue(
+        bytes32 code,
+        uint256 count
+    ) internal pure returns (
+        HellboxPublication.BirthTraitValueEnforcement memory value
+    ) {
+        value.code = code;
+        value.count = count;
     }
 
     function _releaseDigest(
