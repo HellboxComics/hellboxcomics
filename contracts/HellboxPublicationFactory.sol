@@ -5,6 +5,8 @@ import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 import {Ownable2Step} from "openzeppelin-contracts/contracts/access/Ownable2Step.sol";
 import {HellboxPublication} from "./HellboxPublication.sol";
 import {HellboxBirthPolicy} from "./HellboxBirthPolicy.sol";
+import {IHellboxRandomnessVerifier} from "./interfaces/IHellboxRandomnessVerifier.sol";
+import {HellboxDrandEvmnetVerifier} from "./randomness/HellboxDrandEvmnetVerifier.sol";
 
 /// @title HellboxPublicationFactory
 /// @notice Gate 4 V1 factory for manufacturing official full-deployment
@@ -15,6 +17,10 @@ import {HellboxBirthPolicy} from "./HellboxBirthPolicy.sol";
 ///      V1 uses ordinary CREATE and exact approved HellboxPublication creation
 ///      bytecode supplied at publish time. The creation code is hash-bound to
 ///      this factory generation instead of being embedded in factory runtime.
+///
+///      Each factory generation also deploys exactly one shared, stateless,
+///      non-upgradeable drand evmnet verifier and freezes its identity, provider
+///      configuration digest, and runtime code hash as generation provenance.
 ///
 ///      This remains FULL_DEPLOYMENT. There is no CREATE2, clone, proxy,
 ///      initializer, delegatecall, implementation registry, or upgrade path.
@@ -28,6 +34,17 @@ contract HellboxPublicationFactory is Ownable2Step {
 
     bytes32 public constant TEMPLATE_ID = keccak256("HELLBOX_PUBLICATION");
     bytes32 public constant DEPLOYMENT_MODE = keccak256("FULL_DEPLOYMENT");
+
+    /// @notice Stable identifier expected from the one verifier deployed by
+    ///         this factory generation.
+    bytes32 public constant RANDOMNESS_VERIFIER_ID =
+        keccak256("HELLBOX_DRAND_EVMNET_VERIFIER_V1");
+
+    /// @notice Digest of the exact drand evmnet chain identity, public key,
+    ///         schedule, domain, and round-message rules approved for this
+    ///         factory generation.
+    bytes32 public constant RANDOMNESS_PROVIDER_CONFIG_DIGEST =
+        0x0d191efbb2f605bf73b6f3c4819b21bc8c7a64393c6dcfd43b6b2f6b5be401e3;
 
     /// @notice Exact creation-code hash approved for this factory generation.
     /// @dev Registry/factory provenance only. This is not a ReleaseConfig field,
@@ -48,6 +65,16 @@ contract HellboxPublicationFactory is Ownable2Step {
     /// @dev Factory-generation provenance only. This does not enter
     ///      ReleaseConfig and does not change HELLBOX_ABI_V1.
     bytes32 public immutable approvedBirthPolicyCreationCodeHash;
+
+    /// @notice Exactly one shared stateless randomness verifier deployed by
+    ///         this factory generation.
+    /// @dev There is no setter, replacement, proxy, registry switch, or
+    ///      per-publication caller-selected verifier path.
+    address public immutable randomnessVerifier;
+
+    /// @notice Runtime code hash of `randomnessVerifier`, frozen as factory-
+    ///         generation provenance.
+    bytes32 public immutable randomnessVerifierRuntimeCodeHash;
 
     /// @notice Narrow publish-time transport for the three committed
     ///         BirthPolicy enforcement preimages.
@@ -82,6 +109,18 @@ contract HellboxPublicationFactory is Ownable2Step {
     error InvalidBirthPolicyCodeStore();
 
     error InvalidApprovedBirthPolicyCreationCodeHash();
+
+    error RandomnessVerifierDeploymentProducedNoCode();
+
+    error RandomnessVerifierIdentityMismatch(
+        bytes32 expectedVerifierId,
+        bytes32 actualVerifierId
+    );
+
+    error RandomnessProviderConfigDigestMismatch(
+        bytes32 expectedProviderConfigDigest,
+        bytes32 actualProviderConfigDigest
+    );
 
     error UnapprovedPublicationCreationCode(
         bytes32 expectedCreationCodeHash,
@@ -141,6 +180,15 @@ contract HellboxPublicationFactory is Ownable2Step {
         bytes32 runtimeCodeHash
     );
 
+    /// @notice Constructor-time provenance for the one verifier shared by all
+    ///         publications manufactured by this factory generation.
+    event RandomnessVerifierBound(
+        address indexed verifier,
+        bytes32 indexed verifierId,
+        bytes32 indexed providerConfigDigest,
+        bytes32 runtimeCodeHash
+    );
+
     // ---------------------------------------------------------------------
     // Construction / authority
     // ---------------------------------------------------------------------
@@ -175,10 +223,53 @@ contract HellboxPublicationFactory is Ownable2Step {
             revert InvalidApprovedBirthPolicyCreationCodeHash();
         }
 
+        HellboxDrandEvmnetVerifier deployedVerifier =
+            new HellboxDrandEvmnetVerifier();
+
+        address verifierAddress = address(deployedVerifier);
+        if (verifierAddress.code.length == 0) {
+            revert RandomnessVerifierDeploymentProducedNoCode();
+        }
+
+        IHellboxRandomnessVerifier verifier =
+            IHellboxRandomnessVerifier(verifierAddress);
+
+        bytes32 actualVerifierId = verifier.verifierId();
+        if (actualVerifierId != RANDOMNESS_VERIFIER_ID) {
+            revert RandomnessVerifierIdentityMismatch(
+                RANDOMNESS_VERIFIER_ID,
+                actualVerifierId
+            );
+        }
+
+        bytes32 actualProviderConfigDigest =
+            verifier.providerConfigDigest();
+
+        if (
+            actualProviderConfigDigest !=
+            RANDOMNESS_PROVIDER_CONFIG_DIGEST
+        ) {
+            revert RandomnessProviderConfigDigestMismatch(
+                RANDOMNESS_PROVIDER_CONFIG_DIGEST,
+                actualProviderConfigDigest
+            );
+        }
+
+        bytes32 verifierRuntimeCodeHash = verifierAddress.codehash;
+
         approvedPublicationCreationCodeHash = publicationCreationCodeHash;
         birthPolicyCodeStore = birthPolicyCodeStoreAddress;
         approvedBirthPolicyCreationCodeHash =
             birthPolicyCreationCodeHash;
+        randomnessVerifier = verifierAddress;
+        randomnessVerifierRuntimeCodeHash = verifierRuntimeCodeHash;
+
+        emit RandomnessVerifierBound(
+            verifierAddress,
+            actualVerifierId,
+            actualProviderConfigDigest,
+            verifierRuntimeCodeHash
+        );
     }
 
     /// @notice Ownership renunciation is intentionally disabled so the official
