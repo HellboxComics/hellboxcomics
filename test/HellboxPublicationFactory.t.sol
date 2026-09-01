@@ -55,6 +55,8 @@ contract HellboxPublicationFactoryTest {
         keccak256("FULL_DEPLOYMENT");
     bytes32 internal constant RELEASE_CONFIG_DOMAIN =
         keccak256("HELLBOX_ABI_V1:RELEASE_CONFIG");
+    bytes32 internal constant DRAND_PROVIDER_CONFIG_DIGEST =
+        0x0d191efbb2f605bf73b6f3c4819b21bc8c7a64393c6dcfd43b6b2f6b5be401e3;
 
     uint256 internal constant COMMITMENT_SCHEME_VERSION = 1;
     uint256 internal constant CONFIG_SCHEMA_VERSION = 1;
@@ -1218,7 +1220,7 @@ contract HellboxPublicationFactoryTest {
         randomPolicy.policyId = keccak256("HELLBOX_TEST_RANDOMIZATION_V1");
         randomPolicy.schemeVersion = 1;
         randomPolicy.providerConfigDigest =
-            keccak256("HELLBOX_TEST_PROVIDER_CONFIG");
+            DRAND_PROVIDER_CONFIG_DIGEST;
         randomPolicy.copyShuffleMode =
             keccak256("RANDOM_NON_SEQUENTIAL");
         randomPolicy.fixedIdExclusionsDigest = _fixedDigest(fixedPolicy);
@@ -1387,7 +1389,8 @@ contract HellboxPublicationFactoryTest {
         randomPolicy.enabled = true;
         randomPolicy.policyId = keccak256("HELLBOX_RANDOMIZATION_TEST_V1");
         randomPolicy.schemeVersion = 1;
-        randomPolicy.providerConfigDigest = keccak256("TEST_PROVIDER_CONFIG");
+        randomPolicy.providerConfigDigest =
+            DRAND_PROVIDER_CONFIG_DIGEST;
         randomPolicy.copyShuffleMode = keccak256("RANDOM_NON_SEQUENTIAL");
         randomPolicy.fixedIdExclusionsDigest = _fixedDigest(fixedPolicy);
         randomPolicy.traitPoolMode = keccak256("GLOBAL_SHARED");
