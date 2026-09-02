@@ -7,6 +7,8 @@ import {HellboxPublication} from "./HellboxPublication.sol";
 import {HellboxBirthPolicy} from "./HellboxBirthPolicy.sol";
 import {IHellboxRandomnessVerifier} from "./interfaces/IHellboxRandomnessVerifier.sol";
 import {HellboxDrandEvmnetVerifier} from "./randomness/HellboxDrandEvmnetVerifier.sol";
+import {EIP712} from "openzeppelin-contracts/contracts/utils/cryptography/EIP712.sol";
+import {ECDSA} from "openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
 
 /// @title HellboxPublicationFactory
 /// @notice Gate 4 V1 factory for manufacturing official full-deployment
@@ -24,7 +26,7 @@ import {HellboxDrandEvmnetVerifier} from "./randomness/HellboxDrandEvmnetVerifie
 ///
 ///      This remains FULL_DEPLOYMENT. There is no CREATE2, clone, proxy,
 ///      initializer, delegatecall, implementation registry, or upgrade path.
-contract HellboxPublicationFactory is Ownable2Step {
+contract HellboxPublicationFactory is Ownable2Step, EIP712 {
     // ---------------------------------------------------------------------
     // Version / architecture identity
     // ---------------------------------------------------------------------
@@ -45,6 +47,18 @@ contract HellboxPublicationFactory is Ownable2Step {
     ///         factory generation.
     bytes32 public constant RANDOMNESS_PROVIDER_CONFIG_DIGEST =
         0x0d191efbb2f605bf73b6f3c4819b21bc8c7a64393c6dcfd43b6b2f6b5be401e3;
+
+    /// @notice EIP-712 activation authorization signed by the fresh campaign
+    ///         wallet itself. The signature proves control without exposing
+    ///         its mnemonic/private key to Harrow, the repository, or chain.
+    bytes32 public constant PRIZE_WALLET_ACTIVATION_TYPEHASH =
+        keccak256(
+            "PrizeWalletActivation(uint256 generation,address wallet,bytes32 campaignManifestDigest,uint256 deadline)"
+        );
+
+    uint8 public constant PRIZE_DEPOSIT_NONE = 0;
+    uint8 public constant PRIZE_DEPOSIT_RESERVED = 1;
+    uint8 public constant PRIZE_DEPOSIT_COMPLETED = 2;
 
     /// @notice Exact creation-code hash approved for this factory generation.
     /// @dev Registry/factory provenance only. This is not a ReleaseConfig field,
@@ -86,6 +100,19 @@ contract HellboxPublicationFactory is Ownable2Step {
         bytes randomizationPolicyPreimage;
     }
 
+    /// @notice Public, non-secret record of one prize-wallet campaign
+    ///         generation. The wallet remains an ordinary EOA controlled by
+    ///         the mnemonic recovered by the puzzle winner; no secret enters
+    ///         this contract.
+    struct PrizeWalletCampaign {
+        address wallet;
+        bytes32 campaignManifestDigest;
+        uint64 activatedAt;
+        uint64 claimedAt;
+        uint64 pendingPublicationDeposits;
+        uint64 completedPublicationDeposits;
+    }
+
     // ---------------------------------------------------------------------
     // Minimal append-only provenance state
     // ---------------------------------------------------------------------
@@ -99,6 +126,35 @@ contract HellboxPublicationFactory is Ownable2Step {
         public publicationByKeyHash;
 
     address[] public publications;
+
+    /// @notice Active prize-wallet campaign generation for publications made
+    ///         by this factory generation. Zero means no campaign is active.
+    uint256 public activePrizeWalletGeneration;
+
+    mapping(uint256 generation => PrizeWalletCampaign campaign)
+        public prizeWalletCampaignByGeneration;
+
+    /// @notice Prevents a campaign EOA from ever being recycled as a later
+    ///         prize wallet through this factory generation.
+    mapping(address wallet => uint256 generation)
+        public prizeWalletGenerationByAddress;
+
+    /// @notice Prevents accidental reuse of a campaign manifest/commitment.
+    mapping(bytes32 campaignManifestDigest => uint256 generation)
+        public prizeWalletGenerationByManifestDigest;
+
+    /// @notice One immutable prize-deposit lifecycle per official publication.
+    mapping(address publication => uint256 generation)
+        public prizeWalletDepositGenerationByPublication;
+    mapping(address publication => uint8 state)
+        public prizeWalletDepositStateByPublication;
+
+    /// @notice Explicit campaign-generation approval required before an
+    ///         official publication may reserve the active Prize Wallet.
+    /// @dev Approval may be revoked without affecting a reservation that was
+    ///      already created; completion relies on the immutable deposit state.
+    mapping(address publication => uint256 generation)
+        public prizeWalletApprovedGenerationByPublication;
 
     // ---------------------------------------------------------------------
     // Errors
@@ -158,6 +214,54 @@ contract HellboxPublicationFactory is Ownable2Step {
         address actual
     );
 
+    error PrizeWalletManifestDigestMissing();
+    error InvalidPrizeWalletAddress(address wallet);
+    error PrizeWalletAddressHasCode(address wallet, uint256 codeSize);
+    error PrizeWalletAddressAlreadyUsed(address wallet, uint256 generation);
+    error PrizeWalletAuthorizationExpired(uint256 deadline, uint256 currentTime);
+    error PrizeWalletTimestampOverflow(uint256 timestamp);
+    error PrizeWalletActivationSignatureMismatch(
+        address expectedWallet,
+        address recoveredSigner
+    );
+    error PrizeWalletCampaignNotActive();
+    error PrizeWalletCampaignNotClaimed(uint256 generation);
+    error PrizeWalletCampaignAlreadyClaimed(uint256 generation);
+    error PrizeWalletCampaignHasPendingDeposits(
+        uint256 generation,
+        uint256 pendingDeposits
+    );
+    error PrizeWalletCampaignHasNoCompletedDeposits(uint256 generation);
+    error UnauthorizedPrizeWalletClaim(
+        address expectedWallet,
+        address caller
+    );
+    error PrizeWalletManifestAlreadyUsed(
+        bytes32 campaignManifestDigest,
+        uint256 generation
+    );
+    error PrizeWalletCampaignIntegrityMismatch(uint256 generation);
+    error UnauthorizedPrizeWalletPublication(address caller);
+    error PrizeWalletPublicationNotApproved(
+        address publication,
+        uint256 expectedGeneration,
+        uint256 approvedGeneration
+    );
+    error PrizeWalletPublicationApprovalAlreadySet(
+        address publication,
+        uint256 generation
+    );
+    error PrizeWalletPublicationApprovalMissing(address publication);
+    error PrizeWalletDepositAlreadyInitialized(
+        address publication,
+        uint8 state
+    );
+    error PrizeWalletDepositNotReserved(address publication, uint8 state);
+    error PrizeWalletPendingDepositOverflow(uint256 generation);
+    error PrizeWalletPendingDepositUnderflow(uint256 generation);
+    error PrizeWalletCompletedDepositOverflow(uint256 generation);
+    error OwnershipTransferToPrizeWalletDisabled(address wallet);
+
     error OwnershipRenunciationDisabled();
 
     // ---------------------------------------------------------------------
@@ -189,6 +293,45 @@ contract HellboxPublicationFactory is Ownable2Step {
         bytes32 runtimeCodeHash
     );
 
+    event PrizeWalletCampaignActivated(
+        uint256 indexed generation,
+        address indexed wallet,
+        bytes32 indexed campaignManifestDigest,
+        uint64 activatedAt
+    );
+
+    event PrizeWalletPublicationApproved(
+        address indexed publication,
+        uint256 indexed generation
+    );
+
+    event PrizeWalletPublicationApprovalRevoked(
+        address indexed publication,
+        uint256 indexed generation
+    );
+
+    event PrizeWalletDepositReserved(
+        address indexed publication,
+        uint256 indexed generation,
+        address indexed wallet,
+        uint64 pendingPublicationDeposits
+    );
+
+    event PrizeWalletDepositCompleted(
+        address indexed publication,
+        uint256 indexed generation,
+        address indexed wallet,
+        uint64 pendingPublicationDeposits,
+        uint64 completedPublicationDeposits
+    );
+
+    event PrizeWalletCampaignClaimed(
+        uint256 indexed generation,
+        address indexed wallet,
+        uint64 claimedAt,
+        address indexed confirmer
+    );
+
     // ---------------------------------------------------------------------
     // Construction / authority
     // ---------------------------------------------------------------------
@@ -210,7 +353,10 @@ contract HellboxPublicationFactory is Ownable2Step {
         bytes32 publicationCreationCodeHash,
         address birthPolicyCodeStoreAddress,
         bytes32 birthPolicyCreationCodeHash
-    ) Ownable(initialPublisherAuthority) {
+    )
+        Ownable(initialPublisherAuthority)
+        EIP712("HellboxPrizeWalletRegistry", "1")
+    {
         if (publicationCreationCodeHash == bytes32(0)) {
             revert InvalidApprovedPublicationCreationCodeHash();
         }
@@ -277,6 +423,494 @@ contract HellboxPublicationFactory is Ownable2Step {
     /// @dev Factory authority may still rotate normally through Ownable2Step.
     function renounceOwnership() public override onlyOwner {
         revert OwnershipRenunciationDisabled();
+    }
+
+    /// @notice Prevents the publishing authority from being deliberately or
+    ///         accidentally transferred to the currently active prize wallet.
+    function transferOwnership(
+        address newOwner
+    ) public override onlyOwner {
+        if (
+            newOwner != address(0) &&
+            prizeWalletGenerationByAddress[newOwner] != 0
+        ) {
+            revert OwnershipTransferToPrizeWalletDisabled(newOwner);
+        }
+
+        super.transferOwnership(newOwner);
+    }
+
+    // ---------------------------------------------------------------------
+    // Repeating Prize Wallet campaign registry
+    // ---------------------------------------------------------------------
+
+    /// @notice Returns the active campaign wallet or zero when no campaign has
+    ///         yet been activated. A claimed campaign remains historical but is
+    ///         no longer eligible for new publication deposits.
+    function activePrizeWallet() public view returns (address wallet) {
+        uint256 generation = activePrizeWalletGeneration;
+        if (generation == 0) {
+            return address(0);
+        }
+
+        PrizeWalletCampaign storage campaign =
+            prizeWalletCampaignByGeneration[generation];
+        if (campaign.claimedAt != 0) {
+            return address(0);
+        }
+
+        wallet = campaign.wallet;
+    }
+
+    function activePrizeWalletManifestDigest()
+        external
+        view
+        returns (bytes32 campaignManifestDigest)
+    {
+        uint256 generation = activePrizeWalletGeneration;
+        if (generation == 0) {
+            return bytes32(0);
+        }
+
+        PrizeWalletCampaign storage campaign =
+            prizeWalletCampaignByGeneration[generation];
+        if (campaign.claimedAt != 0) {
+            return bytes32(0);
+        }
+
+        campaignManifestDigest = campaign.campaignManifestDigest;
+    }
+
+    function activePrizeWalletClaimed() external view returns (bool) {
+        uint256 generation = activePrizeWalletGeneration;
+        return
+            generation != 0 &&
+            prizeWalletCampaignByGeneration[generation].claimedAt != 0;
+    }
+
+    function activePrizeWalletPendingDeposits()
+        external
+        view
+        returns (uint256)
+    {
+        uint256 generation = activePrizeWalletGeneration;
+        if (generation == 0) {
+            return 0;
+        }
+
+        return
+            prizeWalletCampaignByGeneration[generation]
+                .pendingPublicationDeposits;
+    }
+
+    function isActivePrizeWallet(
+        address wallet
+    ) public view returns (bool) {
+        uint256 generation = activePrizeWalletGeneration;
+        if (generation == 0) {
+            return false;
+        }
+
+        PrizeWalletCampaign storage campaign =
+            prizeWalletCampaignByGeneration[generation];
+
+        return
+            campaign.wallet == wallet &&
+            campaign.claimedAt == 0;
+    }
+
+    /// @notice Computes the exact EIP-712 digest a fresh campaign wallet must
+    ///         sign before Harrow can activate only its public address.
+    function prizeWalletActivationDigest(
+        uint256 generation,
+        address wallet,
+        bytes32 campaignManifestDigest,
+        uint256 deadline
+    ) public view returns (bytes32) {
+        return
+            _hashTypedDataV4(
+                keccak256(
+                    abi.encode(
+                        PRIZE_WALLET_ACTIVATION_TYPEHASH,
+                        generation,
+                        wallet,
+                        campaignManifestDigest,
+                        deadline
+                    )
+                )
+            );
+    }
+
+    /// @notice Activates a fresh mnemonic-controlled EOA for the next repeating
+    ///         prize campaign. The EOA must authorize its own activation by an
+    ///         EIP-712 signature; Harrow needs only the public address, manifest
+    ///         digest, and signature—not the mnemonic or private key.
+    /// @dev Rotation is impossible until the prior wallet proves winner control
+    ///      and every already-reserved publication deposit has completed.
+    function activatePrizeWalletCampaign(
+        address wallet,
+        bytes32 campaignManifestDigest,
+        uint256 deadline,
+        bytes calldata walletSignature
+    ) external onlyOwner returns (uint256 generation) {
+        if (campaignManifestDigest == bytes32(0)) {
+            revert PrizeWalletManifestDigestMissing();
+        }
+        if (deadline < block.timestamp) {
+            revert PrizeWalletAuthorizationExpired(
+                deadline,
+                block.timestamp
+            );
+        }
+
+        uint256 currentGeneration = activePrizeWalletGeneration;
+        if (currentGeneration != 0) {
+            PrizeWalletCampaign storage currentCampaign =
+                prizeWalletCampaignByGeneration[currentGeneration];
+
+            if (currentCampaign.claimedAt == 0) {
+                revert PrizeWalletCampaignNotClaimed(
+                    currentGeneration
+                );
+            }
+            if (currentCampaign.pendingPublicationDeposits != 0) {
+                revert PrizeWalletCampaignHasPendingDeposits(
+                    currentGeneration,
+                    currentCampaign.pendingPublicationDeposits
+                );
+            }
+        }
+
+        uint256 usedManifestGeneration =
+            prizeWalletGenerationByManifestDigest[
+                campaignManifestDigest
+            ];
+        if (usedManifestGeneration != 0) {
+            revert PrizeWalletManifestAlreadyUsed(
+                campaignManifestDigest,
+                usedManifestGeneration
+            );
+        }
+
+        generation = currentGeneration + 1;
+        _validateNewPrizeWallet(wallet);
+
+        bytes32 digest = prizeWalletActivationDigest(
+            generation,
+            wallet,
+            campaignManifestDigest,
+            deadline
+        );
+        address recoveredSigner = ECDSA.recover(
+            digest,
+            walletSignature
+        );
+        if (recoveredSigner != wallet) {
+            revert PrizeWalletActivationSignatureMismatch(
+                wallet,
+                recoveredSigner
+            );
+        }
+
+        if (block.timestamp > type(uint64).max) {
+            revert PrizeWalletTimestampOverflow(block.timestamp);
+        }
+
+        prizeWalletCampaignByGeneration[generation] =
+            PrizeWalletCampaign({
+                wallet: wallet,
+                campaignManifestDigest: campaignManifestDigest,
+                activatedAt: uint64(block.timestamp),
+                claimedAt: 0,
+                pendingPublicationDeposits: 0,
+                completedPublicationDeposits: 0
+            });
+
+        prizeWalletGenerationByAddress[wallet] = generation;
+        prizeWalletGenerationByManifestDigest[
+            campaignManifestDigest
+        ] = generation;
+        activePrizeWalletGeneration = generation;
+
+        emit PrizeWalletCampaignActivated(
+            generation,
+            wallet,
+            campaignManifestDigest,
+            uint64(block.timestamp)
+        );
+    }
+
+    /// @notice Approves one already-registered official publication to reserve
+    ///         the currently active Prize Wallet campaign generation.
+    /// @dev Approval is explicit and generation-bound. A publication that has
+    ///      already reserved or completed its one deposit lifecycle cannot be
+    ///      approved again.
+    function approvePrizeWalletPublication(
+        address publication
+    ) external onlyOwner returns (uint256 generation) {
+        if (!isPublication[publication]) {
+            revert UnauthorizedPrizeWalletPublication(publication);
+        }
+
+        uint8 depositState =
+            prizeWalletDepositStateByPublication[publication];
+        if (depositState != PRIZE_DEPOSIT_NONE) {
+            revert PrizeWalletDepositAlreadyInitialized(
+                publication,
+                depositState
+            );
+        }
+
+        generation = activePrizeWalletGeneration;
+        if (generation == 0) {
+            revert PrizeWalletCampaignNotActive();
+        }
+
+        PrizeWalletCampaign storage campaign =
+            prizeWalletCampaignByGeneration[generation];
+        if (campaign.claimedAt != 0) {
+            revert PrizeWalletCampaignAlreadyClaimed(generation);
+        }
+        _validateActivePrizeWalletCampaign(generation, campaign);
+
+        uint256 approvedGeneration =
+            prizeWalletApprovedGenerationByPublication[publication];
+        if (approvedGeneration == generation) {
+            revert PrizeWalletPublicationApprovalAlreadySet(
+                publication,
+                generation
+            );
+        }
+
+        prizeWalletApprovedGenerationByPublication[publication] =
+            generation;
+
+        emit PrizeWalletPublicationApproved(publication, generation);
+    }
+
+    /// @notice Revokes permission for a publication to create a new Prize
+    ///         Wallet reservation. Any reservation already created remains
+    ///         completable so an authority rotation cannot strand the winner.
+    function revokePrizeWalletPublicationApproval(
+        address publication
+    ) external onlyOwner {
+        uint256 generation =
+            prizeWalletApprovedGenerationByPublication[publication];
+        if (generation == 0) {
+            revert PrizeWalletPublicationApprovalMissing(publication);
+        }
+
+        delete prizeWalletApprovedGenerationByPublication[publication];
+
+        emit PrizeWalletPublicationApprovalRevoked(
+            publication,
+            generation
+        );
+    }
+
+    /// @notice Claim acknowledgement made directly by the winner-controlled
+    ///         recovered prize wallet. This moves no assets. Requiring the
+    ///         wallet itself to call prevents an activation-time claim signature
+    ///         from being pre-generated and handed to the publisher.
+    function confirmPrizeWalletClaim() external {
+        uint256 generation = activePrizeWalletGeneration;
+        if (generation == 0) {
+            revert PrizeWalletCampaignNotActive();
+        }
+
+        PrizeWalletCampaign storage campaign =
+            prizeWalletCampaignByGeneration[generation];
+        if (msg.sender != campaign.wallet) {
+            revert UnauthorizedPrizeWalletClaim(
+                campaign.wallet,
+                msg.sender
+            );
+        }
+
+        _confirmPrizeWalletClaim(generation, campaign, msg.sender);
+    }
+
+    /// @notice Reserves the currently active unclaimed campaign wallet for one
+    ///         official publication's seventh-mint deposit. Only publications
+    ///         already manufactured and registered by this factory may call.
+    function reserveActivePrizeWalletDeposit()
+        external
+        returns (
+            uint256 generation,
+            address wallet,
+            bytes32 campaignManifestDigest
+        )
+    {
+        if (!isPublication[msg.sender]) {
+            revert UnauthorizedPrizeWalletPublication(msg.sender);
+        }
+
+        uint8 existingState =
+            prizeWalletDepositStateByPublication[msg.sender];
+        if (existingState != PRIZE_DEPOSIT_NONE) {
+            revert PrizeWalletDepositAlreadyInitialized(
+                msg.sender,
+                existingState
+            );
+        }
+
+        generation = activePrizeWalletGeneration;
+        if (generation == 0) {
+            revert PrizeWalletCampaignNotActive();
+        }
+
+        PrizeWalletCampaign storage campaign =
+            prizeWalletCampaignByGeneration[generation];
+        if (campaign.claimedAt != 0) {
+            revert PrizeWalletCampaignAlreadyClaimed(generation);
+        }
+        _validateActivePrizeWalletCampaign(generation, campaign);
+
+        uint256 approvedGeneration =
+            prizeWalletApprovedGenerationByPublication[msg.sender];
+        if (approvedGeneration != generation) {
+            revert PrizeWalletPublicationNotApproved(
+                msg.sender,
+                generation,
+                approvedGeneration
+            );
+        }
+
+        if (campaign.pendingPublicationDeposits == type(uint64).max) {
+            revert PrizeWalletPendingDepositOverflow(generation);
+        }
+
+        ++campaign.pendingPublicationDeposits;
+        prizeWalletDepositGenerationByPublication[msg.sender] =
+            generation;
+        prizeWalletDepositStateByPublication[msg.sender] =
+            PRIZE_DEPOSIT_RESERVED;
+
+        wallet = campaign.wallet;
+        campaignManifestDigest = campaign.campaignManifestDigest;
+
+        emit PrizeWalletDepositReserved(
+            msg.sender,
+            generation,
+            wallet,
+            campaign.pendingPublicationDeposits
+        );
+    }
+
+    /// @notice Completes one publication's reserved deposit after its prize copy
+    ///         has been minted atomically. The approved publication code is the
+    ///         only caller trusted to report this one-way transition.
+    function completePrizeWalletDeposit() external {
+        if (!isPublication[msg.sender]) {
+            revert UnauthorizedPrizeWalletPublication(msg.sender);
+        }
+
+        uint8 state = prizeWalletDepositStateByPublication[msg.sender];
+        if (state != PRIZE_DEPOSIT_RESERVED) {
+            revert PrizeWalletDepositNotReserved(msg.sender, state);
+        }
+
+        uint256 generation =
+            prizeWalletDepositGenerationByPublication[msg.sender];
+        PrizeWalletCampaign storage campaign =
+            prizeWalletCampaignByGeneration[generation];
+
+        if (campaign.pendingPublicationDeposits == 0) {
+            revert PrizeWalletPendingDepositUnderflow(generation);
+        }
+        if (campaign.completedPublicationDeposits == type(uint64).max) {
+            revert PrizeWalletCompletedDepositOverflow(generation);
+        }
+
+        --campaign.pendingPublicationDeposits;
+        ++campaign.completedPublicationDeposits;
+        prizeWalletDepositStateByPublication[msg.sender] =
+            PRIZE_DEPOSIT_COMPLETED;
+
+        emit PrizeWalletDepositCompleted(
+            msg.sender,
+            generation,
+            campaign.wallet,
+            campaign.pendingPublicationDeposits,
+            campaign.completedPublicationDeposits
+        );
+    }
+
+    function _validateNewPrizeWallet(address wallet) internal view {
+        if (
+            wallet == address(0) ||
+            wallet == address(this) ||
+            wallet == owner() ||
+            wallet == pendingOwner()
+        ) {
+            revert InvalidPrizeWalletAddress(wallet);
+        }
+
+        uint256 codeSize = wallet.code.length;
+        if (codeSize != 0) {
+            revert PrizeWalletAddressHasCode(wallet, codeSize);
+        }
+
+        uint256 usedGeneration =
+            prizeWalletGenerationByAddress[wallet];
+        if (usedGeneration != 0) {
+            revert PrizeWalletAddressAlreadyUsed(
+                wallet,
+                usedGeneration
+            );
+        }
+    }
+
+    function _validateActivePrizeWalletCampaign(
+        uint256 generation,
+        PrizeWalletCampaign storage campaign
+    ) internal view {
+        address wallet = campaign.wallet;
+        if (
+            wallet == address(0) ||
+            prizeWalletGenerationByAddress[wallet] != generation ||
+            prizeWalletGenerationByManifestDigest[
+                campaign.campaignManifestDigest
+            ] != generation
+        ) {
+            revert PrizeWalletCampaignIntegrityMismatch(generation);
+        }
+
+        uint256 codeSize = wallet.code.length;
+        if (codeSize != 0) {
+            revert PrizeWalletAddressHasCode(wallet, codeSize);
+        }
+    }
+
+    function _confirmPrizeWalletClaim(
+        uint256 generation,
+        PrizeWalletCampaign storage campaign,
+        address confirmer
+    ) internal {
+        if (campaign.claimedAt != 0) {
+            revert PrizeWalletCampaignAlreadyClaimed(generation);
+        }
+        if (campaign.pendingPublicationDeposits != 0) {
+            revert PrizeWalletCampaignHasPendingDeposits(
+                generation,
+                campaign.pendingPublicationDeposits
+            );
+        }
+        if (campaign.completedPublicationDeposits == 0) {
+            revert PrizeWalletCampaignHasNoCompletedDeposits(generation);
+        }
+        if (block.timestamp > type(uint64).max) {
+            revert PrizeWalletTimestampOverflow(block.timestamp);
+        }
+
+        campaign.claimedAt = uint64(block.timestamp);
+
+        emit PrizeWalletCampaignClaimed(
+            generation,
+            campaign.wallet,
+            campaign.claimedAt,
+            confirmer
+        );
     }
 
     // ---------------------------------------------------------------------
