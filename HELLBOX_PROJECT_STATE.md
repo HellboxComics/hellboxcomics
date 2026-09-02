@@ -4,10 +4,12 @@
 **Repository:** `main`
 **Current Gate:** Gate 4 — HELLBOX ARTIFACT KERNEL + VERSIONED PUBLICATION FACTORY
 **Current implementation checkpoint:** V1 publication kernel + `HELLBOX_ABI_V1` release fingerprint + deterministic issuance core + size-safe V1 full-deployment factory + versioned enforcement-preimage anchors + modular `HellboxBirthPolicy` + immutable inert `HellboxBirthPolicyCodeStore` + atomic publication-owned BirthPolicy deployment + publication-only one-time MARK/DEFECT assignment/inventory consumption are implemented and pushed. The production randomness foundation is also implemented and pushed: frozen drand `evmnet` configuration, a stateless non-upgradeable verifier, one immutable verifier per factory generation, actual PulseChain Testnet valid/invalid proof execution, and permanent verifier/factory-binding regression. Verified regression is **97 Solidity tests passed, 0 failed** with the issuance fuzz boundary at **256 runs**. Current unoptimized Shanghai runtimes include publication **16,411 bytes**, factory **9,733 bytes**, drand verifier **8,689 bytes**, birth-policy module **9,123 bytes**, and actual deployed code-store payload **20,609 bytes** with **3,967 bytes** of EIP-170 headroom.
-**Exact next frontier:** first synchronize the two legacy placeholder provider-digest fixtures in `test/HellboxPublicationFactory.t.sol` to the frozen drand provider digest without changing production code. Then bind the approved factory-generation verifier into each publication, add the locked one-time Prize Vault bootstrap as the first non-tail issuance, and implement FIFO randomness request/permissionless fulfillment plus unbiased native timed closure. Only after those transitions pass focused/full regression may Gate 4 open phase eligibility, V1 `FREE`/`FIXED_PLS` payment enforcement and the public collector mint path. No external mint endpoint opens until prize, randomness, payment, phase and closure behavior fail closed.
+**Exact next frontier:** the legacy factory-test provider fixtures are synchronized. Next bind the approved factory-generation verifier into each publication, add the locked one-time Prize Vault bootstrap as the first non-tail issuance, and implement FIFO randomness request/permissionless fulfillment plus unbiased native timed closure. Only after those transitions pass focused/full regression may Gate 4 open phase eligibility, configurable per-phase `FREE` / `FIXED_NATIVE` / `FIXED_ERC20` payment enforcement and the public collector mint path. No external mint endpoint opens until prize, randomness, payment, phase and closure behavior fail closed.
 **New locked owner-experience direction:** a normal Hellbox comic release may present publicly as the same finite collectible, but the private owner Reader is a finite Harrow-authored interactive narrative: comic stages lead into frame-native escape rooms, timed survival, authored branches, alternate endings, death outcomes and trait-specific interactions. AI may assist Harrow during issue production, but published owner paths/pages/rooms are pre-authored and finite; no canonical story page is generated live by AI at read time. This expands later Reader/package/Archive work and does **not** change the immediate Gate 4 randomness/payment/phase/closure frontier or require a `HELLBOX_ABI_V1` change.
 **New locked future Press direction:** after Hellbox's own Press is mature, a separate independent-creator launch lane may let outside authors/artists deploy their own non-Hellbox titles and make conforming packages readable in the Hellbox Reader. Outside titles never receive Hellbox-native title stamps/canon/reward status merely for using the Press; creators remain responsible for their own canonical asset hosting; Harrow's proprietary comic-generation machinery remains private; exact launch prerequisites and fee/royalty economics remain OPEN.
-**New locked token/settlement separation direction:** Harrow is a comic creator/publisher and Press operator, not a crypto-founder identity. Any future Hellbox-endorsed/project-used token remains separate from Hellbox publication-contract control: official Hellbox project wallets do not deploy that token, Hellbox does not hold token admin keys or control permanently locked liquidity, and official Hellbox wallets may later acquire an already-public token through ordinary market transactions before/after endorsement. Public statements must describe actual launch/control/holdings facts truthfully. Customer-facing Hellbox commerce remains PLS-denominated/on-chain rather than USD checkout, while back-office accounting still records required transaction-time fiat fair-market values separately.
+**New locked token/settlement separation direction:** Harrow is a comic creator/publisher and Press operator, not a crypto-founder identity. Any future Hellbox-endorsed/project-used token remains separate from Hellbox publication-contract control: official Hellbox project wallets do not deploy that token, Hellbox does not hold token admin keys or control permanently locked liquidity, and official Hellbox wallets may later acquire an already-public token through ordinary market transactions before/after endorsement. Public statements must describe actual launch/control/holdings facts truthfully. Native PLS is the standard/default paid checkout asset on PulseChain, but the private Press may select another standards-compatible same-chain ERC-20/PRC-20 for a phase before `PUBLISH`; the selected asset and exact raw-unit amount then freeze. Back-office accounting still records required transaction-time fiat fair-market values separately.
+**New locked configurable pricing direction:** `$6.66` is not a contract constant, mandatory price, floor, ceiling or permanent default. Before `PUBLISH`, Harrow may configure each collector phase as free, exact native-PLS payment, or exact payment in one selected standards-compatible same-chain ERC-20/PRC-20; allowlist, early-Press, partner and public phases may use different immutable prices or payment assets. PLS remains the standard Press preset. `PUBLISH`/deployment is the lock: no post-deployment price, asset or phase-pricing setter exists, even before the first collector mint. One phase has one frozen payment route in V1; simultaneous choose-your-token checkout remains outside V1 to keep settlement deterministic.
+**New locked fully on-chain artifact direction:** for every native Hellbox issue, the canonical ERC-721 metadata and evolving collectible cover must be reconstructible from chain state, immutable renderer code and immutable on-chain art data alone. A marketplace, Hellbox API, mutable HTTP URL, mutable IPFS gateway or off-chain rendering service may improve presentation but may not be required to prove what the artifact is. The lean publication binds a versioned non-upgradeable renderer/data-store topology rather than embedding all artwork in its own runtime. Dynamic cover changes may occur only from explicit on-chain artifact state under frozen rules. Token ownership does not silently transfer copyright: every publication must freeze a clear rights statement and holder license so Hellbox can truthfully say the collector owns the token, unique artifact state and independently reconstructible canonical artwork under disclosed rights. Full interactive Reader pages remain a separately protected/content-addressed package with the Publisher Continuity fallback; the native cover and canonical metadata do not.
 **New locked repeating Prize Vault direction:** after Harrow's six fixed creator issuances, the seventh successful mint event for every standard native issue is the first non-tail issuance and goes to the active approved Prize Vault. It is **not guaranteed to be copy/token ID #007**: it draws blindly from the same 210-candidate pool with the same production randomness and no reserved MARK/DEFECT. The noncustodial vault may accumulate one comic per issue plus optional Harrow-funded promotional assets until a puzzle winner claims it. Harrow has no withdrawal/claim/reroll power, receives no full claim secret, and may rotate to a fresh vault only after the active round is claimed. The low-cost target is a small versioned smart-contract vault and offline Prize Capsule generator, not an EOA whose private key Harrow or a website must custody.
 **New locked publisher-continuity direction:** Harrow keeps exclusive control of official canon, Press operation and unpublished secret sauce while active, but published artifacts and Reader access must survive him. The inactivity heartbeat is exactly **666 days, 6 hours, 6 minutes and 6 seconds (57,564,366 seconds)**. After that period, or after a deliberate warning/timelock process, continuity becomes permissionlessly activatable. Infrastructure/recovery materials may open; official canon does not become ownerless, unpublished work/personal secrets do not auto-release, and the exact legal/on-chain successor must agree. A separate Continuity Reserve—not the Archive reward pool—funds preservation/recovery.
 **Mainnet:** prohibited during Gate 4
@@ -515,6 +517,10 @@ Native artifact rule:
 
 > **THE RULES ARE IMMUTABLE. THE ARTIFACT IS ALIVE.**
 
+Canonical ownership rule:
+
+> **IF HELLBOX DISAPPEARS, THE CHAIN MUST STILL KNOW WHAT THE ARTIFACT IS.**
+
 The website should be exceptional on PC/Mac and polished/usable on tablet/mobile web before native-app development.
 
 Accessibility target: practical WCAG 2.2 AA.
@@ -538,6 +544,9 @@ Do not turn Hellbox into:
 - a system where paying to use the Press makes an outsider title an official Hellbox title;
 - generic XP loyalty software;
 - static PDF storefront;
+- an NFT whose canonical cover/metadata disappears when a marketplace, domain, API, CDN or gateway stops serving it;
+- a mutable base-URI/admin-image system that can replace a collector's canonical artwork after publication;
+- false marketing that token ownership automatically transfers copyright or guarantees financial return;
 - architecture requiring bespoke Solidity/audit for every new issue.
 
 ---
@@ -696,7 +705,7 @@ Verified creator-side evidence through the permanent factory-binding regression:
 - `HELLBOX_ABI_V1` `ReleaseConfig` + `CommitmentSet` structure hash remained unchanged;
 - the drand `evmnet` verifier accepted the exact observed proof and rejected wrong-round, malformed-point and short-proof cases through PulseChain Testnet state-override execution;
 - each factory generation deploys and freezes a distinct equivalent verifier with the expected ID, provider digest and runtime code hash;
-- local HEAD and `origin/main` matched at `af542d48349c4613ff821dcc87c587bbcbd82aad` after pushing `Add permanent factory randomness binding regression`;
+- local HEAD and `origin/main` matched at `763536cd48e6cf1d1395a956f9408128e54f2283` after pushing `Synchronize factory fixtures with drand provider`;
 - `git diff --check`: clean;
 - worktree: clean.
 
@@ -1484,7 +1493,7 @@ Public Press should show real state:
 - phase allowance;
 - free/reserve/WL status;
 - accepted payment asset;
-- frozen issue mint price;
+- current phase pricing mode, accepted asset and exact frozen raw-unit price;
 - native mint deadline/countdown when applicable;
 - remaining MARK counts/odds;
 - remaining DEFECT counts/odds;
@@ -1502,47 +1511,91 @@ No fake odds/countdowns.
 
 # 18. PRICING, PAYMENT ASSET, REVENUE ROUTING & NATIVE MINT WINDOW
 
-Pricing is per release and is part of the collector-facing release promise.
+Pricing is resolved in the private Press before publication and is part of the collector-facing release promise. The contract does **not** hard-code `$6.66`, PLS-only economics, one universal issue price, or one universal whitelist/early/public price.
 
-## Gate 4 / V1 payment scope — LOCKED
+## Gate 4 / V1 configurable phase-pricing scope — LOCKED
 
-Current V1 publication targets only:
+Supported phase pricing modes:
 
-- `FREE` — used by SciVive and other explicitly free proving releases;
-- `FIXED_PLS` — native Hellbox issues mint for one frozen PLS amount.
+```text
+FREE
+FIXED_NATIVE
+FIXED_ERC20
+```
 
-For a published issue:
+On PulseChain, `FIXED_NATIVE` means native PLS. PLS is the standard/default paid Press preset, not the only permitted asset.
 
-- accepted primary payment asset is immutable for that issue;
-- primary mint price is immutable for that issue;
-- one issue may use a different frozen PLS price than another;
-- Gate 4 does **not** implement stablecoin minting;
-- Gate 4 does **not** implement USD-target pricing;
-- Gate 4 does **not** require a PLS/USD oracle, adapter or conversion path;
-- collectors do not choose between PLS and a stable token.
+Before `PUBLISH`, Harrow may freely resolve in the private Press:
 
-A future publication version/module may add another accepted payment token. That future capability must not rewrite an already-published issue's payment asset or price.
+- which collector phases exist;
+- whether each phase is free or paid;
+- the exact raw-unit amount for each phase;
+- whether a paid phase uses native PLS or one selected same-chain ERC-20/PRC-20;
+- allowlist/whitelist, reserved/partner, early-Press and public-Press prices independently;
+- whether multiple phases intentionally share one pricing policy/route.
 
-## PLS settlement / accounting boundary — LOCKED
+At `PUBLISH`/deployment those resolved rules freeze. There is no post-deployment setter for payment mode, payment asset, amount or phase-to-pricing assignment, even when the first collector mint has not yet occurred. This stronger deployment-time freeze avoids a mutable live-contract window and matches the existing immutable publication promise.
 
-For Hellbox-native paid releases, the customer-facing transaction is PLS-denominated and settled on-chain:
+`$6.66` may remain a Harrow-facing campaign idea, suggested preset or off-chain target when desired, but it is **not** a protocol constant, mandatory issue price, floor, ceiling or guaranteed fiat value.
 
-- Hellbox does not need a USD checkout path for native V1;
-- a `FIXED_PLS` release freezes the collector-facing amount in PLS, not a hidden USD target;
-- PLS market volatility does not authorize the Press to change an already-published issue's frozen PLS price;
-- no PLS/USD oracle is required inside the publication contract merely for checkout.
+V1 keeps one deterministic payment choice per phase:
 
-This commercial/UX choice is separate from back-office accounting and tax records.
+- `FREE` — no payment asset and exact amount `0`;
+- `FIXED_NATIVE` — exact native amount; on PulseChain this is PLS wei;
+- `FIXED_ERC20` — exact amount in the selected token's smallest units and one frozen token-contract address.
+
+Different phases may use different policies/assets. A single phase does not offer the collector several interchangeable payment assets in V1. Multi-asset choose-at-checkout, live exchange conversion and oracle-priced equivalence remain future-version features because they add quote, arbitrage, decimal, refund and failure complexity.
+
+The existing `CommitmentSet.pricingPoliciesDigest`, `paymentRoutesDigest` and `mintPhasesDigest` envelope is sufficient for these richer frozen preimages; this doctrine does **not** reorder or add `HELLBOX_ABI_V1` fields.
+
+## Exact settlement safeguards — LOCKED
+
+### `FREE`
+
+- `amount = 0`;
+- no enabled paid route;
+- native value must be zero;
+- no ERC-20 transfer is attempted.
+
+### `FIXED_NATIVE`
+
+- asset address uses the native sentinel/zero convention;
+- amount is nonzero and frozen in smallest native units;
+- `msg.value` must equal the exact phase price;
+- underpayment and overpayment revert atomically;
+- no hidden USD target or automatic repricing exists.
+
+### `FIXED_ERC20`
+
+- selected token address is nonzero, has deployed code and freezes for that phase;
+- amount is nonzero and freezes in the token's smallest units;
+- native `msg.value` must be zero;
+- collection uses a pinned safe ERC-20 transfer primitive and reentrancy-safe ordering;
+- token-transfer failure reverts the mint atomically;
+- exact received-balance behavior must be proven, so fee-on-transfer, rebasing, callback-dependent or materially nonstandard tokens are rejected by the V1 Press validator/contract boundary rather than silently short-paying the route;
+- symbol/name/decimals are display metadata, not settlement authority; chain ID, contract address and raw amount are the economic truth.
+
+There is no post-publication owner/operator token allowlist that can swap the frozen asset. “Any token” means Harrow may select any **standards-compatible same-chain token that passes preflight validation before publication**, not that a malicious or incompatible contract must be accepted.
+
+## PLS default / fiat-accounting boundary — LOCKED
+
+For a normal PulseChain paid phase, the private Press defaults to native PLS:
+
+- no PLS/USD oracle is required inside the publication merely to take payment;
+- PLS volatility does not authorize changing a frozen phase price;
+- Harrow may use an off-chain fiat estimate while drafting, but `PUBLISH` freezes the exact on-chain unit amount, not a continuing fiat target.
 
 The operational ledger must be able to record at least:
-- publication/copy;
+
+- publication/copy and phase;
 - payer/transaction hash;
-- PLS amount received;
+- payment mode, chain ID and token contract when applicable;
+- exact raw amount received;
 - block/timestamp;
-- transaction-time USD fair-market value when required for accounting/tax reporting;
+- transaction-time fiat fair-market value when required for accounting/tax reporting;
 - later disposition/basis evidence where applicable.
 
-Hellbox can remain PLS-only to collectors while the accounting system quietly produces the records an accountant needs. Do not treat “not bridged to dollars” as a reason to omit transaction-time accounting evidence.
+Accounting evidence never becomes contract pricing authority.
 
 ## Native issue mint duration — LOCKED
 
@@ -1572,14 +1625,18 @@ Rules:
 
 The issue contract must distinguish immutable collector economics from mutable downstream project operations.
 
-Frozen per issue at PUBLISH:
-- accepted payment asset;
-- primary mint price;
+Frozen per phase/issue at PUBLISH:
+
+- phase pricing mode;
+- accepted payment asset/contract;
+- exact raw-unit primary price;
+- phase-to-pricing/route assignment;
 - royalty rate/BPS;
 - mint timing/closure rule;
 - supply/copy/rarity promises.
 
 Not frozen as final-wallet economics:
+
 - downstream mint-proceeds split percentages;
 - downstream royalty-proceeds split percentages;
 - payout destination wallets;
@@ -1588,7 +1645,7 @@ Not frozen as final-wallet economics:
 - buy/burn/reward strategy;
 - future project-funding allocation.
 
-The publication should therefore route proceeds to a durable Hellbox operational routing endpoint/protocol rather than hard-code final dev/reward/burn wallets into every issue. The exact routing-contract/controller implementation remains technical work. The current immutable `royaltyReceiver` field must be treated as the issue's routing endpoint, not as a promise that downstream recipients/splits can never change.
+The publication should therefore route paid proceeds to a durable Hellbox operational routing endpoint/protocol rather than hard-code final dev/reward/burn wallets into every issue. The route endpoint used by a frozen payment policy may not change that policy's asset or price. The exact routing-contract/controller implementation remains technical work. The current immutable `royaltyReceiver` field must be treated as the issue's routing endpoint, not as a promise that downstream recipients/splits can never change.
 
 Prize Vault deposits and the separate Continuity Reserve are distinct operational budgets. Neither may silently drain the Archive reward pool or rewrite a frozen issue's payment/royalty promise. Harrow may fund a Prize Vault voluntarily from promotional funds, but no issue sale promises a minimum prize value.
 
@@ -1611,7 +1668,7 @@ Primary mint proceeds:
 
 No reward-token address, name, supply, emissions, distribution, tokenomics or reward formula is locked by Gate 4. Generic rewards compatibility may be preserved, but the future reward system may change structure before it is explicitly approved.
 
-`CommitmentSet.pricingDigest`, `paymentRoutesDigest`, `royaltyDigest` and `treasuryDigest` must not be interpreted as permission to freeze today's downstream split table by accident. Their eventual V1 preimages must clearly separate the immutable per-issue collector promise/routing protocol boundary from operational downstream routing state that is intentionally adjustable.
+`CommitmentSet.pricingPoliciesDigest`, `paymentRoutesDigest`, `royaltyPolicyDigest` and `treasuryPolicyDigest` must not be interpreted as permission to freeze today's downstream split table by accident. Their eventual V1 preimages must clearly separate immutable per-phase collector price/payment promises and stable routing protocol boundaries from operational downstream routing state that is intentionally adjustable.
 
 ---
 
@@ -1658,11 +1715,100 @@ Future burn/consume systems may create a different approved way to earn or modif
 
 ---
 
-# 20. DYNAMIC METADATA / ARTIFACT STATE
+# 20. FULLY ON-CHAIN CANONICAL COVER / DYNAMIC ARTIFACT STATE — LOCKED
 
-Rules freeze.
+For every **native Hellbox issue**, the canonical ERC-721 metadata and evolving collectible cover must remain independently reconstructible from the source chain itself.
 
-Metadata output may change according to frozen rules.
+This is stricter than merely storing an IPFS CID, Arweave ID, HTTPS URL or content digest. A digest can prove that bytes changed; it does not guarantee those bytes remain available. Hellbox's canonical cover must survive the loss of:
+
+- OpenSea or any other marketplace;
+- `hellboxcomics.com`;
+- Cloudflare Workers/R2/D1;
+- the active metadata API;
+- one IPFS gateway/pinner;
+- Harrow's workstation or continued involvement.
+
+SciVive and other explicitly classified archival/proving releases may use a narrower committed-content profile. The full 461-page SciVive source and protected Reader are not reclassified as native on-chain cover art.
+
+## 20.1 What `FULLY_ONCHAIN` means
+
+For a native issue:
+
+- `tokenURI(tokenId)` returns self-contained metadata, normally a `data:application/json` URI;
+- the standard ERC-721 metadata `image` field is itself a self-contained on-chain-derived data URI, normally SVG or another reviewed deterministic encoding; `image_data` may be duplicated only as an optional compatibility field and may never be the sole canonical image surface;
+- every byte required to reconstruct that canonical cover exists in immutable contract code/data or is deterministically generated from on-chain state;
+- the canonical cover is the complete Harrow-approved collectible rendition—not a thumbnail, placeholder, blurred preview, trait-only proxy or hash pointer—and includes every visual element that defines the published edition;
+- no mutable base URI, external renderer service, gateway, DNS name or secret server response is required;
+- mirrors on R2/IPFS/Arweave may exist for speed, indexing and preservation, but they are non-authoritative conveniences;
+- a clean-room script must be able to reconstruct and hash the canonical metadata/art directly from RPC responses and verified contract bytecode.
+
+A high-resolution web/print derivative may be served off-chain for convenience, but it must be labeled as a derivative of the canonical on-chain artifact rather than the sole artwork the token represents. It may increase pixel density or add print-production accommodations, but it may not contain the only complete artwork while the on-chain rendition is materially incomplete.
+
+## 20.2 Plate encoding and self-funded cost policy
+
+The default Native Issue path is **vector-first**: optimized SVG paths, masks, transforms, palettes and outlined lettering are preferred because they remain sharp, composable and comparatively affordable to deploy.
+
+A painted/raster cover may still qualify as fully on-chain, but only when:
+
+- the complete compressed raster payload is stored as immutable on-chain bytes;
+- the renderer Base64-encodes those raw bytes and embeds them in a self-contained SVG/image data URI;
+- no external `<image href>`/HTTP/IPFS dependency supplies any canonical pixel;
+- payload chunking, deployment cost, RPC return size, wallet/browser/marketplace rendering and zero-host reconstruction all pass before `PUBLISH`.
+
+Raw compressed PNG/WebP-equivalent bytes should be stored rather than pre-expanded Base64 text where the reviewed renderer can encode them deterministically. Large raster payloads may require several immutable data stores because each deployed runtime has a size ceiling. The private Press must show Harrow the exact number of data-store deployments and estimated deployment cost before freeze. An issue whose canonical art cannot fit the self-funded deployment budget must be simplified, vectorized or moved to a later renderer generation; decentralization may not be faked with an external URL.
+
+The SSTORE2-style idea—write-once contract code read with `EXTCODECOPY`—is a useful pattern, not an automatically approved dependency. Hellbox should prefer a small audited/reviewed generic inert data-store primitive derived from its already-proven `STOP`-prefixed code-store discipline, with exact byte length/hash verification and no arbitrary execution surface.
+
+## 20.3 Modular size-safe architecture
+
+The existing publication runtime must remain lean. Full artwork is **not** embedded directly into `HellboxPublication` merely to say it is on-chain.
+
+Preferred topology:
+
+```text
+HellboxPublication
+    → immutable metadata-renderer address + runtime code hash/version
+    → immutable publication art-data store address(es) + code/data hashes
+    → authoritative token/artifact state
+    → self-contained tokenURI JSON + canonical cover
+```
+
+Rules:
+
+- renderer contracts are versioned, non-upgradeable and approved like other reusable Hellbox infrastructure;
+- renderer and art-data-store runtimes expose no reachable `SELFDESTRUCT`, proxy/upgrade path or other code-deletion/replacement mechanism; immutable addresses are not treated as durable when their code can disappear;
+- publication-specific SVG/vector/raster fragments, palettes, lettering outlines, masks and layer tables may live in one or more immutable code/data-store contracts;
+- a renderer/data store cannot be replaced by a publisher setter after `PUBLISH`;
+- every bound renderer/data store must retain nonzero code with the frozen runtime/data hash; a missing-code or mismatched-code dependency fails validation before `PUBLISH`;
+- factory/publication deployment must verify the selected renderer identity, runtime code hash and frozen art-data commitments before official provenance is registered;
+- a new renderer generation is used for future publications rather than upgrading old issues;
+- the same reviewed renderer generation should support many issues from data/config, avoiding a per-issue custom-audit treadmill;
+- Gate 4 must preserve and prove the immutable renderer interface/binding path before it closes; Gate 6 builds the full ingest/compositor/data-store compiler and Native Issue #1 art;
+- optional contextual/external-protocol visual inputs must be additive and bounded, use a frozen interface/address/code-hash policy, and have a deterministic on-chain default so a missing, reverting or malformed dependency cannot brick `tokenURI` or erase the base cover;
+- canonical permanent artifact state may not depend solely on an upgradeable proxy, mutable registry or publisher-operated database; any external outcome that becomes permanent canonical state must be authenticated and anchored under the publication's frozen rules.
+
+Current publication runtime headroom is finite. The renderer/data-store split is a decentralization requirement **and** a deployability requirement.
+
+## 20.4 Canonical cover layer model
+
+Each issue freezes its exact layer order, but the native reference model is:
+
+```text
+1. PLATE                 shared complete issue cover
+2. PRESS MARK            immutable birth overlay/treatment
+3. PRESS DEFECT          immutable birth overlay/treatment
+4. ARTIFACT HISTORY      finite permanent experience/scar/incident layers
+5. CURRENT CONTEXT       bounded reversible on-chain status/context overlays
+6. ARCHIVE PLASTIC/SLAB  protective case/label rendered last when archived
+```
+
+MARK and DEFECT are born once and never move. Experience/history layers sit above birth identity rather than rewriting it. Archive/plastic is a protective presentation state: already-earned permanent marks may remain visible beneath the slab, but no new handling-derived state accumulates while archived. Issue art may implement REDACTED/BLED OUT/CORRUPTED PLATE as masks/vector effects and OFF REGISTER as deterministic layer transforms, but the exact creative treatment is Harrow-authored and frozen per issue rather than hard-coded into the generic publication kernel.
+
+Only frozen enum/numeric/state-derived values and pre-sanitized/outlined publication text may enter canonical SVG. No script, external stylesheet/font/media reference, event handler, unbounded user string, wallet-supplied markup or `javascript:`/remote URL surface is permitted.
+
+## 20.5 Evolving art without a hidden editor
+
+Rules freeze. Metadata output may change only according to those frozen rules and authoritative state.
 
 Permanent birth:
 - token/copy ID;
@@ -1671,29 +1817,99 @@ Permanent birth:
 
 **Birth rarity never changes.** Reading, dying, escaping, achievements, experience marks, Archive status, burns or future reward modifiers must not rewrite a token's MARK/DEFECT birth identity.
 
-Ruled artifact state may include:
+Ruled on-chain artifact state may include:
 - SEAL;
 - ARCHIVE;
 - cover/presentation;
 - permanent history;
-- authored experience marks/scars earned while the artifact is unsealed;
+- authored experience marks/scars committed to the artifact;
 - discovered artifact-level achievements where the publication rules say they follow the token;
 - Hellforge/evolution state;
 - official Archive status/balance;
 - contextual current-wallet traits.
 
-Private run state is distinct from permanent birth rarity and may also be distinct from artifact-level permanent history. Exact wallet-run versus token-history boundaries remain later Reader/artifact-state work.
+Private Reader-run state may remain separate until an authorized result is intentionally anchored to the artifact. Off-chain database state by itself may not silently alter the canonical on-chain cover.
 
-Archived copies are protected from handling-derived experience mutation while archived.
+Transfer counts, raw/unarchived age, reader-authenticated artifact achievements and similar inputs may later be packed into a small dedicated artifact-state module rather than bloating `HellboxPublication`. Every permanent write must be owner-authorized or objectively rule-triggered, bounded and evented.
+If transfer-derived handling state is enabled, every mint/transfer/burn route must pass through the pinned ERC-721 implementation's single canonical ownership-update hook—currently `_update` in the pinned OpenZeppelin V5 line—with explicit mint/burn/archive rules. Hellbox must not override only `transferFrom`/`safeTransferFrom` and leave another ownership path able to bypass or double-count artifact state.
 
-Permanent artifact events follow the token.
+Time-derived wear may use only finite precommitted thresholds. Canonical art must not drift continuously from wall-clock time with no observable state transition. A time threshold intended to change marketplace-visible metadata requires a permissionless checkpoint/finalization path that records the reached milestone and emits ERC-4906-compatible signaling. Archive must freeze handling/raw-age accumulation using explicit on-chain accounting; it cannot merely hide a continuously increasing timestamp calculation under the slab and reveal surprise damage after unarchive.
 
-Contextual traits can appear/disappear with current conditions.
+Archived copies are protected from handling-derived experience mutation while archived. Permanent artifact events follow the token. Contextual traits can appear/disappear with current on-chain conditions. ERC-4906-compatible metadata-update signaling must be supported when canonical metadata changes.
 
-Marketplace metadata-update signaling must be supported.
+## 20.5A Current Gate 4 compatibility / no-corner proof
+
+The current committed publication architecture does **not** block this fully on-chain cover model:
+
+- `ReleaseConfig.dynamicMetadataEnabled` already freezes whether dynamic metadata is an intended capability;
+- the existing `CommitmentSet` already includes `rendererRulesDigest`, `metadataPolicyDigest`, `publicationManifestDigest`, `packageDigest`, `capabilityPolicyDigest`, `protocolCompatibilityDigest` and `eventPolicyDigest` anchors;
+- the current `HellboxPublication` has no mutable base-URI/image setter or deployed renderer to preserve, and its own implementation notes still identify metadata rendering as unwired future work;
+- the approved deployment-time enforcement-preimage pattern allows a narrow renderer/art-data/rights context to be transported and hash-verified against those existing commitments without reordering or adding a `HELLBOX_ABI_V1` fingerprint field;
+- any renderer address, runtime code hash, data-store root/list, rights digest or interface version that affects collector-visible behavior must be immutable for that publication and verified before official provenance is registered;
+- changing publication constructor/runtime code still requires recalculating the factory generation's approved publication creation-code hash, which is a normal pre-mainnet Gate 4 generation change rather than a post-release upgrade.
+
+These existing commitments create room; they do not by themselves put the art on-chain. Gate 4 must still implement and prove the immutable renderer binding/self-contained `tokenURI` path before closing, while Gate 6 builds the full production art compiler and Native Issue #1 data stores.
+
+## 20.6 Artifact Ownership Covenant — truth, not NFT marketing
+
+Hellbox must never blur three different things:
+
+1. ownership of the ERC-721 token;
+2. ownership/control of the token's unique immutable and evolving artifact state;
+3. copyright/trademark and the legal license to use the depicted work.
+
+For every native publication, the frozen package/metadata/rights commitments must disclose:
+
+- copyright owner and credited creators;
+- the exact holder license/version;
+- what personal display, avatar, local backup, personal printing, preservation and commercial uses are allowed;
+- whether the license follows the current token owner and what ends on transfer;
+- trademark/canon reservations;
+- whether any source components use third-party or open licenses.
+
+Technical ownership target:
+
+> The holder owns the token and its unique on-chain artifact state, can transfer it without Hellbox, and can reconstruct the canonical cover from the chain without permission from Harrow, Hellbox, OpenSea or a hosting company.
+
+Legal honesty target:
+
+> The holder receives exactly the rights stated in the frozen license; token ownership does not silently transfer Harrow's copyright, official-canon authority or trademarks.
+
+The exact commercial-use grant/ceiling remains a creator/legal decision before Native Issue #1, but an explicit durable license is mandatory. The exact license text must be immutable/on-chain or redundantly preserved through a permanent content-addressed record plus the Continuity package; a mutable website terms page cannot be the sole surviving source. No release may market “you own the art” while leaving the actual rights ambiguous.
+
+## 20.7 Reader/content separation
+
+The collectible cover and canonical metadata are not the entire comic.
+
+- native canonical cover/metadata: fully on-chain/reconstructible;
+- protected interactive Reader package: content-addressed, encrypted/protected during normal operation and committed by digest;
+- Publisher Continuity fallback: published Reader content becomes recoverable under the locked continuity covenant;
+- unreleased canon/secret production files: never automatically exposed merely because the cover is on-chain.
+
+This preserves premium owner access without making the visible NFT depend on a server.
+
+## 20.8 NFT-objection hardening standard
+
+Hellbox must be able to answer the recurring serious NFT objections with verifiable behavior. This is a substantive hardening matrix, **not** a claim that every sentence below is a verified verbatim Richard Heart quotation; any public attribution to him requires an exact source/timestamp.
+
+| Objection | Hellbox response |
+|---|---|
+| “The marketplace/server went down, so the NFT lost its art.” | Canonical metadata/cover reconstruct from chain; marketplaces are viewers, not hosts of truth. |
+| “You only own a URL.” | The token, artifact state, renderer and required canonical art bytes are on-chain; the rights statement is frozen and explicit. |
+| “Right-clicking gives me the same thing.” | A copied image is viewable media, not the transferable copy identity, birth traits, state, history, access rights or provenance. |
+| “The creator/admin key can swap or rug the art.” | No mutable base URI, renderer/data replacement, admin image override, proxy upgrade, reachable code-deletion path or publisher metadata editor exists for a published V1 issue. |
+| “The picture is technically on-chain but is only a crippled thumbnail.” | The on-chain canonical cover must be the complete approved collectible rendition; richer web/print files may be derivatives but cannot contain the only complete work. |
+| “The token says I own art but the legal rights are undefined.” | Token/artifact ownership and copyright/trademark/license rights are separately disclosed and frozen in the Artifact Ownership Covenant. |
+| “It is only greater-fool speculation.” | Every copy carries the full core comic/Reader utility; Hellbox promises entertainment/ownership, not appreciation, floor price or profit. |
+| “Blind rarity is pseudo-gambling.” | Fixed supply, live odds, one shared pool, no secret phase advantage, no Harrow reroll, low disclosed pricing and legal review; all ordinary copies receive the complete core story. |
+| “Royalties are guaranteed passive income.” | ERC-2981 is royalty information, not universal marketplace enforcement; Hellbox does not present secondary royalties or rewards as guaranteed yield. |
+| “The source chain/project dies.” | Source-chain provenance remains canonical; zero-host cover reconstruction, downloadable state/content capsules and the Publisher Continuity covenant preserve already-published work without pretending another chain is the original edition. |
+| “Forks/bridges create duplicate ownership.” | Source-chain edition identity is canonical; no bridged Hellbox NFT. Any continuity mirror/other-chain printing is separately labeled and preserves lineage. |
+| “NFTs have no utility.” | Ownership-gated Reader, authored interactive narrative, evolving on-chain cover, immutable rarity, Archive/reward compatibility, artifact history, Prize Vault campaigns, ERC-6551 compatibility and owner-authorized evolution are real product functions—not promised yield. |
+
+No documentation may claim “more utility than every token” as a provable universal fact. The locked ambition is to build unusually deep, independently testable utility while delivering top-tier entertainment.
 
 ---
-
 # 21. ERC-6551 / REWARDS / HELLFORGE BOUNDARIES
 
 ## ERC-6551
@@ -1847,7 +2063,9 @@ Harrow supplies:
 8. economics;
 9. mint phases;
 10. capabilities/version;
-11. rights/provenance records for included assets.
+11. rights/provenance records for included assets;
+12. canonical on-chain cover mode, renderer generation and immutable art-data package;
+13. frozen Artifact Ownership Covenant/license selection.
 
 Compiler target:
 
@@ -1860,6 +2078,9 @@ Compiler/Press must eventually generate:
 - trait-intervention compatibility report;
 - missing-asset report;
 - deterministic asset/hash manifest;
+- on-chain art packing/storage-cost report;
+- zero-host canonical-cover reconstruction report;
+- frozen rights/license summary;
 - accessibility checklist;
 - performance budget report;
 - immutable freeze summary;
@@ -1974,8 +2195,9 @@ It resolves/commits:
 - trait distributions;
 - randomization policy;
 - package/art;
-- accepted primary payment asset;
-- primary mint price;
+- phase pricing modes;
+- phase payment asset/contract + exact raw-unit amount;
+- phase-to-pricing/route assignments;
 - mint phases;
 - wallet rules;
 - royalty rate/BPS;
@@ -1987,7 +2209,7 @@ It resolves/commits:
 
 After PUBLISH:
 - no editable collector-facing release promises;
-- no changing that issue's payment asset, mint price, royalty rate, rarity/copy promises or native deadline.
+- no changing any phase's payment mode, asset, raw-unit price or route reference, and no changing the issue royalty rate, rarity/copy promises or native deadline.
 
 Operational downstream revenue routing may still evolve through the disclosed Hellbox routing authority/protocol: split percentages, destination wallets, reward-token choice and buy/burn/reward strategy are not collector-facing immutable issue fields.
 
@@ -2387,7 +2609,7 @@ The current code does **not** yet complete:
 - native timed-expiry closure when more than three candidates remain;
 - unbiased expiry Final-3 selection and permanent extinguishment of every non-selected candidate;
 - phase eligibility enforcement;
-- V1 `FREE` / exact `FIXED_PLS` payment enforcement and over/underpayment behavior;
+- configurable per-phase `FREE` / `FIXED_NATIVE` / `FIXED_ERC20` payment enforcement, exact native/token settlement and over/underpayment behavior;
 - the public collector mint endpoint;
 - the stable primary-proceeds routing boundary for paid mints;
 - public Press/API display of authoritative live inventory/odds;
@@ -2397,12 +2619,11 @@ The current code does **not** yet complete:
 
 Implement the publication-side Gate 4 lifecycle in isolated one-file checkpoints:
 
-0. synchronize the two legacy placeholder provider-digest values in `test/HellboxPublicationFactory.t.sol` to the already-frozen drand provider digest; this is test-fixture truth alignment only and must not change production contracts;
 1. bind/validate the factory-generation drand verifier inside each publication without changing `HELLBOX_ABI_V1`;
 2. add a one-time Prize Vault bootstrap transition that can occur only after #001–#006 and before any collector phase, uses the same FIFO randomness boundary, and consumes `210/207 → 209/206`;
 3. add immutable FIFO request state and permissionless proof fulfillment so request order cannot be skipped or rerolled;
 4. implement native deadline closure through the same verifier, awarding unbiased Final 3 and permanently extinguishing all other candidates;
-5. then implement phase eligibility, exact `FREE`/`FIXED_PLS` payment, proceeds routing and the public collector endpoint.
+5. then implement phase eligibility, frozen per-phase `FREE` / `FIXED_NATIVE` / `FIXED_ERC20` payment policies, exact settlement, proceeds routing and the public collector endpoint.
 
 Required safeguards:
 
@@ -2439,7 +2660,7 @@ Still open:
 5. metadata renderer transport/interface details;
 6. future external-protocol binding mechanics;
 7. revenue-router implementation, authority model and gated Harrow operational controls;
-8. future additional payment-token architecture beyond current V1 FREE/FIXED_PLS scope.
+8. simultaneous multi-asset checkout, oracle-priced conversion, fee-on-transfer/rebasing token support or post-publication payment-asset mutation beyond the frozen V1 phase-policy scope.
 
 These are technical research/testing tasks, not invitations to invent product rules.
 
@@ -2564,7 +2785,10 @@ Blueprint must define:
 - deterministic compositor;
 - randomness/render boundary;
 - metadata/artifact-state renderer;
+- immutable on-chain art-data store compiler;
+- self-contained `tokenURI`/canonical cover output for native issues;
 - marketplace refresh;
+- zero-host reconstruction and code/data-hash verification;
 - reproducibility;
 - protected Reader ingest;
 - durability/fallback.
@@ -2657,7 +2881,7 @@ Before Native Issue #1 mainnet, prove as promised:
 - mint phases;
 - one-at-a-time mint;
 - live odds;
-- V1 FREE/FIXED_PLS payment behavior and frozen per-issue PLS price;
+- configurable per-phase FREE/FIXED_NATIVE/FIXED_ERC20 behavior, exact settlement and frozen phase asset/price;
 - native `66d 6h 6m 6s` deadline/closure with SciVive exemption;
 - Harrow Final 3 survive timed expiry while all other unused native capacity is permanently extinguished;
 - SEALED;
@@ -2695,7 +2919,7 @@ Gate 4 does **not** have to implement the narrative graph, escape rooms, timer e
 
 # 32. SECURITY / CASH-FLOW STANDARD
 
-Hellbox cannot require a new audit for every ~$6.66 issue.
+Hellbox cannot require a new audit for every low-cost issue.
 
 Security cost is amortized across reusable reviewed versions/modules.
 
@@ -3478,6 +3702,48 @@ Response:
 - never redirect an armed vault's assets through an emergency Harrow sweep;
 - version/fix only future vault generations while preserving evidence and the old claim path where possible.
 
+## 36.10B Canonical art/metadata centralization or false ownership claim
+
+Risk:
+- token points to an API, mutable URL or unavailable gateway;
+- a publisher setter can replace artwork after sale;
+- on-chain token ownership is marketed as copyright ownership without an actual license;
+- oversized art is forced into the publication runtime and destroys deployability;
+- canonical cover changes from private database state nobody can verify.
+
+Prevent:
+- native canonical metadata/cover reconstruct from immutable chain code/data/state;
+- lean publication + frozen renderer + immutable art-data stores;
+- no mutable base URI, renderer replacement, proxy upgrade or admin image override;
+- frozen rights/license statement distinguishes token/artifact ownership from copyright/trademark;
+- on-chain packing, runtime size, metadata-size and marketplace compatibility proofs before Native Issue #1;
+- only explicit on-chain artifact state may change canonical cover output.
+
+Response:
+- fail `PUBLISH` when any renderer/data/code hash or rights commitment mismatches;
+- use a new renderer/publication version for future issues rather than rewriting old ones;
+- keep conventional/CDN/IPFS/Arweave outputs as mirrors, never the sole canonical art authority.
+
+## 36.10C Configurable payment-token incompatibility
+
+Risk:
+- “any token” is interpreted as support for malicious, rebasing, fee-on-transfer, callback-dependent or otherwise nonstandard contracts;
+- transfer tax causes silent short payment;
+- decimals/display metadata are trusted for contract arithmetic;
+- a post-publication allowlist swaps the accepted asset.
+
+Prevent:
+- private Press preflight against standards-compatible same-chain ERC-20/PRC-20 behavior;
+- exact raw-unit pricing and balance-delta enforcement;
+- `SafeERC20`-style transfer handling;
+- one frozen route per phase in V1;
+- no post-`PUBLISH` token/price/route setter;
+- permit is optional convenience, never the only payment path.
+
+Response:
+- incompatible assets fail closed before publication;
+- use native PLS or another validated token rather than weakening settlement checks.
+
 ## 36.11 Randomness / Final-3 manipulation
 
 Risk:
@@ -3674,8 +3940,10 @@ Response:
 - positive real SciVive owner still waits for Gate 4 Testnet deployment/mint;
 - public Press/API presentation of the now-authoritative on-chain MARK/DEFECT inventory/odds is not yet wired;
 - standalone drand `evmnet` verifier/configuration and factory-generation binding are complete; publication-side FIFO request/fulfillment, Prize Vault bootstrap and timed-expiry Final-3 consumption remain incomplete;
-- phase eligibility, V1 FREE/FIXED_PLS payment enforcement and public collector mint endpoint are not yet implemented;
-- full dynamic renderer not built;
+- phase eligibility, configurable V1 FREE/native-PLS/ERC-20 payment enforcement and public collector mint endpoint are not yet implemented;
+- Gate 4 immutable metadata-renderer interface/binding and self-contained `tokenURI` path are not yet implemented;
+- Gate 6 full on-chain art-data compiler/dynamic renderer and zero-host reconstruction proof are not built;
+- exact Native Issue #1 holder-license/commercial-use scope still requires creator/legal approval;
 - revenue-routing controller/gated operational split management not yet implemented;
 - Archive rewards/ERC-6551/Hellforge remain later Gates;
 - interactive narrative graph/runtime, room timer authority, saved-run state and path-validation tooling are not built yet;
@@ -3694,6 +3962,8 @@ Response:
 
 - exact technical implementation of the now-locked Publisher Continuity Covenant: heartbeat authority, warning schedule, voluntary timelock duration, manifest/capsule encryption, legal escrow/successor, durable storage and permissionless activation bounty;
 - exact Prize Vault template/factory/registry, offline Prize Capsule generator, independent custody/recovery-share model and puzzle-secret delivery design, provided Harrow never receives unilateral claim power;
+- exact Native Issue #1 Artifact Ownership Covenant license scope, including whether/how limited commercial use follows the token;
+- exact approved on-chain art encoding/compression palette, renderer generation and data-store packing strategy, provided canonical cover reconstruction never requires external hosting;
 - dynamic-metadata/Reader fallback transport if Hellbox infrastructure disappears;
 - cross-chain edition lineage;
 - sealed versus unsealed value-balance doctrine;
@@ -3715,7 +3985,7 @@ Response:
 - exact backup retention/export schedule and recovery target;
 - exact operational authority/key separation before mainnet;
 - Hellforge recipes;
-- Native Issue #1 exact title/content/narrative graph/rooms/endings/frozen PLS price/royalty rate/phases.
+- Native Issue #1 exact title/content/narrative graph/rooms/endings/frozen phase pricing/payment assets/royalty rate/phases.
 
 Future AI must not convert these into canon because it likes an idea.
 
@@ -3797,6 +4067,7 @@ actual PulseChain Testnet valid/invalid proof      passed
 factory-generation immutable verifier binding     implemented / passing
 permanent verifier regression                       8 passed / 0 failed
 permanent factory-binding regression                 4 passed / 0 failed
+factory provider-digest fixtures synchronized       implemented / passing
 full Solidity regression                            97 passed / 0 failed
 issuance fuzz                                      256 runs passed
 publication runtime                              16,411 bytes
@@ -3816,11 +4087,11 @@ then ordinary collector phases may open
 
 Exact next implementation sequence:
 
-1. synchronize the factory test fixture to the frozen drand provider digest if still required by the current code branch;
-2. install/prove publication-side verifier validation and randomness bootstrap;
-3. implement the one-time active Prize Vault issuance before collector phases;
-4. implement FIFO request/permissionless fulfillment and native timed closure;
-5. implement phase eligibility, exact V1 payment/proceeds routing and public collector minting;
+1. install/prove publication-side verifier validation and randomness bootstrap;
+2. implement the one-time active Prize Vault issuance before collector phases;
+3. implement FIFO request/permissionless fulfillment and native timed closure;
+4. implement phase eligibility, configurable exact V1 phase payment/proceeds routing and public collector minting;
+5. establish/prove the lean immutable metadata-renderer binding and self-contained on-chain `tokenURI` compatibility point required before Gate 4 close;
 6. run full adversarial/Testnet acceptance and close Gate 4 documentation.
 
 Do not open collector minting, alter `HELLBOX_ABI_V1`, create an arbitrary prize-recipient setter, or build a Harrow-controlled prize EOA. The active Prize Vault must fail closed, receive the same unbiased random draw, and remain outside Harrow's withdrawal/claim control.
@@ -3846,8 +4117,8 @@ Stop before introducing:
 - using 207/non-tail capacity as the initial random-candidate denominator;
 - Harrow-controlled rarity reroll;
 - secret phase rarity advantages;
-- stablecoin/dual-payment/USD-target/oracle pricing reintroduced into Gate 4 V1 without a new creator decision;
-- changing an already-published issue's frozen payment asset, PLS mint price, royalty rate or native deadline;
+- simultaneous multi-asset checkout, USD-target/oracle conversion, fee-on-transfer/rebasing token support or post-deployment repricing introduced into Gate 4 V1 without a new creator decision;
+- changing an already-published phase's frozen payment mode, asset, raw-unit price or route reference, or changing the issue royalty rate or native deadline;
 - hard-coding today's royalty/mint downstream split percentages, destination wallets or future reward-token address into the publication;
 - treating mutable revenue-routing operations as immutable collectible rarity rules;
 - runtime-AI generation of canonical story pages/branches/escape-room outcomes for a published issue;
@@ -3873,6 +4144,15 @@ Stop before introducing:
 - AI output treated as current-state evidence without repository/test verification;
 - a handoff that depends on one AI's private conversation context;
 - static metadata requirement for native issues;
+- a native canonical cover/metadata path that requires OpenSea, Hellbox APIs, HTTP, DNS, CDN, IPFS gateway availability or an off-chain renderer;
+- placing the sole canonical cover in nonstandard `image_data` while omitting a standard self-contained `image` field;
+- mutable base URI, post-publication renderer replacement, admin image override or proxy upgrade for published V1 art;
+- importing an unaudited SSTORE2/data-store dependency without focused review merely because the broad storage pattern is familiar;
+- canonical SVG containing scripts, event handlers, external fonts/styles/media, remote URLs or user-controlled markup;
+- continuous time-driven metadata drift without checkpoint/event semantics, or hidden handling/raw-age accumulation while archived;
+- off-chain-only database state silently changing canonical on-chain cover output;
+- claiming token ownership automatically transfers copyright or guarantees appreciation without an explicit frozen license;
+- embedding so much art/renderer logic in `HellboxPublication` that EIP-170/EIP-3860 safety is sacrificed instead of using immutable modular data stores;
 - custodial Archive staking;
 - TBA sweep authority;
 - publisher forced Hellforge burn;
