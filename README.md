@@ -56,10 +56,10 @@ A completed Gate's detailed architecture must be archived before `CURRENT_GATE_B
 - **Gate 4 — IN PROGRESS**
 - Mainnet — NOT part of Gate 4
 
-Recovered Git boundary:
+Latest source/test implementation baseline before this documentation-only synchronization:
 
 ```text
-HEAD = origin/main = 52dcb192d56b40e803ea39c2391ee3d20a759faf
+c91763768c54130991f9b83df9a54971ed021bd6
 ```
 
 Committed/pushed Gate 4 state:
@@ -73,19 +73,18 @@ Committed/pushed Gate 4 state:
 - frozen drand `evmnet` verifier, one immutable verifier per factory generation, and publication-side verifier binding;
 - append-only future-round requests, exact FIFO permissionless proof fulfillment, and internal one-time Prize Wallet same-pool issuance;
 - permanent eight-test Prize Wallet FIFO regression;
-- **105 committed Solidity tests**.
+- committed self-authorized EOA campaign registry with official-publication approval, reserve→complete deposit accounting, pending-deposit claim blocking, direct winner-wallet claim, no-reuse and rotation boundaries;
+- permanent 12-test Prize Wallet registry regression;
+- **117 committed Solidity tests**.
 
-Validated but uncommitted worktree candidate:
-
-```text
- M contracts/HellboxPublicationFactory.sol
-?? test/HellboxPrizeWalletRegistryProbe.t.sol
-```
+Exact committed registry identities:
 
 ```text
+factory commit: 7208590223107257c92524095a951e162b3c7349
 factory: 1178 lines
 sha256: 885d81b731aa28bb9a1f27de714d7d16e16d9c5a7e73fd75bbba9620c1d4a90d
 
+registry-test commit: c91763768c54130991f9b83df9a54971ed021bd6
 registry test: 747 lines
 sha256: 6793f8f659b090bc83febf9b6c38d02fab5ed4229bcb25fcea407ace5a73cb60
 ```
@@ -93,14 +92,15 @@ sha256: 6793f8f659b090bc83febf9b6c38d02fab5ed4229bcb25fcea407ace5a73cb60
 Creator terminal evidence for those exact bytes:
 
 - **12/12** focused registry tests passed;
-- **117/117** total tests passed, 0 failed;
+- **117/117** total tests passed, 0 failed, 0 skipped;
 - issuance fuzz boundary **256 runs**;
 - optimized runtimes: publication **14,818 bytes**, factory **12,424 bytes**, verifier **5,138 bytes**;
-- factory initcode with arguments **19,742 bytes**, leaving **29,410 bytes** EIP-3860 headroom.
+- factory initcode with arguments **19,742 bytes**, leaving **29,410 bytes** EIP-3860 headroom;
+- worktree and index clean after the registry-test commit.
 
-The candidate adds the self-authorized EOA campaign registry, official-publication approval, one reserve→complete deposit lifecycle, pending-deposit claim blocking, direct winner-wallet claim, no-reuse and rotation boundaries. It is **not committed**. The later proposed three-test progressive transition was not installed, so the repository is 117—not 120—with the candidate.
+The later proposed three-test progressive transition was not installed. The repository therefore remains at **117**, not 120, and production publication↔registry integration is still open.
 
-**Exact next frontier:** checkpoint the recovered factory and registry test separately; add permanent multi-publication progressive-jackpot/generation-isolation/owner-authority regressions; wire production publication reserve→FIFO request→fulfillment→deposit completion; then implement native timed closure. Phase/payment/public mint and immutable renderer/`tokenURI` work remain closed until those pass.
+**Exact next frontier:** add permanent multi-publication progressive-jackpot, generation-isolation and owner-authority regressions in the registry test file alone; wire production publication reserve→FIFO request→fulfillment→deposit completion; then implement native timed closure. Phase/payment/public mint and immutable renderer/`tokenURI` work remain closed until those pass.
 
 The interactive comic, Prize Wallet campaign, Continuity Covenant, Archive/reward, outside-creator Press and future-token directions do **not** authorize a `HELLBOX_ABI_V1` change or early collector mint.
 

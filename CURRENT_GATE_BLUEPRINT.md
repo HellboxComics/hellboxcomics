@@ -2,8 +2,8 @@
 
 **Gate:** Gate 4 — HELLBOX ARTIFACT KERNEL + VERSIONED PUBLICATION FACTORY
 **Status:** APPROVED / IMPLEMENTATION IN PROGRESS
-**Checkpoint:** repository truth recovered on 2026-09-02. `HEAD == origin/main == 52dcb192d56b40e803ea39c2391ee3d20a759faf`. The committed/pushed publication now binds the factory-generation drand verifier, uses the frozen optimized Shanghai profile, contains the append-only FIFO/randomness fulfillment substrate and enforces the one-time same-pool Prize Wallet issuance internally; its permanent FIFO probe raises the committed tree to **105 Solidity tests**. The supplied worktree additionally contains an exact uncommitted factory campaign-registry candidate and 12-test probe. Creator evidence for those candidate bytes is **12 focused / 117 total passed, 0 failed**. The later proposed 120-test transition is absent and must not be claimed.
-**Next frontier:** checkpoint the recovered factory candidate and registry test one file at a time; add the missing progressive multi-publication/generation/owner regressions; then wire production publication reservation/request/fulfillment/completion and creator initialization. Native timed closure follows. Phase/payment/public mint and immutable renderer/`tokenURI` work remain closed until those boundaries pass.
+**Checkpoint:** the recovered registry boundary is committed and pushed. The latest source/test baseline before this documentation-only synchronization is `c91763768c54130991f9b83df9a54971ed021bd6`: factory registry commit `7208590`, permanent registry-test commit `c917637`, **117 committed Solidity tests**, and a clean worktree/index after the second commit. Creator evidence for the exact committed bytes is **12 focused / 117 total passed, 0 failed, 0 skipped**. The later proposed 120-test transition is absent and must not be claimed.
+**Next frontier:** extend only the permanent registry test with the missing progressive multi-publication/generation/owner regressions; then wire production publication reservation/request/fulfillment/completion and creator initialization. Native timed closure follows. Phase/payment/public mint and immutable renderer/`tokenURI` work remain closed until those boundaries pass.
 **Target chain:** PulseChain Testnet V4 only
 **Mainnet:** prohibited in Gate 4
 **Repository destination:** `CURRENT_GATE_BLUEPRINT.md`
@@ -46,7 +46,7 @@ Current proven Gate 4 implementation constraints:
 - each factory generation freezes an immutable `approvedPublicationCreationCodeHash`;
 - `publish(...)` accepts the exact reviewed publication creation bytecode, verifies its hash against that immutable approval, appends canonical constructor arguments, and deploys the fresh publication through ordinary EVM `CREATE`;
 - the former embedded `new HellboxPublication(...)` factory path is superseded because it pushed factory runtime above the EIP-170 limit once the issuance core landed;
-- recovered optimized Shanghai candidate sizes: `HellboxPublication` runtime **14,818 bytes** with **9,758 bytes** EIP-170 headroom; `HellboxPublicationFactory` runtime **12,424 bytes** with **12,152 bytes** headroom, **19,614-byte** creation size and **19,742-byte** initcode including constructor arguments with **29,410 bytes** EIP-3860 headroom; `HellboxDrandEvmnetVerifier` runtime **5,138 bytes** with **19,438 bytes** headroom;
+- committed optimized Shanghai sizes: `HellboxPublication` runtime **14,818 bytes** with **9,758 bytes** EIP-170 headroom; `HellboxPublicationFactory` runtime **12,424 bytes** with **12,152 bytes** headroom, **19,614-byte** creation size and **19,742-byte** initcode including constructor arguments with **29,410 bytes** EIP-3860 headroom; `HellboxDrandEvmnetVerifier` runtime **5,138 bytes** with **19,438 bytes** headroom;
 - official factory provenance is append-only: no `registerExisting()`, no arbitrary provenance setters, and no post-deployment path that can manufacture authenticity for an external contract;
 - factory V1 rejects zero approved publication creation-code hash, zero/invalid BirthPolicy generation infrastructure, unapproved supplied creation bytecode, duplicate `publicationKey` hashes, and duplicate release-config digests within that official factory/chain generation;
 - each factory generation immutably binds the approved BirthPolicy code-store address and exact BirthPolicy creation-code hash; these are factory-generation provenance, never caller-selected per publication;
@@ -61,7 +61,7 @@ Current proven Gate 4 implementation constraints:
 - the deployed publication permanently stores exactly one companion address and the companion proves `birthPolicy.publication() == publication`; malformed stores, wrong hashes, malformed policy preimages, digest mismatches and child-constructor failures revert the entire publication deployment atomically;
 - the direct publication-constructor BirthPolicy embed was measured at **42,840-byte initcode** and remains rejected for inadequate practical EIP-3860 runway; production Publication/Factory source contains no direct BirthPolicy creation-code embed;
 - frozen drand `evmnet` configuration, stateless verifier, exact PulseChain Testnet valid/invalid proof execution and immutable factory-generation verifier binding are implemented and pushed;
-- committed Gate 4 tree contains **105 Solidity tests**; the exact uncommitted registry candidate has creator evidence for **117 total passed, 0 failed**:
+- committed Gate 4 tree contains **117 Solidity tests** with creator evidence for **117 total passed, 0 failed, 0 skipped**:
   - 16 `HellboxPublication` kernel tests;
   - 21 factory/provenance/atomic-deployment tests;
   - 13 deterministic issuance/atomic-trait tests, including a 256-run fuzz boundary;
@@ -71,7 +71,7 @@ Current proven Gate 4 implementation constraints:
   - 8 permanent drand-verifier tests;
   - 4 permanent factory-verifier binding tests;
   - 8 permanent Prize Wallet FIFO tests;
-  - 12 uncommitted Prize Wallet registry-candidate tests in the 117-test run;
+  - 12 permanent Prize Wallet registry tests;
   - 1 Solidity↔JavaScript golden-vector test;
 - no publication has been deployed to mainnet; Gate 4 remains PulseChain Testnet V4 only;
 - the former HairyLabs Byte-page exclusion is resolved/lifted as of 2026-09-01.
@@ -466,7 +466,7 @@ HellboxPublicationFactory initcode   = 8,804 bytes
 factory EIP-170 runtime margin       = +16,556 bytes
 ```
 
-That table is historical evidence for the factory correction. The generated artifacts supplied with the recovered optimized 200-run candidate measure:
+That table is historical evidence for the factory correction. The generated artifacts for the committed optimized 200-run implementation measure:
 
 ```text
 HellboxPublication runtime                    = 14,818 bytes
@@ -1799,7 +1799,7 @@ commitmentsDigest       = 0xb6a0722a62b0309c6a082152ddff7e1ffc544669e8d690047a75
 releaseConfigDigest     = 0x66e6697d8fde60531eebed0882030a1c6beecf086b04926599a39878d4e0d15d
 ```
 
-Current proof status: `testJavascriptAndSolidityGoldenVectorMatch()` remains part of the **105-test committed tree**. With the exact uncommitted Prize Wallet registry candidate installed, creator evidence records **117/117 passed, 0 failed**, including the permanent eight-test FIFO suite and 12 focused registry tests. The issuance fuzz boundary remains 256 runs. The absent chat-only progressive transition must not be counted as three additional tests.
+Current proof status: `testJavascriptAndSolidityGoldenVectorMatch()` remains part of the **117-test committed tree**. Creator evidence for the exact committed bytes records **117/117 passed, 0 failed, 0 skipped**, including the permanent eight-test FIFO suite and 12 focused registry tests. The issuance fuzz boundary remains 256 runs. The absent chat-only progressive transition must not be counted as three additional tests.
 
 ## 36.4 Deployment-time enforcement preimages — LOCKED BOUNDARY
 
@@ -2874,7 +2874,7 @@ This blueprint remains approved. Gate 4 may continue only along the dependency-o
 
 ## Committed/pushed proof boundary
 
-At `52dcb192d56b40e803ea39c2391ee3d20a759faf`:
+Latest source/test baseline before this documentation-only synchronization: `c91763768c54130991f9b83df9a54971ed021bd6`.
 
 - exact Solidity `0.8.36`, Shanghai, optimizer-on/200-runs/`via_ir=false` profile;
 - pinned OpenZeppelin `v5.1.0`;
@@ -2886,28 +2886,29 @@ At `52dcb192d56b40e803ea39c2391ee3d20a759faf`:
 - frozen drand `evmnet` verifier and immutable factory-generation/publication binding;
 - future-round append-only request state and exact permissionless FIFO fulfillment;
 - internal one-time Prize Wallet first-non-tail same-pool issuance with EOA validation and `210/207 → 209/206` accounting;
-- **105 committed Solidity tests**, including the eight-test Prize Wallet FIFO probe.
+- committed self-authorized EOA campaign registry with generation-bound approval, reserve/complete deposit accounting, pending-deposit claim blocking, direct wallet claim, no-reuse and rotation protections;
+- **117 committed Solidity tests**, including the eight-test Prize Wallet FIFO probe and 12-test registry probe;
+- exact creator run: **12 focused / 117 total passed, 0 failed, 0 skipped**.
 
-## Validated/uncommitted boundary
-
-Exact worktree candidate:
+Committed registry identities:
 
 ```text
 contracts/HellboxPublicationFactory.sol
   1178 lines
   sha256 885d81b731aa28bb9a1f27de714d7d16e16d9c5a7e73fd75bbba9620c1d4a90d
+  commit 7208590223107257c92524095a951e162b3c7349
 
 test/HellboxPrizeWalletRegistryProbe.t.sol
   747 lines
   sha256 6793f8f659b090bc83febf9b6c38d02fab5ed4229bcb25fcea407ace5a73cb60
+  commit c91763768c54130991f9b83df9a54971ed021bd6
 ```
 
-Creator evidence: **12 focused / 117 total passed**, optimized runtime sizes publication **14,818**, factory **12,424**, verifier **5,138** bytes. The candidate adds the self-authorized EOA campaign registry, approval/reserve/complete lifecycle, pending-deposit claim block, direct wallet claim, no-reuse and rotation boundaries. It is not committed and its test uses a publication harness.
+The registry test still uses a publication harness. Production `HellboxPublication` has not yet called the real reserve/request/fulfill/complete path.
 
 ## Allowed remaining Gate 4 work
 
-- checkpoint the recovered factory source and registry test one file at a time;
-- add the missing progressive multi-publication/generation/owner regressions;
+- add the missing progressive multi-publication/generation/owner regressions in the registry test file alone;
 - wire production publication creator initialization to the real registry reserve/request/fulfill/complete flow;
 - implement native timed closure and extinguishment through the same verifier/FIFO model;
 - implement phase eligibility and V1 exact payment/proceeds enforcement;
@@ -2927,9 +2928,9 @@ Creator evidence: **12 focused / 117 total passed**, optimized runtime sizes pub
 
 Do not add narrative graph state, puzzle timers, saved-run state, experience-mark mutation, Archive weight tables, reward emissions or burn-reward formulas to `HellboxPublication` or `HellboxBirthPolicy`.
 
-# 49A. INTERNAL ENGINEERING CHECKPOINT — RECOVERED FIFO + PRIZE WALLET REGISTRY FRONTIER
+# 49A. INTERNAL ENGINEERING CHECKPOINT — COMMITTED FIFO + PRIZE WALLET REGISTRY FRONTIER
 
-The publication randomness verifier binding, FIFO request/fulfillment substrate and internal Prize Wallet issuance are now also committed and test-backed. The factory campaign registry is validated but uncommitted. No collector-facing mint endpoint exists. The immediate work is to checkpoint that exact registry boundary, prove progressive accumulation, wire real production reserve/request/complete orchestration, and only then implement timed closure and phase/payment/public minting.
+The publication randomness verifier binding, FIFO request/fulfillment substrate, internal Prize Wallet issuance, factory campaign registry and permanent registry probe are committed and test-backed. No collector-facing mint endpoint exists. The immediate work is to prove progressive accumulation/generation isolation/owner authority in the test file, wire real production reserve/request/complete orchestration, and only then implement timed closure and phase/payment/public minting.
 
 ## 49A.1 Blueprint sections carried forward
 
@@ -3165,7 +3166,7 @@ The committed checkpoint proves:
 13. the entropy test boundary remains deterministic for unit/fuzz testing, while the selected production provider is frozen drand `evmnet` and awaits publication FIFO consumption integration;
 14. `HELLBOX_ABI_V1` and the atomic code-store deployment graph remain unchanged.
 
-## 49A.7 Current checkpoint — COMMITTED FIFO / UNCOMMITTED CAMPAIGN REGISTRY
+## 49A.7 Current checkpoint — COMMITTED FIFO + COMMITTED CAMPAIGN REGISTRY
 
 Committed and permanent:
 
@@ -3177,28 +3178,27 @@ Committed and permanent:
 - internal one-time standard-native Prize Wallet request/fulfillment;
 - same 210-candidate pool, normal #066 eligibility, no hard-coded #007 or special traits;
 - recipient EOA validation at request and fulfillment;
-- permanent eight-test FIFO regression.
-
-Validated but uncommitted factory candidate:
-
+- permanent eight-test FIFO regression;
 - EIP-712 self-authorization by the fresh campaign EOA;
 - generation/address/manifest registry with no wallet/manifest reuse;
 - explicit generation-bound approval for official publications;
 - one publication reserve→complete lifecycle;
 - pending deposits block claim and rotation;
 - recovered EOA directly confirms claim;
-- no mnemonic/private key/puzzle answer/withdrawal authority on-chain.
+- no mnemonic/private key/puzzle answer/withdrawal authority on-chain;
+- permanent 12-test registry regression.
+
+The registry source was committed separately at `7208590`; its test was committed separately at `c917637`. The exact committed bytes passed 12 focused tests and the full 117-test suite with zero failures or skips. Production `HellboxPublication` integration remains open because the registry probe uses a publication harness.
 
 Exact next production sequence:
 
-1. commit the recovered factory source and its test in separate checkpoints;
-2. permanently prove multiple publications accumulate under one active generation and approvals do not leak across rotations;
-3. during creator initialization, publication reserves the active approved EOA before creating its Prize Wallet request;
-4. permissionless fulfillment mints the random copy and atomically completes the factory deposit;
-5. public phases remain closed until completion;
-6. collector requests use the same FIFO machinery;
-7. timed expiry uses the same verifier to select Final 3 and extinguish every other candidate;
-8. only then expose phase/payment/public mint endpoints.
+1. permanently prove multiple publications accumulate under one active generation, approvals do not leak across rotations, and only the factory owner manages approvals;
+2. during creator initialization, publication reserves the active approved EOA before creating its Prize Wallet request;
+3. permissionless fulfillment mints the random copy and atomically completes the factory deposit;
+4. public phases remain closed until completion;
+5. collector requests use the same FIFO machinery;
+6. timed expiry uses the same verifier to select Final 3 and extinguish every other candidate;
+7. only then expose phase/payment/public mint endpoints.
 
 Prize Wallet invariants:
 
@@ -3303,24 +3303,17 @@ HellboxBirthPolicyCodeStore tests                4
 drand verifier tests                              8
 factory verifier-binding tests                    4
 Prize Wallet FIFO tests                           8
+Prize Wallet registry tests                      12
 cross-language golden vector                      1
 --------------------------------------------------
-COMMITTED TOTAL                                 105
-```
-
-Uncommitted candidate suite:
-
-```text
-Prize Wallet registry tests                      12
---------------------------------------------------
-RECOVERED CANDIDATE TOTAL                       117 passed / 0 failed
+COMMITTED TOTAL                                 117
 ```
 
 The later proposed three-test progressive transition is absent. Do not write `120` until it is installed, reviewed, passes and is committed.
 
 Current permanent FIFO proof includes strict seventh-mint ordering, future-round binding, real drand fulfillment, no mutation on invalid/not-ready proof, EOA persistence, project/contract-recipient rejection, #066 eligibility and publication-domain separation.
 
-Current registry candidate proof includes activation-signature validity/replay boundaries, safe EOA/manifest shapes, owner/factory separation, official-publication approval, one reserve/complete lifecycle, pending-deposit claim block, revocation without stranding reservations, direct winner claim and no wallet/manifest reuse.
+Current committed registry proof includes activation-signature validity/replay boundaries, safe EOA/manifest shapes, owner/factory separation, official-publication approval, one reserve/complete lifecycle, pending-deposit claim block, revocation without stranding reservations, direct winner claim and no wallet/manifest reuse.
 
 Still required later in Gate 4:
 
@@ -3739,7 +3732,7 @@ Additional implementation decisions now synchronized here:
 - [x] Production profile is committed: optimizer enabled, 200 runs, `via_ir = false`.
 - [x] V1 factory provenance is locked and test-backed: approved-factory root of trust, physical factory deployment only, key+digest uniqueness, defensive mutual provenance verification, and instance-specific runtime code-hash event evidence.
 - [x] V1 factory generation immutably approves the exact `HellboxPublication` creation-bytecode hash; `publish(...)` hash-verifies supplied bytecode and uses ordinary `CREATE` while remaining `FULL_DEPLOYMENT`.
-- [x] Factory remains deployable under the recovered optimized registry candidate: runtime **12,424 bytes**, margin **12,152 bytes**; initcode with arguments **19,742 bytes**, EIP-3860 headroom **29,410 bytes**; embedded publication creation code remains superseded.
+- [x] Factory remains deployable with the committed optimized registry implementation: runtime **12,424 bytes**, margin **12,152 bytes**; initcode with arguments **19,742 bytes**, EIP-3860 headroom **29,410 bytes**; embedded publication creation code remains superseded.
 - [x] Deterministic issuance accounting core is implemented/tested, including `210 / 207`, immediate-six ordering, #066 candidate eligibility, lifetime wallet accounting, sparse candidate draws, and true-mintout final-three behavior.
 - [x] Publication-side versioned enforcement-preimage anchors for fixed-copy, birth-trait and randomization policy are implemented/tested without changing `HELLBOX_ABI_V1`.
 - [x] Standalone non-upgradeable `HellboxBirthPolicy V1` is implemented/tested with constructor-only binding, native inventory/reservations, publication-only one-time assignment, permanent token identity, #066 rule enforcement, SciVive trait-disabled support and no publisher/admin setter/reroll/replacement surface.
@@ -3750,12 +3743,12 @@ Additional implementation decisions now synchronized here:
 - [ ] Native timed-closure + permanent extinguishment + unbiased expiry Final-3 implementation is not yet complete.
 - [ ] Configurable per-phase FREE/native-PLS/ERC-20 pricing/payment enforcement, exact settlement and stable revenue-routing boundary are not yet complete.
 - [ ] Gate 4 immutable metadata-renderer interface/binding and self-contained native `tokenURI` proving path are not yet complete; Gate 6 full art-data compiler remains later.
-- [x] Committed test inventory = **105** including 8 permanent FIFO tests; exact uncommitted registry candidate creator run = **117 passed / 0 failed**, including 12 focused registry tests; issuance fuzz boundary remains **256 runs**.
+- [x] Committed test inventory = **117** including 8 permanent FIFO tests and 12 permanent registry tests; creator run = **117 passed / 0 failed / 0 skipped**, including 12 focused registry tests; issuance fuzz boundary remains **256 runs**.
 - [x] `template.factoryVersion` remains registry/deployment metadata and is not a caller-supplied `ReleaseConfig` field.
 - [x] Publication-level operational authority uses the canonical `publisherAuthority` name throughout.
 - [ ] Rotation-safe `publisherAuthority` endpoint strategy remains open before any mainnet release enables persistent publisher-authorized lifecycle actions.
 
-After this synchronization, the next frontier is **checkpoint the recovered registry candidate, prove progressive multi-publication accumulation, wire production reserve/request/complete orchestration, then implement native timed closure**. The selected provider, verifier, factory binding, trait-consumption and atomic code-store deployment graphs are already compile/size/provenance tested and must be preserved. Then implement configurable V1 phase-payment enforcement/public minting and the lean immutable metadata-renderer binding/self-contained `tokenURI` proving path. Do not close Gate 4 or expose a collector mint on the assumption that committed hashes alone make canonical art available.
+After this synchronization, the next frontier is **prove progressive multi-publication accumulation/generation isolation/owner authority in the permanent registry test, wire production reserve/request/complete orchestration, then implement native timed closure**. The selected provider, verifier, factory binding, trait-consumption and atomic code-store deployment graphs are already compile/size/provenance tested and must be preserved. Then implement configurable V1 phase-payment enforcement/public minting and the lean immutable metadata-renderer binding/self-contained `tokenURI` proving path. Do not close Gate 4 or expose a collector mint on the assumption that committed hashes alone make canonical art available.
 
 That implementation must preserve the already-proven standard native distinction:
 
