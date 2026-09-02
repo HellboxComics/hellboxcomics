@@ -4,6 +4,19 @@ pragma solidity 0.8.36;
 import {ERC721} from "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import {ERC721Royalty} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Royalty.sol";
 import {HellboxBirthPolicy} from "./HellboxBirthPolicy.sol";
+import {IHellboxRandomnessVerifier} from "./interfaces/IHellboxRandomnessVerifier.sol";
+
+/// @dev Narrow constructor-time discovery surface implemented by an official
+///      HellboxPublicationFactory generation. Kept local to avoid a circular
+///      source import from publication back into factory.
+interface IHellboxPublicationFactoryRandomness {
+    function randomnessVerifier() external view returns (address);
+
+    function randomnessVerifierRuntimeCodeHash()
+        external
+        view
+        returns (bytes32);
+}
 
 /// @title HellboxPublication
 /// @notice Gate 4 V1 publication kernel: constructor-frozen release identity,
@@ -16,9 +29,12 @@ import {HellboxBirthPolicy} from "./HellboxBirthPolicy.sol";
 ///      Canonical enforcement-preimage schemas and the three committed policy-digest anchors are
 ///      defined, and constructor-time BirthPolicy deployment is wired through an immutable inert
 ///      code store, and issued copies consume immutable birth MARK/DEFECT identity through
-///      that companion atomically with issuance. Public mint phases, pricing/payment
-///      enforcement, production randomness, early-close authority, metadata rendering,
-///      and later protocols remain to be wired.
+///      that companion atomically with issuance. An official factory generation may now
+///      expose its immutable verifier through the narrow discovery interface; when the
+///      publication's frozen randomization policy matches that verifier, the publication
+///      binds it and bootstraps issuance state atomically during construction. Public mint
+///      phases, pricing/payment enforcement, the FIFO request/fulfillment queue, timed
+///      closure, metadata rendering, and later protocols remain to be wired.
 contract HellboxPublication is ERC721Royalty {
     // ---------------------------------------------------------------------
     // HELLBOX_ABI_V1 protocol constants
@@ -33,6 +49,11 @@ contract HellboxPublication is ERC721Royalty {
         keccak256("HELLBOX_ABI_V1:RELEASE_CONFIG");
 
     uint256 public constant TOKEN_ID_START = 1;
+
+    /// @notice Stable verifier-family identity accepted for official factory
+    ///         binding in this publication generation.
+    bytes32 public constant RANDOMNESS_VERIFIER_ID =
+        keccak256("HELLBOX_DRAND_EVMNET_VERIFIER_V1");
 
     // ---------------------------------------------------------------------
     // Gate 4 enforcement-preimage domains
@@ -192,6 +213,12 @@ contract HellboxPublication is ERC721Royalty {
         bytes randomizationPolicyPreimage;
     }
 
+    struct RandomnessVerifierBinding {
+        address verifier;
+        bytes32 providerConfigDigest;
+        bytes32 runtimeCodeHash;
+    }
+
     string public publicationKey;
 
     uint256 public immutable releaseChainId;
@@ -238,6 +265,17 @@ contract HellboxPublication is ERC721Royalty {
     /// @dev Immutable by design: no setter, replacement, proxy, initializer,
     ///      or post-deployment activation path exists.
     address public immutable birthPolicy;
+
+    /// @notice Factory-generation verifier bound to this publication when the
+    ///         factory exposes the approved identity and the committed provider
+    ///         digest matches the BirthPolicy randomization preimage.
+    /// @dev Zero is retained only for legacy/direct deterministic harness
+    ///      deployments that do not expose the factory discovery surface. An
+    ///      official factory deployment fails closed on any provider mismatch.
+    address public immutable randomnessVerifier;
+
+    bytes32 public immutable randomnessProviderConfigDigest;
+    bytes32 public immutable randomnessVerifierRuntimeCodeHash;
 
     bool public immutable configFrozen;
     uint256 public immutable frozenAtBlock;
@@ -327,6 +365,23 @@ contract HellboxPublication is ERC721Royalty {
     error InvalidBirthPolicyCodeStorePrefix(address codeStore, uint8 actualPrefix);
     error BirthPolicyCreationCodeHashMismatch(bytes32 expected, bytes32 computed);
     error BirthPolicyDeploymentProducedNoCode();
+    error MalformedFactoryRandomnessVerifierResponse(uint256 byteLength);
+    error MalformedFactoryRandomnessVerifierRuntimeCodeHashResponse(
+        uint256 byteLength
+    );
+    error InvalidFactoryRandomnessVerifier(address verifier);
+    error RandomnessVerifierRuntimeCodeHashMismatch(
+        bytes32 expectedRuntimeCodeHash,
+        bytes32 actualRuntimeCodeHash
+    );
+    error RandomnessVerifierIdentityMismatch(
+        bytes32 expectedVerifierId,
+        bytes32 actualVerifierId
+    );
+    error RandomnessProviderConfigDigestMismatch(
+        bytes32 expectedProviderConfigDigest,
+        bytes32 actualProviderConfigDigest
+    );
 
     error IssuanceStateAlreadyInitialized();
     error IssuanceStateNotInitialized();
@@ -379,6 +434,13 @@ contract HellboxPublication is ERC721Royalty {
         uint256 publicationVersion,
         bytes32 publicationManifestDigest,
         bytes32 packageDigest
+    );
+
+    event PublicationRandomnessVerifierBound(
+        address indexed verifier,
+        bytes32 indexed verifierId,
+        bytes32 indexed providerConfigDigest,
+        bytes32 runtimeCodeHash
     );
 
     /// @notice Emitted only after immediate copy IDs have been removed from the
@@ -489,6 +551,15 @@ contract HellboxPublication is ERC721Royalty {
             birthPolicyContext
         );
 
+        RandomnessVerifierBinding memory randomnessBinding =
+            _resolveFactoryRandomnessVerifier(factory_);
+
+        randomnessVerifier = randomnessBinding.verifier;
+        randomnessProviderConfigDigest =
+            randomnessBinding.providerConfigDigest;
+        randomnessVerifierRuntimeCodeHash =
+            randomnessBinding.runtimeCodeHash;
+
         configFrozen = true;
         frozenAtBlock = block.number;
         frozenAtTimestamp = block.timestamp;
@@ -506,6 +577,137 @@ contract HellboxPublication is ERC721Royalty {
             commitments.publicationManifestDigest,
             commitments.packageDigest
         );
+
+        if (randomnessBinding.verifier != address(0)) {
+            emit PublicationRandomnessVerifierBound(
+                randomnessBinding.verifier,
+                RANDOMNESS_VERIFIER_ID,
+                randomnessBinding.providerConfigDigest,
+                randomnessBinding.runtimeCodeHash
+            );
+
+            _initializeIssuanceState(_policyImmediateCopyIds());
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // Constructor-only verifier discovery / issuance bootstrap
+    // ---------------------------------------------------------------------
+
+    /// @dev An official factory exposes exactly one immutable verifier and its
+    ///      factory-frozen runtime code hash. Direct deterministic harness
+    ///      deployments intentionally omit the verifier getter, preserving their
+    ///      isolated internal-primitive test boundary. For an official factory
+    ///      deployment, any verifier runtime mismatch or enabled BirthPolicy
+    ///      provider mismatch reverts publication construction atomically before
+    ///      factory provenance can be registered.
+    function _resolveFactoryRandomnessVerifier(
+        address factoryAddress
+    ) internal view returns (RandomnessVerifierBinding memory binding) {
+        (bool success, bytes memory response) = factoryAddress.staticcall(
+            abi.encodeCall(
+                IHellboxPublicationFactoryRandomness.randomnessVerifier,
+                ()
+            )
+        );
+
+        if (!success || response.length == 0) {
+            return binding;
+        }
+
+        if (response.length != 32) {
+            revert MalformedFactoryRandomnessVerifierResponse(
+                response.length
+            );
+        }
+
+        binding.verifier = abi.decode(response, (address));
+
+        if (
+            binding.verifier == address(0) ||
+            binding.verifier.code.length == 0
+        ) {
+            revert InvalidFactoryRandomnessVerifier(binding.verifier);
+        }
+
+        (
+            bool runtimeHashSuccess,
+            bytes memory runtimeHashResponse
+        ) = factoryAddress.staticcall(
+            abi.encodeCall(
+                IHellboxPublicationFactoryRandomness
+                    .randomnessVerifierRuntimeCodeHash,
+                ()
+            )
+        );
+
+        if (!runtimeHashSuccess || runtimeHashResponse.length != 32) {
+            revert MalformedFactoryRandomnessVerifierRuntimeCodeHashResponse(
+                runtimeHashResponse.length
+            );
+        }
+
+        bytes32 expectedRuntimeCodeHash = abi.decode(
+            runtimeHashResponse,
+            (bytes32)
+        );
+        bytes32 actualRuntimeCodeHash = binding.verifier.codehash;
+
+        if (
+            expectedRuntimeCodeHash == bytes32(0) ||
+            expectedRuntimeCodeHash != actualRuntimeCodeHash
+        ) {
+            revert RandomnessVerifierRuntimeCodeHashMismatch(
+                expectedRuntimeCodeHash,
+                actualRuntimeCodeHash
+            );
+        }
+
+        binding.runtimeCodeHash = actualRuntimeCodeHash;
+
+        IHellboxRandomnessVerifier verifier =
+            IHellboxRandomnessVerifier(binding.verifier);
+
+        bytes32 actualVerifierId = verifier.verifierId();
+        if (actualVerifierId != RANDOMNESS_VERIFIER_ID) {
+            revert RandomnessVerifierIdentityMismatch(
+                RANDOMNESS_VERIFIER_ID,
+                actualVerifierId
+            );
+        }
+
+        binding.providerConfigDigest = verifier.providerConfigDigest();
+
+        HellboxBirthPolicy policy = HellboxBirthPolicy(birthPolicy);
+        if (policy.randomizationEnabled()) {
+            bytes32 expectedProviderConfigDigest =
+                policy.randomizationProviderConfigDigest();
+
+            if (
+                expectedProviderConfigDigest !=
+                binding.providerConfigDigest
+            ) {
+                revert RandomnessProviderConfigDigestMismatch(
+                    expectedProviderConfigDigest,
+                    binding.providerConfigDigest
+                );
+            }
+        }
+
+    }
+
+    function _policyImmediateCopyIds()
+        internal
+        view
+        returns (uint256[] memory immediateCopyIds)
+    {
+        uint256 count = immediateCreatorCount;
+        immediateCopyIds = new uint256[](count);
+
+        HellboxBirthPolicy policy = HellboxBirthPolicy(birthPolicy);
+        for (uint256 i = 0; i < count; ++i) {
+            immediateCopyIds[i] = policy.policyImmediateCopyAt(i);
+        }
     }
 
     // ---------------------------------------------------------------------
