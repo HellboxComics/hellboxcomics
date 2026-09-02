@@ -2,8 +2,8 @@
 
 **Gate:** Gate 4 — HELLBOX ARTIFACT KERNEL + VERSIONED PUBLICATION FACTORY
 **Status:** APPROVED / IMPLEMENTATION IN PROGRESS
-**Checkpoint:** the recovered registry boundary is committed and pushed. The latest source/test baseline before this documentation-only synchronization is `c91763768c54130991f9b83df9a54971ed021bd6`: factory registry commit `7208590`, permanent registry-test commit `c917637`, **117 committed Solidity tests**, and a clean worktree/index after the second commit. Creator evidence for the exact committed bytes is **12 focused / 117 total passed, 0 failed, 0 skipped**. The later proposed 120-test transition is absent and must not be claimed.
-**Next frontier:** extend only the permanent registry test with the missing progressive multi-publication/generation/owner regressions; then wire production publication reservation/request/fulfillment/completion and creator initialization. Native timed closure follows. Phase/payment/public mint and immutable renderer/`tokenURI` work remain closed until those boundaries pass.
+**Checkpoint:** the recovered registry boundary and progressive-jackpot proof are committed and pushed. The latest source/test implementation baseline before this documentation-only synchronization is `9a153dd6fef4f275476f74c9254d2f3beb90007e`: factory registry commit `7208590`, initial registry-test commit `c917637`, progressive-regression commit `9a153dd`, **120 committed Solidity tests**, and a clean worktree/index after the latest source/test commit. Creator evidence for the exact committed bytes is **15 focused / 120 total passed, 0 failed, 0 skipped**.
+**Next frontier:** wire production publication reservation/request/fulfillment/completion through the real creator-initialization path. The permanent registry test already proves progressive multi-publication accumulation, generation isolation and owner-only approval authority. Native timed closure follows. Phase/payment/public mint and immutable renderer/`tokenURI` work remain closed until those boundaries pass.
 **Target chain:** PulseChain Testnet V4 only
 **Mainnet:** prohibited in Gate 4
 **Repository destination:** `CURRENT_GATE_BLUEPRINT.md`
@@ -61,7 +61,7 @@ Current proven Gate 4 implementation constraints:
 - the deployed publication permanently stores exactly one companion address and the companion proves `birthPolicy.publication() == publication`; malformed stores, wrong hashes, malformed policy preimages, digest mismatches and child-constructor failures revert the entire publication deployment atomically;
 - the direct publication-constructor BirthPolicy embed was measured at **42,840-byte initcode** and remains rejected for inadequate practical EIP-3860 runway; production Publication/Factory source contains no direct BirthPolicy creation-code embed;
 - frozen drand `evmnet` configuration, stateless verifier, exact PulseChain Testnet valid/invalid proof execution and immutable factory-generation verifier binding are implemented and pushed;
-- committed Gate 4 tree contains **117 Solidity tests** with creator evidence for **117 total passed, 0 failed, 0 skipped**:
+- committed Gate 4 tree contains **120 Solidity tests** with creator evidence for **120 total passed, 0 failed, 0 skipped**:
   - 16 `HellboxPublication` kernel tests;
   - 21 factory/provenance/atomic-deployment tests;
   - 13 deterministic issuance/atomic-trait tests, including a 256-run fuzz boundary;
@@ -1799,7 +1799,7 @@ commitmentsDigest       = 0xb6a0722a62b0309c6a082152ddff7e1ffc544669e8d690047a75
 releaseConfigDigest     = 0x66e6697d8fde60531eebed0882030a1c6beecf086b04926599a39878d4e0d15d
 ```
 
-Current proof status: `testJavascriptAndSolidityGoldenVectorMatch()` remains part of the **117-test committed tree**. Creator evidence for the exact committed bytes records **117/117 passed, 0 failed, 0 skipped**, including the permanent eight-test FIFO suite and 12 focused registry tests. The issuance fuzz boundary remains 256 runs. The absent chat-only progressive transition must not be counted as three additional tests.
+Current proof status: `testJavascriptAndSolidityGoldenVectorMatch()` remains part of the **120-test committed tree**. Creator evidence for the exact committed bytes records **120/120 passed, 0 failed, 0 skipped**, including the permanent eight-test FIFO suite and **15/15 focused registry tests**. The issuance fuzz boundary remains 256 runs. The three progressive-jackpot regressions are now permanent committed tests.
 
 ## 36.4 Deployment-time enforcement preimages — LOCKED BOUNDARY
 
@@ -2874,7 +2874,7 @@ This blueprint remains approved. Gate 4 may continue only along the dependency-o
 
 ## Committed/pushed proof boundary
 
-Latest source/test baseline before this documentation-only synchronization: `c91763768c54130991f9b83df9a54971ed021bd6`.
+Latest source/test implementation baseline before this documentation-only synchronization: `9a153dd6fef4f275476f74c9254d2f3beb90007e`.
 
 - exact Solidity `0.8.36`, Shanghai, optimizer-on/200-runs/`via_ir=false` profile;
 - pinned OpenZeppelin `v5.1.0`;
@@ -2887,8 +2887,8 @@ Latest source/test baseline before this documentation-only synchronization: `c91
 - future-round append-only request state and exact permissionless FIFO fulfillment;
 - internal one-time Prize Wallet first-non-tail same-pool issuance with EOA validation and `210/207 → 209/206` accounting;
 - committed self-authorized EOA campaign registry with generation-bound approval, reserve/complete deposit accounting, pending-deposit claim blocking, direct wallet claim, no-reuse and rotation protections;
-- **117 committed Solidity tests**, including the eight-test Prize Wallet FIFO probe and 12-test registry probe;
-- exact creator run: **12 focused / 117 total passed, 0 failed, 0 skipped**.
+- **120 committed Solidity tests**, including the eight-test Prize Wallet FIFO probe and 15-test registry/progressive probe;
+- exact creator run: **15 focused / 120 total passed, 0 failed, 0 skipped**.
 
 Committed registry identities:
 
@@ -2899,16 +2899,16 @@ contracts/HellboxPublicationFactory.sol
   commit 7208590223107257c92524095a951e162b3c7349
 
 test/HellboxPrizeWalletRegistryProbe.t.sol
-  747 lines
-  sha256 6793f8f659b090bc83febf9b6c38d02fab5ed4229bcb25fcea407ace5a73cb60
-  commit c91763768c54130991f9b83df9a54971ed021bd6
+  986 lines
+  sha256 5b1300174947af2307fcd522613804ca3c96d8e978d4cb7f40d8a9cbfa75ba16
+  latest test commit 9a153dd6fef4f275476f74c9254d2f3beb90007e
+  initial 12-test commit c91763768c54130991f9b83df9a54971ed021bd6
 ```
 
 The registry test still uses a publication harness. Production `HellboxPublication` has not yet called the real reserve/request/fulfill/complete path.
 
 ## Allowed remaining Gate 4 work
 
-- add the missing progressive multi-publication/generation/owner regressions in the registry test file alone;
 - wire production publication creator initialization to the real registry reserve/request/fulfill/complete flow;
 - implement native timed closure and extinguishment through the same verifier/FIFO model;
 - implement phase eligibility and V1 exact payment/proceeds enforcement;
@@ -2930,7 +2930,7 @@ Do not add narrative graph state, puzzle timers, saved-run state, experience-mar
 
 # 49A. INTERNAL ENGINEERING CHECKPOINT — COMMITTED FIFO + PRIZE WALLET REGISTRY FRONTIER
 
-The publication randomness verifier binding, FIFO request/fulfillment substrate, internal Prize Wallet issuance, factory campaign registry and permanent registry probe are committed and test-backed. No collector-facing mint endpoint exists. The immediate work is to prove progressive accumulation/generation isolation/owner authority in the test file, wire real production reserve/request/complete orchestration, and only then implement timed closure and phase/payment/public minting.
+The publication randomness verifier binding, FIFO request/fulfillment substrate, internal Prize Wallet issuance, factory campaign registry and permanent 15-test progressive registry probe are committed and test-backed. No collector-facing mint endpoint exists. The immediate work is to wire real production reserve/request/complete orchestration, and only then implement timed closure and phase/payment/public minting.
 
 ## 49A.1 Blueprint sections carried forward
 
@@ -3186,19 +3186,18 @@ Committed and permanent:
 - pending deposits block claim and rotation;
 - recovered EOA directly confirms claim;
 - no mnemonic/private key/puzzle answer/withdrawal authority on-chain;
-- permanent 12-test registry regression.
+- permanent 15-test registry/progressive-jackpot regression.
 
-The registry source was committed separately at `7208590`; its test was committed separately at `c917637`. The exact committed bytes passed 12 focused tests and the full 117-test suite with zero failures or skips. Production `HellboxPublication` integration remains open because the registry probe uses a publication harness.
+The registry source was committed separately at `7208590`; its initial test was committed at `c917637`, then extended at `9a153dd` with the three progressive-jackpot regressions. The exact committed bytes passed 15 focused tests and the full 120-test suite with zero failures or skips. Production `HellboxPublication` integration remains open because the registry probe uses publication actors/harnesses.
 
 Exact next production sequence:
 
-1. permanently prove multiple publications accumulate under one active generation, approvals do not leak across rotations, and only the factory owner manages approvals;
-2. during creator initialization, publication reserves the active approved EOA before creating its Prize Wallet request;
-3. permissionless fulfillment mints the random copy and atomically completes the factory deposit;
-4. public phases remain closed until completion;
-5. collector requests use the same FIFO machinery;
-6. timed expiry uses the same verifier to select Final 3 and extinguish every other candidate;
-7. only then expose phase/payment/public mint endpoints.
+1. during creator initialization, publication reserves the active approved EOA before creating its Prize Wallet request;
+2. permissionless fulfillment mints the random copy and atomically completes the factory deposit;
+3. public phases remain closed until completion;
+4. collector requests use the same FIFO machinery;
+5. timed expiry uses the same verifier to select Final 3 and extinguish every other candidate;
+6. only then expose phase/payment/public mint endpoints.
 
 Prize Wallet invariants:
 
@@ -3303,26 +3302,23 @@ HellboxBirthPolicyCodeStore tests                4
 drand verifier tests                              8
 factory verifier-binding tests                    4
 Prize Wallet FIFO tests                           8
-Prize Wallet registry tests                      12
+Prize Wallet registry tests                      15
 cross-language golden vector                      1
 --------------------------------------------------
-COMMITTED TOTAL                                 117
+COMMITTED TOTAL                                 120
 ```
 
-The later proposed three-test progressive transition is absent. Do not write `120` until it is installed, reviewed, passes and is committed.
+The three progressive-jackpot regressions are committed at `9a153dd` and included in the 120-test total.
 
 Current permanent FIFO proof includes strict seventh-mint ordering, future-round binding, real drand fulfillment, no mutation on invalid/not-ready proof, EOA persistence, project/contract-recipient rejection, #066 eligibility and publication-domain separation.
 
-Current committed registry proof includes activation-signature validity/replay boundaries, safe EOA/manifest shapes, owner/factory separation, official-publication approval, one reserve/complete lifecycle, pending-deposit claim block, revocation without stranding reservations, direct winner claim and no wallet/manifest reuse.
+Current committed registry proof includes activation-signature validity/replay boundaries, safe EOA/manifest shapes, owner/factory separation, official-publication approval, one reserve/complete lifecycle, pending-deposit claim block, revocation without stranding reservations, direct winner claim, no wallet/manifest reuse, multiple publications accumulating in one active campaign, generation-bound approval isolation and owner-only approval management.
 
 Still required later in Gate 4:
 
 ### Progressive campaign / production integration
 
-- two or more distinct official publications reserve/complete into the same active generation;
 - one publication cannot deposit twice;
-- old approvals cannot authorize a new generation;
-- only factory owner manages approval/revocation;
 - production creator initialization—not a harness—reserves then creates the first-non-tail request;
 - successful fulfillment atomically marks the factory deposit complete;
 - failed fulfillment leaves accounting consistent and blocks claim/public phases;
@@ -3743,12 +3739,12 @@ Additional implementation decisions now synchronized here:
 - [ ] Native timed-closure + permanent extinguishment + unbiased expiry Final-3 implementation is not yet complete.
 - [ ] Configurable per-phase FREE/native-PLS/ERC-20 pricing/payment enforcement, exact settlement and stable revenue-routing boundary are not yet complete.
 - [ ] Gate 4 immutable metadata-renderer interface/binding and self-contained native `tokenURI` proving path are not yet complete; Gate 6 full art-data compiler remains later.
-- [x] Committed test inventory = **117** including 8 permanent FIFO tests and 12 permanent registry tests; creator run = **117 passed / 0 failed / 0 skipped**, including 12 focused registry tests; issuance fuzz boundary remains **256 runs**.
+- [x] Committed test inventory = **120** including 8 permanent FIFO tests and 15 permanent registry/progressive tests; creator run = **120 passed / 0 failed / 0 skipped**, including 15 focused registry tests; issuance fuzz boundary remains **256 runs**.
 - [x] `template.factoryVersion` remains registry/deployment metadata and is not a caller-supplied `ReleaseConfig` field.
 - [x] Publication-level operational authority uses the canonical `publisherAuthority` name throughout.
 - [ ] Rotation-safe `publisherAuthority` endpoint strategy remains open before any mainnet release enables persistent publisher-authorized lifecycle actions.
 
-After this synchronization, the next frontier is **prove progressive multi-publication accumulation/generation isolation/owner authority in the permanent registry test, wire production reserve/request/complete orchestration, then implement native timed closure**. The selected provider, verifier, factory binding, trait-consumption and atomic code-store deployment graphs are already compile/size/provenance tested and must be preserved. Then implement configurable V1 phase-payment enforcement/public minting and the lean immutable metadata-renderer binding/self-contained `tokenURI` proving path. Do not close Gate 4 or expose a collector mint on the assumption that committed hashes alone make canonical art available.
+After this synchronization, the next frontier is **wire production reserve/request/complete orchestration, then implement native timed closure**. The selected provider, verifier, factory binding, trait-consumption and atomic code-store deployment graphs are already compile/size/provenance tested and must be preserved. Then implement configurable V1 phase-payment enforcement/public minting and the lean immutable metadata-renderer binding/self-contained `tokenURI` proving path. Do not close Gate 4 or expose a collector mint on the assumption that committed hashes alone make canonical art available.
 
 That implementation must preserve the already-proven standard native distinction:
 

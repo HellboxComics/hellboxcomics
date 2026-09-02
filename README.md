@@ -59,7 +59,7 @@ A completed Gate's detailed architecture must be archived before `CURRENT_GATE_B
 Latest source/test implementation baseline before this documentation-only synchronization:
 
 ```text
-c91763768c54130991f9b83df9a54971ed021bd6
+9a153dd6fef4f275476f74c9254d2f3beb90007e
 ```
 
 Committed/pushed Gate 4 state:
@@ -74,8 +74,8 @@ Committed/pushed Gate 4 state:
 - append-only future-round requests, exact FIFO permissionless proof fulfillment, and internal one-time Prize Wallet same-pool issuance;
 - permanent eight-test Prize Wallet FIFO regression;
 - committed self-authorized EOA campaign registry with official-publication approval, reserve→complete deposit accounting, pending-deposit claim blocking, direct winner-wallet claim, no-reuse and rotation boundaries;
-- permanent 12-test Prize Wallet registry regression;
-- **117 committed Solidity tests**.
+- permanent 15-test Prize Wallet registry/progressive-jackpot regression;
+- **120 committed Solidity tests**.
 
 Exact committed registry identities:
 
@@ -84,23 +84,24 @@ factory commit: 7208590223107257c92524095a951e162b3c7349
 factory: 1178 lines
 sha256: 885d81b731aa28bb9a1f27de714d7d16e16d9c5a7e73fd75bbba9620c1d4a90d
 
-registry-test commit: c91763768c54130991f9b83df9a54971ed021bd6
-registry test: 747 lines
-sha256: 6793f8f659b090bc83febf9b6c38d02fab5ed4229bcb25fcea407ace5a73cb60
+registry-test latest commit: 9a153dd6fef4f275476f74c9254d2f3beb90007e
+registry-test initial commit: c91763768c54130991f9b83df9a54971ed021bd6
+registry test: 986 lines
+sha256: 5b1300174947af2307fcd522613804ca3c96d8e978d4cb7f40d8a9cbfa75ba16
 ```
 
 Creator terminal evidence for those exact bytes:
 
-- **12/12** focused registry tests passed;
-- **117/117** total tests passed, 0 failed, 0 skipped;
+- **15/15** focused registry tests passed;
+- **120/120** total tests passed, 0 failed, 0 skipped;
 - issuance fuzz boundary **256 runs**;
 - optimized runtimes: publication **14,818 bytes**, factory **12,424 bytes**, verifier **5,138 bytes**;
 - factory initcode with arguments **19,742 bytes**, leaving **29,410 bytes** EIP-3860 headroom;
-- worktree and index clean after the registry-test commit.
+- worktree and index clean after the progressive-regression commit.
 
-The later proposed three-test progressive transition was not installed. The repository therefore remains at **117**, not 120, and production publication↔registry integration is still open.
+The three progressive-jackpot regressions are now committed and prove multi-publication accumulation, generation-isolated approvals and owner-only approval management. Production publication↔registry integration is still open.
 
-**Exact next frontier:** add permanent multi-publication progressive-jackpot, generation-isolation and owner-authority regressions in the registry test file alone; wire production publication reserve→FIFO request→fulfillment→deposit completion; then implement native timed closure. Phase/payment/public mint and immutable renderer/`tokenURI` work remain closed until those pass.
+**Exact next frontier:** wire production publication reserve→FIFO request→fulfillment→deposit completion through the real creator-initialization path; then implement native timed closure. Phase/payment/public mint and immutable renderer/`tokenURI` work remain closed until those pass.
 
 The interactive comic, Prize Wallet campaign, Continuity Covenant, Archive/reward, outside-creator Press and future-token directions do **not** authorize a `HELLBOX_ABI_V1` change or early collector mint.
 

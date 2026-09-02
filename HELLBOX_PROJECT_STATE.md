@@ -3,8 +3,8 @@
 **Status:** Authoritative cross-chat project handoff
 **Repository:** `main`
 **Current Gate:** Gate 4 — HELLBOX ARTIFACT KERNEL + VERSIONED PUBLICATION FACTORY
-**Current implementation checkpoint:** the recovered Gate 4 source boundary is now committed and pushed. The latest source/test baseline before this documentation-only synchronization is `c91763768c54130991f9b83df9a54971ed021bd6`: recovery documents at `e2adb5b`, the Prize Wallet campaign registry in `contracts/HellboxPublicationFactory.sol` at `7208590`, and its permanent 12-test probe at `c917637` were each checkpointed separately. The committed tree contains **117 Solidity tests**. Creator terminal evidence for the exact committed source/test bytes is **12 focused / 117 total tests passed, 0 failed, 0 skipped**, with the issuance fuzz boundary at **256 runs**. The repository and index were clean after the test commit, and the later proposed 120-test progressive-jackpot transition remains **not installed**.
-**Exact next frontier:** extend only `test/HellboxPrizeWalletRegistryProbe.t.sol` with the missing permanent multi-publication progressive-jackpot, generation-isolation and owner-authority regressions; claim 120 only after those exact bytes pass and are committed. Then wire the real publication to reserve the active campaign wallet, create/fulfill its first-non-tail FIFO request, and complete the factory deposit atomically. Native timed closure follows. Phase eligibility, exact `FREE` / `FIXED_NATIVE` / `FIXED_ERC20` settlement, the collector mint path, and the immutable renderer/`tokenURI` checkpoint remain closed until the preceding boundaries pass.
+**Current implementation checkpoint:** the recovered Gate 4 registry boundary and its progressive-jackpot proof are committed and pushed. The latest source/test implementation baseline before this documentation-only synchronization is `9a153dd6fef4f275476f74c9254d2f3beb90007e`: recovery documents at `e2adb5b`, the Prize Wallet campaign registry at `7208590`, its permanent 12-test probe at `c917637`, and the three progressive-jackpot regressions at `9a153dd` were checkpointed conservatively. The committed tree contains **120 Solidity tests**. Creator terminal evidence for the exact committed bytes is **15 focused / 120 total tests passed, 0 failed, 0 skipped**, with the issuance fuzz boundary at **256 runs**. Production bytecode sizes remained unchanged because the 117→120 transition changed only the registry test file, and the repository/worktree were clean after the test commit.
+**Exact next frontier:** wire the real production publication to reserve the active approved campaign wallet, create its first-non-tail Prize Wallet FIFO request through creator initialization, and complete the factory deposit atomically after successful fulfillment. The 15-test registry suite already permanently proves progressive multi-publication accumulation, generation isolation and owner-only approval authority. Native timed closure follows. Phase eligibility, exact `FREE` / `FIXED_NATIVE` / `FIXED_ERC20` settlement, the collector mint path, and the immutable renderer/`tokenURI` checkpoint remain closed until the preceding boundaries pass.
 **New locked owner-experience direction:** a normal Hellbox comic release may present publicly as the same finite collectible, but the private owner Reader is a finite Harrow-authored interactive narrative: comic stages lead into frame-native escape rooms, timed survival, authored branches, alternate endings, death outcomes and trait-specific interactions. AI may assist Harrow during issue production, but published owner paths/pages/rooms are pre-authored and finite; no canonical story page is generated live by AI at read time. This expands later Reader/package/Archive work and does **not** change the immediate Gate 4 randomness/payment/phase/closure frontier or require a `HELLBOX_ABI_V1` change.
 **New locked future Press direction:** after Hellbox's own Press is mature, a separate independent-creator launch lane may let outside authors/artists deploy their own non-Hellbox titles and make conforming packages readable in the Hellbox Reader. Outside titles never receive Hellbox-native title stamps/canon/reward status merely for using the Press; creators remain responsible for their own canonical asset hosting; Harrow's proprietary comic-generation machinery remains private; exact launch prerequisites and fee/royalty economics remain OPEN.
 **New locked token/settlement separation direction:** Harrow is a comic creator/publisher and Press operator, not a crypto-founder identity. Any future Hellbox-endorsed/project-used token remains separate from Hellbox publication-contract control: official Hellbox project wallets do not deploy that token, Hellbox does not hold token admin keys or control permanently locked liquidity, and official Hellbox wallets may later acquire an already-public token through ordinary market transactions before/after endorsement. Public statements must describe actual launch/control/holdings facts truthfully. Native PLS is the standard/default paid checkout asset on PulseChain, but the private Press may select another standards-compatible same-chain ERC-20/PRC-20 for a phase before `PUBLISH`; the selected asset and exact raw-unit amount then freeze. Back-office accounting still records required transaction-time fiat fair-market values separately.
@@ -14,7 +14,7 @@
 **New locked publisher-continuity direction:** Harrow keeps exclusive control of official canon, Press operation and unpublished secret sauce while active, but published artifacts and Reader access must survive him. The inactivity heartbeat is exactly **666 days, 6 hours, 6 minutes and 6 seconds (57,564,366 seconds)**. After that period, or after a deliberate warning/timelock process, continuity becomes permissionlessly activatable. Infrastructure/recovery materials may open; official canon does not become ownerless, unpublished work/personal secrets do not auto-release, and the exact legal/on-chain successor must agree. A separate Continuity Reserve—not the Archive reward pool—funds preservation/recovery.
 **Mainnet:** prohibited during Gate 4
 
-**Recovery reconstruction — 2026-09-02:** the prior chat did not lose a committed source checkpoint. It failed after installing and validating the factory registry candidate but before committing it or synchronizing any living document. When Harrow corrected the design to a 12-word ongoing progressive-jackpot EOA on the Byte-site introduction and requested all living documents plus a handoff, the prior assistant proposed another test-only transition and expressly updated no documentation. Recovery then closed that gap in conservative checkpoints: the four-document reconstruction was committed at `e2adb5b`, the exact recovered factory bytes at `7208590`, and the exact permanent registry probe at `c917637`. The repository now has **117 committed tests**. The chat-only three-test transition is still absent, so this document does not claim 120 tests or pretend the production publication↔registry integration exists.
+**Recovery reconstruction — 2026-09-02:** the prior chat did not lose a committed source checkpoint. It failed after installing and validating the factory registry candidate but before committing it or synchronizing any living document. When Harrow corrected the design to a 12-word ongoing progressive-jackpot EOA on the Byte-site introduction and requested all living documents plus a handoff, the prior assistant proposed another test-only transition and expressly updated no documentation. Recovery then closed that gap in conservative checkpoints: the four-document reconstruction was committed at `e2adb5b`, the exact recovered factory bytes at `7208590`, the exact permanent registry probe at `c917637`, and the three progressive-jackpot regressions at `9a153dd`. The repository now has **120 committed tests**. Production publication↔registry integration is still open and must not be inferred merely from the completed registry proof.
 
 This file intentionally combines project state, engineering handoff, development process and future-Gate continuity. It replaces separate root-level master-handoff and engineering-execution-standard documents **only because their durable rules are folded here in full**.
 
@@ -599,10 +599,10 @@ This snapshot distinguishes **committed/pushed truth** from **work that was only
 
 ## Committed and pushed Gate 4 implementation
 
-Latest source/test baseline before this documentation-only synchronization:
+Latest source/test implementation baseline before this documentation-only synchronization:
 
 ```text
-c91763768c54130991f9b83df9a54971ed021bd6
+9a153dd6fef4f275476f74c9254d2f3beb90007e
 ```
 
 Newest conservative checkpoints:
@@ -615,6 +615,8 @@ f1ceb51  Implement Prize Wallet FIFO issuance substrate
 e2adb5b  Synchronize Gate 4 living documents
 7208590  Implement Prize Wallet campaign registry
 c917637  Add Prize Wallet campaign registry tests
+f089287  Synchronize post-registry Gate 4 state
+9a153dd  Lock progressive Prize Wallet campaign regressions
 ```
 
 The committed tree includes:
@@ -661,11 +663,11 @@ contracts/HellboxPublicationFactory.sol
   sha256:  885d81b731aa28bb9a1f27de714d7d16e16d9c5a7e73fd75bbba9620c1d4a90d
 
 test/HellboxPrizeWalletRegistryProbe.t.sol
-  lines:   747
-  sha256:  6793f8f659b090bc83febf9b6c38d02fab5ed4229bcb25fcea407ace5a73cb60
+  lines:   986
+  sha256:  5b1300174947af2307fcd522613804ca3c96d8e978d4cb7f40d8a9cbfa75ba16
 ```
 
-The committed Foundry test inventory is **117 tests**:
+The committed Foundry test inventory is **120 tests**:
 
 ```text
 HellboxPublication                              16
@@ -677,10 +679,10 @@ HellboxBirthPolicyCodeStore                     4
 HellboxDrandEvmnetVerifier                      8
 HellboxFactoryRandomnessBinding                 4
 HellboxPrizeWalletFifoProbe                     8
-HellboxPrizeWalletRegistryProbe                12
+HellboxPrizeWalletRegistryProbe                15
 HellboxPublicationGoldenVector                  1
 -------------------------------------------------
-TOTAL                                          117
+TOTAL                                          120
 ```
 
 The eight permanent FIFO tests prove, among other things:
@@ -694,12 +696,12 @@ The eight permanent FIFO tests prove, among other things:
 
 ## Committed Prize Wallet campaign registry
 
-The factory registry was committed alone at `7208590223107257c92524095a951e162b3c7349`. Its permanent probe was committed alone at `c91763768c54130991f9b83df9a54971ed021bd6`. The worktree and index were clean after the second commit.
+The factory registry was committed alone at `7208590223107257c92524095a951e162b3c7349`. Its initial permanent 12-test probe was committed alone at `c91763768c54130991f9b83df9a54971ed021bd6`. The same test file was then extended alone at `9a153dd6fef4f275476f74c9254d2f3beb90007e` with the three progressive-jackpot regressions. The worktree and index were clean after the 120-test commit.
 
 Creator terminal evidence for the exact bytes now committed records:
 
-- **12/12** focused Prize Wallet campaign-registry tests passed;
-- **117/117** full Solidity tests passed, 0 failed, 0 skipped;
+- **15/15** focused Prize Wallet campaign-registry tests passed;
+- **120/120** full Solidity tests passed, 0 failed, 0 skipped;
 - issuance fuzz boundary remained **256 runs**;
 - compiler profile was optimized Shanghai, 200 runs, no IR pipeline;
 - `HellboxPublicationFactory` runtime **12,424 bytes**, EIP-170 headroom **12,152 bytes**;
@@ -722,21 +724,21 @@ The committed factory registry implements and its probe test-backs:
 - factory ownership cannot be transferred to a used Prize Wallet;
 - no mnemonic, private key, puzzle answer, withdrawal or sweep authority enters the factory.
 
-The 12-test probe still uses a publication harness. The production `HellboxPublication` has not yet been wired to reserve the active campaign wallet, create the seventh-mint request through creator initialization, or complete the factory deposit after fulfillment.
+The 15-test probe still uses publication actors/harnesses for registry-boundary proof. Production `HellboxPublication` has not yet been wired to reserve the active campaign wallet, create the seventh-mint request through creator initialization, or complete the factory deposit after fulfillment.
 
-## Explicitly absent work — do not overclaim
+## Progressive-jackpot proof now committed
 
-The chat-only `HBX_G4_PRIZE_WALLET_PROGRESSIVE_JACKPOT_TRANSITION_01` was not installed. Therefore the repository does **not** yet contain the proposed additional three permanent regressions for:
+Commit `9a153dd6fef4f275476f74c9254d2f3beb90007e` permanently adds and passes the three missing regressions for:
 
-- multiple distinct publications accumulating deposits in the same campaign;
+- multiple distinct publications accumulating deposits in the same active campaign;
 - campaign-generation approvals not leaking into the next campaign;
 - owner-only campaign-approval management.
 
-The current committed suite is **117**, not 120. The exact committed factory/test bytes passed the focused and full creator-side runs before their content-identical one-file commits. A new test-file change must rerun the focused registry suite and full regression before it can raise the committed total.
+The committed suite is therefore **120 tests**. The exact 986-line registry probe passed **15/15 focused** and the complete tree passed **120/120**, with production sizes unchanged because no executable contract changed.
 
 ## Documentation authority after recovery
 
-This post-registry synchronization updates `HELLBOX_PROJECT_STATE.md`, `CURRENT_GATE_BLUEPRINT.md` and `README.md` to the committed 117-test baseline. `HARROW_CHARACTER_BIBLE.md` is deliberately unchanged because these commits changed engineering state, not creative canon. The documentation commit containing these files becomes the new repository `HEAD`; `c917637` remains the exact latest source/test implementation baseline recorded here.
+This synchronization updates `HELLBOX_PROJECT_STATE.md`, `CURRENT_GATE_BLUEPRINT.md` and `README.md` to the committed 120-test baseline. `HARROW_CHARACTER_BIBLE.md` is deliberately unchanged because this checkpoint changed engineering proof, not creative canon. The documentation commit containing these files becomes the new repository `HEAD`; `9a153dd` remains the exact latest source/test implementation baseline recorded here.
 
 At formal Gate 4 close, archive the finalized active blueprint to:
 
@@ -2440,7 +2442,7 @@ Focused proof:
 - copied payload hash equals the BirthPolicy creation-code hash;
 - ordinary calls are inert.
 
-The committed tree contains **117 tests**: the earlier 105-test foundation plus the permanent 12-test Prize Wallet campaign-registry probe. Creator terminal evidence for the exact committed bytes is **117/117 passed, 0 failed, 0 skipped**.
+The committed tree contains **120 tests**: the earlier 105-test foundation plus the permanent Prize Wallet campaign-registry suite, now expanded to 15 tests with progressive-jackpot, generation-isolation and owner-authority proof. Creator terminal evidence for the exact committed bytes is **120/120 passed, 0 failed, 0 skipped**.
 
 The code store is now proven **and integrated** infrastructure. Production publication/factory source contains no direct BirthPolicy creation-code embed. At the pre-optimizer integration checkpoint, the measured native publication `CREATE` payload was **31,665 bytes** with **17,487 bytes** of EIP-3860 headroom. It must be freshly remeasured after production Prize Wallet registry wiring.
 
@@ -2599,7 +2601,7 @@ Do not add a post-deploy policy setter/initializer/activation window. Do not add
 
 # 27. GATE 4 VERIFIED RANDOMNESS + FIFO + PRIZE WALLET REGISTRY FRONTIER
 
-The deterministic issuance/BirthPolicy foundation, production drand verifier, immutable factory-generation verifier binding, production compiler profile, publication FIFO/Prize Wallet issuance substrate, campaign registry and permanent 12-test registry probe are committed and pushed.
+The deterministic issuance/BirthPolicy foundation, production drand verifier, immutable factory-generation verifier binding, production compiler profile, publication FIFO/Prize Wallet issuance substrate, campaign registry and permanent 15-test registry/progressive-jackpot probe are committed and pushed.
 
 ## Implemented, committed and pushed
 
@@ -2639,13 +2641,12 @@ The Prize Wallet request remains **internal and unwired** in production. No depl
 - direct winner-wallet claim acknowledgment;
 - claim/rotation/reuse/ownership-transfer safeguards.
 
-The permanent registry probe is committed. For the exact committed bytes, creator evidence is **12 focused / 117 total tests passed, 0 failed, 0 skipped**.
+The permanent registry probe is committed at its 15-test form. For the exact committed bytes, creator evidence is **15 focused / 120 total tests passed, 0 failed, 0 skipped**.
 
 ## Not implemented yet — do not overclaim
 
 The current repository does **not** yet complete:
 
-- permanent tests proving multiple distinct publications accumulate in one active campaign and approvals cannot leak across generations;
 - production `HellboxPublication` calls to reserve the active wallet before request creation and complete the deposit after successful fulfillment;
 - creator-immediate production orchestration that creates the seventh-mint request without a test harness;
 - a fail-safe/liveness policy for a reserved deposit that cannot be fulfilled;
@@ -2663,12 +2664,11 @@ The current repository does **not** yet complete:
 
 Continue in conservative one-file checkpoints:
 
-1. extend only `test/HellboxPrizeWalletRegistryProbe.t.sol` with the missing progressive multi-publication, generation-isolation and owner-authority regressions; require 120 total only after those exact bytes pass and are committed;
-2. modify `contracts/HellboxPublication.sol` to reserve the approved active campaign EOA, create the Prize Wallet FIFO request through the real creator-initialization path, and complete the deposit atomically after successful mint;
-3. implement native timed closure through the same FIFO/verifier boundary;
-4. implement phase eligibility, frozen exact payment routes, proceeds routing and public collector minting;
-5. establish/prove the lean immutable renderer/data binding and self-contained native `tokenURI` compatibility point;
-6. run full adversarial/Testnet acceptance and close Gate 4 documentation.
+1. modify `contracts/HellboxPublication.sol` to reserve the approved active campaign EOA, create the Prize Wallet FIFO request through the real creator-initialization path, and complete the deposit atomically after successful mint;
+2. implement native timed closure through the same FIFO/verifier boundary;
+3. implement phase eligibility, frozen exact payment routes, proceeds routing and public collector minting;
+4. establish/prove the lean immutable renderer/data binding and self-contained native `tokenURI` compatibility point;
+5. run full adversarial/Testnet acceptance and close Gate 4 documentation.
 
 Required safeguards:
 
@@ -4011,7 +4011,7 @@ Response:
 - frontend/backend chain registry can drift until parity/generated source exists;
 - internationalization incomplete by design;
 - Publisher Continuity Covenant direction/heartbeat is now locked, but Rescue Reader, continuity capsule, legal succession, durable storage and drills remain future hardening work;
-- the factory Prize Wallet registry and 12-test probe are committed; production publication reserve/complete integration, the missing progressive-jackpot regressions, public jackpot presentation and the offline Prize Capsule Builder are not implemented yet;
+- the factory Prize Wallet registry and 15-test progressive-jackpot probe are committed; production publication reserve/complete integration, public jackpot presentation and the offline Prize Capsule Builder are not implemented yet;
 - HairyLabs Byte indexing issue reported for #6/#11/#13/#19/#20/#23/#104/#223/#333 is resolved and the old testing exclusion is lifted;
 - current Forge/static-analysis output includes non-blocking style/optimization notes; investigate security-relevant warnings, but do not mutate stable ABI/semantics merely to satisfy lint style.
 
@@ -4119,19 +4119,19 @@ Context exhaustion or real-world interruption is a handoff event, not a reason t
 Committed implementation baseline before this documentation-only synchronization:
 
 ```text
-latest source/test commit                         c91763768c54130991f9b83df9a54971ed021bd6
-committed Solidity tests                         117
+latest source/test commit                         9a153dd6fef4f275476f74c9254d2f3beb90007e
+committed Solidity tests                         120
 committed Prize Wallet FIFO tests                  8
 committed factory registry                      1178 lines
 factory registry sha256                          885d81b731aa28bb9a1f27de714d7d16e16d9c5a7e73fd75bbba9620c1d4a90d
-committed registry probe                         747 lines
-registry probe sha256                            6793f8f659b090bc83febf9b6c38d02fab5ed4229bcb25fcea407ace5a73cb60
-registry-focused regression                       12 passed / 0 failed / 0 skipped
-full regression                                  117 passed / 0 failed / 0 skipped
+committed registry probe                         986 lines
+registry probe sha256                            5b1300174947af2307fcd522613804ca3c96d8e978d4cb7f40d8a9cbfa75ba16
+registry-focused regression                       15 passed / 0 failed / 0 skipped
+full regression                                  120 passed / 0 failed / 0 skipped
 publication runtime                            14,818 bytes
 factory runtime                                12,424 bytes
 verifier runtime                                5,138 bytes
-worktree / index                                clean after c917637
+worktree / index                                clean after 9a153dd
 ```
 
 Locked campaign model:
@@ -4149,17 +4149,15 @@ fresh offline-generated 12-word EOA self-authorizes
 
 Exact next implementation sequence:
 
-1. update `test/HellboxPrizeWalletRegistryProbe.t.sol` alone with three permanent regressions: multiple distinct publications accumulate in one campaign, generation-bound approvals do not leak after rotation, and only the factory owner may manage approvals;
-2. run that focused suite, the complete suite, production-size checks, diff check and one-file Git-boundary review; only then may the committed count become 120;
-3. modify `contracts/HellboxPublication.sol` alone to use the real active-campaign reserve/request/fulfill/complete path during creator initialization;
-4. implement/prove native timed closure;
-5. implement phase eligibility, exact V1 payment/proceeds enforcement and the public collector mint path;
-6. establish/prove the immutable renderer/data/`tokenURI` checkpoint;
-7. run full Testnet/adversarial acceptance and close Gate 4 documentation.
+1. modify `contracts/HellboxPublication.sol` alone to use the real active-campaign reserve/request/fulfill/complete path during creator initialization;
+2. implement/prove native timed closure;
+3. implement phase eligibility, exact V1 payment/proceeds enforcement and the public collector mint path;
+4. establish/prove the immutable renderer/data/`tokenURI` checkpoint;
+5. run full Testnet/adversarial acceptance and close Gate 4 documentation.
 
 At every source checkpoint: verify current committed baseline, source hash, focused tests, full tests, production sizes, diff check, changed-file boundary, author identity, commit contents and remote equality. One source or test file per checkpoint. Do not batch source and tests.
 
-Do not claim 120 tests until the missing three tests are actually installed and pass. Do not open collector minting, alter `HELLBOX_ABI_V1`, create an arbitrary prize-recipient setter, revert to a smart-contract Prize Wallet, leak a phrase/key into Harrow tooling, or let an unclaimed campaign rotate.
+Do not open collector minting, alter `HELLBOX_ABI_V1`, create an arbitrary prize-recipient setter, revert to a smart-contract Prize Wallet, leak a phrase/key into Harrow tooling, or let an unclaimed campaign rotate. The 120-test registry/progressive boundary is now committed; the next proof burden is production publication integration.
 
 The Publisher Continuity Covenant remains later-Gate work and must not derail this final Gate 4 sequence.
 
@@ -4230,7 +4228,7 @@ Stop before introducing:
 - one Prize Wallet per comic, automatic campaign expiry, or rotation/reset before direct winner confirmation;
 - putting the persistent Prize Wallet puzzle inside an individual comic instead of the separate Byte-site introduction;
 - counting unsolicited transfers as official prizes without a completed approved-publication event or explicit append-only campaign disclosure;
-- claiming the uninstalled 120-test transition or publication↔registry integration as complete.
+- claiming production publication↔registry integration as complete before that source path is implemented and test-backed.
 
 The creator defines the machine's rules.
 
