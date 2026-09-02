@@ -3,16 +3,18 @@
 **Status:** Authoritative cross-chat project handoff
 **Repository:** `main`
 **Current Gate:** Gate 4 — HELLBOX ARTIFACT KERNEL + VERSIONED PUBLICATION FACTORY
-**Current implementation checkpoint:** V1 publication kernel + `HELLBOX_ABI_V1` release fingerprint + deterministic issuance core + size-safe V1 full-deployment factory + versioned enforcement-preimage anchors + modular `HellboxBirthPolicy` + immutable inert `HellboxBirthPolicyCodeStore` + atomic publication-owned BirthPolicy deployment + publication-only one-time MARK/DEFECT assignment/inventory consumption are implemented and pushed. The production randomness foundation is also implemented and pushed: frozen drand `evmnet` configuration, a stateless non-upgradeable verifier, one immutable verifier per factory generation, actual PulseChain Testnet valid/invalid proof execution, and permanent verifier/factory-binding regression. Verified regression is **97 Solidity tests passed, 0 failed** with the issuance fuzz boundary at **256 runs**. Current unoptimized Shanghai runtimes include publication **16,411 bytes**, factory **9,733 bytes**, drand verifier **8,689 bytes**, birth-policy module **9,123 bytes**, and actual deployed code-store payload **20,609 bytes** with **3,967 bytes** of EIP-170 headroom.
-**Exact next frontier:** the legacy factory-test provider fixtures are synchronized. Next bind the approved factory-generation verifier into each publication, add the locked one-time Prize Vault bootstrap as the first non-tail issuance, and implement FIFO randomness request/permissionless fulfillment plus unbiased native timed closure. Only after those transitions pass focused/full regression may Gate 4 open phase eligibility, configurable per-phase `FREE` / `FIXED_NATIVE` / `FIXED_ERC20` payment enforcement and the public collector mint path. No external mint endpoint opens until prize, randomness, payment, phase and closure behavior fail closed.
+**Current implementation checkpoint:** repository truth was reconstructed from the attached Git working tree, creator terminal transcript, and generated Foundry artifacts on **2026-09-02**. `HEAD` and `origin/main` both equal `52dcb192d56b40e803ea39c2391ee3d20a759faf`. Four newer one-file checkpoints are committed and pushed: publication binding to the factory-generation drand verifier (`fc08a89`), the production compiler profile (`1117cdf`), the publication Prize Wallet/FIFO issuance substrate (`f1ceb51`), and its permanent eight-test regression (`52dcb19`). The committed tree contains **105 Solidity tests**. On top of that clean commit, the supplied worktree contains an intentionally uncommitted Prize Wallet campaign-registry candidate in `contracts/HellboxPublicationFactory.sol` and its permanent 12-test probe. Exact creator-side evidence for those candidate bytes is **12 focused / 117 total tests passed, 0 failed**. The candidate is validated but **not committed** and the later proposed 120-test progressive-jackpot transition was **not installed**.
+**Exact next frontier:** preserve the recovered bytes; do not regenerate them from chat. After this documentation synchronization, review and checkpoint the uncommitted factory candidate as one source-file commit, then review and checkpoint the registry test as a separate one-file commit. Next add the missing permanent multi-publication progressive-jackpot regression, then wire the real publication to reserve the active campaign wallet, create/fulfill its first-non-tail FIFO request, and complete the factory deposit atomically. Native timed closure follows. Phase eligibility, exact `FREE` / `FIXED_NATIVE` / `FIXED_ERC20` settlement, the collector mint path, and the immutable renderer/`tokenURI` checkpoint remain closed until the preceding boundaries pass.
 **New locked owner-experience direction:** a normal Hellbox comic release may present publicly as the same finite collectible, but the private owner Reader is a finite Harrow-authored interactive narrative: comic stages lead into frame-native escape rooms, timed survival, authored branches, alternate endings, death outcomes and trait-specific interactions. AI may assist Harrow during issue production, but published owner paths/pages/rooms are pre-authored and finite; no canonical story page is generated live by AI at read time. This expands later Reader/package/Archive work and does **not** change the immediate Gate 4 randomness/payment/phase/closure frontier or require a `HELLBOX_ABI_V1` change.
 **New locked future Press direction:** after Hellbox's own Press is mature, a separate independent-creator launch lane may let outside authors/artists deploy their own non-Hellbox titles and make conforming packages readable in the Hellbox Reader. Outside titles never receive Hellbox-native title stamps/canon/reward status merely for using the Press; creators remain responsible for their own canonical asset hosting; Harrow's proprietary comic-generation machinery remains private; exact launch prerequisites and fee/royalty economics remain OPEN.
 **New locked token/settlement separation direction:** Harrow is a comic creator/publisher and Press operator, not a crypto-founder identity. Any future Hellbox-endorsed/project-used token remains separate from Hellbox publication-contract control: official Hellbox project wallets do not deploy that token, Hellbox does not hold token admin keys or control permanently locked liquidity, and official Hellbox wallets may later acquire an already-public token through ordinary market transactions before/after endorsement. Public statements must describe actual launch/control/holdings facts truthfully. Native PLS is the standard/default paid checkout asset on PulseChain, but the private Press may select another standards-compatible same-chain ERC-20/PRC-20 for a phase before `PUBLISH`; the selected asset and exact raw-unit amount then freeze. Back-office accounting still records required transaction-time fiat fair-market values separately.
 **New locked configurable pricing direction:** `$6.66` is not a contract constant, mandatory price, floor, ceiling or permanent default. Before `PUBLISH`, Harrow may configure each collector phase as free, exact native-PLS payment, or exact payment in one selected standards-compatible same-chain ERC-20/PRC-20; allowlist, early-Press, partner and public phases may use different immutable prices or payment assets. PLS remains the standard Press preset. `PUBLISH`/deployment is the lock: no post-deployment price, asset or phase-pricing setter exists, even before the first collector mint. One phase has one frozen payment route in V1; simultaneous choose-your-token checkout remains outside V1 to keep settlement deterministic.
 **New locked fully on-chain artifact direction:** for every native Hellbox issue, the canonical ERC-721 metadata and evolving collectible cover must be reconstructible from chain state, immutable renderer code and immutable on-chain art data alone. A marketplace, Hellbox API, mutable HTTP URL, mutable IPFS gateway or off-chain rendering service may improve presentation but may not be required to prove what the artifact is. The lean publication binds a versioned non-upgradeable renderer/data-store topology rather than embedding all artwork in its own runtime. Dynamic cover changes may occur only from explicit on-chain artifact state under frozen rules. Token ownership does not silently transfer copyright: every publication must freeze a clear rights statement and holder license so Hellbox can truthfully say the collector owns the token, unique artifact state and independently reconstructible canonical artwork under disclosed rights. Full interactive Reader pages remain a separately protected/content-addressed package with the Publisher Continuity fallback; the native cover and canonical metadata do not.
-**New locked repeating Prize Vault direction:** after Harrow's six fixed creator issuances, the seventh successful mint event for every standard native issue is the first non-tail issuance and goes to the active approved Prize Vault. It is **not guaranteed to be copy/token ID #007**: it draws blindly from the same 210-candidate pool with the same production randomness and no reserved MARK/DEFECT. The noncustodial vault may accumulate one comic per issue plus optional Harrow-funded promotional assets until a puzzle winner claims it. Harrow has no withdrawal/claim/reroll power, receives no full claim secret, and may rotate to a fresh vault only after the active round is claimed. The low-cost target is a small versioned smart-contract vault and offline Prize Capsule generator, not an EOA whose private key Harrow or a website must custody.
+**New locked repeating Prize Wallet direction:** after Harrow's six fixed creator issuances, the seventh successful mint event for every standard native issue is the first non-tail issuance and goes to the active approved Prize Wallet. It is **not guaranteed to be copy/token ID #007**: it draws blindly from the same 210-candidate pool with the same production randomness and no reserved MARK/DEFECT. The active campaign wallet is a fresh ordinary EOA generated by a network-disabled Prize Capsule Builder from a **12-word MetaMask-compatible Secret Recovery Phrase**. The same wallet persists across any number of official issue releases and accumulates one seventh-mint comic from each approved publication until the separate persistent Byte-site introduction/escape room is solved. Harrow receives the public address, EIP-712 activation signature, manifest/package digests and finished puzzle package—but never the ordered phrase, private key, final unlock key or answer sheet. The winner decrypts all 12 words locally, restores the EOA, confirms control from that wallet on-chain, and may sweep its contents. The old wallet is never reset or reused; only after claim and zero pending deposits may a completely new campaign wallet be activated.
 **New locked publisher-continuity direction:** Harrow keeps exclusive control of official canon, Press operation and unpublished secret sauce while active, but published artifacts and Reader access must survive him. The inactivity heartbeat is exactly **666 days, 6 hours, 6 minutes and 6 seconds (57,564,366 seconds)**. After that period, or after a deliberate warning/timelock process, continuity becomes permissionlessly activatable. Infrastructure/recovery materials may open; official canon does not become ownerless, unpublished work/personal secrets do not auto-release, and the exact legal/on-chain successor must agree. A separate Continuity Reserve—not the Archive reward pool—funds preservation/recovery.
 **Mainnet:** prohibited during Gate 4
+
+**Recovery reconstruction — 2026-09-02:** the prior chat did not lose a committed source checkpoint. It failed after installing and validating the factory registry candidate but before committing it or synchronizing any living document. When Harrow then corrected the design to a 12-word, ongoing progressive-jackpot EOA on the Byte-site introduction and explicitly requested all living documents plus a handoff, the prior assistant proposed another test-only transition and stated that it **updated no documentation**. That later package is absent from the supplied repo. This synchronization therefore records only the exact 105-test committed baseline and the exact 12-test/117-total uncommitted candidate actually present; it does not claim 120 tests or pretend the publication↔registry integration exists.
 
 This file intentionally combines project state, engineering handoff, development process and future-Gate continuity. It replaces separate root-level master-handoff and engineering-execution-standard documents **only because their durable rules are folded here in full**.
 
@@ -145,7 +147,7 @@ Do not ask Harrow to adjudicate:
 Examples:
 
 - randomness provider;
-- optimizer/via-ir;
+- any proposed change to the frozen optimizer/runs/`via_ir` profile;
 - renderer transport;
 - external protocol binding;
 - exact deterministic/native timed-closure implementation;
@@ -591,17 +593,34 @@ Prefer:
 
 ---
 
-# 6. CURRENT REPOSITORY SNAPSHOT — 2026-08-31 HANDOFF
+# 6. CURRENT REPOSITORY SNAPSHOT — 2026-09-02 RECOVERY
 
-The supplied local repository shows:
+This snapshot distinguishes **committed/pushed truth**, **validated but uncommitted candidate bytes**, and **work that was only proposed in chat**.
 
-## Tracked Gate 4 implementation
+## Committed and pushed Gate 4 implementation
+
+`HEAD` and `origin/main`:
+
+```text
+52dcb192d56b40e803ea39c2391ee3d20a759faf
+```
+
+Newest committed one-file checkpoints:
+
+```text
+fc08a89  Bind publications to factory randomness verifier
+1117cdf  Lock production compiler profile
+f1ceb51  Implement Prize Wallet FIFO issuance substrate
+52dcb19  Add permanent Prize Wallet FIFO regression
+```
+
+The committed tree includes:
 
 - `foundry.toml`
 - `foundry.lock`
 - `package.json`
 - `package-lock.json`
-- `lib/openzeppelin-contracts` submodule
+- pinned `lib/openzeppelin-contracts` submodule
 - `contracts/HellboxPublication.sol`
 - `contracts/HellboxBirthPolicy.sol`
 - `contracts/HellboxBirthPolicyCodeStore.sol`
@@ -610,167 +629,129 @@ The supplied local repository shows:
 - `contracts/randomness/HellboxDrandEvmnetConfig.sol`
 - `contracts/randomness/HellboxDrandEvmnetVerifier.sol`
 - `src/press/releaseFingerprint.js`
-- `test/HellboxPublication.t.sol`
-- `test/HellboxPublicationFactory.t.sol`
-- `test/HellboxPublicationIssuance.t.sol`
-- `test/HellboxPublicationPolicy.t.sol`
-- `test/HellboxBirthPolicy.t.sol`
-- `test/HellboxBirthPolicyCodeStore.t.sol`
-- `test/HellboxDrandEvmnetVerifier.t.sol`
-- `test/HellboxFactoryRandomnessBinding.t.sol`
-- `test/HellboxPublicationGoldenVector.t.sol`
-- `test/press/releaseFingerprint.golden.mjs`
+- the kernel, factory, issuance, policy, BirthPolicy, code-store, drand, factory-binding, golden-vector and Prize Wallet FIFO Foundry suites.
 
-Pinned OpenZeppelin source:
+Pinned/toolchain state:
 
-- package version: `5.1.0`
-- submodule commit: `69c8def5f222ff96f2b5beff05dfba996368aa79`
+- Foundry `1.8.1` — verified in creator terminal evidence;
+- Solidity/exact pragma `0.8.36`;
+- EVM target `shanghai`;
+- optimizer **enabled**;
+- optimizer runs **200**;
+- `via_ir = false`;
+- OpenZeppelin Contracts package `5.1.0`, submodule commit `69c8def5f222ff96f2b5beff05dfba996368aa79`;
+- Press fingerprint dependency `viem` `2.55.19`.
 
-Toolchain snapshot:
+Committed source identities at the recovered checkpoint:
 
-- Foundry `1.8.1` — verified in creator terminal output during Gate 4
-- Solidity `0.8.36`
-- exact Hellbox pragma `0.8.36`
-- EVM target `shanghai`
-- OpenZeppelin Contracts `v5.1.0`
-- optimizer/runs/via-ir still open pending evidence
-- Node `v26.8.1`
-- npm `11.19.0`
+```text
+contracts/HellboxPublication.sol
+  lines:   2100
+  sha256:  3cc860c781d1ab9388d68a557aa7044f7981892153f4525104db1b674eae1255
 
-Press fingerprint dependency:
+test/HellboxPrizeWalletFifoProbe.t.sol
+  lines:   961
+  sha256:  8324ef68b09b2ac3c2392f6b73b05c0f9a12c76367376ca1fb0f67f88c19da45
+```
 
-- `viem` `2.55.19`
+The committed Foundry test inventory is **105 tests**:
 
-## Latest committed Gate 4 checkpoints by subject
+```text
+HellboxPublication                              16
+HellboxPublicationFactory                      21
+HellboxPublicationIssuance                     13
+HellboxPublicationPolicy                        9
+HellboxBirthPolicy                             21
+HellboxBirthPolicyCodeStore                     4
+HellboxDrandEvmnetVerifier                      8
+HellboxFactoryRandomnessBinding                 4
+HellboxPrizeWalletFifoProbe                     8
+HellboxPublicationGoldenVector                  1
+-------------------------------------------------
+TOTAL                                          105
+```
 
-- `Add HellboxPublication V1 factory`
-- `Add HellboxPublication factory tests`
-- `Synchronize authoritative Hellbox documentation`
-- `Add deterministic publication issuance core`
-- `Make publication factory deployment size safe`
-- `Add publication policy preimage anchors`
-- `Add modular publication birth policy`
-- `Bind BirthPolicy infrastructure to factory generation`
-- `Wire atomic BirthPolicy deployment into publications`
-- `Enforce atomic birth trait assignment during issuance`
-- `Define Gate 4 randomness verifier interface`
-- `Freeze drand evmnet provider configuration`
-- `Implement stateless drand evmnet verifier`
-- `Add permanent drand verifier regression`
-- `Bind factory generation to drand verifier`
-- `Add permanent factory randomness binding regression`
+The eight permanent FIFO tests prove, among other things:
 
-## Verified test / deployability state
+- the Prize Wallet request is strictly the seventh issuance/first non-tail draw;
+- the draw binds a future drand round and is fulfilled permissionlessly in FIFO order;
+- copy `#066` can be drawn and the implementation is not hard-coded to `#007`;
+- project/contract recipients are rejected and the recipient must remain an EOA through fulfillment;
+- wrong/not-ready proofs fail without state mutation;
+- the same provider word is publication-domain-separated.
 
-The current committed test suites contain:
-- 16 publication-kernel tests;
-- 21 factory/provenance/atomic-deployment tests;
-- 13 deterministic issuance + atomic trait-assignment tests;
-- 9 publication enforcement-preimage anchor/golden-policy tests;
-- 21 dedicated modular birth-policy tests;
-- 4 dedicated immutable code-store tests;
-- 8 permanent drand-verifier tests;
-- 4 permanent factory-generation verifier-binding tests;
-- 1 cross-language `HELLBOX_ABI_V1` golden-vector test.
+## Validated but uncommitted factory-registry candidate
 
-Total: **97**
+The supplied worktree is intentionally dirty only at this source/test boundary before this documentation install:
 
-Verified creator-side evidence through the permanent factory-binding regression:
-- **97 passed**;
-- **0 failed**;
-- issuance fuzz boundary: **256 runs passed**;
-- `HellboxPublication` runtime: **16,411 bytes**;
-- publication EIP-170 runtime margin: **8,165 bytes**;
-- `HellboxPublication` creation size: **26,737 bytes**;
-- `HellboxPublicationFactory` runtime: **9,733 bytes**;
-- factory EIP-170 runtime margin: **14,843 bytes**;
-- `HellboxPublicationFactory` creation size: **20,480 bytes**;
-- factory initcode including constructor arguments: **20,608 bytes**;
-- factory EIP-3860 initcode margin: **28,544 bytes**;
-- `HellboxDrandEvmnetVerifier` runtime: **8,689 bytes**;
-- verifier EIP-170 runtime margin: **15,887 bytes**;
-- `HellboxBirthPolicy` runtime: **9,123 bytes**;
-- birth-policy EIP-170 runtime margin: **15,453 bytes**;
-- `HellboxBirthPolicy` initcode: **20,608 bytes**;
-- birth-policy EIP-3860 initcode margin: **28,544 bytes**;
-- compiler-reported `HellboxBirthPolicyCodeStore` nominal runtime stub: **62 bytes**;
-- actual constructor-returned deployed code-store runtime (`STOP || HellboxBirthPolicy.creationCode`): **20,609 bytes**;
-- actual deployed code-store EIP-170 runtime margin: **3,967 bytes**;
-- future BirthPolicy growth must measure the actual deployed code-store `address.code.length`; the compiler-reported 62-byte stub is not the production EIP-170 measure;
-- code-store creation size: **20,871 bytes**;
-- code-store EIP-3860 creation margin: **28,281 bytes**;
-- measured native publication `CREATE` payload including constructor arguments: **31,665 bytes**;
-- measured EIP-3860 headroom for that native publication payload: **17,487 bytes**;
-- production `HellboxPublication`/factory source contains **0** direct `new HellboxBirthPolicy(...)` or `type(HellboxBirthPolicy).creationCode` embeds;
-- `HELLBOX_ABI_V1` `ReleaseConfig` + `CommitmentSet` structure hash remained unchanged;
-- the drand `evmnet` verifier accepted the exact observed proof and rejected wrong-round, malformed-point and short-proof cases through PulseChain Testnet state-override execution;
-- each factory generation deploys and freezes a distinct equivalent verifier with the expected ID, provider digest and runtime code hash;
-- local HEAD and `origin/main` matched at `763536cd48e6cf1d1395a956f9408128e54f2283` after pushing `Synchronize factory fixtures with drand provider`;
-- `git diff --check`: clean;
-- worktree: clean.
+```text
+ M contracts/HellboxPublicationFactory.sol
+?? test/HellboxPrizeWalletRegistryProbe.t.sol
+```
 
-The factory/atomic-deployment suite additionally proves:
-- zero approved publication creation-code hash is rejected;
-- zero BirthPolicy code-store address is rejected;
-- zero approved BirthPolicy creation-code hash is rejected;
-- unapproved publication creation code is rejected;
-- malformed, non-STOP, short or wrong-hash BirthPolicy stores fail atomically;
-- malformed or digest-mismatched BirthPolicy preimages fail atomically;
-- failed deployment cannot become official factory provenance;
-- native publication deployment creates the companion and binds it back to the actual publication;
-- the trait-disabled SciVive path deploys through the same reviewed publication version;
-- factory ownership remains two-step and renunciation remains disabled;
-- factory-generation BirthPolicy infrastructure bindings do not change when publishing authority rotates;
-- the factory remains comfortably below EIP-170.
+Exact candidate identities:
 
-The dedicated birth-policy/code-store suites additionally prove:
-- the module is constructor-frozen and permanently records its deploying publication as `publication`;
-- fixed-copy, birth-trait and randomization preimages independently hash to their frozen commitment digests;
-- duplicate fixed-copy rules and invalid inventory/fairness shapes revert;
-- native MARK inventory and reservations match the frozen 216-copy model;
-- native DEFECT inventory matches the frozen 216-copy model with no fixed creator DEFECT reservations;
-- Harrow #001–#006 fixed MARK reservations are consumed exactly once while their DEFECTS remain shared-random;
-- #066 remains candidate-eligible until drawn, then consumes its fixed HELLBOUND reservation exactly once;
-- only the permanently bound publication may call `assignBirthIdentity`; no publisher/admin caller receives that authority;
-- every applicable issued copy receives one permanent MARK and one permanent DEFECT; duplicate/reroll assignment reverts;
-- random assignment cannot consume inventory reserved for an undrawn fixed copy;
-- issuance failure during trait assignment rolls supply, wallet, candidate and trait inventory state back atomically;
-- enabled-axis remaining inventory stays equal to candidate inventory after the immediate creator allocation, and reaches zero after the literal Final 3;
-- transfer and burn do not restore allowance, inventory or rewrite stored birth identity;
-- a trait-disabled reusable publication shape such as SciVive assigns a permanent zero/zero identity without inventing traits;
-- code-store runtime is exactly inert `STOP || HellboxBirthPolicy.creationCode`.
+```text
+contracts/HellboxPublicationFactory.sol
+  lines:   1178
+  sha256:  885d81b731aa28bb9a1f27de714d7d16e16d9c5a7e73fd75bbba9620c1d4a90d
 
-This is the current verified Gate 4 engineering checkpoint.
+test/HellboxPrizeWalletRegistryProbe.t.sol
+  lines:   747
+  sha256:  6793f8f659b090bc83febf9b6c38d02fab5ed4229bcb25fcea407ace5a73cb60
+```
 
-## Documentation reset target
+Creator terminal evidence for those exact bytes records:
 
-The 2026-08-31 documentation reset is intended to leave four authoritative root Markdown files while preserving detailed finalized Gate architecture under `docs/architecture/gates/`.
+- **12/12** focused Prize Wallet campaign-registry tests passed;
+- **117/117** full Solidity tests passed, 0 failed, 0 skipped;
+- issuance fuzz boundary remained **256 runs**;
+- compiler profile was optimized Shanghai, 200 runs, no IR pipeline;
+- `HellboxPublicationFactory` runtime **12,424 bytes**, EIP-170 headroom **12,152 bytes**;
+- factory creation **19,614 bytes**;
+- factory initcode with constructor arguments **19,742 bytes**, EIP-3860 headroom **29,410 bytes**;
+- `HellboxPublication` runtime **14,818 bytes**, EIP-170 headroom **9,758 bytes**;
+- `HellboxDrandEvmnetVerifier` runtime **5,138 bytes**, EIP-170 headroom **19,438 bytes**;
+- `git diff --check` was clean.
 
-Deprecated/redundant documentation must not remain authoritative after the reset.
+The candidate factory registry implements/test-backs:
 
-Retired filenames may still be named in this Project State **only as historical/prohibition notes so future work does not recreate them**. Such a mention is not an active dependency.
+- fresh EOA self-authorization with an EIP-712 activation signature;
+- generation-bound wallet and campaign-manifest reuse prevention;
+- only factory-registered, explicitly approved publications may reserve a deposit;
+- one reserve→complete lifecycle per publication;
+- pending deposits block winner claim and campaign rotation;
+- at least one completed deposit is required before claim acknowledgment;
+- the recovered wallet itself calls `confirmPrizeWalletClaim()`;
+- used wallets and manifests cannot be recycled;
+- factory ownership cannot be transferred to a used Prize Wallet;
+- no mnemonic, private key, puzzle answer, withdrawal or sweep authority enters the factory.
 
-Retired/redundant documentation includes:
+It is still a **candidate** because neither changed file has been committed. Its 12-test probe uses a publication harness; the production `HellboxPublication` has not yet been wired to call the registry.
 
-- separate root `HELLBOX_ENGINEERING_EXECUTION_STANDARD.md`, whose durable execution rules are folded into this Project State;
-- accidental `test/PUBLICATION_CONFIGURATION_BLUEPRINT.md`;
-- obsolete/versioned Harrow bible copies;
-- obsolete standalone accessibility/localization standard after its durable requirements are folded here;
-- stale root `PUBLICATION_CONFIGURATION_BLUEPRINT.md` after its complete field-by-field architecture is migrated into Gate 4 `CURRENT_GATE_BLUEPRINT.md`.
+## Explicitly absent work — do not overclaim
 
-For Gate 4, **`CURRENT_GATE_BLUEPRINT.md` is now the surviving complete detailed architecture**. At formal Gate 4 close, archive that finalized current blueprint to:
+The later chat-only `HBX_G4_PRIZE_WALLET_PROGRESSIVE_JACKPOT_TRANSITION_01` was not installed. Therefore the repository does **not** yet contain the proposed additional three permanent regressions for:
+
+- multiple distinct publications accumulating deposits in the same campaign;
+- campaign-generation approvals not leaking into the next campaign;
+- owner-only campaign-approval management.
+
+The current suite is 117 with the uncommitted candidate, not 120.
+
+This documentation reconstruction did not manufacture a fresh Forge result in the recovery container. It preserves the exact creator terminal run and matching generated build artifacts. Before either candidate file is committed on the creator machine, rerun the focused suite, full regression, size report, diff check and Git boundary check.
+
+## Documentation authority after this recovery
+
+The four root living documents are being synchronized as one coherent documentation checkpoint. They record the exact dirty source boundary so a new chat cannot mistake an uncommitted candidate for pushed production truth or roll the source backward to stale 97-test prose.
+
+At formal Gate 4 close, archive the finalized active blueprint to:
 
 ```text
 docs/architecture/gates/GATE_04_PUBLICATION_CONFIGURATION.md
 ```
 
-The retired root `PUBLICATION_CONFIGURATION_BLUEPRINT.md` does **not** need to remain present until that later archive step.
-
-Remove `.DS_Store` debris and ignore it going forward.
-
-This reset is documentation cleanup only. It must not change application, contract, package, D1, R2, Worker, or deployment behavior.
-
----
+Do not archive or repurpose it merely because a chat window changed.
 
 # 7. PLATFORM / HOSTING ARCHITECTURE
 
@@ -1306,46 +1287,113 @@ MARK and DEFECT are separate permanent birth axes.
 
 Harrow DEFECT remains random.
 
-## Repeating promotional Prize Vault — LOCKED
+## Repeating promotional Prize Wallet campaign — LOCKED
 
-After Harrow's six fixed creator issuances, the **seventh successful mint event** for every standard native issue is a one-time private promotional issuance to the active approved Prize Vault.
+After Harrow's six fixed creator issuances, the **seventh successful mint event** for every standard native issue is a one-time promotional issuance to the active approved Prize Wallet campaign.
 
 This is an issuance-order promise, **not a copy-number promise**:
 
-- the Prize Vault does not automatically receive token/copy `#007`;
+- the Prize Wallet does not automatically receive token/copy `#007`;
 - it is the first non-tail issuance and draws one of the 210 still-random candidate copy IDs;
-- it uses the same production randomness, candidate-removal logic and one-time BirthPolicy assignment as an ordinary collector draw;
+- it uses the same production randomness, sparse candidate-removal logic and one-time BirthPolicy assignment as an ordinary collector draw;
 - it receives no fixed/reserved MARK or DEFECT and no special rarity odds;
-- #066 can be drawn by the Prize Vault because #066 remains in the same candidate pool;
+- `#066` can be drawn because it remains in the same candidate pool;
 - Harrow cannot preview, choose, reroll, cancel or substitute the result;
-- issuance consumes one candidate and one of the 207 non-tail issuance slots before any public/reserve/free/allowlist/early Press phase opens;
-- if the active Prize Vault is missing, invalid, already claimed or cannot receive the issuance, public Press opening fails closed.
+- issuance consumes one candidate and one of the 207 non-tail issuance slots before any collector phase opens;
+- successful fulfillment changes `210 / 207` to `209 / 206`;
+- if no valid active campaign EOA exists, or the publication cannot reserve/complete its deposit, public Press opening fails closed.
 
-The recipient must be a validated instance of the approved versioned Prize Vault design, not an arbitrary EOA, Harrow wallet, treasury wallet or mutable forwarding address.
+### Campaign wallet and persistence
 
-Repeating campaign doctrine:
+The recipient is not an arbitrary address and not a Harrow, treasury or project wallet. It is a fresh ordinary EOA that:
 
-- one active Prize Vault may accumulate the random prize copy from multiple Hellbox issues until the associated escape-room campaign is solved;
-- Harrow may optionally deposit PLS, ERC-20s, NFTs or other promotional assets, but no token, amount, floor value, yield or future deposit is guaranteed;
-- promotional deposits come from Harrow/project promotional funds, never by silently diverting the Archive reward pool, collector balances or frozen issue proceeds;
-- Harrow has no owner withdrawal, sweep, upgrade, recovery, claim or arbitrary-call power over an armed vault;
-- the claim capability is generated outside Harrow; the full claim secret/private capability must not appear in Harrow's devices, repository, cloud storage, AI chats, screenshots or logs;
-- the preferred low-cost implementation is a small immutable smart-contract vault with a committed one-time claim secret and recipient-bound commit/reveal, so no prize-wallet EOA private key needs to exist;
-- an offline open-source Prize Capsule generator should produce three separated outputs: the public vault/claim commitment, a Harrow-facing puzzle-authoring kit, and sealed independent recovery/custody material;
-- the Harrow-facing authoring kit must be sufficient to build and verify the escape-room campaign but insufficient by itself to execute the on-chain claim;
-- the final claim capability must be retained rather than destroyed, using practical independent offline/threshold custody so no Harrow-controlled device, account or single operator holds everything needed to claim; exact threshold/custodians remain security-review work;
-- public campaign terms must make Harrow, his household, paid project operators and claim-material custodians ineligible to win or tip the solution; identity/Sybil exclusion cannot be falsely marketed as purely cryptographic, so custody separation, disclosures and auditable events are required;
-- only assets explicitly enumerated in the current campaign manifest are represented as official prize contents; unsolicited/spam transfers do not create a Hellbox promise;
-- after a valid claim, the winner controls withdrawal of the old vault's assets and Harrow may activate a fresh independently generated vault/commitment for the next campaign;
-- Harrow cannot reset/replace an unclaimed active vault merely to move or recover its contents; unsolved campaigns continue accumulating future issue prizes;
-- every vault generation, activation, manifest update, disclosed deposit, claim and successor-vault rotation must be publicly auditable.
+- is generated offline by the network-disabled Prize Capsule Builder;
+- is derived from a 12-word MetaMask-compatible Secret Recovery Phrase;
+- uses no Harrow-held additional passphrase or recovery backdoor;
+- self-authorizes its public address, generation and campaign-manifest digest with an EIP-712 signature;
+- has no deployed code at activation, reservation or prize fulfillment;
+- is permanently marked used after activation and can never serve as a later campaign wallet;
+- remains the one active progressive-jackpot address until the winner confirms control.
 
-Reward safeguard:
+One campaign can span any number of releases:
 
-- while held by an unclaimed promotional Prize Vault, the prize comic has effective official Archive reward weight `0` and cannot farm the collector reward pool;
-- after a winner claims it, the artifact follows the same SEALED/ARCHIVE/UNSEALED eligibility rules as any other non-creator copy.
+```text
+campaign wallet A activated
+→ issue 1 seventh-mint comic deposited
+→ issue 2 seventh-mint comic deposited
+→ issue 3 seventh-mint comic deposited
+→ ... jackpot keeps growing ...
+→ Byte-site introduction/escape room solved
+→ winner restores wallet A and confirms control
+→ winner sweeps wallet A
+→ fresh wallet B may be activated for the next campaign
+```
 
-Exact contract/factory/secret-capsule mechanics remain engineering work, but no later implementation may weaken these custody, randomness, repeatability or reward safeguards.
+There is no one-issue limit, no automatic campaign expiry, no per-release wallet rotation and no puzzle embedded separately inside each comic. An unsolved campaign continues receiving future approved issue deposits.
+
+### Separate persistent Byte-site escape room
+
+The prize puzzle is a persistent Hellbox introduction on the Pulse Byte/HairyLabs site layer. It is separate from the private owner Reader and from any individual comic's frame-native escape rooms.
+
+The exact puzzle package remains fixed for that campaign while the jackpot display grows from verified campaign/deposit events. The campaign manifest binds the exact Byte-site package, encrypted Prize Capsule, active wallet/generation, eligibility/disclosure terms and official-prize classification rules. It does **not** pretend to know every future comic at activation. Each factory-approved publication deposit becomes official through its completed on-chain deposit event. Optional Harrow-funded promotional assets count as official only when added through the campaign's append-only disclosure mechanism; unsolicited/spam transfers do not create a Hellbox promise.
+
+### No Harrow custody or answer sheet
+
+AI may design the story, rooms, riddles, decoys, Harrow dialogue, visual clue families and difficulty curve against dummy placeholders. Final secret-bearing assembly happens locally after the live wallet exists.
+
+The network-disabled builder:
+
+1. generates the fresh 12-word phrase and derives the campaign EOA;
+2. creates the EIP-712 activation signature;
+3. generates an independent high-entropy unlock key;
+4. encrypts the complete ordered phrase into the public Prize Capsule;
+5. locally selects/inserts key-dependent clue variants into the approved puzzle template;
+6. verifies that decryption restores the advertised address;
+7. removes plaintext phrase/key material from working output after successful compilation;
+8. gives Harrow only the address, activation signature, campaign manifest/package digests, finished public package and validation report.
+
+Harrow does not receive the ordered words, private key, final unlock key, answer sheet or pre-signed withdrawal transaction. The puzzle must not reveal individual seed words gradually. Solving the complete maze reconstructs a high-entropy decryption key, and the browser reveals all 12 ordered words locally at once.
+
+Once public, Harrow can attempt the same puzzle as anyone else; no cryptographic system can publish clues to everyone while making one person incapable of understanding them. Fairness comes from no privileged answer material, no backdoor, public insider ineligibility and the same public challenge for everyone.
+
+### Winner claim and rotation
+
+The winner flow is:
+
+```text
+solve Byte-site escape room
+→ reconstruct unlock key locally
+→ decrypt and verify all 12 words locally
+→ restore the EOA in a compatible wallet
+→ connect it to PulseChain
+→ call confirmPrizeWalletClaim() from the recovered EOA
+→ public campaign-claimed event
+→ sweep prizes to a permanent winner wallet
+```
+
+The Prize Wallet should contain a small disclosed PLS gas allowance for confirmation and transfers; that stipend is operational funding, not guaranteed prize value.
+
+Claim acknowledgment:
+
+- moves no prize assets;
+- exposes no seed phrase;
+- requires the active Prize Wallet itself as caller;
+- requires at least one completed official publication deposit;
+- is blocked while any approved publication deposit is pending;
+- permanently records the claim timestamp and emits a public event.
+
+The old EOA belongs to the winner forever and is never reset, reclaimed or reused. Harrow may activate a fresh independently generated campaign only after the old campaign is claimed and has no pending deposits.
+
+### Reward and custody safeguards
+
+- while held by an unclaimed Prize Wallet, each prize comic has effective official Archive reward weight `0` and cannot farm the collector reward pool;
+- after claim, the artifact follows the same SEALED/ARCHIVE/UNSEALED rules as any other non-creator copy;
+- Harrow may voluntarily add promotional assets, but no token, amount, floor value, yield or future deposit is guaranteed;
+- promotional assets come from disclosed promotional funds, never by silently diverting Archive rewards, collector balances or frozen issue proceeds;
+- no Harrow owner withdrawal, sweep, claim, reroll, wallet replacement or arbitrary-call power exists;
+- no later implementation may reintroduce the superseded smart-contract-vault/commit-reveal custody model without a new explicit creator decision.
+
+The factory registry candidate establishes the activation/approval/reserve/complete/claim/rotation substrate. Production publication integration, progressive multi-publication regression and the offline Prize Capsule Builder remain unfinished work.
 
 ## Public grail
 
@@ -1387,24 +1435,24 @@ maximum non-tail primary issuances = 207
 
 The last three are still in the random candidate pool and are not removed in advance.
 
-The **Prize Vault issuance is the first non-tail draw** and therefore sees all 210 candidates. If 4 HELLBOUND remain, its correct odds are:
+The **Prize Wallet issuance is the first non-tail draw** and therefore sees all 210 candidates. If 4 HELLBOUND remain, its correct odds are:
 
 ```text
-Prize Vault next-pull HELLBOUND odds = 4 / 210
+Prize Wallet next-pull HELLBOUND odds = 4 / 210
 ```
 
 NOT `4 / 207`.
 
-After the Prize Vault draw succeeds:
+After the Prize Wallet draw succeeds:
 
 ```text
 candidatePoolRemaining   = 209
 nonTailIssuanceRemaining = 206
 ```
 
-The first public/reserve/free/allowlist/early-Press collector draw therefore uses the actual 209-candidate live pool. Its MARK/DEFECT odds depend on what the Prize Vault already drew and must be read from authoritative on-chain inventory; they are never hard-coded as the pre-prize `4 / 210` value.
+The first public/reserve/free/allowlist/early-Press collector draw therefore uses the actual 209-candidate live pool. Its MARK/DEFECT odds depend on what the Prize Wallet already drew and must be read from authoritative on-chain inventory; they are never hard-coded as the pre-prize `4 / 210` value.
 
-Of the 207 total non-tail issuance slots, exactly one is the locked promotional Prize Vault issuance and at most 206 remain for ordinary collector/partner phases.
+Of the 207 total non-tail issuance slots, exactly one is the locked promotional Prize Wallet issuance and at most 206 remain for ordinary collector/partner phases.
 
 The modular birth-policy foundation now makes the #066 reservation arithmetic explicit. At construction of the native policy, seven MARK reservations exist: the six creator fixed MARKS plus #066. That gives:
 
@@ -1416,7 +1464,7 @@ HELLBOUND reserved           = 3   // #001, #002, #066
 HELLBOUND random-assignable  = 3
 ```
 
-`randomAssignableMarkTotal = 209` is MARK-inventory accounting, **not** the pre-prize candidate denominator. #066 remains a drawable candidate with its fixed HELLBOUND MARK. For the Prize Vault draw immediately after the six creator copies, the correct HELLBOUND probability is:
+`randomAssignableMarkTotal = 209` is MARK-inventory accounting, **not** the pre-prize candidate denominator. #066 remains a drawable candidate with its fixed HELLBOUND MARK. For the Prize Wallet draw immediately after the six creator copies, the correct HELLBOUND probability is:
 
 ```text
 P(#066) + P(other candidate) × P(random HELLBOUND among the other candidates)
@@ -1468,11 +1516,11 @@ Mint phases must support:
 - early Press;
 - public Press.
 
-The Prize Vault issuance is not a public mint phase. It must occur exactly once after the creator six and before any ordinary non-Harrow phase opens. It uses the same remaining random pool and does not consume a human collector wallet's lifetime allowance.
+The Prize Wallet issuance is not a public mint phase. It must occur exactly once after the creator six and before any ordinary non-Harrow phase opens. It uses the same remaining random pool and does not consume a human collector wallet's lifetime allowance.
 
-Unless frozen/disclosed otherwise, every ordinary non-Harrow phase draws from the same remaining random pool after the Prize Vault draw.
+Unless frozen/disclosed otherwise, every ordinary non-Harrow phase draws from the same remaining random pool after the Prize Wallet draw.
 
-No secret privileged rarity odds, including for the Prize Vault.
+No secret privileged rarity odds, including for the Prize Wallet.
 
 ---
 
@@ -1484,7 +1532,7 @@ Public Press should show real state:
 - minted/remaining;
 - current phase;
 - Harrow pull;
-- Prize Vault generation/address and whether its one-time issue deposit is complete;
+- Prize Wallet generation/address and whether its one-time issue deposit is complete;
 - clear notice that prize contents and rarity are not guaranteed;
 - tail still in machine;
 - wallet;
@@ -1647,7 +1695,7 @@ Not frozen as final-wallet economics:
 
 The publication should therefore route paid proceeds to a durable Hellbox operational routing endpoint/protocol rather than hard-code final dev/reward/burn wallets into every issue. The route endpoint used by a frozen payment policy may not change that policy's asset or price. The exact routing-contract/controller implementation remains technical work. The current immutable `royaltyReceiver` field must be treated as the issue's routing endpoint, not as a promise that downstream recipients/splits can never change.
 
-Prize Vault deposits and the separate Continuity Reserve are distinct operational budgets. Neither may silently drain the Archive reward pool or rewrite a frozen issue's payment/royalty promise. Harrow may fund a Prize Vault voluntarily from promotional funds, but no issue sale promises a minimum prize value.
+Prize Wallet deposits and the separate Continuity Reserve are distinct operational budgets. Neither may silently drain the Archive reward pool or rewrite a frozen issue's payment/royalty promise. Harrow may fund a Prize Wallet voluntarily from promotional funds, but no issue sale promises a minimum prize value.
 
 Current operating concepts — **not protocol-locked and explicitly adjustable by Harrow through the gated operational system**:
 
@@ -1905,7 +1953,7 @@ Hellbox must be able to answer the recurring serious NFT objections with verifia
 | “Royalties are guaranteed passive income.” | ERC-2981 is royalty information, not universal marketplace enforcement; Hellbox does not present secondary royalties or rewards as guaranteed yield. |
 | “The source chain/project dies.” | Source-chain provenance remains canonical; zero-host cover reconstruction, downloadable state/content capsules and the Publisher Continuity covenant preserve already-published work without pretending another chain is the original edition. |
 | “Forks/bridges create duplicate ownership.” | Source-chain edition identity is canonical; no bridged Hellbox NFT. Any continuity mirror/other-chain printing is separately labeled and preserves lineage. |
-| “NFTs have no utility.” | Ownership-gated Reader, authored interactive narrative, evolving on-chain cover, immutable rarity, Archive/reward compatibility, artifact history, Prize Vault campaigns, ERC-6551 compatibility and owner-authorized evolution are real product functions—not promised yield. |
+| “NFTs have no utility.” | Ownership-gated Reader, authored interactive narrative, evolving on-chain cover, immutable rarity, Archive/reward compatibility, artifact history, Prize Wallet campaigns, ERC-6551 compatibility and owner-authorized evolution are real product functions—not promised yield. |
 
 No documentation may claim “more utility than every token” as a provable universal fact. The locked ambition is to build unusually deep, independently testable utility while delivering top-tier entertainment.
 
@@ -1954,12 +2002,12 @@ After the six-year delay, the external Archive/reward protocol may allow them to
 
 This lock belongs in the external Archive/reward eligibility layer, not as a reward-token formula inside `HellboxPublication` or `HellboxBirthPolicy`.
 
-### Unclaimed Prize Vault reward exclusion — LOCKED
+### Unclaimed Prize Wallet reward exclusion — LOCKED
 
-A promotional Prize Vault-held comic has effective official Archive reward weight `0` until the campaign is validly claimed.
+A promotional Prize Wallet-held comic has effective official Archive reward weight `0` until the campaign is validly claimed.
 
-- the vault may hold the artifact SEALED, but it cannot use a promotional accumulation wallet to farm ordinary collector rewards;
-- the exclusion follows the active unclaimed Prize Vault status, not a permanent stigma on the copy;
+- the Prize Wallet may hold the artifact SEALED, but it cannot use promotional accumulation to farm ordinary collector rewards;
+- the exclusion follows the active unclaimed Prize Wallet status, not a permanent stigma on the copy;
 - after claim, the winner may use the ordinary SEALED/ARCHIVE/UNSEALED rules if the artifact remains otherwise eligible;
 - this exclusion belongs in the future external Archive/reward eligibility layer and does not alter MARK/DEFECT birth rarity.
 
@@ -2106,44 +2154,64 @@ No future release should require:
 
 The target system must turn issue production into a repeatable authored-data workflow rather than a new software project for every book.
 
-## 23.1 Prize Vault / escape-room campaign compiler — LOCKED DIRECTION
+## 23.1 Prize Wallet / Byte-site escape-room campaign compiler — LOCKED DIRECTION
 
-The Press must eventually treat the promotional Prize Vault as a first-class repeatable campaign, not a manually managed hot wallet.
+The Press must treat the repeating Prize Wallet as a first-class progressive campaign, not a manually managed hot wallet and not a per-comic puzzle.
 
 Required low-cost workflow:
 
 ```text
-offline Prize Capsule generator
-    ↓ new random claim capability + commitment
-approved Prize Vault clone/instance
-    ↓ validate immutable template + unclaimed/armed state
-Press freezes current vault generation for the issue
-    ↓ creator #001–#006
-first non-tail randomness request
-    ↓ one blind prize copy to active vault
-future issues repeat into same active vault
-    ↓ puzzle winner commit/reveal claim
-old vault becomes winner-withdrawable
-    ↓ Harrow activates fresh vault for next campaign
+AI-authored dummy puzzle framework
+    ↓ rooms, dialogue, decoys, clue families, accessibility/playtest pass
+network-disabled Prize Capsule Builder
+    ↓ fresh 12-word MetaMask-compatible phrase + EOA
+    ↓ EIP-712 activation signature + independent high-entropy unlock key
+    ↓ encrypted capsule + locally selected secret-bearing clues
+campaign manifest + compiled Byte-site package + validation report
+    ↓ Harrow receives no phrase/key/answer sheet
+factory activates self-authorized EOA
+    ↓ approved issue publications reserve/complete one seventh-mint deposit each
+persistent public puzzle + event-derived progressive jackpot display
+    ↓ winner decrypts phrase locally and restores EOA
+winner EOA confirms campaign claim
+    ↓ old wallet remains winner-owned forever
+fresh independent EOA/package generation for the next campaign
 ```
 
-The compiler/Press must validate before opening an issue:
+The builder/Press must validate before activation:
 
-- active vault is a recognized immutable version with the expected runtime/code hash;
-- active vault is armed and unclaimed;
-- Harrow/publisher/treasury has no withdrawal, arbitrary-call, upgrade or claim authority;
-- the publication's Prize Vault issuance has not already occurred;
-- the Prize Vault issuance will be the first non-tail issuance and will consume normal random inventory;
-- no full claim secret/private key exists in the release package, repository, deployment logs or Harrow-facing UI;
-- the Prize Capsule output separates public commitment, Harrow-facing authoring kit and independently held sealed recovery/custody material;
-- the authoring kit cannot execute the claim by itself, while the recovery design proves the capability was retained and is not dependent on Harrow;
-- the campaign manifest commits to vault generation, claim-commitment hash, puzzle package, official prize-asset inventory, insider-ineligibility terms and disclosure text without publishing the secret;
-- commit/reveal or an equivalent recipient-binding mechanism prevents mempool theft of a solved secret;
-- optional promotional deposits are enumerated from chain state and never represented as guaranteed future value; unsolicited transfers are ignored by official prize presentation;
-- a claimed campaign cannot receive future automatic issue deposits after the active-vault registry rotates;
-- an unclaimed campaign cannot be reset merely because Harrow wants its assets back.
+- 12-word phrase derives the advertised EVM address under the frozen compatible derivation profile;
+- no additional passphrase/backdoor is required;
+- EIP-712 signature recovers exactly the proposed wallet for this factory, generation, manifest digest and deadline;
+- wallet is nonzero, unused, not Harrow/factory/owner/pending-owner and has no code;
+- encrypted capsule decrypts correctly only with the full reconstructed unlock key;
+- complete phrase/key/answer material is absent from Harrow-facing output, repo, cloud logs, AI chats, screenshots, source maps and build reports;
+- puzzle package contains no gradual plaintext seed-word leak or low-entropy final answer;
+- public package digest and encrypted-capsule digest match the campaign manifest;
+- accessibility, route reachability, decoy logic, difficulty progression and final local-decryption UX pass automated and human tests;
+- Harrow/household/paid operators are disclosed as ineligible without pretending identity/Sybil exclusion is purely cryptographic.
 
-The exact secret-splitting/custodian implementation remains open for security review. A simple offline generator, minimal-clone vault, static puzzle assets and event-driven indexing are preferred over paid keepers, always-on servers or complex threshold infrastructure that a broke solo creator cannot maintain.
+The Press must validate before each issue deposit:
+
+- active campaign is unclaimed and generation/integrity mappings agree;
+- publication was physically created and registered by the same approved factory;
+- the factory owner explicitly approved that publication for the active generation;
+- publication has not previously reserved/completed a Prize Wallet deposit;
+- wallet still has no code;
+- reserve occurs before the publication creates its prize request;
+- completion occurs atomically only after the random prize copy is successfully minted;
+- no collector phase can open while that publication's prize deposit is incomplete.
+
+Public presentation rules:
+
+- the Byte-site puzzle/package remains unchanged while the active jackpot grows;
+- completed approved publication-deposit events are the canonical list of official comic contributions;
+- optional promotional assets require append-only official disclosure; mere transfers to the public address are not endorsements;
+- the UI shows active generation/address, completed issue deposits, pending-deposit state, claimed state and campaign-package digest;
+- the UI never exposes or transmits the phrase or unlock key to Hellbox servers;
+- the post-solve flow puts on-chain claim confirmation before the sweep checklist and verifies the event.
+
+Open security-engineering details for the later builder include exact local cryptographic primitives/KDF parameters, secure temporary-memory/file handling, reproducible-build evidence, browser compatibility, independent review and recovery from a builder crash before activation. These details may strengthen implementation but may not change the locked 12-word, no-Harrow-secret, local-decryption, persistent-progressive-campaign model.
 
 ## 23.2 Future independent-creator Press lane — LOCKED DIRECTION / LATER GATE
 
@@ -2379,9 +2447,9 @@ Focused proof:
 - copied payload hash equals the BirthPolicy creation-code hash;
 - ordinary calls are inert.
 
-Current full post-push regression: **97/97 tests passed, 0 failed**, issuance fuzz boundary **256 runs**. The additional permanent proofs cover the drand verifier and immutable factory-generation verifier binding.
+Current committed tree contains **105 tests** after the permanent eight-test Prize Wallet FIFO regression. The exact uncommitted registry candidate raises the creator-verified run to **117/117 passed, 0 failed**; it is not yet committed.
 
-The code store is now proven **and integrated** infrastructure. Production publication/factory source contains no direct BirthPolicy creation-code embed. The measured native publication `CREATE` payload after integration is **31,665 bytes**, leaving **17,487 bytes** of EIP-3860 headroom.
+The code store is now proven **and integrated** infrastructure. Production publication/factory source contains no direct BirthPolicy creation-code embed. At the pre-optimizer integration checkpoint, the measured native publication `CREATE` payload was **31,665 bytes** with **17,487 bytes** of EIP-3860 headroom. It must be freshly remeasured after production Prize Wallet registry wiring.
 
 ---
 
@@ -2443,7 +2511,7 @@ verifier EIP-170 runtime margin                 = +15,887 bytes
 
 Do **not** reintroduce embedded `new HellboxPublication(...)` deployment merely for convenience.
 
-Do **not** enable optimizer/via-IR merely to hide a structurally oversized factory. Optimizer/runs/via-IR remains a separate open engineering decision.
+Do **not** change the now-frozen production compiler profile merely to hide structural growth. Gate 4 uses optimizer enabled, 200 runs and `via_ir = false`; any later profile change requires explicit measurement, full regression and a new reviewed checkpoint.
 
 ## Version / authority
 
@@ -2528,7 +2596,7 @@ Proven safeguards:
 - SciVive's trait-disabled shape deploys through the same reviewed publication version;
 - production source does not directly embed `HellboxBirthPolicy` creation code;
 - measured native publication practical initcode/payload is **31,665 bytes** with **17,487 bytes** of EIP-3860 headroom;
-- `HellboxPublication` runtime is **16,411 bytes**, factory runtime is **9,733 bytes**, and the stateless drand verifier runtime is **8,689 bytes** under the current unoptimized Shanghai build.
+- at that pre-optimizer checkpoint, `HellboxPublication` runtime was **16,411 bytes**, factory runtime **9,733 bytes**, and verifier runtime **8,689 bytes**; the recovered optimized candidate now measures **14,818 / 12,424 / 5,138 bytes** respectively.
 
 This wiring changed only pre-deployment constructor/call transport needed for the companion. It did **not** change the frozen `ReleaseConfig`/`CommitmentSet` field order or `HELLBOX_ABI_V1` fingerprint.
 
@@ -2536,135 +2604,126 @@ Do not add a post-deploy policy setter/initializer/activation window. Do not add
 
 ---
 
-# 27. GATE 4 VERIFIED RANDOMNESS FOUNDATION + PUBLICATION/PRIZE/CLOSURE FRONTIER
+# 27. GATE 4 VERIFIED RANDOMNESS + FIFO + PRIZE WALLET REGISTRY FRONTIER
 
-The deterministic issuance/BirthPolicy foundation and the standalone production randomness foundation are now implemented, tested, committed and pushed. The selected provider is frozen drand `evmnet`; a stateless verifier runs on PulseChain's proven BN254 precompiles; each factory generation deploys/fixes one equivalent verifier. Publication-side request/FIFO consumption, Prize Vault bootstrap, timed closure and collector minting remain closed.
+The deterministic issuance/BirthPolicy foundation, production drand verifier, immutable factory-generation verifier binding, production compiler profile and publication FIFO/Prize Wallet issuance substrate are committed and pushed. A campaign-registry candidate and its 12-test probe are installed and validated in the worktree but not committed.
 
-## Implemented / tested
+## Implemented, committed and pushed
 
-Current `HellboxPublication` proves or represents:
+`HellboxPublication` now includes:
 
-- frozen max-supply accounting;
-- `candidatePoolRemaining` and separate `nonTailIssuanceRemaining`;
-- standard native `210 / 207` initialization;
-- immediate creator-copy reservation/issuance ordering;
-- normal issuance blocked until the immediate allocation is complete;
-- sparse remaining-candidate bookkeeping and unique in-range draws;
-- #066 remains candidate-eligible until actually drawn;
-- lifetime primary wallet accounting that transfer/burn cannot restore;
-- true-mintout detection and literal final-three tail award;
-- SciVive reuse without native-216 trait assumptions;
-- deterministic entropy-word/test-double boundary without selecting production entropy;
-- canonical enforcement domains/digest anchors and immutable BirthPolicy provenance;
-- internal issuance-time calls into the bound BirthPolicy for immediate creator, normal non-tail and Final-3 copies;
-- atomic inventory accounting: pending immediate copies plus candidate pool must equal enabled-axis remaining inventory;
-- failed assignment reverts candidate removal, wallet usage, issuance counters and trait inventory together.
+- immutable validation/binding of the factory-generation drand verifier, provider digest and runtime code hash;
+- standard native `210 / 207` issuance initialization;
+- append-only future-round randomness request state;
+- exact FIFO head consumption with permissionless real-proof fulfillment;
+- domain-separated publication-local entropy derivation;
+- one internal Prize Wallet request transition that can occur only after the immediate six and before any ordinary non-tail issuance;
+- EOA checks at request and fulfillment;
+- same-pool random Prize Wallet issuance with BirthPolicy assignment and `210/207 → 209/206` accounting;
+- no hard-coded `#007`, no special trait pool and normal `#066` eligibility;
+- permanent eight-test FIFO regression.
 
-Current `HellboxBirthPolicy` proves or represents:
+The production compiler profile is frozen:
 
-- versioned `BIRTH_POLICY_VERSION = 1` / `MODULE_ID = keccak256("HELLBOX_BIRTH_POLICY")`;
-- constructor-only configuration and permanent `publication = msg.sender` binding;
-- no proxy, initializer, ownership/admin or publisher mutation surface;
-- one narrow publication-only `assignBirthIdentity(tokenId, entropyWord)` enforcement endpoint;
-- independent verification of fixed-copy, birth-trait and randomization policy preimages;
-- native MARK inventory `6 / 12 / 18 / 180` and DEFECT inventory `6 / 12 / 18 / 24 / 156`;
-- exact one-time consumption of Harrow #001–#006 fixed MARK reservations;
-- shared-random creator DEFECT consumption;
-- #066 fixed HELLBOUND reservation protected from unrelated random draws and consumed only when #066 is drawn;
-- one permanent MARK and one permanent DEFECT for each applicable native copy;
-- independent MARK/DEFECT entropy derivation domain-separated by the frozen randomization-policy digest, publication, token ID and axis;
-- random assignment that excludes still-reserved fixed-copy inventory;
-- permanent `birthIdentityAssigned`, `birthMark` and `birthDefect` token state with duplicate/reroll rejection;
-- authoritative remaining-inventory views after each successful assignment;
-- trait-disabled SciVive assignment that records zero/zero identity without inventing traits.
+```text
+solc             0.8.36
+evm              shanghai
+optimizer        true
+optimizer_runs   200
+via_ir           false
+```
 
-Current verification includes:
+The Prize Wallet request remains **internal and unwired** in production. No deployed publication can yet obtain/reserve the active campaign wallet from the factory or automatically create the request during creator initialization.
 
-- **97/97** full Solidity regression;
-- **21/21** factory/provenance/atomic-deployment tests;
-- **21/21** dedicated `HellboxBirthPolicy` tests;
-- **4/4** dedicated immutable code-store tests;
-- **9/9** publication policy-anchor tests;
-- **13/13** deterministic issuance/atomic-trait tests;
-- **16/16** publication-kernel tests;
-- **1/1** Solidity↔JavaScript golden-vector test;
-- issuance fuzz boundary **256 runs**;
-- current unoptimized Shanghai runtimes: publication **16,411 bytes**, factory **9,733 bytes**, drand verifier **8,689 bytes**, BirthPolicy **9,123 bytes**; actual deployed code-store runtime **20,609 bytes** with **3,967 bytes** of EIP-170 headroom (compiler-reported nominal runtime stub **62 bytes**);
-- **8/8** permanent verifier tests and **4/4** permanent factory-verifier binding tests;
-- exact valid/invalid verifier execution passed against the actual PulseChain Testnet node through state override;
-- BirthPolicy initcode **20,608 bytes** and code-store creation size **20,871 bytes**;
-- measured native publication `CREATE` payload **31,665 bytes** with **17,487 bytes** EIP-3860 headroom;
-- `HELLBOX_ABI_V1` structure unchanged;
-- production direct BirthPolicy creation-code embeds: **0**.
+## Installed/validated but uncommitted
 
-The on-chain remaining inventories are now authoritative state. The public Press/API presentation of those values and user-facing next-pull odds is still future interface work; it must read the enforced values rather than reconstructing an independent rarity ledger.
+The exact factory candidate and permanent registry probe recorded in Section 6 add:
+
+- fresh EOA EIP-712 self-authorization;
+- active campaign generation/address/manifest state;
+- used-wallet and used-manifest prevention;
+- explicit owner approval of official publications per campaign generation;
+- publication-only reserve and complete transitions;
+- pending/completed deposit counts;
+- direct winner-wallet claim acknowledgment;
+- claim/rotation/reuse/ownership-transfer safeguards.
+
+For those exact bytes, creator evidence is **12 focused / 117 total tests passed**. This is not yet committed truth.
 
 ## Not implemented yet — do not overclaim
 
-The current code does **not** yet complete:
+The current repository does **not** yet complete:
 
-- publication-side immutable verifier validation/binding;
-- the first-non-tail Prize Vault issuance and active-vault validation;
-- FIFO randomness request/permissionless fulfillment consumption for public collector assignment;
+- permanent tests proving multiple distinct publications accumulate in one active campaign and approvals cannot leak across generations;
+- production `HellboxPublication` calls to reserve the active wallet before request creation and complete the deposit after successful fulfillment;
+- creator-immediate production orchestration that creates the seventh-mint request without a test harness;
+- a fail-safe/liveness policy for a reserved deposit that cannot be fulfilled;
 - native timed-expiry closure when more than three candidates remain;
 - unbiased expiry Final-3 selection and permanent extinguishment of every non-selected candidate;
 - phase eligibility enforcement;
-- configurable per-phase `FREE` / `FIXED_NATIVE` / `FIXED_ERC20` payment enforcement, exact native/token settlement and over/underpayment behavior;
-- the public collector mint endpoint;
-- the stable primary-proceeds routing boundary for paid mints;
-- public Press/API display of authoritative live inventory/odds;
+- configurable per-phase `FREE` / `FIXED_NATIVE` / `FIXED_ERC20` payment enforcement and exact settlement;
+- public collector mint endpoint and stable primary-proceeds routing boundary;
+- public Press/API presentation of authoritative inventory, odds and progressive Prize Wallet events;
+- offline Prize Capsule Builder and compiled Byte-site campaign package;
+- immutable renderer binding and independently reconstructible native `tokenURI` path;
 - PulseChain Testnet V4 end-to-end collector mint acceptance.
 
-## Exact next engineering objective
+## Exact next engineering sequence
 
-Implement the publication-side Gate 4 lifecycle in isolated one-file checkpoints:
+Continue in conservative one-file checkpoints:
 
-1. bind/validate the factory-generation drand verifier inside each publication without changing `HELLBOX_ABI_V1`;
-2. add a one-time Prize Vault bootstrap transition that can occur only after #001–#006 and before any collector phase, uses the same FIFO randomness boundary, and consumes `210/207 → 209/206`;
-3. add immutable FIFO request state and permissionless proof fulfillment so request order cannot be skipped or rerolled;
-4. implement native deadline closure through the same verifier, awarding unbiased Final 3 and permanently extinguishing all other candidates;
-5. then implement phase eligibility, frozen per-phase `FREE` / `FIXED_NATIVE` / `FIXED_ERC20` payment policies, exact settlement, proceeds routing and the public collector endpoint.
+1. review/commit `contracts/HellboxPublicationFactory.sol` at the exact recovered hash;
+2. review/commit `test/HellboxPrizeWalletRegistryProbe.t.sol` at the exact recovered hash;
+3. extend that single test file with the missing progressive multi-publication, generation-isolation and owner-authority regressions; require 120 total only after those bytes actually pass and are committed;
+4. modify `contracts/HellboxPublication.sol` to reserve the approved active campaign EOA, create the Prize Wallet FIFO request through the real creator-initialization path, and complete the deposit atomically after successful mint;
+5. implement native timed closure through the same FIFO/verifier boundary;
+6. implement phase eligibility, frozen exact payment routes, proceeds routing and public collector minting;
+7. establish/prove the lean immutable renderer/data binding and self-contained native `tokenURI` compatibility point;
+8. run full adversarial/Testnet acceptance and close Gate 4 documentation.
 
 Required safeguards:
 
 - no Harrow/manual/recipient-provided entropy;
-- no arbitrary Prize Vault recipient; only an approved active vault instance;
-- no Prize Vault copy/trait guarantee or reroll;
-- no public phase opens before the prize issuance completes;
-- no request skipping, cancellation-for-rarity, deadline extension or fallback to timestamp/blockhash/caller input;
-- #066 participates normally in prize, collector and closure draws;
-- provider/vault failure pauses/fails closed;
-- SciVive remains exempt from native Prize Vault/timed-tail rules unless explicitly configured in a later version;
-- collector minting remains closed until prize, FIFO, phase, payment and closure tests pass.
+- no arbitrary prize recipient: only the active fresh EOA self-authorized for the factory generation;
+- no mnemonic/private key/unlock key/answer sheet enters chain, repo, cloud AI or Harrow-facing output;
+- no Prize Wallet copy/trait guarantee, reroll or substitution;
+- no public phase opens before its publication's prize deposit completes;
+- no FIFO skipping, cancellation-for-rarity, deadline extension or timestamp/blockhash/caller fallback;
+- `#066` participates normally in prize, collector and closure draws;
+- provider/campaign failure pauses or fails closed;
+- pending deposits cannot silently strand a campaign without monitoring and a reviewed recovery policy;
+- SciVive remains exempt from native Prize Wallet/timed-tail rules unless explicitly configured in a later version;
+- collector minting remains closed until prize, FIFO, phase, payment and closure proofs pass.
 
-The Prize Vault contract/registry may be a later isolated Gate 4/5 support module, but the publication issuance promise must be preserved now.
-
-Do not build:
-- Archive rewards;
-- Hellforge recipes;
-- Gate 5 Press UX;
-- Gate 6 renderer/interactive package pipeline;
-- future creator Press leasing;
-- token economics.
-
----
+Do not build Archive rewards, Hellforge recipes, full Gate 5 Press UX, the Gate 6 interactive/on-chain-art compiler, outside-creator leasing or token economics during this sequence.
 
 # 28. GATE 4 OPEN TECHNICAL DECISIONS
 
 Still open:
 
-1. exact publication-side FIFO request/fulfillment storage and permissionless consumption mechanics using the now-selected drand `evmnet` verifier;
-2. exact native timed-closure transaction trigger/liveness model and interaction with pending FIFO requests;
-3. exact approved Prize Vault template/registry/claim-commitment integration and no-Harrow-custody proof;
-4. optimizer/runs/via-ir;
-5. metadata renderer transport/interface details;
-6. future external-protocol binding mechanics;
-7. revenue-router implementation, authority model and gated Harrow operational controls;
-8. simultaneous multi-asset checkout, oracle-priced conversion, fee-on-transfer/rebasing token support or post-publication payment-asset mutation beyond the frozen V1 phase-policy scope.
+1. exact production orchestration for creator #001–#006 fulfillment followed by automatic active-campaign reservation and Prize Wallet request creation;
+2. exact atomic publication↔factory reserve/complete interface and the liveness/incident rule if an already-reserved drand request cannot complete;
+3. exact native timed-closure transaction trigger, FIFO ordering and behavior when earlier requests are pending;
+4. exact unbiased selection/consumption encoding for the expiry Final 3 and permanent extinguishment;
+5. phase eligibility, exact native/ERC-20 balance-delta checks, proceeds-router implementation and authority model;
+6. metadata renderer transport/interface/data-store details;
+7. rotation-safe `publisherAuthority` endpoint strategy before persistent publisher-authorized actions reach mainnet;
+8. future external-protocol binding mechanics;
+9. exact offline Prize Capsule Builder cryptography, secure temporary handling, reproducibility and browser-decryption implementation;
+10. optional promotional-asset disclosure mechanism for the progressive campaign;
+11. simultaneous multi-asset checkout, oracle-priced conversion, fee-on-transfer/rebasing token support or post-publication payment-asset mutation beyond the frozen V1 scope.
 
-These are technical research/testing tasks, not invitations to invent product rules.
+No longer open:
 
----
+- production compiler profile: optimizer on, 200 runs, `via_ir = false`;
+- randomness provider: drand `evmnet` through the immutable factory-generation verifier;
+- prize custody model: fresh self-authorized ordinary EOA, not a smart-contract vault;
+- recovery phrase shape: 12-word MetaMask-compatible phrase, not a 24-word campaign default;
+- puzzle location: persistent Byte-site introduction, separate from individual comics;
+- campaign lifetime: same wallet across releases until winner confirmation; no automatic expiry/reset;
+- claim evidence: direct call from the recovered EOA, not public-secret commit/reveal.
+
+Open items are technical research/testing tasks, not invitations to change the locked product rules.
 
 # 29. GATE 4 ACCEPTANCE / EXIT
 
@@ -3223,8 +3282,8 @@ Maintain concise, executable runbooks for:
 - Cloudflare/vendor outage;
 - unsafe-write/read-only mode;
 - failed mint/publication transaction;
-- Prize Vault generation, validation, activation, claim evidence and successor-vault rotation;
-- Prize Capsule offline generation/recovery without exposing the claim capability to Harrow;
+- Prize Wallet generation, validation, activation, claim evidence and successor-campaign rotation;
+- Prize Capsule offline generation/recovery without exposing the phrase, private key, unlock key or answer sheet to Harrow;
 - continuity heartbeat, warning, voluntary activation and inactivity activation;
 - static Rescue Reader/continuity-package publication and mirror restoration;
 - PulseChain final-state capsule generation and continuity-mirror verification;
@@ -3267,7 +3326,7 @@ Before mainnet establish one low-noise operational view covering:
 - Reader/package delivery;
 - narrative timer/progress service when interactive comics exist;
 - unusual authority/configuration changes;
-- Prize Vault activation/claim/rotation state;
+- Prize Wallet activation/claim/rotation state;
 - continuity heartbeat age, warning thresholds and activation eligibility.
 
 Alerts should identify:
@@ -3287,10 +3346,10 @@ Before mainnet:
 - use deliberate two-step rotations where supported;
 - keep secrets out of Git, AI chats, logs and screenshots;
 - preserve durable audit evidence for production changes;
-- never store a Prize Vault claim capability with Harrow's publishing/treasury keys;
+- never store a Prize Wallet phrase/private key/final unlock key with Harrow's publishing/treasury keys;
 - keep continuity heartbeat authority narrow and separate from treasury/publishing powers.
 
-AI may prepare or verify an operation. It may not receive signing secrets, Prize Vault claim secrets or continuity-capsule decryption material and may not unilaterally execute an irreversible action.
+AI may prepare or verify an operation. It may not receive signing secrets, the Prize Wallet phrase/private key/final unlock key, or continuity-capsule decryption material and may not unilaterally execute an irreversible action.
 
 ## 35.7 Automation priority
 
@@ -3352,7 +3411,7 @@ Gate 4 must therefore avoid:
 - experience-mark mutators;
 - game-progress storage in the publication.
 
-The code-store/BirthPolicy atomic deployment wiring and publication-only per-token MARK/DEFECT assignment/consumption inside the internal issuance state machine are now complete. The standalone drand verifier/configuration and immutable factory-generation verifier binding are also complete. The immediate Gate 4 frontier is publication-side verifier binding, Prize Vault bootstrap, FIFO fulfillment/native timed closure, then one-file implementation of phase, V1 payment and public collector mint enforcement.
+The code-store/BirthPolicy atomic deployment wiring and publication-only per-token MARK/DEFECT assignment/consumption inside the internal issuance state machine are now complete. The standalone drand verifier/configuration and immutable factory-generation verifier binding are also complete. The immediate Gate 4 frontier is publication-side verifier binding, Prize Wallet bootstrap, FIFO fulfillment/native timed closure, then one-file implementation of phase, V1 payment and public collector mint enforcement.
 
 ---
 
@@ -3456,7 +3515,7 @@ A future continuity mirror on another chain must preserve original PulseChain pr
 
 Create a separate **Hellbox Continuity Reserve**.
 
-- it is distinct from the Archive reward pool and Prize Vault promotional funds;
+- it is distinct from the Archive reward pool and Prize Wallet promotional funds;
 - Archive collectors' disclosed rewards cannot be silently redirected to ordinary infrastructure expenses;
 - the reserve may receive a disclosed allocation from platform revenue, licensing, merchandise, sponsorship or Harrow contributions;
 - prefer prepaid durable storage, static builds and fixed recovery bounties over speculative DeFi yield;
@@ -3678,29 +3737,40 @@ Response:
 - pre-mint: abandon bad deployment/version and deploy reviewed successor;
 - post-mint: do not seize/rewrite collector NFTs; disable only optional unsafe platform paths where possible and fix future versions.
 
-## 36.10A Promotional Prize Vault compromise / self-dealing / front-running
+## 36.10A Promotional Prize Wallet compromise / self-dealing / puzzle leakage / liveness
 
 Risk:
-- Harrow or a compromised operator can withdraw the prize, choose its rare copy, learn the claim capability, reset an unsolved campaign, or a mempool observer can steal a solver's reveal.
+
+- Harrow or a compromised operator learns the phrase/unlock key, substitutes a wallet, redirects a publication deposit, chooses/rerolls the copy or rotates an unsolved campaign;
+- a weak final puzzle answer allows brute-force decryption of the public capsule;
+- partial seed-word clues collapse the mnemonic search space;
+- a browser/build artifact, source map, log, backup or AI session leaks live secret material;
+- spam transfers are misrepresented as official prizes;
+- a publication reserves a deposit but never completes, blocking winner confirmation and campaign rotation;
+- the winner sweeps assets but forgets to call the on-chain claim confirmation.
 
 Prevent:
-- Prize Vault is a validated immutable contract, not a Harrow-controlled EOA;
-- first non-tail issuance uses the same production randomness and cannot reroll;
-- no Harrow withdrawal/arbitrary-call/upgrade/claim authority;
-- claim secret generated outside Harrow and excluded from repo/AI/cloud/logs;
-- puzzle-authoring output is separated from independently held claim/recovery material;
-- no Harrow-controlled device/operator holds the complete claim capability;
-- recipient-bound commit/reveal or equivalent anti-front-running claim;
-- disclosed insider ineligibility for Harrow/household/operators/custodians, without pretending identity/Sybil exclusion is purely cryptographic;
-- only manifest-listed assets count as official prize contents;
-- no rotation until claim; old vault remains winner-withdrawable;
-- zero official Archive reward weight while unclaimed;
-- every activation/manifest/deposit/claim/rotation emits auditable events.
+
+- campaign EOA is generated on a network-disabled builder and self-authorizes its exact factory/generation/manifest with EIP-712;
+- factory rejects zero, code-bearing, used, owner/factory/pending-owner campaign addresses;
+- only factory-created, explicitly generation-approved publications may reserve once and complete once;
+- publication uses the same future-round FIFO drand draw with no reroll or special trait pool;
+- ordered 12-word phrase, private key and independent high-entropy unlock key never enter Harrow-facing output, repo, cloud AI, source maps, screenshots or logs;
+- complete phrase is encrypted and revealed locally only after the full puzzle key is reconstructed; never expose seed words one at a time;
+- package/capsule/address derivation and EIP-712 signature are independently verified before activation;
+- public insider-ineligibility terms and no private answer sheet; do not falsely claim cryptography prevents Harrow from solving public clues;
+- completed approved publication-deposit events define official comic additions; optional assets require append-only official disclosure; spam is ignored;
+- pending-deposit monitoring, atomic completion, failure drills and a reviewed liveness policy before mainnet;
+- winner UX makes claim confirmation the first post-restore action, prefunds a small PLS gas allowance and verifies the claim event before presenting the sweep checklist;
+- zero official Archive reward weight while campaign-held;
+- no rotation until claim and zero pending deposits; old wallet is never reset/reused.
 
 Response:
-- fail public Press opening if the approved active vault is invalid;
-- never redirect an armed vault's assets through an emergency Harrow sweep;
-- version/fix only future vault generations while preserving evidence and the old claim path where possible.
+
+- before activation, abandon any package/wallet whose secret-handling or validation fails and generate a new campaign cleanly;
+- after activation, never use an emergency Harrow sweep or substitute the EOA; preserve evidence, disclose the incident and fix only future generations;
+- if a pending deposit liveness defect appears on Testnet, stop Gate 4 and correct publication integration before mainnet rather than weakening claim protection;
+- if the winner controls the wallet but has not confirmed, use public UX/support prompts only—Harrow cannot forge confirmation or rotate around them.
 
 ## 36.10B Canonical art/metadata centralization or false ownership claim
 
@@ -3872,7 +3942,7 @@ Prevent:
 - separate roles/authorities;
 - least privilege;
 - no secrets in repo/AI chat;
-- no Prize Vault EOA key under Harrow control and no full prize claim secret on Harrow systems;
+- no Prize Wallet phrase/private key/final unlock key or answer sheet on Harrow systems;
 - continuity-capsule material segregated from ordinary publishing/treasury credentials;
 - short sessions;
 - monitored authority changes;
@@ -3939,7 +4009,7 @@ Response:
 - final widescreen tuning deferred;
 - positive real SciVive owner still waits for Gate 4 Testnet deployment/mint;
 - public Press/API presentation of the now-authoritative on-chain MARK/DEFECT inventory/odds is not yet wired;
-- standalone drand `evmnet` verifier/configuration and factory-generation binding are complete; publication-side FIFO request/fulfillment, Prize Vault bootstrap and timed-expiry Final-3 consumption remain incomplete;
+- standalone drand verifier/configuration, immutable publication verifier binding and the publication FIFO/Prize Wallet issuance substrate are committed; real creator-initialization/registry wiring and timed-expiry Final-3 consumption remain incomplete;
 - phase eligibility, configurable V1 FREE/native-PLS/ERC-20 payment enforcement and public collector mint endpoint are not yet implemented;
 - Gate 4 immutable metadata-renderer interface/binding and self-contained `tokenURI` path are not yet implemented;
 - Gate 6 full on-chain art-data compiler/dynamic renderer and zero-host reconstruction proof are not built;
@@ -3952,7 +4022,7 @@ Response:
 - frontend/backend chain registry can drift until parity/generated source exists;
 - internationalization incomplete by design;
 - Publisher Continuity Covenant direction/heartbeat is now locked, but Rescue Reader, continuity capsule, legal succession, durable storage and drills remain future hardening work;
-- Prize Vault contract/registry/Prize Capsule generator and first-non-tail issuance enforcement are not implemented yet;
+- the factory Prize Wallet registry and 12-test probe are validated but uncommitted; production publication reserve/complete integration, the missing progressive-jackpot regressions, public jackpot presentation and the offline Prize Capsule Builder are not implemented yet;
 - HairyLabs Byte indexing issue reported for #6/#11/#13/#19/#20/#23/#104/#223/#333 is resolved and the old testing exclusion is lifted;
 - current Forge/static-analysis output includes non-blocking style/optimization notes; investigate security-relevant warnings, but do not mutate stable ABI/semantics merely to satisfy lint style.
 
@@ -3961,7 +4031,7 @@ Response:
 # 37. OPEN STRATEGIC ITEMS — DO NOT SILENTLY LOCK
 
 - exact technical implementation of the now-locked Publisher Continuity Covenant: heartbeat authority, warning schedule, voluntary timelock duration, manifest/capsule encryption, legal escrow/successor, durable storage and permissionless activation bounty;
-- exact Prize Vault template/factory/registry, offline Prize Capsule generator, independent custody/recovery-share model and puzzle-secret delivery design, provided Harrow never receives unilateral claim power;
+- exact production publication↔factory integration, pending-deposit liveness policy, optional-asset disclosure mechanism and offline Prize Capsule Builder cryptography/operations, while preserving the locked 12-word EOA and no-Harrow-secret model;
 - exact Native Issue #1 Artifact Ownership Covenant license scope, including whether/how limited commercial use follows the token;
 - exact approved on-chain art encoding/compression palette, renderer generation and data-store packing strategy, provided canonical cover reconstruction never requires external hosting;
 - dynamic-metadata/Reader fallback transport if Hellbox infrastructure disappears;
@@ -4057,48 +4127,53 @@ Context exhaustion or real-world interruption is a handoff event, not a reason t
 
 # 40. EXACT NEXT ACTION
 
-Current committed/pushed checkpoint before this documentation synchronization:
+Recovered repository boundary before this documentation install:
 
 ```text
-publication/BirthPolicy issuance foundation       implemented / passing
-immutable per-token MARK/DEFECT identity          implemented / passing
-drand evmnet config + stateless verifier          implemented / passing
-actual PulseChain Testnet valid/invalid proof      passed
-factory-generation immutable verifier binding     implemented / passing
-permanent verifier regression                       8 passed / 0 failed
-permanent factory-binding regression                 4 passed / 0 failed
-factory provider-digest fixtures synchronized       implemented / passing
-full Solidity regression                            97 passed / 0 failed
-issuance fuzz                                      256 runs passed
-publication runtime                              16,411 bytes
-factory runtime                                   9,733 bytes
-verifier runtime                                  8,689 bytes
+HEAD / origin/main                              52dcb192d56b40e803ea39c2391ee3d20a759faf
+committed Solidity tests                        105
+committed Prize Wallet FIFO tests                 8
+uncommitted factory candidate                   1178 lines
+factory candidate sha256                        885d81b731aa28bb9a1f27de714d7d16e16d9c5a7e73fd75bbba9620c1d4a90d
+uncommitted registry probe                       747 lines
+registry probe sha256                           6793f8f659b090bc83febf9b6c38d02fab5ed4229bcb25fcea407ace5a73cb60
+candidate-focused regression                     12 passed / 0 failed
+candidate full regression                       117 passed / 0 failed
+publication runtime                            14,818 bytes
+factory runtime                                12,424 bytes
+verifier runtime                                5,138 bytes
 ```
 
-Locked new issuance promise:
+Locked campaign model:
 
 ```text
-#001–#006 → Harrow immediate fixed-MARK copies
-7th successful mint event → active approved Prize Vault
-                           → random candidate, not guaranteed #007
-                           → consumes 210/207 to 209/206
-then ordinary collector phases may open
+fresh offline-generated 12-word EOA self-authorizes
+→ same EOA remains active across issue releases
+→ each approved issue's seventh mint adds one random comic
+→ separate persistent Byte-site escape room remains live
+→ solver decrypts all 12 words locally
+→ recovered EOA confirms claim on-chain
+→ winner sweeps old EOA
+→ only then may a completely fresh campaign begin
 ```
 
 Exact next implementation sequence:
 
-1. install/prove publication-side verifier validation and randomness bootstrap;
-2. implement the one-time active Prize Vault issuance before collector phases;
-3. implement FIFO request/permissionless fulfillment and native timed closure;
-4. implement phase eligibility, configurable exact V1 phase payment/proceeds routing and public collector minting;
-5. establish/prove the lean immutable metadata-renderer binding and self-contained on-chain `tokenURI` compatibility point required before Gate 4 close;
-6. run full adversarial/Testnet acceptance and close Gate 4 documentation.
+1. install/review this four-document recovery checkpoint without altering the two candidate code files;
+2. verify and commit `contracts/HellboxPublicationFactory.sol` alone;
+3. verify and commit `test/HellboxPrizeWalletRegistryProbe.t.sol` alone;
+4. add/prove the missing progressive multi-publication/generation/authority tests in that test file alone;
+5. wire `HellboxPublication.sol` to the real active-campaign reserve/request/fulfill/complete path and creator initialization;
+6. implement/prove native timed closure;
+7. implement phase eligibility, exact V1 payment/proceeds enforcement and the public collector mint path;
+8. establish/prove the immutable renderer/data/`tokenURI` checkpoint;
+9. run full Testnet/adversarial acceptance and close Gate 4 documentation.
 
-Do not open collector minting, alter `HELLBOX_ABI_V1`, create an arbitrary prize-recipient setter, or build a Harrow-controlled prize EOA. The active Prize Vault must fail closed, receive the same unbiased random draw, and remain outside Harrow's withdrawal/claim control.
+At every source checkpoint: verify current committed baseline, source hash, focused tests, full tests, production sizes, diff check, changed-file boundary, author identity, commit contents and remote equality. One source or test file per checkpoint. Do not batch source and tests.
 
-The Publisher Continuity Covenant and exact heartbeat are now locked project direction. Its Rescue Reader/storage/legal implementation remains later-Gate work and must not derail the final Gate 4 issuance sequence.
+Do not claim 120 tests until the missing three tests are actually installed and pass. Do not open collector minting, alter `HELLBOX_ABI_V1`, create an arbitrary prize-recipient setter, revert to a smart-contract Prize Wallet, leak a phrase/key into Harrow tooling, or let an unclaimed campaign rotate.
 
----
+The Publisher Continuity Covenant remains later-Gate work and must not derail this final Gate 4 sequence.
 
 # 41. FINAL NON-REGRESSION LIST
 
@@ -4160,7 +4235,14 @@ Stop before introducing:
 - generic XP Hellion;
 - localStorage ownership;
 - public protected Reader assets for convenience;
-- HairyLabs cache issues treated as Hellbox defects without evidence.
+- HairyLabs cache issues treated as Hellbox defects without evidence;
+- reverting the repeating campaign to a smart-contract vault or public-secret commit/reveal without a new creator decision;
+- generating the campaign EOA in a networked/cloud environment or exposing its ordered 12 words, private key, final unlock key or answer sheet to Harrow/cloud AI;
+- revealing seed words gradually as puzzle clues or using a guessable low-entropy phrase as the capsule key;
+- one Prize Wallet per comic, automatic campaign expiry, or rotation/reset before direct winner confirmation;
+- putting the persistent Prize Wallet puzzle inside an individual comic instead of the separate Byte-site introduction;
+- counting unsolicited transfers as official prizes without a completed approved-publication event or explicit append-only campaign disclosure;
+- claiming the uninstalled 120-test transition or publication↔registry integration as complete.
 
 The creator defines the machine's rules.
 

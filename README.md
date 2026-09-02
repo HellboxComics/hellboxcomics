@@ -56,54 +56,53 @@ A completed Gate's detailed architecture must be archived before `CURRENT_GATE_B
 - **Gate 4 — IN PROGRESS**
 - Mainnet — NOT part of Gate 4
 
-Current verified Gate 4 implementation:
+Recovered Git boundary:
 
-- Foundry configured
-- Foundry `1.8.1` verified in creator terminal output
-- Solidity `0.8.36`
-- EVM `shanghai`
-- OpenZeppelin Contracts `v5.1.0` pinned
-- `HellboxPublication.sol` V1 kernel implemented
-- JavaScript/Solidity `HELLBOX_ABI_V1` golden vector implemented and unchanged by trait enforcement
-- deterministic issuance accounting core implemented
-- deployment-time enforcement-preimage digest anchors implemented without changing the frozen `HELLBOX_ABI_V1` release fingerprint
-- `HellboxPublicationFactory.sol` V1 implemented with size-safe full deployment
-- factory provenance/uniqueness + approved creation-code-hash controls implemented
-- `HellboxBirthPolicy.sol` non-upgradeable per-publication companion implemented and independently tested
-- `HellboxBirthPolicyCodeStore.sol` immutable inert bytecode store implemented and independently tested
-- factory generation permanently binds the approved BirthPolicy code store and exact BirthPolicy creation-code hash
-- every publication copies/verifies the approved policy bytes and creates its own permanently bound BirthPolicy atomically during deployment
-- malformed stores, wrong hashes and invalid policy preimages fail the whole publication deployment instead of registering a bad release
-- direct publication-constructor `new HellboxBirthPolicy(...)` topology remains rejected; production source contains no direct BirthPolicy creation-code embed
-- the internal immediate creator, normal non-tail and Final-3 issuance paths now assign and consume one immutable per-token MARK/DEFECT identity atomically; no collector-facing mint endpoint exists yet
-- only the permanently bound publication can call BirthPolicy assignment; no publisher/admin setter or reroll exists
-- Harrow #001–#006 fixed MARKS, shared-random creator DEFECTS and #066 HELLBOUND/public-candidate behavior are enforced and tested
-- enabled-axis trait inventory remains synchronized with pending immediate copies + actual candidate pool; failed assignment reverts issuance/accounting together
-- frozen drand `evmnet` configuration, stateless verifier and actual PulseChain Testnet valid/invalid proof execution are implemented
-- every factory generation deploys and permanently binds one equivalent verifier; no replacement/admin path exists
-- permanent verifier and factory-binding regression are committed
-- current post-push regression: **97 Solidity tests passed / 0 failed**
-- issuance fuzz boundary: **256 runs passed**
-- focused suites:
-  - factory/provenance/atomic deployment: **21 / 21**
-  - BirthPolicy: **21 / 21**
-  - issuance/atomic traits: **13 / 13**
-  - code store: **4 / 4**
-  - drand verifier: **8 / 8**
-  - factory verifier binding: **4 / 4**
-- unoptimized Shanghai runtimes:
-  - `HellboxPublication`: **16,411 bytes** / **8,165 bytes EIP-170 headroom**
-  - `HellboxPublicationFactory`: **9,733 bytes** / **14,843 bytes EIP-170 headroom**
-  - `HellboxDrandEvmnetVerifier`: **8,689 bytes** / **15,887 bytes EIP-170 headroom**
-  - `HellboxBirthPolicy`: **9,123 bytes** / **15,453 bytes EIP-170 headroom**
-  - `HellboxBirthPolicyCodeStore`: actual deployed inert runtime **20,609 bytes** / **3,967 bytes EIP-170 headroom** (`forge build --sizes` nominal runtime stub: **62 bytes**)
-- BirthPolicy initcode: **20,608 bytes** / **28,544 bytes EIP-3860 headroom**
-- code-store creation size: **20,871 bytes** / **28,281 bytes EIP-3860 headroom**
-- measured native publication deployment payload: **31,665 bytes** / **17,487 bytes EIP-3860 headroom**
+```text
+HEAD = origin/main = 52dcb192d56b40e803ea39c2391ee3d20a759faf
+```
 
-**Exact next frontier:** bind the approved verifier into publications, enforce the one-time Prize Vault bootstrap as the first non-tail issuance, and implement FIFO proof fulfillment plus native timed closure. Only after those pass may Gate 4 add phase eligibility, configurable per-phase `FREE` / `FIXED_NATIVE` / `FIXED_ERC20` settlement and the public collector mint path.
+Committed/pushed Gate 4 state:
 
-The interactive-comic, Prize Vault campaign, Continuity Covenant, Archive/reward, future independent-creator Press and future-token directions do **not** authorize a `HELLBOX_ABI_V1` change or collector mint opening before the current Gate 4 safeguards pass.
+- Solidity `0.8.36`, EVM `shanghai`;
+- optimizer enabled, 200 runs, `via_ir = false`;
+- OpenZeppelin Contracts `v5.1.0` pinned;
+- full-deployment `HellboxPublication V1` + `HELLBOX_ABI_V1` golden vector;
+- size-safe factory provenance and immutable BirthPolicy code-store/deployment graph;
+- permanent one-time MARK/DEFECT assignment/inventory enforcement;
+- frozen drand `evmnet` verifier, one immutable verifier per factory generation, and publication-side verifier binding;
+- append-only future-round requests, exact FIFO permissionless proof fulfillment, and internal one-time Prize Wallet same-pool issuance;
+- permanent eight-test Prize Wallet FIFO regression;
+- **105 committed Solidity tests**.
+
+Validated but uncommitted worktree candidate:
+
+```text
+ M contracts/HellboxPublicationFactory.sol
+?? test/HellboxPrizeWalletRegistryProbe.t.sol
+```
+
+```text
+factory: 1178 lines
+sha256: 885d81b731aa28bb9a1f27de714d7d16e16d9c5a7e73fd75bbba9620c1d4a90d
+
+registry test: 747 lines
+sha256: 6793f8f659b090bc83febf9b6c38d02fab5ed4229bcb25fcea407ace5a73cb60
+```
+
+Creator terminal evidence for those exact bytes:
+
+- **12/12** focused registry tests passed;
+- **117/117** total tests passed, 0 failed;
+- issuance fuzz boundary **256 runs**;
+- optimized runtimes: publication **14,818 bytes**, factory **12,424 bytes**, verifier **5,138 bytes**;
+- factory initcode with arguments **19,742 bytes**, leaving **29,410 bytes** EIP-3860 headroom.
+
+The candidate adds the self-authorized EOA campaign registry, official-publication approval, one reserve→complete deposit lifecycle, pending-deposit claim blocking, direct winner-wallet claim, no-reuse and rotation boundaries. It is **not committed**. The later proposed three-test progressive transition was not installed, so the repository is 117—not 120—with the candidate.
+
+**Exact next frontier:** checkpoint the recovered factory and registry test separately; add permanent multi-publication progressive-jackpot/generation-isolation/owner-authority regressions; wire production publication reserve→FIFO request→fulfillment→deposit completion; then implement native timed closure. Phase/payment/public mint and immutable renderer/`tokenURI` work remain closed until those pass.
+
+The interactive comic, Prize Wallet campaign, Continuity Covenant, Archive/reward, outside-creator Press and future-token directions do **not** authorize a `HELLBOX_ABI_V1` change or early collector mint.
 
 ## Gate 4 issuance invariant
 
@@ -118,7 +117,7 @@ Those values are intentionally different.
 
 The final Harrow three are not preselected or removed from the 210-candidate pool. They are the literal final three candidates left after all 207 allowed non-tail primary issuances.
 
-The seventh successful mint event is now locked as the one-time Prize Vault draw. It sees all **210** candidates and is **not guaranteed to mint token/copy #007**. After it succeeds:
+The seventh successful mint event is the one-time Prize Wallet draw for that publication. It sees all **210** candidates and is **not guaranteed to mint token/copy #007**. After it succeeds:
 
 ```text
 candidatePoolRemaining   = 209
@@ -126,6 +125,19 @@ nonTailIssuanceRemaining = 206
 ```
 
 The first ordinary collector draw uses the live 209-candidate pool and authoritative remaining trait inventory.
+
+## Progressive Prize Wallet campaign
+
+- one fresh ordinary EOA is generated offline from a **12-word MetaMask-compatible Secret Recovery Phrase**;
+- the EOA self-authorizes its factory generation with EIP-712;
+- Harrow receives only public activation/package artifacts—never the phrase, private key, final unlock key or answer sheet;
+- the same campaign wallet remains active across any number of issue releases;
+- each approved publication contributes exactly one random seventh-mint comic;
+- the puzzle is a separate persistent Byte-site Hellbox introduction, not an escape room inside each comic;
+- the jackpot display grows from completed approved-publication deposit events without changing the puzzle package;
+- the solver decrypts all 12 words locally, restores the EOA and calls `confirmPrizeWalletClaim()`;
+- the old EOA is never reset/reused, and a fresh campaign can begin only after claim and zero pending deposits;
+- unsolicited transfers are not official prizes unless covered by an append-only official campaign disclosure.
 
 ## Current architecture
 
@@ -182,7 +194,7 @@ HellboxBirthPolicy companion
 
 If the store, approved hash or policy inputs are wrong, publication deployment fails atomically and the factory does not register the broken release.
 
-The rejected direct-embed approach would have left only about **1.5 KB** of practical deployment room. The proven code-store path measures **31,665 bytes** for the native publication deployment payload, leaving **17,487 bytes** of EIP-3860 headroom. Do not resurrect the embedded approach or add a setter/proxy/initializer/upgrade escape hatch.
+The rejected direct-embed approach left only about **1.5 KB** of practical room in the pre-optimizer experiment. The code-store path was proven with a **31,665-byte** pre-optimizer native publication payload and **17,487 bytes** of headroom; remeasure after production registry wiring. Do not resurrect the embedded approach or add a setter/proxy/initializer/upgrade escape hatch.
 
 One publication/release = one native ERC-721 collection.
 
@@ -228,19 +240,19 @@ Harrow immediate copies:
 
 Harrow's DEFECTS remain random.
 
-Repeating promotional Prize Vault:
+Repeating promotional Prize Wallet:
 
-- after Harrow's six, the **seventh successful mint event** is the first non-tail issuance and goes privately to the active approved Prize Vault;
-- it draws blindly from the same 210 candidates and receives no guaranteed copy ID, MARK or DEFECT;
-- it may draw #066;
+- after Harrow's six, the **seventh successful mint event** is the first non-tail issuance and goes to the active approved campaign EOA;
+- it draws blindly from the same 210 candidates, may draw #066 and receives no guaranteed copy ID, MARK or DEFECT;
 - it consumes one non-tail slot, leaving 209 candidates / 206 non-tail issuances before ordinary phases;
-- Harrow cannot preview, choose, reroll, withdraw or claim the result;
-- the vault may accumulate one random issue copy plus optional Harrow-funded promotional assets until a puzzle winner claims it;
-- optional tokens/value are never guaranteed and do not come from the Archive reward pool;
+- the same EOA accumulates one random comic from each approved issue until the separate Byte-site puzzle is solved;
+- Harrow cannot preview, choose, reroll, withdraw, claim, reset the campaign or receive the phrase/private key/unlock key;
+- pending publication deposits block winner confirmation and campaign rotation;
+- optional promotional assets are never guaranteed, require official disclosure and do not come from Archive rewards;
 - while unclaimed, prize copies have effective official Archive reward weight `0`;
-- after claim, Harrow may activate a fresh vault/secret for a new repeatable puzzle campaign.
+- after direct winner-wallet confirmation, the old EOA remains winner-owned and a completely fresh campaign may be activated.
 
-The preferred low-cost design is an immutable smart-contract Prize Vault plus an offline Prize Capsule generator and recipient-bound commit/reveal claim—not a Harrow-controlled EOA/private key. The generator separates the public commitment, a Harrow-facing escape-room authoring kit and independently held sealed recovery/claim material; the authoring kit cannot claim by itself. Only manifest-listed assets are official prize contents, and Harrow/household/operators/custodians are publicly ineligible.
+The locked low-cost model is a network-disabled Prize Capsule Builder plus a fresh 12-word MetaMask-compatible EOA—not a smart-contract vault. AI/Harrow design the maze with dummy placeholders; local final assembly encrypts the complete phrase and inserts secret-bearing clues without giving Harrow an answer sheet. Completed approved-publication events define official comic deposits; unsolicited transfers do not.
 
 #066 is a public HELLBOUND and remains in the random candidate pool.
 
@@ -621,7 +633,7 @@ The detailed risk register lives in `HELLBOX_PROJECT_STATE.md`. The highest-prio
 - **puzzle quality:** progressive difficulty, human playtesting, accessibility and fair timer/start/outage behavior are hard release requirements;
 - **immutable code:** unit/revert/fuzz/invariant/adversarial/static/Testnet evidence plus focused external review before mainnet;
 - **randomness:** never silently fall back to manipulable entropy; pause safely instead;
-- **Prize Vault:** same unbiased draw, no Harrow claim/withdraw/reroll power, anti-front-running claim, no reward farming while unclaimed;
+- **Prize Wallet:** fresh offline 12-word EOA, same unbiased draw, persistent cross-release Byte-site campaign, no Harrow phrase/claim/withdraw/reroll power, pending-deposit liveness controls and no reward farming while unclaimed;
 - **continuity:** exact heartbeat, Rescue Reader/packages, separate reserve, legal succession and permissionless recovery activation before mainnet;
 - **on-chain artifact:** native canonical cover/metadata must pass zero-host chain reconstruction; a digest or IPFS pointer alone is not enough;
 - **rights:** holder license must be explicit and durable; do not equate token ownership with copyright ownership;
@@ -653,8 +665,8 @@ Do not resurrect old pre-privacy repository history.
 ## Roadmap
 
 - Gate 4 — artifact kernel/factory/issuance/Testnet ownership proof
-- Gate 5 — Press V2 + private release builder + real mint UX + Prize Vault campaign controls
-- Gate 6 — deterministic ingest + immutable on-chain art-data/metadata renderer + interactive narrative/package compiler + Prize Capsule/Rescue Reader packaging
+- Gate 5 — Press V2 + private release builder + real mint UX + Prize Wallet campaign/operator controls
+- Gate 6 — deterministic ingest + immutable on-chain art-data/metadata renderer + interactive narrative/package compiler + production Prize Capsule/Rescue Reader packaging
 - Gate 7 — Seal/Archive + rarity-weighted rewards + ERC-6551 + artifact history + Hellforge/evolution + separate Continuity Reserve hooks
 - Gate 8 — Hellion relationship depth
 - Gate 9 — freeze/security/accessibility/localization/content/performance/operations/continuity/legal recovery hardening

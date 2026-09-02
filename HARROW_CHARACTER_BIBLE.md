@@ -1503,11 +1503,42 @@ Canonical opening:
 
 The entire sequence behaves like one distributed comic.
 
-Exact routing/order and live implementation state are maintained in `HELLBOX_PROJECT_STATE.md`.
+### The progressive Prize Wallet layer — LOCKED
+
+The Byte-site introduction carries a separate persistent escape-room campaign tied to the active Hellbox Prize Wallet. It is **not** an escape room hidden inside each published comic and does not replace the private owner's frame-native comic experiences.
+
+The public dramatic rhythm is:
+
+```text
+one of Harrow's machines finds the visitor
+→ the visitor enters a hostile distributed introduction
+→ Harrow explains almost nothing and insults assistance
+→ each new Hellbox issue visibly adds another comic to the same growing jackpot
+→ the maze remains unsolved and keeps getting more valuable
+→ one solver finally opens the sealed Prize Capsule
+→ the machine publicly acknowledges that somebody took the Hellbox
+→ a new campaign begins with a completely fresh wallet and puzzle generation
+```
+
+The active wallet may accumulate five issues, one issue, twenty issues or more. The story does not restart merely because a comic launches. The progressive jackpot should create mounting cultural pressure: every release makes the unsolved machine harder to ignore.
+
+Harrow may know every authored room, line, decoy and visual language choice, but he does not receive the live 12-word phrase, private key, final unlock key or answer sheet. AI may help him design the maze against dummy placeholders; a network-disabled builder seals the live phrase into the final package afterward.
+
+The winner earns an actual moment of revelation: all 12 ordered words appear locally only after the complete solution, never as gradually leaked seed-word trivia. The restored wallet itself confirms the win on-chain. Harrow does not reset or reclaim it; it belongs to the winner forever.
+
+Harrow is still capable of solving his own public maze like any other person. The fiction and public terms make him, his household and paid operators ineligible; the honest promise is **no privileged answer material or backdoor**, not a fake claim that public clues can be mathematically unreadable to their author.
+
+Prize presentation stays Hellbox, not casino sludge:
+
+- show the exact official issue artifacts added by approved publication events;
+- let the total grow ominously rather than flashing cash-value promises;
+- optional disclosed promotional assets may appear, but no floor price, yield or future deposit is promised;
+- spam tokens sent to the public address do not become canon, sponsorship or an official prize;
+- the prize exists to make the machinery demonstrably real, not to turn Harrow into a sweepstakes host.
+
+The exact routing/order, campaign registry and live implementation state are maintained in `HELLBOX_PROJECT_STATE.md` and `CURRENT_GATE_BLUEPRINT.md`.
 
 HairyLabs platform/cache problems do not redefine Harrow canon.
-
----
 
 # PART XIV — OPEN DEVELOPMENT QUESTIONS
 
@@ -1732,9 +1763,13 @@ Do not revive:
 
 ## 58. SUPERSEDED
 
+- smart-contract Prize Vault + public-secret commit/reveal custody for the progressive campaign; the locked model is a fresh offline-generated 12-word EOA revealed locally to the solver;
 - HELLION as default name for every follower;
 - treating `NO CONSENSUS` as an established title/series/canon element; it is currently only a fill-in/example name;
-- generic rarity vocabulary such as MISPRINT / ERROR COPY / generic INK BLEED when replaced by PRESS DEFECT vocabulary.
+- generic rarity vocabulary such as MISPRINT / ERROR COPY / generic INK BLEED when replaced by PRESS DEFECT vocabulary;
+- a separate Prize Wallet puzzle inside every comic;
+- Harrow possessing the live Prize Wallet phrase/answer sheet;
+- resetting an unsolved campaign whenever a new issue launches.
 
 ---
 
