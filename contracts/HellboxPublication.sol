@@ -32,9 +32,12 @@ interface IHellboxPublicationFactoryRandomness {
 ///      that companion atomically with issuance. An official factory generation may now
 ///      expose its immutable verifier through the narrow discovery interface; when the
 ///      publication's frozen randomization policy matches that verifier, the publication
-///      binds it and bootstraps issuance state atomically during construction. Public mint
-///      phases, pricing/payment enforcement, the FIFO request/fulfillment queue, timed
-///      closure, metadata rendering, and later protocols remain to be wired.
+///      binds it and bootstraps issuance state atomically during construction. This
+///      checkpoint adds the append-only FIFO proof-consumption substrate and the internal
+///      one-time Prize Wallet request/fulfillment transition. Production creator-immediate
+///      request creation, the validated Prize Wallet registry boundary, collector mint
+///      phases, pricing/payment enforcement, timed closure, metadata rendering, and later
+///      protocols remain to be wired.
 contract HellboxPublication is ERC721Royalty {
     // ---------------------------------------------------------------------
     // HELLBOX_ABI_V1 protocol constants
@@ -54,6 +57,16 @@ contract HellboxPublication is ERC721Royalty {
     ///         binding in this publication generation.
     bytes32 public constant RANDOMNESS_VERIFIER_ID =
         keccak256("HELLBOX_DRAND_EVMNET_VERIFIER_V1");
+
+    /// @notice Domain separating one verified provider result into one
+    ///         publication-local FIFO request consumption word.
+    bytes32 public constant RANDOMNESS_REQUEST_ENTROPY_DOMAIN =
+        keccak256("HELLBOX_RANDOMNESS_REQUEST_ENTROPY_V1");
+
+    /// @notice Minimum distance between request creation and the bound drand
+    ///         round. Four evmnet periods prevents use of a round already known
+    ///         when the request transaction enters a block.
+    uint64 public constant RANDOMNESS_REQUEST_DELAY_SECONDS = 12;
 
     // ---------------------------------------------------------------------
     // Gate 4 enforcement-preimage domains
@@ -219,6 +232,32 @@ contract HellboxPublication is ERC721Royalty {
         bytes32 runtimeCodeHash;
     }
 
+    /// @notice Stable action identifiers for the immutable FIFO randomness
+    ///         queue. Later Gate 4 slices may activate the reserved creator,
+    ///         collector, and timed-closure kinds without redefining the prize
+    ///         request family.
+    enum RandomnessRequestKind {
+        NONE,
+        CREATOR_IMMEDIATE,
+        PRIZE_WALLET,
+        COLLECTOR_PRIMARY,
+        TIMED_CLOSURE
+    }
+
+    /// @notice One append-only request record. Recipient/account data is
+    ///         snapshotted before its future provider round exists; fulfillment
+    ///         can only consume the oldest unfulfilled request.
+    struct RandomnessRequest {
+        RandomnessRequestKind kind;
+        uint64 round;
+        uint64 requestedAt;
+        address primaryAccount;
+        address recipient;
+        bool fulfilled;
+        uint256 tokenId;
+        bytes32 verifiedRandomness;
+    }
+
     string public publicationKey;
 
     uint256 public immutable releaseChainId;
@@ -321,6 +360,28 @@ contract HellboxPublication is ERC721Royalty {
     ///         issued to the frozen tail recipient.
     bool public tailAwarded;
 
+    /// @notice Append-only count of future-round randomness requests.
+    uint256 public randomnessRequestCount;
+
+    /// @notice Number of requests consumed in exact FIFO order.
+    uint256 public randomnessFulfillmentCount;
+
+    mapping(uint256 requestId => RandomnessRequest request)
+        public randomnessRequestById;
+
+    /// @notice One-time standard-native Prize Wallet bootstrap state. The
+    ///         recipient is snapshotted at request creation and cannot be
+    ///         redirected or rerolled after its future round is bound.
+    bool public prizeWalletRequestCreated;
+    bool public prizeWalletIssuanceComplete;
+    address public prizeWalletRecipient;
+    uint256 public prizeWalletRequestId;
+    uint256 public prizeWalletTokenId;
+
+    /// @dev Blocks callback recursion across the permissionless fulfillment
+    ///      boundary. A revert restores the lock and every request/issuance write.
+    bool private _randomnessFulfillmentActive;
+
     /// @notice Lifetime primary usage never decreases on transfer or burn.
     mapping(address account => uint256 used) public walletLifetimePrimaryUsed;
 
@@ -382,6 +443,33 @@ contract HellboxPublication is ERC721Royalty {
         bytes32 expectedProviderConfigDigest,
         bytes32 actualProviderConfigDigest
     );
+    error RandomnessVerifierNotBound();
+    error RandomnessRequestTimestampOverflow(uint256 timestamp);
+    error InvalidRandomnessRoundSchedule(
+        uint64 targetTimestamp,
+        uint64 round,
+        uint64 roundTimestamp
+    );
+    error RandomnessRequestQueueEmpty();
+    error RandomnessRequestQueueNotEmpty(uint256 pendingCount);
+    error UnknownRandomnessRequest(uint256 requestId);
+    error RandomnessRequestAlreadyFulfilled(uint256 requestId);
+    error RandomnessRoundNotReady(
+        uint64 round,
+        uint64 roundTimestamp,
+        uint256 currentTimestamp
+    );
+    error UnsupportedRandomnessRequestKind(uint8 kind);
+    error RandomnessFulfillmentReentrancy();
+    error PrizeWalletRequestAlreadyCreated();
+    error PrizeWalletIssuanceAlreadyComplete();
+    error InvalidPrizeWalletRecipient(address recipient);
+    error PrizeWalletRecipientHasCode(address recipient, uint256 codeSize);
+    error PrizeWalletIssuanceOrderInvariant(
+        uint256 totalIssued,
+        uint256 candidateRemaining,
+        uint256 nonTailRemaining
+    );
 
     error IssuanceStateAlreadyInitialized();
     error IssuanceStateNotInitialized();
@@ -441,6 +529,37 @@ contract HellboxPublication is ERC721Royalty {
         bytes32 indexed verifierId,
         bytes32 indexed providerConfigDigest,
         bytes32 runtimeCodeHash
+    );
+
+    event RandomnessRequestQueued(
+        uint256 indexed requestId,
+        RandomnessRequestKind indexed kind,
+        uint64 indexed round,
+        uint64 requestedAt,
+        address primaryAccount,
+        address recipient
+    );
+
+    event RandomnessRequestFulfilled(
+        uint256 indexed requestId,
+        RandomnessRequestKind indexed kind,
+        uint64 indexed round,
+        bytes32 verifiedRandomness,
+        uint256 tokenId
+    );
+
+    event PrizeWalletIssuanceRequested(
+        uint256 indexed requestId,
+        address indexed recipient,
+        uint64 indexed round
+    );
+
+    event PrizeWalletCopyIssued(
+        uint256 indexed requestId,
+        address indexed recipient,
+        uint256 indexed tokenId,
+        uint256 candidatePoolRemaining,
+        uint256 nonTailIssuanceRemaining
     );
 
     /// @notice Emitted only after immediate copy IDs have been removed from the
@@ -851,6 +970,380 @@ contract HellboxPublication is ERC721Royalty {
                 config,
                 commitments
             );
+    }
+
+    // ---------------------------------------------------------------------
+    // Immutable FIFO randomness request boundary
+    // ---------------------------------------------------------------------
+
+    /// @notice Returns the oldest pending request ID, or zero when the queue is
+    ///         empty. Requests can never be skipped, cancelled, replaced, or
+    ///         fulfilled out of order.
+    function nextPendingRandomnessRequestId()
+        public
+        view
+        returns (uint256 requestId)
+    {
+        requestId = randomnessFulfillmentCount + 1;
+        if (requestId > randomnessRequestCount) {
+            return 0;
+        }
+    }
+
+    /// @notice Deterministically domain-separates one verified provider result
+    ///         for the stored request. This helper exposes no entropy source and
+    ///         cannot create, cancel, or fulfill a request.
+    function deriveRandomnessRequestEntropy(
+        uint256 requestId,
+        bytes32 verifiedRandomness
+    ) public view returns (uint256 entropyWord) {
+        if (requestId == 0 || requestId > randomnessRequestCount) {
+            revert UnknownRandomnessRequest(requestId);
+        }
+
+        RandomnessRequest storage request =
+            randomnessRequestById[requestId];
+
+        return
+            uint256(
+                keccak256(
+                    abi.encode(
+                        RANDOMNESS_REQUEST_ENTROPY_DOMAIN,
+                        releaseConfigDigest,
+                        address(this),
+                        requestId,
+                        request.kind,
+                        request.round,
+                        request.primaryAccount,
+                        request.recipient,
+                        verifiedRandomness
+                    )
+                )
+            );
+    }
+
+    /// @notice Permissionlessly fulfills exactly the current FIFO head using a
+    ///         proof accepted by the immutable factory-generation verifier.
+    /// @dev This does not create requests or choose recipients. The Prize Wallet
+    ///      request-creation transition remains internal until its validated
+    ///      registry/deployment boundary is wired. Invalid/unavailable proofs
+    ///      revert without consuming or rerolling the request.
+    function fulfillNextRandomnessRequest(
+        bytes calldata proof
+    ) external returns (uint256 requestId, uint256 tokenId) {
+        if (_randomnessFulfillmentActive) {
+            revert RandomnessFulfillmentReentrancy();
+        }
+        if (randomnessVerifier == address(0)) {
+            revert RandomnessVerifierNotBound();
+        }
+
+        requestId = randomnessFulfillmentCount + 1;
+        if (requestId > randomnessRequestCount) {
+            revert RandomnessRequestQueueEmpty();
+        }
+
+        RandomnessRequest storage request =
+            randomnessRequestById[requestId];
+        if (request.fulfilled) {
+            revert RandomnessRequestAlreadyFulfilled(requestId);
+        }
+
+        uint64 requestRoundTimestamp =
+            IHellboxRandomnessVerifier(randomnessVerifier).roundTimestamp(
+                request.round
+            );
+        if (block.timestamp < requestRoundTimestamp) {
+            revert RandomnessRoundNotReady(
+                request.round,
+                requestRoundTimestamp,
+                block.timestamp
+            );
+        }
+
+        // Lock before the external verification boundary. The approved verifier
+        // is stateless, but the publication remains safe even if a future
+        // verifier family gains an unexpected callback path. Any revert restores
+        // the lock and every request/issuance write atomically.
+        _randomnessFulfillmentActive = true;
+
+        bytes32 verifiedRandomness =
+            IHellboxRandomnessVerifier(randomnessVerifier).verifyRound(
+                request.round,
+                proof
+            );
+
+        uint256 entropyWord = deriveRandomnessRequestEntropy(
+            requestId,
+            verifiedRandomness
+        );
+
+        // Effects precede the ERC-721 receiver boundary. Any downstream revert
+        // restores the request and queue head atomically.
+        request.fulfilled = true;
+        request.verifiedRandomness = verifiedRandomness;
+        randomnessFulfillmentCount = requestId;
+
+        if (request.kind == RandomnessRequestKind.PRIZE_WALLET) {
+            tokenId = _issuePrizeWalletPrimary(
+                requestId,
+                request.recipient,
+                entropyWord
+            );
+        } else {
+            revert UnsupportedRandomnessRequestKind(
+                uint8(request.kind)
+            );
+        }
+
+        request.tokenId = tokenId;
+        _randomnessFulfillmentActive = false;
+
+        emit RandomnessRequestFulfilled(
+            requestId,
+            request.kind,
+            request.round,
+            verifiedRandomness,
+            tokenId
+        );
+    }
+
+    /// @dev Creates the one-time first-non-tail Prize Wallet request after all
+    ///      immediate creator copies have actually issued. The recipient is a
+    ///      fresh externally owned campaign wallet under the current product
+    ///      direction; only its public address enters publication state. This
+    ///      internal function intentionally grants no publisher-facing setter.
+    function _requestPrizeWalletIssuance(
+        address recipient
+    ) internal returns (uint256 requestId, uint64 round) {
+        _requireIssuanceStateInitialized();
+
+        if (randomnessVerifier == address(0)) {
+            revert RandomnessVerifierNotBound();
+        }
+        if (!immediateCreatorAllocationComplete) {
+            revert ImmediateCreatorAllocationIncomplete(
+                immediateCreatorIssued,
+                immediateCreatorCount
+            );
+        }
+        if (prizeWalletRequestCreated) {
+            revert PrizeWalletRequestAlreadyCreated();
+        }
+        if (prizeWalletIssuanceComplete) {
+            revert PrizeWalletIssuanceAlreadyComplete();
+        }
+
+        uint256 pendingCount =
+            randomnessRequestCount - randomnessFulfillmentCount;
+        if (pendingCount != 0) {
+            revert RandomnessRequestQueueNotEmpty(pendingCount);
+        }
+
+        _validatePrizeWalletRecipient(recipient);
+        _assertPrizeWalletIssuanceOrder();
+
+        (requestId, round) = _enqueueRandomnessRequest(
+            RandomnessRequestKind.PRIZE_WALLET,
+            address(0),
+            recipient
+        );
+
+        prizeWalletRequestCreated = true;
+        prizeWalletRecipient = recipient;
+        prizeWalletRequestId = requestId;
+
+        emit PrizeWalletIssuanceRequested(
+            requestId,
+            recipient,
+            round
+        );
+    }
+
+    function _enqueueRandomnessRequest(
+        RandomnessRequestKind kind,
+        address primaryAccount,
+        address recipient
+    ) internal returns (uint256 requestId, uint64 round) {
+        uint256 currentTimestamp = block.timestamp;
+        if (
+            currentTimestamp >
+            type(uint64).max - RANDOMNESS_REQUEST_DELAY_SECONDS
+        ) {
+            revert RandomnessRequestTimestampOverflow(
+                currentTimestamp
+            );
+        }
+
+        uint64 requestedAt = uint64(currentTimestamp);
+        uint64 targetTimestamp =
+            requestedAt + RANDOMNESS_REQUEST_DELAY_SECONDS;
+
+        IHellboxRandomnessVerifier verifier =
+            IHellboxRandomnessVerifier(randomnessVerifier);
+
+        round = verifier.firstRoundAtOrAfter(targetTimestamp);
+
+        if (randomnessRequestCount != 0) {
+            uint64 previousRound =
+                randomnessRequestById[randomnessRequestCount].round;
+
+            if (round <= previousRound) {
+                if (previousRound == type(uint64).max) {
+                    revert InvalidRandomnessRoundSchedule(
+                        targetTimestamp,
+                        previousRound,
+                        verifier.roundTimestamp(previousRound)
+                    );
+                }
+                round = previousRound + 1;
+            }
+        }
+
+        uint64 roundTimestamp = verifier.roundTimestamp(round);
+        if (round == 0 || roundTimestamp < targetTimestamp) {
+            revert InvalidRandomnessRoundSchedule(
+                targetTimestamp,
+                round,
+                roundTimestamp
+            );
+        }
+
+        requestId = randomnessRequestCount + 1;
+        randomnessRequestCount = requestId;
+
+        randomnessRequestById[requestId] = RandomnessRequest({
+            kind: kind,
+            round: round,
+            requestedAt: requestedAt,
+            primaryAccount: primaryAccount,
+            recipient: recipient,
+            fulfilled: false,
+            tokenId: 0,
+            verifiedRandomness: bytes32(0)
+        });
+
+        emit RandomnessRequestQueued(
+            requestId,
+            kind,
+            round,
+            requestedAt,
+            primaryAccount,
+            recipient
+        );
+    }
+
+    function _issuePrizeWalletPrimary(
+        uint256 requestId,
+        address recipient,
+        uint256 entropyWord
+    ) internal returns (uint256 tokenId) {
+        _requireIssuanceStateInitialized();
+
+        if (prizeWalletIssuanceComplete) {
+            revert PrizeWalletIssuanceAlreadyComplete();
+        }
+        if (
+            !prizeWalletRequestCreated ||
+            requestId != prizeWalletRequestId ||
+            recipient != prizeWalletRecipient
+        ) {
+            revert InvalidPrizeWalletRecipient(recipient);
+        }
+        if (!immediateCreatorAllocationComplete) {
+            revert ImmediateCreatorAllocationIncomplete(
+                immediateCreatorIssued,
+                immediateCreatorCount
+            );
+        }
+        if (primaryIssuanceClosed) {
+            revert PrimaryIssuanceClosed();
+        }
+        if (nonTailIssuanceRemaining == 0) {
+            revert NonTailIssuanceExhausted();
+        }
+
+        // Revalidate at fulfillment as well as request creation. A bare address
+        // can acquire contract code after the future round is bound; the current
+        // Prize Wallet product requires an ordinary mnemonic-controlled EOA.
+        _validatePrizeWalletRecipient(recipient);
+        _assertPrizeWalletIssuanceOrder();
+        _assertOpenCandidateAccounting();
+        _assertPrimarySupplyAvailable();
+
+        uint256 candidateIndex = _uniformIndex(
+            entropyWord,
+            candidatePoolRemaining
+        );
+        tokenId = _removeCandidateAtIndex(candidateIndex);
+        _assignBirthIdentity(tokenId, entropyWord);
+
+        --nonTailIssuanceRemaining;
+        ++totalPrimaryIssued;
+
+        prizeWalletIssuanceComplete = true;
+        prizeWalletTokenId = tokenId;
+
+        _assertOpenCandidateAccounting();
+        _assertBirthInventoryAccounting();
+
+        _safeMint(recipient, tokenId);
+
+        emit PrizeWalletCopyIssued(
+            requestId,
+            recipient,
+            tokenId,
+            candidatePoolRemaining,
+            nonTailIssuanceRemaining
+        );
+    }
+
+    function _validatePrizeWalletRecipient(
+        address recipient
+    ) internal view {
+        if (
+            uint160(recipient) <= 0xFFFF ||
+            recipient == immediateCreatorRecipient ||
+            recipient == tailRecipient ||
+            recipient == royaltyReceiver ||
+            recipient == publisherAuthority ||
+            recipient == factory ||
+            recipient == address(this) ||
+            recipient == birthPolicy ||
+            recipient == randomnessVerifier
+        ) {
+            revert InvalidPrizeWalletRecipient(recipient);
+        }
+
+        uint256 codeSize = recipient.code.length;
+        if (codeSize != 0) {
+            revert PrizeWalletRecipientHasCode(
+                recipient,
+                codeSize
+            );
+        }
+    }
+
+    function _assertPrizeWalletIssuanceOrder() internal view {
+        uint256 expectedCandidateRemaining =
+            maxSupply - immediateCreatorCount;
+        uint256 expectedNonTailRemaining =
+            expectedCandidateRemaining - tailReserveCount;
+
+        if (
+            totalPrimaryIssued != immediateCreatorCount ||
+            candidatePoolRemaining != expectedCandidateRemaining ||
+            nonTailIssuanceRemaining != expectedNonTailRemaining ||
+            primaryIssuanceClosed ||
+            trueMintOutReached ||
+            tailAwarded
+        ) {
+            revert PrizeWalletIssuanceOrderInvariant(
+                totalPrimaryIssued,
+                candidatePoolRemaining,
+                nonTailIssuanceRemaining
+            );
+        }
     }
 
     // ---------------------------------------------------------------------
