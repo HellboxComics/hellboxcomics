@@ -59,7 +59,7 @@ A completed Gate's detailed architecture must be archived before `CURRENT_GATE_B
 Latest source/test implementation baseline before this documentation-only synchronization:
 
 ```text
-037a7236a60b194d177ffdc1241741525fc2ea3e
+151d545dc22065698324b7e894ded01db8b5603d
 ```
 
 Committed/pushed Gate 4 state:
@@ -76,7 +76,8 @@ Committed/pushed Gate 4 state:
 - committed self-authorized EOA campaign registry with official-publication approval, reserve→complete deposit accounting, pending-deposit claim blocking, direct winner-wallet claim, no-reuse and rotation boundaries;
 - permanent 15-test Prize Wallet registry/progressive-jackpot regression;
 - committed production creator-initialization → active-campaign reserve → seventh-mint FIFO request → atomic deposit-completion source path;
-- **120 committed Solidity tests**.
+- permanent five-test actual-factory composition/adversarial regression;
+- **125 committed Solidity tests**.
 
 Exact committed Prize Wallet identities:
 
@@ -93,22 +94,35 @@ sha256: 5b1300174947af2307fcd522613804ca3c96d8e978d4cb7f40d8a9cbfa75ba16
 production integration commit: 037a7236a60b194d177ffdc1241741525fc2ea3e
 publication: 2342 lines
 sha256: fd1e9c6ed88d72e4263d33219a243b9491567fcd7f4717aac6784be7981ac5f4
+
+permanent actual-factory test commit: 151d545dc22065698324b7e894ded01db8b5603d
+actual-factory test: 1133 lines
+sha256: bc6bd65ef5d15d9c8bdc7ac159f9d573b2ce42b494868c4d7fa1b5fc7d094cc2
 ```
 
-Creator terminal evidence for the integrated source:
+Creator terminal evidence for the permanent integrated tree:
 
 - **3/3** temporary focused production-integration tests passed;
 - **15/15** permanent registry/progressive tests passed inside the full run;
-- **120/120** committed tests passed, 0 failed, 0 skipped;
+- **125/125** committed tests passed, 0 failed, 0 skipped;
+- **5/5** focused permanent actual-factory integration tests passed;
 - issuance fuzz boundary **256 runs**;
 - optimized runtimes: publication **19,330 bytes**, factory **12,424 bytes**, verifier **5,138 bytes**;
 - publication EIP-170 headroom **5,246 bytes**; creation bytecode **29,345 bytes** with **19,807 bytes before constructor arguments**;
 - factory initcode with arguments **19,742 bytes**, leaving **29,410 bytes** EIP-3860 headroom;
-- worktree and index clean after source commit `037a723`.
+- worktree and index clean after pushed test commit `151d545`.
 
-Production publication↔registry source integration is committed. Its three-test validation probe was temporary, so the committed tree remains at 120 tests.
+Production publication↔registry source integration and its permanent actual-factory composition/adversarial proof are committed. The tree is at 125 tests.
 
-**Exact next frontier:** add `test/HellboxProductionPrizeWalletIntegration.t.sol` alone as the permanent actual-factory composition/adversarial proof; then implement native timed closure. Phase/payment/public mint and immutable renderer/`tokenURI` work remain closed until those pass.
+**Exact next frontier:** add the publication-only timed-closure inventory finalizer to `HellboxBirthPolicy.sol`, then activate FIFO `TIMED_CLOSURE` in `HellboxPublication.sol`. Phase/eligibility/payment escrow and settlement will use a separate versioned non-upgradeable sale/mint-policy module; proceeds routing and renderer/art data remain separate. The publication keeps final queue, copy-selection, mint, lifetime-cap, supply and closure authority.
+
+Measured completion decision:
+
+- current authoritative profile remains optimizer `200`, `via_ir = false`;
+- runs `1` saved only `416` publication bytes; via-IR saved only `627`;
+- compiler-profile churn is rejected as a substitute for modular architecture;
+- remaining publication-facing work uses a `2,048`-byte soft runtime reserve;
+- no locked collector promise is dropped.
 
 The interactive comic, Prize Wallet campaign, Continuity Covenant, Archive/reward, outside-creator Press and future-token directions do **not** authorize a `HELLBOX_ABI_V1` change or early collector mint.
 
