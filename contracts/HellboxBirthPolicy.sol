@@ -7,7 +7,8 @@ pragma solidity 0.8.36;
 /// @dev Constructor-configured only. The deploying publication is permanently
 ///      bound as `publication`. Release-level inventory and fixed reservations
 ///      are frozen at construction; only that bound publication may consume
-///      them to assign each token's permanent birth identity exactly once.
+///      them to assign each token's permanent birth identity exactly once or
+///      permanently extinguish all unassigned inventory at native timed close.
 ///      The caller supplies an entropy word through the publication state
 ///      machine; this module domain-separates MARK/DEFECT draws but deliberately
 ///      does not choose the final production entropy provider.
@@ -173,6 +174,8 @@ contract HellboxBirthPolicy {
     mapping(uint256 tokenId => bytes32 markCode) public birthMark;
     mapping(uint256 tokenId => bytes32 defectCode) public birthDefect;
 
+    bool public timedClosureInventoryFinalized;
+
     uint256 public immutable fixedCopyRuleCount;
 
     bool public randomizationEnabled;
@@ -251,6 +254,17 @@ contract HellboxBirthPolicy {
         bytes32 code
     );
     error BirthTraitSelectionInvariant(bytes32 axisId, uint256 selectedIndex);
+    error BirthPolicyInventoryFinalized();
+    error TimedClosureInventoryUnsupported();
+    error InvalidTimedClosureExtinguishedCount(
+        uint256 extinguishedCount,
+        uint256 maximum
+    );
+    error TimedClosureInventoryMismatch(
+        bytes32 axisId,
+        uint256 expected,
+        uint256 actual
+    );
 
     // ---------------------------------------------------------------------
     // Events
@@ -274,6 +288,8 @@ contract HellboxBirthPolicy {
         bytes32 indexed markCode,
         bytes32 indexed defectCode
     );
+
+    event TimedClosureInventoryFinalized(uint256 extinguishedCount);
 
     // ---------------------------------------------------------------------
     // Construction / permanent freeze
@@ -826,6 +842,9 @@ contract HellboxBirthPolicy {
         if (msg.sender != publication) {
             revert UnauthorizedPublicationCaller(msg.sender);
         }
+        if (timedClosureInventoryFinalized) {
+            revert BirthPolicyInventoryFinalized();
+        }
 
         _validateCopyId(tokenId);
 
@@ -869,6 +888,103 @@ contract HellboxBirthPolicy {
         birthDefect[tokenId] = defectCode;
 
         emit BirthIdentityAssigned(tokenId, markCode, defectCode);
+    }
+
+    /// @notice Permanently extinguishes all birth-trait inventory left after
+    ///         the publication has selected and assigned the timed-expiry
+    ///         Final 3.
+    /// @dev The bound publication supplies its independently computed number
+    ///      of extinguished candidates. Every enabled trait axis must report
+    ///      that exact remaining inventory before any mutation occurs. This
+    ///      clears only unassigned inventory and reservations; assigned token
+    ///      identities and frozen policy anchors remain unchanged forever.
+    function finalizeTimedClosureInventory(
+        uint256 extinguishedCount
+    ) external {
+        if (msg.sender != publication) {
+            revert UnauthorizedPublicationCaller(msg.sender);
+        }
+        if (timedClosureInventoryFinalized) {
+            revert BirthPolicyInventoryFinalized();
+        }
+        if (
+            tailReserveCount == 0 ||
+            (!pressMarkEnabled && !pressDefectEnabled)
+        ) {
+            revert TimedClosureInventoryUnsupported();
+        }
+
+        uint256 maximumExtinguishedCount =
+            maxSupply - immediateCreatorCount - tailReserveCount;
+        if (extinguishedCount > maximumExtinguishedCount) {
+            revert InvalidTimedClosureExtinguishedCount(
+                extinguishedCount,
+                maximumExtinguishedCount
+            );
+        }
+
+        _validateTimedClosureAxis(
+            PRESS_MARK_AXIS_ID,
+            pressMarkEnabled,
+            markInventoryRemainingTotal,
+            extinguishedCount
+        );
+        _validateTimedClosureAxis(
+            PRESS_DEFECT_AXIS_ID,
+            pressDefectEnabled,
+            defectInventoryRemainingTotal,
+            extinguishedCount
+        );
+
+        _extinguishRemainingMarkInventory();
+        _extinguishRemainingDefectInventory();
+
+        timedClosureInventoryFinalized = true;
+
+        emit TimedClosureInventoryFinalized(extinguishedCount);
+    }
+
+    function _validateTimedClosureAxis(
+        bytes32 axisId,
+        bool enabled,
+        uint256 remaining,
+        uint256 extinguishedCount
+    ) private pure {
+        uint256 expected = enabled ? extinguishedCount : 0;
+
+        if (remaining != expected) {
+            revert TimedClosureInventoryMismatch(
+                axisId,
+                expected,
+                remaining
+            );
+        }
+    }
+
+    function _extinguishRemainingMarkInventory() private {
+        uint256 length = _markValueCodes.length;
+
+        for (uint256 i = 0; i < length; ++i) {
+            bytes32 code = _markValueCodes[i];
+            delete markRemaining[code];
+            delete markReservedRemaining[code];
+        }
+
+        markInventoryRemainingTotal = 0;
+        markReservedRemainingTotal = 0;
+    }
+
+    function _extinguishRemainingDefectInventory() private {
+        uint256 length = _defectValueCodes.length;
+
+        for (uint256 i = 0; i < length; ++i) {
+            bytes32 code = _defectValueCodes[i];
+            delete defectRemaining[code];
+            delete defectReservedRemaining[code];
+        }
+
+        defectInventoryRemainingTotal = 0;
+        defectReservedRemainingTotal = 0;
     }
 
     function _consumeFixedMark(
