@@ -52,8 +52,9 @@ interface IHellboxPublicationFactoryPrizeWallet {
 ///      binds it and bootstraps issuance state atomically during construction. This
 ///      checkpoint adds the append-only FIFO proof-consumption substrate, permissionless
 ///      creator-initialization requests, and the production factory reserve/request/complete
-///      Prize Wallet path. Collector mint phases, pricing/payment enforcement, timed closure,
-///      metadata rendering, and later protocols remain to be wired.
+///      Prize Wallet path and permissionless native FIFO closure are active. Collector
+///      mint phases, pricing/payment enforcement, metadata rendering, and later protocols
+///      remain to be wired.
 contract HellboxPublication is ERC721Royalty {
     // ---------------------------------------------------------------------
     // HELLBOX_ABI_V1 protocol constants
@@ -83,6 +84,7 @@ contract HellboxPublication is ERC721Royalty {
     ///         round. Four evmnet periods prevents use of a round already known
     ///         when the request transaction enters a block.
     uint64 public constant RANDOMNESS_REQUEST_DELAY_SECONDS = 12;
+    uint256 public constant NATIVE_MINT_DURATION_SECONDS = 5_724_366;
 
     // ---------------------------------------------------------------------
     // Gate 4 enforcement-preimage domains
@@ -373,9 +375,22 @@ contract HellboxPublication is ERC721Royalty {
     ///         permanent-close path so the Harrow tail can never be swept early.
     bool public trueMintOutReached;
 
-    /// @notice Becomes true exactly once when a configured true-mintout tail is
+    /// @notice Becomes true exactly once when the configured Final 3 are
     ///         issued to the frozen tail recipient.
     bool public tailAwarded;
+
+    /// @notice Exact standard-native primary mint deadline. Zero means this
+    ///         publication shape is exempt from the native timed-close rule.
+    uint256 public immutable nativeMintDeadline;
+
+    /// @notice Permanent number of unminted candidates destroyed at timed close.
+    uint256 public extinguishedUnmintedCount;
+
+    /// @notice Chain timestamp at which the publication reached final closure.
+    uint256 public closedAtTimestamp;
+
+    bool private _nativeClosureRequestCreated;
+    uint256 private _nativeClosureRequestId;
 
     /// @notice Append-only count of future-round randomness requests.
     uint256 public randomnessRequestCount;
@@ -549,6 +564,9 @@ contract HellboxPublication is ERC721Royalty {
     error TailNotReady();
     error TailAlreadyAwarded();
     error TailCandidateInvariant(uint256 remaining, uint256 required);
+    error NativeClosureRequestAlreadyCreated();
+    error NativeClosureDeadlineNotReached(uint256 currentTimestamp, uint256 deadline);
+    error InvalidNativeClosureRequest(uint256 requestId);
     error PrimarySupplyInvariant(uint256 issued, uint256 supply);
     error BirthInventoryAccountingInvariant(
         bytes32 axisId,
@@ -645,6 +663,13 @@ contract HellboxPublication is ERC721Royalty {
 
     event TailAwarded(address indexed recipient, uint256 count);
 
+    event PublicationPermanentlyClosed(
+        bool indexed timedExpiry,
+        uint256 closedAtTimestamp,
+        uint256 finalPrimarySupply,
+        uint256 extinguishedUnmintedCount
+    );
+
     // ---------------------------------------------------------------------
     // Construction / freeze boundary
     // ---------------------------------------------------------------------
@@ -689,6 +714,15 @@ contract HellboxPublication is ERC721Royalty {
 
         tailRecipient = config.tailRecipient;
         tailReserveCount = config.tailReserveCount;
+
+        nativeMintDeadline =
+            config.maxSupply == 216 &&
+            config.primaryLifetimeCap == 6 &&
+            config.maxPerTransaction == 1 &&
+            config.immediateCreatorCount == 6 &&
+            config.tailReserveCount == 3
+                ? block.timestamp + NATIVE_MINT_DURATION_SECONDS
+                : 0;
 
         royaltyReceiver = config.royaltyReceiver;
         royaltyBps = config.royaltyBps;
@@ -1194,6 +1228,8 @@ contract HellboxPublication is ERC721Royalty {
                 request.recipient,
                 entropyWord
             );
+        } else if (requestKind == RandomnessRequestKind.TIMED_CLOSURE) {
+            _finalizeNativeClosure(requestId, entropyWord);
         } else {
             revert UnsupportedRandomnessRequestKind(uint8(requestKind));
         }
@@ -1210,7 +1246,10 @@ contract HellboxPublication is ERC721Royalty {
 
         if (requestKind == RandomnessRequestKind.CREATOR_IMMEDIATE) {
             _advanceCreatorInitialization();
-        } else if (creatorInitializationStarted) {
+        } else if (
+            requestKind == RandomnessRequestKind.PRIZE_WALLET &&
+            creatorInitializationStarted
+        ) {
             // Test-only subclasses may still exercise the internal Prize Wallet
             // primitive directly without beginning production initialization.
             // The approved production path must always complete the reservation
@@ -1219,6 +1258,48 @@ contract HellboxPublication is ERC721Royalty {
         }
 
         _randomnessFulfillmentActive = false;
+    }
+
+    /// @notice Permissionlessly queues the one-way native publication close.
+    /// @dev True mint-out may close before the timer. Otherwise the exact
+    ///      native deadline must have arrived. No caller supplies recipients,
+    ///      candidate IDs, entropy or a replacement deadline.
+    function requestNativeClosure()
+        external
+        returns (uint256 requestId, uint64 round)
+    {
+        _requireIssuanceStateInitialized();
+
+        if (nativeMintDeadline == 0) {
+            revert TailNotConfigured();
+        }
+        if (randomnessVerifier == address(0)) {
+            revert RandomnessVerifierNotBound();
+        }
+        if (tailAwarded) {
+            revert TailAlreadyAwarded();
+        }
+        if (_nativeClosureRequestCreated) {
+            revert NativeClosureRequestAlreadyCreated();
+        }
+        if (!immediateCreatorAllocationComplete || !prizeWalletIssuanceComplete) {
+            revert TailNotReady();
+        }
+        if (!trueMintOutReached && block.timestamp < nativeMintDeadline) {
+            revert NativeClosureDeadlineNotReached(
+                block.timestamp,
+                nativeMintDeadline
+            );
+        }
+
+        (requestId, round) = _enqueueRandomnessRequest(
+            RandomnessRequestKind.TIMED_CLOSURE,
+            address(0),
+            tailRecipient
+        );
+
+        _nativeClosureRequestCreated = true;
+        _nativeClosureRequestId = requestId;
     }
 
     function _issueCreatorImmediateFromRequest(
@@ -1886,6 +1967,128 @@ contract HellboxPublication is ERC721Royalty {
         }
 
         emit TailAwarded(tailRecipient, tailAwardedCount);
+    }
+
+    /// @dev Finalizes either literal true-mintout tail issuance or the
+    ///      standard-native timed-expiry branch. The FIFO verifier is the sole
+    ///      entropy source and every state mutation reverts atomically on any
+    ///      downstream failure.
+    function _finalizeNativeClosure(
+        uint256 requestId,
+        uint256 entropyWord
+    ) internal {
+        _requireIssuanceStateInitialized();
+
+        if (
+            !_nativeClosureRequestCreated ||
+            requestId != _nativeClosureRequestId
+        ) {
+            revert InvalidNativeClosureRequest(requestId);
+        }
+        if (tailAwarded) {
+            revert TailAlreadyAwarded();
+        }
+        if (!immediateCreatorAllocationComplete || !prizeWalletIssuanceComplete) {
+            revert TailNotReady();
+        }
+
+        if (trueMintOutReached) {
+            _awardTailAfterTrueMintOut(entropyWord);
+            closedAtTimestamp = block.timestamp;
+
+            emit PublicationPermanentlyClosed(
+                false,
+                closedAtTimestamp,
+                totalPrimaryIssued,
+                0
+            );
+            return;
+        }
+
+        if (block.timestamp < nativeMintDeadline) {
+            revert NativeClosureDeadlineNotReached(
+                block.timestamp,
+                nativeMintDeadline
+            );
+        }
+        if (candidatePoolRemaining <= tailReserveCount) {
+            revert TailCandidateInvariant(
+                candidatePoolRemaining,
+                tailReserveCount + 1
+            );
+        }
+
+        // Lock closure before any ERC721Receiver callback. Any later revert
+        // restores the entire transition and the FIFO request atomically.
+        primaryIssuanceClosed = true;
+        tailAwarded = true;
+
+        uint256[3] memory selectedTokenIds;
+
+        for (uint256 i = 0; i < 3; ++i) {
+            uint256 drawEntropy = uint256(
+                keccak256(
+                    abi.encode(
+                        RANDOMNESS_REQUEST_ENTROPY_DOMAIN,
+                        entropyWord,
+                        requestId,
+                        i,
+                        candidatePoolRemaining
+                    )
+                )
+            );
+            uint256 candidateIndex = _uniformIndex(
+                drawEntropy,
+                candidatePoolRemaining
+            );
+            uint256 tokenId = _removeCandidateAtIndex(candidateIndex);
+
+            _assignBirthIdentity(tokenId, drawEntropy);
+            selectedTokenIds[i] = tokenId;
+            ++tailAwardedCount;
+            ++totalPrimaryIssued;
+
+            _assertBirthInventoryAccounting();
+        }
+
+        uint256 extinguishedCount = candidatePoolRemaining;
+
+        HellboxBirthPolicy(birthPolicy).finalizeTimedClosureInventory(
+            extinguishedCount
+        );
+
+        candidatePoolRemaining = 0;
+        nonTailIssuanceRemaining = 0;
+        extinguishedUnmintedCount = extinguishedCount;
+        closedAtTimestamp = block.timestamp;
+
+        if (totalPrimaryIssued + extinguishedCount != maxSupply) {
+            revert PrimarySupplyInvariant(
+                totalPrimaryIssued + extinguishedCount,
+                maxSupply
+            );
+        }
+
+        _assertBirthInventoryAccounting();
+
+        for (uint256 i = 0; i < 3; ++i) {
+            uint256 tokenId = selectedTokenIds[i];
+            _safeMint(tailRecipient, tokenId);
+
+            emit TailCopyIssued(
+                tokenId,
+                tailRecipient,
+                i + 1
+            );
+        }
+
+        emit TailAwarded(tailRecipient, tailAwardedCount);
+        emit PublicationPermanentlyClosed(
+            true,
+            closedAtTimestamp,
+            totalPrimaryIssued,
+            extinguishedCount
+        );
     }
 
     function _removeCandidateByTokenId(
