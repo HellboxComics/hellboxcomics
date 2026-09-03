@@ -18,6 +18,23 @@ interface IHellboxPublicationFactoryRandomness {
         returns (bytes32);
 }
 
+/// @dev Narrow runtime Prize Wallet boundary implemented by an official
+///      HellboxPublicationFactory generation. The publication receives only
+///      the active campaign's public EOA and manifest identity; no recovery
+///      phrase, private key, puzzle answer, or withdrawal authority enters
+///      publication state.
+interface IHellboxPublicationFactoryPrizeWallet {
+    function reserveActivePrizeWalletDeposit()
+        external
+        returns (
+            uint256 generation,
+            address wallet,
+            bytes32 campaignManifestDigest
+        );
+
+    function completePrizeWalletDeposit() external;
+}
+
 /// @title HellboxPublication
 /// @notice Gate 4 V1 publication kernel: constructor-frozen release identity,
 ///         configuration commitments, ERC-721 ownership baseline, ERC-2981 royalties,
@@ -33,11 +50,10 @@ interface IHellboxPublicationFactoryRandomness {
 ///      expose its immutable verifier through the narrow discovery interface; when the
 ///      publication's frozen randomization policy matches that verifier, the publication
 ///      binds it and bootstraps issuance state atomically during construction. This
-///      checkpoint adds the append-only FIFO proof-consumption substrate and the internal
-///      one-time Prize Wallet request/fulfillment transition. Production creator-immediate
-///      request creation, the validated Prize Wallet registry boundary, collector mint
-///      phases, pricing/payment enforcement, timed closure, metadata rendering, and later
-///      protocols remain to be wired.
+///      checkpoint adds the append-only FIFO proof-consumption substrate, permissionless
+///      creator-initialization requests, and the production factory reserve/request/complete
+///      Prize Wallet path. Collector mint phases, pricing/payment enforcement, timed closure,
+///      metadata rendering, and later protocols remain to be wired.
 contract HellboxPublication is ERC721Royalty {
     // ---------------------------------------------------------------------
     // HELLBOX_ABI_V1 protocol constants
@@ -196,8 +212,9 @@ contract HellboxPublication is ERC721Royalty {
 
     /// @notice Deterministic randomization-policy boundary committed by
     ///         randomizationPolicyDigest.
-    /// @dev Provider-specific details remain nested behind providerConfigDigest
-    ///      until the production entropy mechanism is selected and frozen.
+    /// @dev Provider-specific details remain nested behind providerConfigDigest;
+    ///      official factory generations freeze the selected verifier family and
+    ///      exact provider configuration before publication deployment.
     struct RandomizationPolicyEnforcement {
         bool enabled;
         bytes32 policyId;
@@ -233,9 +250,9 @@ contract HellboxPublication is ERC721Royalty {
     }
 
     /// @notice Stable action identifiers for the immutable FIFO randomness
-    ///         queue. Later Gate 4 slices may activate the reserved creator,
-    ///         collector, and timed-closure kinds without redefining the prize
-    ///         request family.
+    ///         queue. Creator-immediate and Prize Wallet kinds are active here;
+    ///         later Gate 4 slices may activate collector and timed-closure kinds
+    ///         without redefining the request family.
     enum RandomnessRequestKind {
         NONE,
         CREATOR_IMMEDIATE,
@@ -369,14 +386,25 @@ contract HellboxPublication is ERC721Royalty {
     mapping(uint256 requestId => RandomnessRequest request)
         public randomnessRequestById;
 
+    /// @notice True after the permissionless production creator-initialization
+    ///         sequence has queued its first future-round request. The remaining
+    ///         creator requests are appended one at a time after each successful
+    ///         FIFO fulfillment, so no caller supplies creator entropy.
+    bool public creatorInitializationStarted;
+
     /// @notice One-time standard-native Prize Wallet bootstrap state. The
-    ///         recipient is snapshotted at request creation and cannot be
-    ///         redirected or rerolled after its future round is bound.
+    ///         recipient is snapshotted from the factory reservation and cannot
+    ///         be caller-selected, redirected, or rerolled after its future
+    ///         round is bound.
     bool public prizeWalletRequestCreated;
     bool public prizeWalletIssuanceComplete;
+    bool public prizeWalletDepositReserved;
+    bool public prizeWalletDepositCompleted;
     address public prizeWalletRecipient;
     uint256 public prizeWalletRequestId;
     uint256 public prizeWalletTokenId;
+    uint256 public prizeWalletCampaignGeneration;
+    bytes32 public prizeWalletCampaignManifestDigest;
 
     /// @dev Blocks callback recursion across the permissionless fulfillment
     ///      boundary. A revert restores the lock and every request/issuance write.
@@ -461,8 +489,28 @@ contract HellboxPublication is ERC721Royalty {
     );
     error UnsupportedRandomnessRequestKind(uint8 kind);
     error RandomnessFulfillmentReentrancy();
+    error CreatorInitializationAlreadyStarted();
+    error CreatorInitializationNotConfigured();
+    error CreatorInitializationOrderInvariant(
+        uint256 totalIssued,
+        uint256 immediateIssued,
+        uint256 candidateRemaining,
+        uint256 nonTailRemaining
+    );
+    error InvalidCreatorRandomnessRequest(
+        uint256 requestId,
+        address primaryAccount,
+        address recipient
+    );
     error PrizeWalletRequestAlreadyCreated();
     error PrizeWalletIssuanceAlreadyComplete();
+    error PrizeWalletDepositNotReserved();
+    error PrizeWalletDepositAlreadyCompleted();
+    error InvalidPrizeWalletCampaignReservation(
+        uint256 generation,
+        address wallet,
+        bytes32 campaignManifestDigest
+    );
     error InvalidPrizeWalletRecipient(address recipient);
     error PrizeWalletRecipientHasCode(address recipient, uint256 codeSize);
     error PrizeWalletIssuanceOrderInvariant(
@@ -976,6 +1024,53 @@ contract HellboxPublication is ERC721Royalty {
     // Immutable FIFO randomness request boundary
     // ---------------------------------------------------------------------
 
+    /// @notice Permissionlessly starts the production creator-allocation
+    ///         sequence. The caller chooses no recipient, copy ID, entropy, or
+    ///         campaign wallet. Each successful creator fulfillment appends the
+    ///         next future-round request; the final one atomically reserves the
+    ///         factory's active approved campaign wallet and queues the seventh
+    ///         issuance request.
+    function beginCreatorInitialization()
+        external
+        returns (uint256 requestId, uint64 round)
+    {
+        if (_randomnessFulfillmentActive) {
+            revert RandomnessFulfillmentReentrancy();
+        }
+
+        _requireIssuanceStateInitialized();
+
+        if (randomnessVerifier == address(0)) {
+            revert RandomnessVerifierNotBound();
+        }
+        if (
+            immediateCreatorCount == 0 ||
+            nonTailIssuanceRemaining == 0 ||
+            !HellboxBirthPolicy(birthPolicy).randomizationEnabled()
+        ) {
+            revert CreatorInitializationNotConfigured();
+        }
+        if (creatorInitializationStarted) {
+            revert CreatorInitializationAlreadyStarted();
+        }
+
+        uint256 pendingCount =
+            randomnessRequestCount - randomnessFulfillmentCount;
+        if (pendingCount != 0) {
+            revert RandomnessRequestQueueNotEmpty(pendingCount);
+        }
+
+        _assertCreatorInitializationOrder();
+
+        creatorInitializationStarted = true;
+
+        (requestId, round) = _enqueueRandomnessRequest(
+            RandomnessRequestKind.CREATOR_IMMEDIATE,
+            address(0),
+            immediateCreatorRecipient
+        );
+    }
+
     /// @notice Returns the oldest pending request ID, or zero when the queue is
     ///         empty. Requests can never be skipped, cancelled, replaced, or
     ///         fulfilled out of order.
@@ -1024,10 +1119,10 @@ contract HellboxPublication is ERC721Royalty {
 
     /// @notice Permissionlessly fulfills exactly the current FIFO head using a
     ///         proof accepted by the immutable factory-generation verifier.
-    /// @dev This does not create requests or choose recipients. The Prize Wallet
-    ///      request-creation transition remains internal until its validated
-    ///      registry/deployment boundary is wired. Invalid/unavailable proofs
-    ///      revert without consuming or rerolling the request.
+    /// @dev This does not let the fulfiller create requests, choose recipients,
+    ///      or supply entropy. Creator requests are derived from frozen policy;
+    ///      the Prize Wallet recipient comes only from the factory reservation.
+    ///      Invalid/unavailable proofs revert without consuming or rerolling.
     function fulfillNextRandomnessRequest(
         bytes calldata proof
     ) external returns (uint256 requestId, uint256 tokenId) {
@@ -1084,35 +1179,146 @@ contract HellboxPublication is ERC721Royalty {
         request.verifiedRandomness = verifiedRandomness;
         randomnessFulfillmentCount = requestId;
 
-        if (request.kind == RandomnessRequestKind.PRIZE_WALLET) {
+        RandomnessRequestKind requestKind = request.kind;
+
+        if (requestKind == RandomnessRequestKind.CREATOR_IMMEDIATE) {
+            tokenId = _issueCreatorImmediateFromRequest(
+                requestId,
+                request.primaryAccount,
+                request.recipient,
+                entropyWord
+            );
+        } else if (requestKind == RandomnessRequestKind.PRIZE_WALLET) {
             tokenId = _issuePrizeWalletPrimary(
                 requestId,
                 request.recipient,
                 entropyWord
             );
         } else {
-            revert UnsupportedRandomnessRequestKind(
-                uint8(request.kind)
-            );
+            revert UnsupportedRandomnessRequestKind(uint8(requestKind));
         }
 
         request.tokenId = tokenId;
-        _randomnessFulfillmentActive = false;
 
         emit RandomnessRequestFulfilled(
             requestId,
-            request.kind,
+            requestKind,
             request.round,
             verifiedRandomness,
             tokenId
         );
+
+        if (requestKind == RandomnessRequestKind.CREATOR_IMMEDIATE) {
+            _advanceCreatorInitialization();
+        } else if (creatorInitializationStarted) {
+            // Test-only subclasses may still exercise the internal Prize Wallet
+            // primitive directly without beginning production initialization.
+            // The approved production path must always complete the reservation
+            // in the same transaction as the successful prize mint.
+            _completePrizeWalletDeposit();
+        }
+
+        _randomnessFulfillmentActive = false;
+    }
+
+    function _issueCreatorImmediateFromRequest(
+        uint256 requestId,
+        address primaryAccount,
+        address recipient,
+        uint256 entropyWord
+    ) internal returns (uint256 tokenId) {
+        uint256 expectedRequestId = immediateCreatorIssued + 1;
+        if (
+            !creatorInitializationStarted ||
+            requestId != expectedRequestId ||
+            primaryAccount != address(0) ||
+            recipient != immediateCreatorRecipient
+        ) {
+            revert InvalidCreatorRandomnessRequest(
+                requestId,
+                primaryAccount,
+                recipient
+            );
+        }
+        if (immediateCreatorAllocationComplete) {
+            revert ImmediateCreatorAllocationAlreadyComplete();
+        }
+
+        tokenId = HellboxBirthPolicy(birthPolicy).policyImmediateCopyAt(
+            immediateCreatorIssued
+        );
+
+        _issueImmediateCreatorCopy(tokenId, entropyWord);
+    }
+
+    function _advanceCreatorInitialization() internal {
+        if (immediateCreatorAllocationComplete) {
+            _reserveAndRequestPrizeWallet();
+        } else {
+            _enqueueRandomnessRequest(
+                RandomnessRequestKind.CREATOR_IMMEDIATE,
+                address(0),
+                immediateCreatorRecipient
+            );
+        }
+    }
+
+    function _reserveAndRequestPrizeWallet() internal {
+        if (
+            prizeWalletDepositReserved ||
+            prizeWalletRequestCreated
+        ) {
+            revert PrizeWalletRequestAlreadyCreated();
+        }
+
+        (
+            uint256 generation,
+            address recipient,
+            bytes32 campaignManifestDigest
+        ) = IHellboxPublicationFactoryPrizeWallet(factory)
+            .reserveActivePrizeWalletDeposit();
+
+        if (
+            generation == 0 ||
+            recipient == address(0) ||
+            campaignManifestDigest == bytes32(0)
+        ) {
+            revert InvalidPrizeWalletCampaignReservation(
+                generation,
+                recipient,
+                campaignManifestDigest
+            );
+        }
+
+        prizeWalletDepositReserved = true;
+        prizeWalletCampaignGeneration = generation;
+        prizeWalletCampaignManifestDigest = campaignManifestDigest;
+
+        _requestPrizeWalletIssuance(recipient);
+    }
+
+    function _completePrizeWalletDeposit() internal {
+        if (!prizeWalletDepositReserved) {
+            revert PrizeWalletDepositNotReserved();
+        }
+        if (prizeWalletDepositCompleted) {
+            revert PrizeWalletDepositAlreadyCompleted();
+        }
+
+        // Lock the local one-way transition before the trusted factory call.
+        // Any factory revert restores the mint, request and both completion
+        // records atomically.
+        prizeWalletDepositCompleted = true;
+
+        IHellboxPublicationFactoryPrizeWallet(factory)
+            .completePrizeWalletDeposit();
     }
 
     /// @dev Creates the one-time first-non-tail Prize Wallet request after all
     ///      immediate creator copies have actually issued. The recipient is a
-    ///      fresh externally owned campaign wallet under the current product
-    ///      direction; only its public address enters publication state. This
-    ///      internal function intentionally grants no publisher-facing setter.
+    ///      fresh externally owned campaign wallet reserved by the official
+    ///      factory generation; only its public address enters publication
+    ///      state. This internal function grants no publisher-facing setter.
     function _requestPrizeWalletIssuance(
         address recipient
     ) internal returns (uint256 requestId, uint64 round) {
@@ -1265,7 +1471,7 @@ contract HellboxPublication is ERC721Royalty {
 
         // Revalidate at fulfillment as well as request creation. A bare address
         // can acquire contract code after the future round is bound; the current
-        // Prize Wallet product requires an ordinary mnemonic-controlled EOA.
+        // Prize Wallet product requires an ordinary no-code campaign EOA.
         _validatePrizeWalletRecipient(recipient);
         _assertPrizeWalletIssuanceOrder();
         _assertOpenCandidateAccounting();
@@ -1320,6 +1526,42 @@ contract HellboxPublication is ERC721Royalty {
             revert PrizeWalletRecipientHasCode(
                 recipient,
                 codeSize
+            );
+        }
+    }
+
+    function _assertCreatorInitializationOrder() internal view {
+        uint256 expectedCandidateRemaining =
+            maxSupply - immediateCreatorCount;
+        uint256 expectedNonTailRemaining =
+            expectedCandidateRemaining - tailReserveCount;
+
+        if (
+            immediateCreatorAllocationComplete ||
+            immediateCreatorIssued != 0 ||
+            totalPrimaryIssued != 0 ||
+            candidatePoolRemaining != expectedCandidateRemaining ||
+            nonTailIssuanceRemaining != expectedNonTailRemaining ||
+            randomnessRequestCount != 0 ||
+            randomnessFulfillmentCount != 0 ||
+            prizeWalletRequestCreated ||
+            prizeWalletIssuanceComplete ||
+            prizeWalletDepositReserved ||
+            prizeWalletDepositCompleted ||
+            prizeWalletRecipient != address(0) ||
+            prizeWalletRequestId != 0 ||
+            prizeWalletTokenId != 0 ||
+            prizeWalletCampaignGeneration != 0 ||
+            prizeWalletCampaignManifestDigest != bytes32(0) ||
+            primaryIssuanceClosed ||
+            trueMintOutReached ||
+            tailAwarded
+        ) {
+            revert CreatorInitializationOrderInvariant(
+                totalPrimaryIssued,
+                immediateCreatorIssued,
+                candidatePoolRemaining,
+                nonTailIssuanceRemaining
             );
         }
     }
@@ -1444,8 +1686,8 @@ contract HellboxPublication is ERC721Royalty {
 
     /// @dev Issues one previously verified immediate creator copy. The copy ID
     ///      must already have been removed from candidate eligibility during
-    ///      issuance bootstrap. `entropyWord` is an input boundary only; the
-    ///      final production entropy provider remains deliberately open.
+    ///      issuance bootstrap. Production calls receive `entropyWord` only from
+    ///      the immutable FIFO verifier-consumption path.
     function _issueImmediateCreatorCopy(
         uint256 tokenId,
         uint256 entropyWord
@@ -1485,9 +1727,9 @@ contract HellboxPublication is ERC721Royalty {
         );
     }
 
-    /// @dev Deterministic non-tail issuance primitive. `entropyWord` is an
-    ///      input boundary only; this contract intentionally does not decide
-    ///      the production entropy provider yet.
+    /// @dev Deterministic non-tail issuance primitive. Production callers must
+    ///      reach this through the immutable FIFO verifier-consumption path;
+    ///      test harnesses may supply deterministic words directly.
     ///
     ///      `primaryAccount` is the wallet whose lifetime primary allowance is
     ///      consumed. `recipient` is the ERC-721 recipient. A later frozen phase
