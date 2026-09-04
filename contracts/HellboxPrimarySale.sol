@@ -27,8 +27,6 @@ interface IHellboxPrimarySalePublication {
 
     function tailReserveCount() external view returns (uint256);
 
-    function nativeMintDeadline() external view returns (uint256);
-
     function nonTailIssuanceRemaining() external view returns (uint256);
 
     function walletLifetimePrimaryUsed(
@@ -57,7 +55,9 @@ interface IHellboxPrimarySaleFactory {
 ///      lifetime use, change supply, close/reopen a publication, mutate phases,
 ///      reprice, replace an asset, or redirect proceeds. Payment leaves escrow
 ///      only after the bound publication confirms the matching NFT issuance.
-///      Collector requests are restricted to direct EOAs because the publication
+///      For a standard native issue, the first frozen payable phase—not contract
+///      deployment—starts the exact 66d 6h 6m 6s primary-mint clock. Collector
+///      requests are restricted to direct EOAs because the publication
 ///      uses ERC-721 receiver checks and immutable FIFO cannot skip a contract
 ///      recipient that deliberately rejects delivery. Failed request transactions
 ///      roll back atomically. This checkpoint exposes no accepted-request refund
@@ -69,6 +69,7 @@ contract HellboxPrimarySale is ReentrancyGuard {
 
     uint256 public constant PRIMARY_SALE_VERSION = 1;
     uint256 public constant MAX_PHASES = 32;
+    uint256 public constant NATIVE_MINT_DURATION_SECONDS = 5_724_366;
     uint256 public constant ELIGIBILITY_LEAF_SCHEMA_VERSION = 1;
 
     bytes32 public constant PRIMARY_SALE_ID =
@@ -199,6 +200,12 @@ contract HellboxPrimarySale is ReentrancyGuard {
         uint256 maxSupply;
         uint256 lifetimeCap;
         uint256 collectorCapacity;
+        bool nativeTimedClosureRequired;
+    }
+
+    struct NativeMintWindow {
+        bool hasPaidPhase;
+        uint256 opensAt;
         uint256 deadline;
     }
 
@@ -223,6 +230,7 @@ contract HellboxPrimarySale is ReentrancyGuard {
     uint256 public immutable maxSupply;
     uint256 public immutable primaryLifetimeCap;
     uint256 public immutable collectorRequestCapacity;
+    uint256 public immutable nativeMintOpensAt;
     uint256 public immutable nativeMintDeadline;
     uint256 public immutable phaseCount;
     bool public immutable prizeBootstrapRequired;
@@ -267,9 +275,11 @@ contract HellboxPrimarySale is ReentrancyGuard {
     error UnsupportedPublicationTransactionShape(uint256 maxPerTransaction);
     error PrizeBootstrapPolicyMismatch(bool expected, bool supplied);
     error InvalidCollectorRequestCapacity();
-    error PublicationWindowAlreadyClosed(
-        uint256 currentTimestamp,
-        uint256 deadline
+    error NativePaidPhaseRequired();
+    error PaidPhaseStartRequired(bytes32 phaseId);
+    error NativeMintStartAlreadyPassed(
+        uint256 opensAt,
+        uint256 currentTimestamp
     );
     error InvalidProceedsReceiver(address receiver);
     error UnexpectedProceedsReceiver(address receiver);
@@ -405,9 +415,14 @@ contract HellboxPrimarySale is ReentrancyGuard {
             revert InvalidPhaseCount(count);
         }
 
+        NativeMintWindow memory mintWindow = _deriveNativeMintWindow(
+            phases,
+            snapshot.nativeTimedClosureRequired
+        );
+
         _validateProceedsReceiver(
             proceedsReceiver_,
-            _containsPaidPhase(phases),
+            mintWindow.hasPaidPhase,
             publication_,
             snapshot.factory
         );
@@ -418,7 +433,7 @@ contract HellboxPrimarySale is ReentrancyGuard {
             prizeBootstrapRequired_,
             snapshot.lifetimeCap,
             snapshot.collectorCapacity,
-            snapshot.deadline
+            mintWindow.deadline
         );
 
         _validateCommitmentBinding(
@@ -439,7 +454,8 @@ contract HellboxPrimarySale is ReentrancyGuard {
         maxSupply = snapshot.maxSupply;
         primaryLifetimeCap = snapshot.lifetimeCap;
         collectorRequestCapacity = snapshot.collectorCapacity;
-        nativeMintDeadline = snapshot.deadline;
+        nativeMintOpensAt = mintWindow.opensAt;
+        nativeMintDeadline = mintWindow.deadline;
         phaseCount = count;
         prizeBootstrapRequired = prizeBootstrapRequired_;
 
@@ -694,9 +710,10 @@ contract HellboxPrimarySale is ReentrancyGuard {
 
         snapshot.lifetimeCap = publicationContract.primaryLifetimeCap();
         snapshot.maxSupply = publicationContract.maxSupply();
+        uint256 tailCount = publicationContract.tailReserveCount();
         uint256 reservedSupply =
             immediateCount +
-            publicationContract.tailReserveCount() +
+            tailCount +
             (prizeBootstrapRequired_ ? 1 : 0);
         if (
             snapshot.maxSupply <= reservedSupply ||
@@ -705,29 +722,56 @@ contract HellboxPrimarySale is ReentrancyGuard {
             revert InvalidCollectorRequestCapacity();
         }
         snapshot.collectorCapacity = snapshot.maxSupply - reservedSupply;
-
-        snapshot.deadline = publicationContract.nativeMintDeadline();
-        if (
-            snapshot.deadline != 0 &&
-            block.timestamp >= snapshot.deadline
-        ) {
-            revert PublicationWindowAlreadyClosed(
-                block.timestamp,
-                snapshot.deadline
-            );
-        }
+        snapshot.nativeTimedClosureRequired =
+            snapshot.maxSupply == 216 &&
+            snapshot.lifetimeCap == 6 &&
+            transactionLimit == 1 &&
+            immediateCount == 6 &&
+            tailCount == 3;
     }
 
-    function _containsPaidPhase(
-        Phase[] memory phases
-    ) private pure returns (bool) {
+    /// @dev For the standard native profile, the first frozen payable phase is
+    ///      the paid mint opening and starts the exact 66d 6h 6m 6s clock.
+    ///      Publication deployment time is deliberately irrelevant. Free proving
+    ///      profiles such as SciVive remain outside this native timer.
+    function _deriveNativeMintWindow(
+        Phase[] memory phases,
+        bool nativeTimedClosureRequired
+    ) private view returns (NativeMintWindow memory window) {
         uint256 count = phases.length;
         for (uint256 i = 0; i < count; ++i) {
-            if (phases[i].pricingMode != PricingMode.FREE) {
-                return true;
+            Phase memory phase = phases[i];
+            if (phase.pricingMode == PricingMode.FREE) {
+                continue;
+            }
+
+            window.hasPaidPhase = true;
+            if (!nativeTimedClosureRequired) {
+                continue;
+            }
+            if (phase.startAt == 0) {
+                revert PaidPhaseStartRequired(phase.phaseId);
+            }
+            if (window.opensAt == 0 || phase.startAt < window.opensAt) {
+                window.opensAt = phase.startAt;
             }
         }
-        return false;
+
+        if (!nativeTimedClosureRequired) {
+            return window;
+        }
+        if (!window.hasPaidPhase) {
+            revert NativePaidPhaseRequired();
+        }
+        if (window.opensAt < block.timestamp) {
+            revert NativeMintStartAlreadyPassed(
+                window.opensAt,
+                block.timestamp
+            );
+        }
+
+        window.deadline =
+            window.opensAt + NATIVE_MINT_DURATION_SECONDS;
     }
 
     function _validateProceedsReceiver(

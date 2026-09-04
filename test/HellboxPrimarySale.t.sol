@@ -295,7 +295,16 @@ contract HellboxPrimarySaleTest {
         require(sale.maxSupply() == 216, "supply");
         require(sale.primaryLifetimeCap() == 6, "lifetime cap");
         require(sale.collectorRequestCapacity() == 206, "capacity");
-        require(sale.nativeMintDeadline() == START + 20_000, "deadline");
+        require(sale.nativeMintOpensAt() == START + 100, "mint opens");
+        require(
+            sale.nativeMintDeadline() == START + 100 + 5_724_366,
+            "deadline"
+        );
+        require(
+            sale.nativeMintDeadline() !=
+                deployment.publication.nativeMintDeadline(),
+            "deployment clock leaked into sale"
+        );
         require(sale.phaseCount() == 3, "phase count");
         require(sale.prizeBootstrapRequired(), "prize bootstrap");
         require(sale.saleConfigDigest() != bytes32(0), "sale digest");
@@ -310,6 +319,116 @@ contract HellboxPrimarySaleTest {
         require(
             phase.pricingMode == HellboxPrimarySale.PricingMode.FIXED_NATIVE,
             "native mode"
+        );
+    }
+
+    function testNativeCountdownStartsWhenFirstPaidPhaseOpens() public {
+        StandardDeployment memory deployment = _deployReadyStandard();
+        HellboxPrimarySale sale = deployment.sale;
+        bytes32[] memory noProof = new bytes32[](0);
+
+        require(sale.nativeMintOpensAt() == START + 100, "opens at");
+        require(
+            sale.nativeMintDeadline() ==
+                sale.nativeMintOpensAt() +
+                sale.NATIVE_MINT_DURATION_SECONDS(),
+            "duration"
+        );
+
+        VM.deal(ALICE, 10 ether);
+        VM.warp(START + 99);
+        VM.expectPartialRevert(HellboxPrimarySale.PhaseInactive.selector);
+        VM.prank(ALICE, ALICE);
+        sale.requestPrimary{value: NATIVE_PRICE}(NATIVE_PHASE, noProof);
+
+        VM.warp(START + 100);
+        VM.prank(ALICE, ALICE);
+        (uint256 requestId,) =
+            sale.requestPrimary{value: NATIVE_PRICE}(
+                NATIVE_PHASE,
+                noProof
+            );
+        require(requestId == 8, "first paid request");
+    }
+
+    function testNativePaidPhaseRequiresFrozenStart() public {
+        VM.warp(START);
+        PrimarySaleProceedsReceiver receiver =
+            new PrimarySaleProceedsReceiver();
+        PrimarySaleTokenMock token = new PrimarySaleTokenMock();
+        PrimarySalePublicationMock publication =
+            new PrimarySalePublicationMock(START + 20_000);
+        HellboxPrimarySale.Phase[] memory phases =
+            _standardPhases(address(publication), address(token));
+        phases[1].startAt = 0;
+        HellboxPrimarySale.PublicationCommitmentSet memory commitments =
+            _commitmentsAndBind(
+                publication,
+                phases,
+                address(receiver),
+                true
+            );
+
+        VM.expectPartialRevert(
+            HellboxPrimarySale.PaidPhaseStartRequired.selector
+        );
+        new HellboxPrimarySale(
+            address(publication),
+            address(receiver),
+            true,
+            commitments,
+            phases
+        );
+    }
+
+    function testNativeMintStartCannotAlreadyBePast() public {
+        VM.warp(START);
+        PrimarySaleProceedsReceiver receiver =
+            new PrimarySaleProceedsReceiver();
+        PrimarySaleTokenMock token = new PrimarySaleTokenMock();
+        PrimarySalePublicationMock publication =
+            new PrimarySalePublicationMock(START + 20_000);
+        HellboxPrimarySale.Phase[] memory phases =
+            _standardPhases(address(publication), address(token));
+        phases[1].startAt = uint64(START - 1);
+        phases[2].startAt = uint64(START - 1);
+        HellboxPrimarySale.PublicationCommitmentSet memory commitments =
+            _commitmentsAndBind(
+                publication,
+                phases,
+                address(receiver),
+                true
+            );
+
+        VM.expectPartialRevert(
+            HellboxPrimarySale.NativeMintStartAlreadyPassed.selector
+        );
+        new HellboxPrimarySale(
+            address(publication),
+            address(receiver),
+            true,
+            commitments,
+            phases
+        );
+    }
+
+    function testStandardNativeProfileRequiresPaidPhase() public {
+        VM.warp(START);
+        PrimarySalePublicationMock publication =
+            new PrimarySalePublicationMock(START + 20_000);
+        HellboxPrimarySale.Phase[] memory phases = _freeOnlyPhases();
+        HellboxPrimarySale.PublicationCommitmentSet memory commitments =
+            _commitmentsAndBind(publication, phases, address(0), true);
+
+        VM.expectPartialRevert(
+            HellboxPrimarySale.NativePaidPhaseRequired.selector
+        );
+        new HellboxPrimarySale(
+            address(publication),
+            address(0),
+            true,
+            commitments,
+            phases
         );
     }
 
@@ -462,6 +581,8 @@ contract HellboxPrimarySaleTest {
         publication.setSale(address(sale));
         require(sale.proceedsReceiver() == address(0), "free receiver");
         require(sale.collectorRequestCapacity() == 1, "free capacity");
+        require(sale.nativeMintOpensAt() == 0, "free opens");
+        require(sale.nativeMintDeadline() == 0, "free deadline");
 
         bytes32[] memory noProof = new bytes32[](0);
         VM.prank(ALICE, ALICE);
@@ -571,34 +692,45 @@ contract HellboxPrimarySaleTest {
         VM.warp(START);
         PrimarySalePublicationMock publication =
             new PrimarySalePublicationMock(START + 20_000);
+        PrimarySaleProceedsReceiver receiver =
+            new PrimarySaleProceedsReceiver();
         HellboxPrimarySale.Phase[] memory phases =
             new HellboxPrimarySale.Phase[](32);
 
         for (uint256 i = 0; i < phases.length; ++i) {
+            bool paid = i == 0;
             phases[i] = HellboxPrimarySale.Phase({
                 phaseId: keccak256(abi.encode("MAX_PHASE", i)),
-                startAt: 0,
+                startAt: paid ? uint64(START + 100) : 0,
                 endAt: 0,
                 phaseCap: 206,
                 phaseWalletCap: 6,
-                pricingMode: HellboxPrimarySale.PricingMode.FREE,
+                pricingMode: paid
+                    ? HellboxPrimarySale.PricingMode.FIXED_NATIVE
+                    : HellboxPrimarySale.PricingMode.FREE,
                 token: address(0),
-                exactAmount: 0,
+                exactAmount: paid ? NATIVE_PRICE : 0,
                 merkleRoot: bytes32(0)
             });
         }
 
         HellboxPrimarySale.PublicationCommitmentSet memory commitments =
-            _commitmentsAndBind(publication, phases, address(0), true);
+            _commitmentsAndBind(
+                publication,
+                phases,
+                address(receiver),
+                true
+            );
         HellboxPrimarySale sale = new HellboxPrimarySale(
             address(publication),
-            address(0),
+            address(receiver),
             true,
             commitments,
             phases
         );
 
         require(sale.phaseCount() == 32, "maximum phases");
+        require(sale.nativeMintOpensAt() == START + 100, "maximum opens");
     }
 
     function testPublicPhaseRejectsProofAndFreePhaseRejectsValue() public {
@@ -724,6 +856,7 @@ contract HellboxPrimarySaleTest {
     function testERC20CheckoutRequiresEligibilityAndExactReceipt() public {
         StandardDeployment memory deployment = _deployReadyStandard();
         bytes32[] memory noProof = new bytes32[](0);
+        VM.warp(START + 300);
 
         VM.expectPartialRevert(
             HellboxPrimarySale.InvalidEligibilityProof.selector
@@ -795,6 +928,7 @@ contract HellboxPrimarySaleTest {
     function testERC20ReleaseIsAuthenticatedExactAndRetryable() public {
         StandardDeployment memory deployment = _deployReadyStandard();
         bytes32[] memory noProof = new bytes32[](0);
+        VM.warp(START + 300);
         deployment.token.mint(ALICE, TOKEN_PRICE);
         VM.prank(ALICE, ALICE);
         deployment.token.approve(address(deployment.sale), TOKEN_PRICE);
@@ -882,7 +1016,7 @@ contract HellboxPrimarySaleTest {
             noProof
         );
 
-        VM.warp(START + 20_000);
+        VM.warp(START + 100 + 5_724_366);
         VM.expectPartialRevert(
             HellboxPrimarySale.NativeMintWindowClosed.selector
         );
@@ -1128,6 +1262,18 @@ contract HellboxPrimarySaleTest {
     {
         receiver = new PrimarySaleProceedsReceiver();
         publication = new PrimarySalePublicationMock(START + 20_000);
+        if (pricingMode == HellboxPrimarySale.PricingMode.FREE) {
+            uint256 immediateCount = prizeRequired ? 1 : 0;
+            uint256 prizeCount = prizeRequired ? 1 : 0;
+            publication.configureProfile(
+                216,
+                6,
+                immediateCount,
+                0,
+                0,
+                216 - immediateCount - prizeCount
+            );
+        }
 
         HellboxPrimarySale.Phase[] memory phases =
             new HellboxPrimarySale.Phase[](1);
@@ -1139,7 +1285,9 @@ contract HellboxPrimarySaleTest {
                 : FREE_PHASE;
         phases[0] = HellboxPrimarySale.Phase({
             phaseId: phaseId,
-            startAt: 0,
+            startAt: pricingMode == HellboxPrimarySale.PricingMode.FREE
+                ? 0
+                : uint64(block.timestamp),
             endAt: 0,
             phaseCap: phaseCap,
             phaseWalletCap: walletCap,
@@ -1203,7 +1351,7 @@ contract HellboxPrimarySaleTest {
         });
         phases[2] = HellboxPrimarySale.Phase({
             phaseId: ERC20_PHASE,
-            startAt: 0,
+            startAt: uint64(START + 300),
             endAt: 0,
             phaseCap: 3,
             phaseWalletCap: 1,
