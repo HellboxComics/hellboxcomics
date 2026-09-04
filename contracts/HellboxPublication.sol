@@ -5,6 +5,7 @@ import {ERC721} from "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import {ERC721Royalty} from "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Royalty.sol";
 import {HellboxBirthPolicy} from "./HellboxBirthPolicy.sol";
 import {IHellboxRandomnessVerifier} from "./interfaces/IHellboxRandomnessVerifier.sol";
+import {IHellboxMetadataRenderer} from "./interfaces/IHellboxMetadataRenderer.sol";
 
 /// @dev Narrow constructor-time discovery surface implemented by an official
 ///      HellboxPublicationFactory generation. Kept local to avoid a circular
@@ -31,6 +32,13 @@ interface IHellboxPublicationFactoryPrizeWallet {
 /// @dev Permanent factory lookup for the one exact primary-sale checkout.
 interface IHellboxPublicationFactoryPrimarySale {
     function primarySaleByPublication(address publication) external view returns (address primarySale);
+}
+
+/// @dev Permanent factory lookup for the one exact metadata renderer bound to
+///      this publication. Rendering authority lives in a frozen sidecar, never
+///      in this kernel, and the publication holds no renderer setter.
+interface IHellboxPublicationFactoryRenderer {
+    function rendererByPublication(address publication) external view returns (address renderer);
 }
 
 /// @dev Narrow callback/deadline surface implemented by HellboxPrimarySale.
@@ -490,6 +498,7 @@ contract HellboxPublication is ERC721Royalty {
     error PrizeWalletIssuanceOrderInvariant(uint256 totalIssued, uint256 candidateRemaining, uint256 nonTailRemaining);
     error PrimarySaleNotBound();
     error UnauthorizedPrimarySale(address caller, address expectedSale);
+    error RendererNotBound();
     error PrizeWalletIssuanceIncomplete();
     error InvalidCollectorPrimaryRequest(address primaryAccount, address recipient);
 
@@ -886,6 +895,37 @@ contract HellboxPublication is ERC721Royalty {
         return IHellboxPrimarySaleCompletion(sale).nativeMintDeadline();
     }
 
+    /// @notice Complete self-contained metadata for one issued copy.
+    /// @dev The kernel holds no rendering logic, no art bytes and no renderer
+    ///      setter. It forwards to the exact renderer the official factory
+    ///      permanently bound to this publication and returns that renderer's
+    ///      ABI-encoded answer verbatim.
+    ///
+    ///      The forward is written in assembly deliberately: decoding and then
+    ///      re-encoding a dynamic string in this kernel would cost several
+    ///      hundred bytes of a runtime budget measured in hundreds, for no
+    ///      behavioral gain. A renderer revert bubbles up with its exact
+    ///      original data rather than being flattened.
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+        _requireOwned(tokenId);
+
+        address renderer = _renderer();
+        if (renderer == address(0)) {
+            revert RendererNotBound();
+        }
+
+        bytes memory request =
+            abi.encodeWithSelector(IHellboxMetadataRenderer.tokenURI.selector, address(this), tokenId);
+
+        assembly {
+            let output := mload(0x40)
+            let ok := staticcall(gas(), renderer, add(request, 0x20), mload(request), 0, 0)
+            returndatacopy(output, 0, returndatasize())
+            if iszero(ok) { revert(output, returndatasize()) }
+            return(output, returndatasize())
+        }
+    }
+
     /// @notice Appends one collector request from the exact checkout permanently
     ///         registered by the official factory.
     function requestCollectorPrimary(address primaryAccount, address recipient)
@@ -1232,6 +1272,13 @@ contract HellboxPublication is ERC721Royalty {
 
     function _primarySale() internal view returns (address) {
         return IHellboxPublicationFactoryPrimarySale(factory).primarySaleByPublication(address(this));
+    }
+
+    /// @dev Permanent renderer lookup through the immutable official factory,
+    ///      mirroring the proven primary-sale binding. The kernel stores no
+    ///      renderer address, so it can never be repointed at another one.
+    function _renderer() internal view returns (address) {
+        return IHellboxPublicationFactoryRenderer(factory).rendererByPublication(address(this));
     }
 
     function _enqueueRandomnessRequest(RandomnessRequestKind kind, address primaryAccount, address recipient)

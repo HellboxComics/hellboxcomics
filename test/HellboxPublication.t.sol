@@ -4,9 +4,35 @@ pragma solidity 0.8.36;
 import {HellboxPublication} from "../contracts/HellboxPublication.sol";
 import {HellboxBirthPolicy} from "../contracts/HellboxBirthPolicy.sol";
 import {HellboxBirthPolicyCodeStore} from "../contracts/HellboxBirthPolicyCodeStore.sol";
+import {HellboxArtDataStore} from "../contracts/HellboxArtDataStore.sol";
+import {HellboxNativeRendererV1} from "../contracts/HellboxNativeRendererV1.sol";
 
 interface Vm {
     function expectPartialRevert(bytes4 revertData) external;
+}
+
+/// @dev Exposes a bare ERC-721 mint so metadata forwarding can be proven
+///      without re-running the issuance machinery covered elsewhere.
+contract HellboxPublicationMetadataHarness is HellboxPublication {
+    constructor(
+        HellboxPublication.ReleaseConfig memory config,
+        HellboxPublication.CommitmentSet memory commitments,
+        bytes32 expectedReleaseConfigDigest,
+        HellboxPublication.BirthPolicyDeploymentContext memory birthPolicyContext
+    ) HellboxPublication(config, commitments, expectedReleaseConfigDigest, birthPolicyContext) {}
+
+    function mintForMetadataTest(address to, uint256 tokenId) external {
+        _mint(to, tokenId);
+    }
+}
+
+/// @dev Stands in for a renderer generation that fails at read time.
+contract HellboxFailingRenderer {
+    error RendererUnavailable();
+
+    function tokenURI(address, uint256) external pure returns (string memory) {
+        revert RendererUnavailable();
+    }
 }
 
 /// @notice Gate 4 checkpoint tests for the frozen HellboxPublication V1 kernel.
@@ -334,6 +360,109 @@ contract HellboxPublicationTest {
     // ---------------------------------------------------------------------
     // Fixtures
     // ---------------------------------------------------------------------
+
+    // ---------------------------------------------------------------------
+    // Metadata forwarding
+    //
+    // This contract deploys the publications under test, so it is their
+    // official factory and answers the permanent renderer lookup.
+    // ---------------------------------------------------------------------
+
+    address internal boundRenderer;
+
+    function rendererByPublication(address) external view returns (address) {
+        return boundRenderer;
+    }
+
+    function testTokenUriForwardsToThePermanentlyBoundRenderer() public {
+        (HellboxPublicationMetadataHarness publication,) = _deployMetadataHarness();
+        HellboxNativeRendererV1 renderer = _deployRenderer();
+        boundRenderer = address(renderer);
+
+        publication.mintForMetadataTest(CREATOR, 1);
+
+        string memory fromKernel = publication.tokenURI(1);
+        string memory fromRenderer = renderer.tokenURI(address(publication), 1);
+
+        require(keccak256(bytes(fromKernel)) == keccak256(bytes(fromRenderer)), "forwarded verbatim");
+        require(_hasJsonDataUriPrefix(fromKernel), "self-contained json data uri");
+    }
+
+    function testTokenUriRevertsWhenNoRendererIsBound() public {
+        (HellboxPublicationMetadataHarness publication,) = _deployMetadataHarness();
+        boundRenderer = address(0);
+
+        publication.mintForMetadataTest(CREATOR, 1);
+
+        vm.expectPartialRevert(HellboxPublication.RendererNotBound.selector);
+        publication.tokenURI(1);
+    }
+
+    function testTokenUriRejectsAnUnissuedCopy() public {
+        (HellboxPublicationMetadataHarness publication,) = _deployMetadataHarness();
+        boundRenderer = address(_deployRenderer());
+
+        // ERC-721 requires metadata queries for nonexistent copies to fail.
+        vm.expectPartialRevert(bytes4(keccak256("ERC721NonexistentToken(uint256)")));
+        publication.tokenURI(99);
+    }
+
+    function testRendererFailureBubblesUpInsteadOfBeingFlattened() public {
+        (HellboxPublicationMetadataHarness publication,) = _deployMetadataHarness();
+        boundRenderer = address(new HellboxFailingRenderer());
+
+        publication.mintForMetadataTest(CREATOR, 1);
+
+        vm.expectPartialRevert(HellboxFailingRenderer.RendererUnavailable.selector);
+        publication.tokenURI(1);
+    }
+
+    function testKernelExposesNoRendererSetter() public {
+        (HellboxPublicationMetadataHarness publication,) = _deployMetadataHarness();
+
+        string[3] memory setters;
+        setters[0] = "setRenderer(address)";
+        setters[1] = "bindRenderer(address)";
+        setters[2] = "upgradeRenderer(address)";
+
+        for (uint256 i; i < setters.length; ++i) {
+            (bool ok,) = address(publication).call(abi.encodeWithSignature(setters[i], address(this)));
+            require(!ok, "renderer setter reachable");
+        }
+    }
+
+    function _deployMetadataHarness()
+        internal
+        returns (HellboxPublicationMetadataHarness publication, HellboxPublication.ReleaseConfig memory config)
+    {
+        config = _native216Config();
+        HellboxPublication.CommitmentSet memory commitments = _commitments();
+        bytes32 expectedDigest = _releaseDigest(block.chainid, address(this), config, commitments);
+
+        publication = new HellboxPublicationMetadataHarness(
+            config, commitments, expectedDigest, _birthPolicyContext(config)
+        );
+    }
+
+    function _deployRenderer() internal returns (HellboxNativeRendererV1) {
+        bytes memory plate = bytes('<rect width="1988" height="3056" fill="#0b0b0f"/>');
+        address store = address(new HellboxArtDataStore(plate, keccak256(plate)));
+        return new HellboxNativeRendererV1(store, store.codehash, 1988, 3056);
+    }
+
+    function _hasJsonDataUriPrefix(string memory value) internal pure returns (bool) {
+        bytes memory raw = bytes(value);
+        bytes memory prefix = bytes("data:application/json;base64,");
+        if (raw.length < prefix.length) {
+            return false;
+        }
+        for (uint256 i; i < prefix.length; ++i) {
+            if (raw[i] != prefix[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     function _deployNative216()
         internal
