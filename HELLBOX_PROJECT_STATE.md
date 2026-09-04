@@ -593,11 +593,11 @@ Prefer:
 
 ---
 
-# 6. CURRENT REPOSITORY SNAPSHOT — 2026-09-04 COLLECTOR BRIDGE + DOCUMENT REPAIR
+# 6. CURRENT REPOSITORY SNAPSHOT — 2026-09-04 IMMUTABLE RENDER PATH
 
-Source/test checkpoint: `0688dd00f3fa89e6b02d50415820c16389dfef4f`. Its parent is the previously pushed factory-binding checkpoint `e86451b4d81d9a3cd8c27bd12aa2a75edeaf3f12`. The checkpoint installer commits the existing six verified bridge files first, then installs/commits this documentation set separately. It never replaces Solidity or test bytes.
+Source/test checkpoint: `2f27b636c1ce46fbf49cffe1374d82dbccad91b2`, pushed to `origin/main`. Its ancestry runs through the collector-bridge handoff `5bcdbf2` and the four render-path commits recorded below. Each was committed only after the creator's machine reported a full green suite, and each was pushed before the next began.
 
-Evidence carried forward from the creator's 2026-09-04 terminal log: **28 checkout tests**, **3 exact factory-sale binding tests**, **7 real-factory integration tests**, **5 paid-opening timed-closure tests**, and **164 total Solidity tests passed**. The attached repository's six bridge hashes match that successful `BRIDGE_02` output. The repair installer requires fresh focused/full passes before committing. GitHub synchronization is a live Git check, not something inferred from this prose.
+Evidence from the creator's 2026-09-04 terminal: **211 total Solidity tests passed, 0 failed, 0 skipped**, including **15 renderer tests**, **16 art-data store tests**, **8 renderer factory-binding tests**, **5 publication metadata tests** and **3 real-issuance rendering tests**. Every contract size quoted below was read from a `forge build --sizes` run in that same session. No figure in this section is carried forward on trust; anything not measured that night is marked as such.
 
 ## Verified implementation chronology
 
@@ -610,7 +610,13 @@ aa202c5  Add permanent timed closure regression tests
 1d57ab2  Add queue-safe primary sale checkout
 4ffe531  Start native mint clock at paid opening
 e86451b  Add immutable primary sale factory binding
-0688dd00f3fa89e6b02d50415820c16389dfef4f  Corrected publication collector-delivery bridge
+0688dd0  Connect primary sale to publication collector delivery
+5bcdbf2  Synchronize Gate 4 collector bridge handoff
+e0adde2  Add immutable art-data store and permanent tests
+71decf1  Add immutable metadata renderer and frozen render interface
+9da2d8e  Forward publication tokenURI to the bound immutable renderer
+cb63752  Bind each publication to the renderer its release froze
+2f27b63  Prove the real issuance path renders from the chain alone
 ```
 
 `e86451b` and the six bridge-file hashes are the recovery boundary. The failed first bridge package and stale living-document package are superseded; neither is an instruction to undo the corrected bridge.
@@ -626,7 +632,12 @@ e86451b  Add immutable primary sale factory binding
 - `HellboxPrimarySale` binds frozen phase/payment/eligibility preimages; exact FREE/native/ERC-20 request-time payment; pending capacity, phase and wallet allowances; and delivery-confirmed settlement.
 - The official factory physically deploys and permanently binds one exact approved checkout per publication. Replacement and fake/unapproved checkout paths are rejected.
 - Only that bound checkout may call `requestCollectorPrimary(...)`. The request enters the real FIFO; actual NFT issuance precedes the matching sale completion callback. Payment release follows fulfillment and remains separately retryable.
-- Campaign/publication reserve/completion rollback, receiver reentrancy, campaign-wallet code drift, random collector delivery and unauthorized collector-queue writing are covered by the seven-test actual-factory suite.
+- Campaign/publication reserve/completion rollback, receiver reentrancy, campaign-wallet code drift, random collector delivery and unauthorized collector-queue writing are covered by the actual-factory suite.
+- The immutable render path is implemented. `HellboxArtDataStore` holds one canonical art chunk as inert STOP-prefixed runtime with exact length/hash verification, no setter, no owner and no code-replacement path. `HellboxNativeRendererV1` reads those bytes by `EXTCODECOPY` under runtime-code-hash verification, wraps them in a frozen canvas envelope, and returns a complete self-contained JSON data URI with no URL, gateway, CID or host dependency.
+- `HellboxPublication.tokenURI` forwards to the exact renderer the official factory bound to it, holding no rendering logic, no art bytes and no renderer setter of any kind. Replacing OpenZeppelin's default implementation dropped its now-unreachable base-URI string machinery, so the kernel became 284 bytes smaller while gaining the capability.
+- Renderer binding authority is the publication's own frozen `CommitmentSet.rendererRulesDigest`, transported as an ordinary enforcement preimage under the existing doctrine. Renderer identity, version, interface version, exact creation code, canonical art store, that store's runtime code hash and the canvas are all settled at publish time. The factory owner cannot bind a renderer serving different art, a different canvas or a different renderer version to an already published release.
+- Renderer reads of publication and companion state are defensive: an unreachable, reverting or malformed source degrades to the deterministic base cover rather than bricking a collector's metadata, while substituted canonical art reverts instead of silently serving the wrong picture. Release names are JSON-escaped, because the publication validates collection-name length only.
+- Birth identity renders as frozen MARK/DEFECT attributes over the immutable plate. Deterministic layer compositing is not built and remains Gate 6 work; it will arrive as a new renderer generation, never as an in-place upgrade.
 
 ## Paid-opening clock — creator instruction and implementation boundary
 
@@ -654,40 +665,52 @@ No dependency, compiler setting, Worker, website or character-canon change is pa
 
 ```text
 contracts/HellboxPublication.sol
-  lines: 2015
-  sha256: f542b12a0c352f3cc27c4894ded358cb181a883269f054ae7c789f5a9649a6d2
+  lines: 2062
+  sha256: 3a1adfd143bcf9c9d7e4ac112da8b21c09955025551ac02c8e5c458078dd9574
 
-test/HellboxPrizeWalletFifoProbe.t.sol
-  lines: 666
-  sha256: 22e25bc1f4451e7d4bee807c8fea36144a364a2bf9df02ea44134f8ba842be53
-
-test/HellboxProductionPrizeWalletIntegration.t.sol
-  lines: 1043
-  sha256: 4a83e20310038ff6ed7abf9aff45cb440e190b79e68a3d959df4cc552180f2ac
-
-test/HellboxPublication.t.sol
-  lines: 548
-  sha256: 4be72817d093566d98a7e4e03cab8c10072fbd0d0cb80631b86541be22803d80
-
-test/HellboxPublicationGoldenVector.t.sol
-  lines: 157
-  sha256: d91e0c7ed974c0136b2070303c7ef24cb7470f2f9f05872dc1b93287f991dfd3
-
-test/HellboxPublicationTimedClosure.t.sol
-  lines: 489
-  sha256: 44667cc05ae334208c3d55caccba03ddf561225cf798035e89174ff1344ce551
+contracts/HellboxPublicationFactory.sol
+  lines: 1258
+  sha256: df34247d7025876ece5ef1be7f3522de0790381ca670caf1fbb813243831fb5a
 
 contracts/HellboxPrimarySale.sol
   lines: 1242
   sha256: feb00ceabc693e912f6d7db27e17fe216d9e08996c5ccda53298ef05604af3c8
 
-contracts/HellboxPublicationFactory.sol
-  lines: 1048
-  sha256: 781b5b58d68bee065364034568f21ccc471bfbaec60f72e5dd96ebd191cad751
-
 contracts/HellboxBirthPolicy.sol
   lines: 1240
   sha256: 11c6e77cf8bd2423ec90c854e2258591aead0aa17460179e3e4ef27558f86798
+
+contracts/HellboxNativeRendererV1.sol
+  lines: 368
+  sha256: 39339086bcbab466567a3e9b0e9112b436d905de11f90dbf554e46850dcee9a4
+
+contracts/HellboxArtDataStore.sol
+  lines: 49
+  sha256: beb0c2ede0edcb9d7af569a3d70b4f1a95294220bfe139c432007e60e75c1b51
+
+contracts/interfaces/IHellboxMetadataRenderer.sol
+  lines: 39
+  sha256: 8af7eaba804e08eeb3e85cdf50938198783df42eb6125807f080dae555b95a00
+
+test/HellboxPublication.t.sol
+  lines: 677
+  sha256: e9fa42ff2e40fa7d6bc585c462f8114a4aff8d228acda4bfbf970ac6d3adceb5
+
+test/HellboxProductionPrizeWalletIntegration.t.sol
+  lines: 1189
+  sha256: 7628d7073e3e87306e0aac249b1a399aeb4daf630bc02c6e5427e98edfb6ff25
+
+test/HellboxNativeRenderer.t.sol
+  lines: 325
+  sha256: 817a7a115af10383905d931180b7fc06613ba3cb12da72d5160f0c98aa049cca
+
+test/HellboxArtDataStore.t.sol
+  lines: 229
+  sha256: e2927c911538809ed30921fe006dd669bbf52d21163906fe2a746d87a100f6ac
+
+test/HellboxRendererFactoryBinding.t.sol
+  lines: 232
+  sha256: 4e75a584e572b9f1d79b2c0a6be8150d72441c398fa08a59504f6d86a3fab9f4
 
 test/HellboxPrimarySale.t.sol
   lines: 1543
@@ -696,41 +719,62 @@ test/HellboxPrimarySale.t.sol
 test/HellboxPrimarySaleFactoryBinding.t.sol
   lines: 245
   sha256: e0de5d0da3e39a256da8b258b5986aa7397d34b3bd7caa90c854fd2736e92b95
+
+test/HellboxPublicationTimedClosure.t.sol
+  lines: 489
+  sha256: 44667cc05ae334208c3d55caccba03ddf561225cf798035e89174ff1344ce551
+
+test/HellboxPublicationGoldenVector.t.sol
+  lines: 157
+  sha256: d91e0c7ed974c0136b2070303c7ef24cb7470f2f9f05872dc1b93287f991dfd3
+
+test/HellboxPrizeWalletFifoProbe.t.sol
+  lines: 666
+  sha256: 22e25bc1f4451e7d4bee807c8fea36144a364a2bf9df02ea44134f8ba842be53
 ```
 
 ## Permanent Foundry inventory
 
 ```text
+HellboxArtDataStore                               16
 HellboxBirthPolicy                                21
 HellboxBirthPolicyCodeStore                        4
 HellboxDrandEvmnetVerifier                         8
 HellboxFactoryRandomnessBinding                    4
+HellboxNativeRenderer                             15
 HellboxPrimarySale                                28
 HellboxPrimarySaleFactoryBinding                   3
 HellboxPrizeWalletFifoProbe                        8
 HellboxPrizeWalletRegistryProbe                   15
-HellboxProductionPrizeWalletIntegration            7
-HellboxPublication                                16
+HellboxProductionPrizeWalletIntegration           10
+HellboxPublication                                21
 HellboxPublicationFactory                         22
 HellboxPublicationGoldenVector                     1
 HellboxPublicationIssuance                        13
 HellboxPublicationPolicy                           9
 HellboxPublicationTimedClosure                     5
+HellboxRendererFactoryBinding                      8
 -----------------------------------------------------
-TOTAL                                            164
+TOTAL                                            211
 ```
 
-The historical 125-test real-factory proof, 158-test paid-clock checkpoint and 162-test factory-binding checkpoint are retained in Git history. None is the current full-suite count after this bridge.
+The historical 125-test real-factory proof, the 158-test paid-clock checkpoint, the 162-test factory-binding checkpoint and the 164-test collector-bridge checkpoint are retained in Git history. None is the current full-suite count.
 
 ## Recorded optimized sizes / next-file reserve
 
-| Component | Runtime | Hard runtime headroom |
-|---|---:|---:|
-| `HellboxPublication` | 22,259 bytes | 2,317 bytes |
-| `HellboxPublicationFactory` | 14,877 bytes | 9,699 bytes |
-| `HellboxPrimarySale` | 10,972 bytes | 13,604 bytes |
+| Component | Runtime | Creation | Hard runtime headroom |
+|---|---:|---:|---:|
+| `HellboxPublication` | 21,975 bytes | 32,203 bytes | 2,601 bytes |
+| `HellboxPublicationFactory` | 17,419 bytes | 24,683 bytes | 7,157 bytes |
+| `HellboxPrimarySale` | 10,972 bytes | 19,055 bytes | 13,604 bytes |
+| `HellboxNativeRendererV1` | 6,512 bytes | 6,931 bytes | 18,064 bytes |
+| `HellboxBirthPolicy` | 6,145 bytes | 13,113 bytes | 18,431 bytes |
+| `HellboxDrandEvmnetVerifier` | 5,138 bytes | 5,166 bytes | 19,438 bytes |
+| `HellboxArtDataStore` | 62 bytes | 497 bytes | 24,514 bytes |
 
-The publication has only **269 bytes above the 2,048-byte soft reserve**. Its creation bytecode is **32,480 bytes**, leaving **16,672 bytes before constructor arguments** under the 49,152-byte initcode ceiling. The factory-binding run reported **22,301 bytes of factory initcode including its constructor arguments**. These are distinct measurements: creation bytecode is not constructor-appended deployment payload. Remeasure every new candidate and enforce the existing actual-payload regression; do not use historical sizes as the present size budget.
+The publication now holds **553 bytes above the 2,048-byte soft reserve**, up from 269 at the previous checkpoint. It gained a capability and shrank: overriding `tokenURI` made OpenZeppelin's default implementation unreachable and dropped its base-URI string machinery with it, a net saving of 284 bytes. The art-data store's 62-byte runtime is the inert primitive itself; a deployed store's runtime is that byte plus its exact art payload.
+
+Creation bytecode is not constructor-appended deployment payload. Remeasure every new candidate and enforce the existing actual-payload regression; do not use historical sizes as the present size budget.
 
 ## Durable modular architecture decision
 
@@ -743,14 +787,15 @@ The publication retains final authority for queue order, lifetime usage, candida
 - The sale currently accepts only direct EOA/self-recipient collector requests. Smart-contract wallets, relayers and gifting are not supported by this checkpoint; do not describe them as supported.
 - Failed request transactions revert atomically. Once a request is accepted, there is no cancellation/refund endpoint and no alternate-entropy or FIFO-skip rescue. Provider outage, queue liveness and collector disclosure remain release blockers, not completed refund functionality.
 - The exact frozen proceeds receiver is bound and delivery-before-release is proven; a production routing controller and its downstream authority/split management remain unfinished. Test receiver contracts are not a deployed treasury system.
-- Canonical renderer/data-store binding, self-contained native `tokenURI`, full SciVive Testnet-to-Worker-to-Reader acceptance, and deployment/operational hardening remain unfinished.
+- Canonical renderer/data-store binding and self-contained native `tokenURI` are implemented and proven through the real issuance path. Proven: the bound renderer is exactly the one the release committed to, and an issued copy returns complete metadata from chain state alone. Not proven: that the bytes inside any given art store are approved artwork. Deterministic ingest, art packing and the full compositor remain Gate 6.
+- Deployment and operational hardening remain unfinished. There is no `script/` directory, no reproducible deployment runbook, and no Testnet deployment has occurred. Full SciVive Testnet-to-Worker-to-Reader acceptance remains unfinished.
 - Passing this suite is not an audit, a live deployment, a closed Gate, or authorization for mainnet. No mainnet action belongs in Gate 4.
 
 ## Documentation / remote status
 
-This repair changes only `HELLBOX_PROJECT_STATE.md`, `CURRENT_GATE_BLUEPRINT.md` and `README.md` after the existing bridge is committed. `HARROW_CHARACTER_BIBLE.md` is unchanged. The documentation commit is a separate descendant of the source/test checkpoint, so its own hash is obtained from Git rather than embedded recursively here.
+This synchronization changes only `HELLBOX_PROJECT_STATE.md`, `CURRENT_GATE_BLUEPRINT.md` and `README.md`. `HARROW_CHARACTER_BIBLE.md` is unchanged.
 
-The installer verifies local `HEAD` = fetched `origin/main` = the remote branch tip and an empty index/worktree before printing success. On any failure it preserves committed bridge work and does not force-push, reset, clean, or discard unrelated changes. A partial local commit is not evidence of a successful push.
+The ZIP-and-hash installer workflow is retired. Source files are edited directly in the repository, the creator runs one plain command, and nothing is committed until that machine reports a green suite. Push is an ordinary `git push` whose output the creator reads. A partial local commit is still not evidence of a successful push, and no reset, clean, force-push or dependency change belongs to this workflow.
 
 The complete Gate 4 blueprint stays active at root. No dummy comic, invented publication content or extra public release is required: reusable architecture may be proven with test configurations. SciVive is the actual proving publication; broader Press/comic creation remains later work.
 
@@ -2614,7 +2659,7 @@ Do not add a post-deploy policy setter/initializer/activation window. Do not add
 
 # 27. GATE 4 VERIFIED RANDOMNESS + SALE + COLLECTOR BRIDGE FRONTIER
 
-The current source/test baseline is `0688dd00f3fa89e6b02d50415820c16389dfef4f` with **164 tests**. §6 contains exact file identities and measurements.
+The current source/test baseline is `2f27b63` with **211 tests**. §6 contains exact file identities and measurements.
 
 ## Implemented and preserved
 
@@ -2627,17 +2672,19 @@ The factory registry retains self-authorization, generation isolation, no reuse,
 - The sale currently accepts only direct EOA/self-recipient collector requests. Smart-contract wallets, relayers and gifting are not supported by this checkpoint; do not describe them as supported.
 - Failed request transactions revert atomically. Once a request is accepted, there is no cancellation/refund endpoint and no alternate-entropy or FIFO-skip rescue. Provider outage, queue liveness and collector disclosure remain release blockers, not completed refund functionality.
 - The exact frozen proceeds receiver is bound and delivery-before-release is proven; a production routing controller and its downstream authority/split management remain unfinished. Test receiver contracts are not a deployed treasury system.
-- Canonical renderer/data-store binding, self-contained native `tokenURI`, full SciVive Testnet-to-Worker-to-Reader acceptance, and deployment/operational hardening remain unfinished.
+- Canonical renderer/data-store binding and self-contained native `tokenURI` are implemented and proven through the real issuance path. Proven: the bound renderer is exactly the one the release committed to, and an issued copy returns complete metadata from chain state alone. Not proven: that the bytes inside any given art store are approved artwork. Deterministic ingest, art packing and the full compositor remain Gate 6.
+- Deployment and operational hardening remain unfinished. There is no `script/` directory, no reproducible deployment runbook, and no Testnet deployment has occurred. Full SciVive Testnet-to-Worker-to-Reader acceptance remains unfinished.
 - Passing this suite is not an audit, a live deployment, a closed Gate, or authorization for mainnet. No mainnet action belongs in Gate 4.
 
 Public Press/API inventory/odds/jackpot presentation, the offline Prize Capsule Builder, full Gate 5 mint UX and Gate 6 art/content compilation remain later work. Mainnet remains prohibited during Gate 4.
 
 ## Exact next engineering sequence
 
-1. Review the immutable metadata-renderer/data-store binding and self-contained `tokenURI` proving path before writing the next implementation file. Keep the renderer outside the publication and remeasure the narrow binding against the 2,048-byte soft reserve. Do not rebuild the completed checkout, factory binding, collector bridge or timed closure.
-2. Prove a small reusable renderer/binding with test data; this is not a demand for Harrow to create a dummy comic, metadata publication or new public title.
-3. Finish/review the production proceeds-routing boundary and lifecycle acceptance gaps, including actual payable opening versus scheduled start, pending FIFO/closure ordering, direct-wallet restrictions and the absence of accepted-request refunds.
-4. Prove the real SciVive Testnet ownership → Worker → Archive/library → protected Reader route, reusable factory configuration, and bounded operations before Gate close.
+Completed: the immutable renderer/data-store binding, the self-contained `tokenURI` path and its proof through the real issuance flow. The renderer lives outside the publication, the kernel holds no renderer setter, and the binding is anchored to each release's frozen `rendererRulesDigest`. Do not rebuild the checkout, factory binding, collector bridge, timed closure or render path.
+
+1. Build reproducible deployment scripts and a runbook. There is no `script/` directory yet, and the solo-operator standard forbids repeated manual ABI assembly for Testnet work.
+2. Finish/review the production proceeds-routing boundary and lifecycle acceptance gaps, including actual payable opening versus scheduled start, pending FIFO/closure ordering, direct-wallet restrictions and the absence of accepted-request refunds.
+3. Prove the real SciVive Testnet ownership → Worker → Archive/library → protected Reader route, reusable factory configuration, and bounded operations before Gate close.
 
 ## Required safeguards
 
@@ -2655,7 +2702,7 @@ Still open:
 
 1. Bounded provider/accepted-request liveness, alerting, disclosure and recovery review without alternate entropy, rerolls or FIFO skips. There is no implemented accepted-request refund/cancellation mechanism.
 2. Acceptance proof that the frozen paid-phase opening is the actual public payable opening, including late bootstrap and earlier restricted paid-phase cases; coordinated sale/closure behavior with pending requests needs full production-path coverage.
-3. Metadata renderer interface, immutable renderer/data-store transport and small self-contained native `tokenURI` proof within the publication size reserve.
+3. RESOLVED at `2f27b63`. The renderer interface, immutable renderer/data-store transport and self-contained native `tokenURI` are implemented inside the size reserve, with the binding anchored to the release's frozen `rendererRulesDigest`. Art ingest and packing remain Gate 6.
 4. Production proceeds-router implementation and rotation-safe downstream authority/split model.
 5. Rotation-safe `publisherAuthority` strategy before persistent authorized lifecycle actions reach mainnet; later external-protocol bindings remain outside this kernel slice.
 6. Offline Prize Capsule Builder authenticated encryption/KDF, temporary handling, reproducibility/browser decryption and optional promotional-asset disclosure tooling.

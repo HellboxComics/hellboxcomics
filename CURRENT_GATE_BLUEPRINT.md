@@ -46,7 +46,7 @@ Current proven Gate 4 implementation constraints:
 - each factory generation freezes an immutable `approvedPublicationCreationCodeHash`;
 - `publish(...)` accepts the exact reviewed publication creation bytecode, verifies its hash against that immutable approval, appends canonical constructor arguments, and deploys the fresh publication through ordinary EVM `CREATE`;
 - the former embedded `new HellboxPublication(...)` factory path is superseded because it pushed factory runtime above the EIP-170 limit once the issuance core landed;
-- Current corrected-bridge measurements: publication runtime **22,259 bytes**, hard headroom **2,317 bytes**, creation **32,480 bytes** before constructor arguments; factory runtime **14,877 bytes**; checkout runtime **10,972 bytes**. Only **269 bytes** remain above the publication 2,048-byte soft reserve; exact current identities/evidence are in Project State §6.
+- Current measurements at `2f27b63`: publication runtime **21,975 bytes**, hard headroom **2,601 bytes**, creation **32,203 bytes** before constructor arguments; factory runtime **17,419 bytes**; checkout runtime **10,972 bytes**; renderer runtime **6,512 bytes**; inert art-store primitive **62 bytes** before its art payload. **553 bytes** remain above the publication 2,048-byte soft reserve — the kernel shrank by 284 bytes while gaining `tokenURI`, because overriding it dropped OpenZeppelin's unreachable base-URI machinery. Exact current identities/evidence are in Project State §6.
 - official factory provenance is append-only: no `registerExisting()`, no arbitrary provenance setters, and no post-deployment path that can manufacture authenticity for an external contract;
 - factory V1 rejects zero approved publication creation-code hash, zero/invalid BirthPolicy generation infrastructure, unapproved supplied creation bytecode, duplicate `publicationKey` hashes, and duplicate release-config digests within that official factory/chain generation;
 - each factory generation immutably binds the approved BirthPolicy code-store address and exact BirthPolicy creation-code hash; these are factory-generation provenance, never caller-selected per publication;
@@ -61,25 +61,28 @@ Current proven Gate 4 implementation constraints:
 - the deployed publication permanently stores exactly one companion address and the companion proves `birthPolicy.publication() == publication`; malformed stores, wrong hashes, malformed policy preimages, digest mismatches and child-constructor failures revert the entire publication deployment atomically;
 - the direct publication-constructor BirthPolicy embed was measured at **42,840-byte initcode** and remains rejected for inadequate practical EIP-3860 runway; production Publication/Factory source contains no direct BirthPolicy creation-code embed;
 - frozen drand `evmnet` configuration, stateless verifier, exact PulseChain Testnet valid/invalid proof execution and immutable factory-generation verifier binding are implemented and pushed;
-- Current committed source/test checkpoint contains **164 Solidity tests**, with creator-reported full pass and a mandatory fresh checkpoint-installer pass:
+- Current committed source/test checkpoint contains **211 Solidity tests**, creator-verified full pass:
 ```text
+HellboxArtDataStore                               16
 HellboxBirthPolicy                                21
 HellboxBirthPolicyCodeStore                        4
 HellboxDrandEvmnetVerifier                         8
 HellboxFactoryRandomnessBinding                    4
+HellboxNativeRenderer                             15
 HellboxPrimarySale                                28
 HellboxPrimarySaleFactoryBinding                   3
 HellboxPrizeWalletFifoProbe                        8
 HellboxPrizeWalletRegistryProbe                   15
-HellboxProductionPrizeWalletIntegration            7
-HellboxPublication                                16
+HellboxProductionPrizeWalletIntegration           10
+HellboxPublication                                21
 HellboxPublicationFactory                         22
 HellboxPublicationGoldenVector                     1
 HellboxPublicationIssuance                        13
 HellboxPublicationPolicy                           9
 HellboxPublicationTimedClosure                     5
+HellboxRendererFactoryBinding                      8
 -----------------------------------------------------
-TOTAL                                            164
+TOTAL                                            211
 ```
 
 - no publication has been deployed to mainnet; Gate 4 remains PulseChain Testnet V4 only;
@@ -177,12 +180,11 @@ Gate 4 adopts a **2,048-byte publication runtime soft reserve** after remaining 
 
 ### Completed boundaries and remaining order
 
-Completed: BirthPolicy timed inventory finalizer; native FIFO timed closure; immutable phase/payment sale; paid-opening clock; exact factory-sale binding; real collector request/delivery callback bridge. Do not repeat these as new implementation tasks.
+Completed: BirthPolicy timed inventory finalizer; native FIFO timed closure; immutable phase/payment sale; paid-opening clock; exact factory-sale binding; real collector request/delivery callback bridge; the immutable art-data store, metadata renderer, publication `tokenURI` forwarding and frozen renderer binding, proven through the real issuance path. Do not repeat these as new implementation tasks.
 
-1. Review the immutable metadata-renderer/data-store binding and self-contained `tokenURI` proving path before writing the next implementation file. Keep the renderer outside the publication and remeasure the narrow binding against the 2,048-byte soft reserve. Do not rebuild the completed checkout, factory binding, collector bridge or timed closure.
-2. Prove immutable canonical rendering with a small test fixture, not invented comic content.
-3. Finish the production proceeds-router boundary, actual payable-opening readiness and pending-request/closure/provider-liveness acceptance.
-4. Prove real SciVive Testnet → ownership → Worker → Reader operation and reusable alternate test configurations, then hardening and Gate close.
+1. Build reproducible deployment scripts and a Testnet runbook. No `script/` directory exists yet, and §0.3 forbids repeated manual ABI assembly for deployment work. This is the immediate next implementation slice.
+2. Finish the production proceeds-router boundary, actual payable-opening readiness and pending-request/closure/provider-liveness acceptance. SciVive is `FREE` and needs no proceeds router, so this does not block a SciVive Testnet proving run.
+3. Prove real SciVive Testnet → ownership → Worker → Reader operation and reusable alternate test configurations, then hardening and Gate close.
 
 The native clock begins only when the public paid mint actually opens and collectors can submit a payable purchase—not when publication or checkout contracts are deployed, not when content is prepared, and not when the first purchase happens. Its duration is exactly **66 days, 6 hours, 6 minutes, 6 seconds (5,724,366 seconds)**. SciVive is a free proving exception and remains untimed by this native rule.
 
@@ -196,11 +198,12 @@ Gate 4 must remain maintainable by one non-developer operator in short, interrup
 
 For this Gate:
 - code/config implementation proceeds one file at a time unless Harrow gives a new explicit exception for a genuinely inseparable change;
-- Harrow downloads replacement ZIPs into `~/Downloads`; hash-verified Bash installs the file in its exact repo path without manual placement;
-- exactly one Bash command/block is issued per turn and its complete output is reviewed before any next command;
-- documentation is independently rebuilt/reviewed in authority order, though the final proven document set may be installed atomically in one ZIP/Bash; deployment batching is not review/code batching;
+- source files are edited directly in the repository by the engineer; the ZIP-download-and-hash-verify installer workflow is retired, having cost more operator time and produced more failures than the edits it delivered;
+- exactly one plain command is issued per turn and its complete output is reviewed before any next command;
+- nothing is committed until the creator's machine reports a green suite, and nothing is pushed until the full suite is green;
+- documentation is independently rebuilt/reviewed in authority order; deployment batching is not review/code batching;
 - no critical implementation/deployment fact may live only in chat or Terminal scrollback;
-- every replacement file uses exact source/target hashes;
+- measurements written into these documents must come from a run the creator actually saw, never carried forward on trust;
 - unexpected hashes/files, failing tests, unexplained code-size loss or unclear authority boundaries are stop-the-line conditions;
 - repeated Testnet deployment/configuration work must become reproducible scripts/runbooks rather than manual ABI assembly;
 - Testnet deployment evidence must include exact contract/version/config hashes and post-deployment verification;
@@ -1019,7 +1022,7 @@ Existing `HELLBOX_ABI_V1` anchors already include `ReleaseConfig.dynamicMetadata
 
 Gate boundaries:
 
-- **Gate 4:** define/prove the renderer interface, immutable publication/factory binding and self-contained `tokenURI` compatibility path with a small proving renderer/data set; do not build the final art compiler here;
+- **Gate 4: IMPLEMENTED at `2f27b63`.** `IHellboxMetadataRenderer` defines the frozen call shape; `HellboxArtDataStore` holds one canonical chunk as inert STOP-prefixed runtime; `HellboxNativeRendererV1` composes a self-contained JSON data URI from those bytes under runtime-code-hash verification; `HellboxPublication.tokenURI` forwards to the factory-bound renderer with no setter in the kernel; and the binding is anchored to each release's frozen `CommitmentSet.rendererRulesDigest`, so renderer identity, code, art store, store code hash and canvas cannot diverge from what the release committed to. The final art compiler was deliberately not built here;
 - **Gate 6:** build deterministic ingest, art packing/data-store deployment, full compositor, metadata grammar, zero-host reconstruction and production Native Issue #1 outputs;
 - **Gate 9:** audit/harden renderer/data stores, rights, gas/RPC limits, marketplace/device compatibility and clean-room reconstruction.
 

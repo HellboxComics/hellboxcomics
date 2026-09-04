@@ -54,10 +54,10 @@ Gates 0–3 are complete. **Gate 4 remains in progress. Mainnet is prohibited du
 Latest source/test checkpoint:
 
 ```text
-0688dd00f3fa89e6b02d50415820c16389dfef4f
+2f27b63
 ```
 
-Its parent is `e86451b4d81d9a3cd8c27bd12aa2a75edeaf3f12` (immutable factory-sale binding). The corrected bridge adds no new publication or artwork. It connects the existing checkout to real random collector delivery.
+The five commits from `e0adde2` through `2f27b63` add the immutable render path: a collectible now returns its complete artwork and birth identity from chain state alone, with no website, gateway or host in the loop.
 
 ```text
 collector submits exact payment
@@ -68,15 +68,15 @@ collector submits exact payment
 → payment becomes releasable
 ```
 
-Implemented: full-deployment kernel/factory; immutable BirthPolicy code-store wiring and one-time birth identity; drand/FIFO; campaign registry and production Prize Wallet issuance; native timed closure/Final-3/extinguishment; frozen phase/payment checkout; paid-opening clock; exact factory-sale binding; real collector bridge.
+Implemented: full-deployment kernel/factory; immutable BirthPolicy code-store wiring and one-time birth identity; drand/FIFO; campaign registry and production Prize Wallet issuance; native timed closure/Final-3/extinguishment; frozen phase/payment checkout; paid-opening clock; exact factory-sale binding; real collector bridge; immutable art-data store, metadata renderer and self-contained `tokenURI` bound to each release's frozen renderer commitment.
 
-**Current inventory: 164 Solidity tests.** Recorded creator evidence includes **28 checkout**, **3 exact sale-binding**, **7 real-factory integration** and **5 timed-closure** tests; these are subsets of the 164 total. The repair installer reruns focused/full tests before saving. Exact identities and chronology are in Project State §6.
+**Current inventory: 211 Solidity tests, 0 failed, 0 skipped.** Exact identities, per-suite counts and chronology are in Project State §6.
 
-Current reported runtime: publication **22,259 bytes**, factory **14,877 bytes**, checkout **10,972 bytes**. Publication hard headroom is **2,317 bytes**, only **269 bytes above its 2,048-byte soft reserve**. Publication creation bytecode is **32,480 bytes before constructor arguments**. Do not substitute old 125-test/19,330-byte measurements for current evidence.
+Current runtime, all read from one `forge build --sizes` run: publication **21,975 bytes**, factory **17,419 bytes**, checkout **10,972 bytes**, renderer **6,512 bytes**, BirthPolicy **6,145 bytes**, randomness verifier **5,138 bytes**, inert art-store primitive **62 bytes** before its payload. Publication hard headroom is **2,601 bytes**, **553 bytes above its 2,048-byte soft reserve**; it gained `tokenURI` and shrank by 284 bytes, because overriding the method dropped OpenZeppelin's now-unreachable base-URI machinery. Publication creation bytecode is **32,203 bytes before constructor arguments**. Do not substitute older measurements for current evidence.
 
-**Next:** Review the immutable metadata-renderer/data-store binding and self-contained `tokenURI` proving path before writing the next implementation file. Keep the renderer outside the publication and remeasure the narrow binding against the 2,048-byte soft reserve. Do not rebuild the completed checkout, factory binding, collector bridge or timed closure.
+**Next:** reproducible deployment scripts and a Testnet runbook. No `script/` directory exists yet, and the solo-operator standard forbids repeated manual ABI assembly.
 
-Then finish the production routing/readiness/liveness boundaries and actual SciVive Testnet → ownership → Worker → Reader acceptance. Reuse may be proven with alternate test configurations; Harrow is not required to invent or publicly deploy a dummy comic before the Press exists.
+Then the production routing/readiness/liveness boundaries and actual SciVive Testnet → ownership → Worker → Reader acceptance. SciVive is a `FREE` release and needs no proceeds router, so a SciVive Testnet proving run is not blocked by the routing work. Reuse may be proven with alternate test configurations; Harrow is not required to invent or publicly deploy a dummy comic before the Press exists.
 
 ### Paid mint opening — not deployment
 
@@ -89,14 +89,17 @@ Implementation boundary: `HellboxPrimarySale` currently derives the opening from
 - The sale currently accepts only direct EOA/self-recipient collector requests. Smart-contract wallets, relayers and gifting are not supported by this checkpoint; do not describe them as supported.
 - Failed request transactions revert atomically. Once a request is accepted, there is no cancellation/refund endpoint and no alternate-entropy or FIFO-skip rescue. Provider outage, queue liveness and collector disclosure remain release blockers, not completed refund functionality.
 - The exact frozen proceeds receiver is bound and delivery-before-release is proven; a production routing controller and its downstream authority/split management remain unfinished. Test receiver contracts are not a deployed treasury system.
-- Canonical renderer/data-store binding, self-contained native `tokenURI`, full SciVive Testnet-to-Worker-to-Reader acceptance, and deployment/operational hardening remain unfinished.
+- Canonical renderer/data-store binding and self-contained native `tokenURI` are implemented and proven through the real issuance path. What is proven is that the bound renderer is exactly the one the release froze; what is **not** proven is that the bytes in any given art store are approved artwork. Deterministic ingest, art packing and the full compositor remain Gate 6.
+- Deployment and operational hardening remain unfinished. No deployment scripts exist and no Testnet deployment has occurred. Full SciVive Testnet-to-Worker-to-Reader acceptance remains unfinished.
 - Passing this suite is not an audit, a live deployment, a closed Gate, or authorization for mainnet. No mainnet action belongs in Gate 4.
 
 ### Recovery and handoff
 
-The first bridge package failed stale closure tests and restored `e86451b`. The corrected second bridge passed **164 tests** but remained uncommitted. The old living-doc installer then refused the modified tree; it did not invalidate or remove the successful bridge. This repair commits those same six verified bridge files first, then synchronizes Project State, the active blueprint and this README. Character canon, dependencies and website files are unchanged.
+The collector bridge was recovered and committed as `e0adde2`'s parent line. The render path was then built in four reviewed commits, each committed only after a green full suite on the creator's machine and pushed before the next began.
 
-A document is not evidence that a push succeeded: verify local `HEAD`, fetched `origin/main`, actual remote tip, and a clean index/worktree at every handoff. On failure preserve working source, do not force-push/reset/clean, and inspect the actual state.
+The ZIP-download-and-hash-verify installer workflow is retired. Source files are edited directly in the repository, the creator runs one plain command per turn and reads its full output, and nothing is committed or pushed on a red suite. A document is still not evidence that a push succeeded: verify local `HEAD`, `origin/main` and a clean worktree at every handoff. On failure preserve working source, do not force-push/reset/clean, and inspect the actual state.
+
+Measurements written into these documents must come from a run the creator actually saw. Figures are not carried forward on trust.
 
 Solidity **0.8.36**, **Shanghai**, optimizer **200**, **non-IR**, OpenZeppelin **5.1.0** and `HELLBOX_ABI_V1` remain unchanged. No locked collector promise is dropped to save bytes.
 
