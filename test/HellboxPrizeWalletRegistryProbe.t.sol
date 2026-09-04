@@ -9,10 +9,7 @@ import {HellboxPublicationFactory} from "../contracts/HellboxPublicationFactory.
 interface IVmPrizeRegistry {
     function addr(uint256 privateKey) external returns (address);
 
-    function sign(
-        uint256 privateKey,
-        bytes32 digest
-    ) external returns (uint8 v, bytes32 r, bytes32 s);
+    function sign(uint256 privateKey, bytes32 digest) external returns (uint8 v, bytes32 r, bytes32 s);
 
     function expectPartialRevert(bytes4 revertData) external;
 
@@ -24,15 +21,9 @@ interface IVmPrizeRegistry {
 }
 
 contract PrizeWalletPublicationActor {
-    function reserve(
-        HellboxPublicationFactory factory
-    )
+    function reserve(HellboxPublicationFactory factory)
         external
-        returns (
-            uint256 generation,
-            address wallet,
-            bytes32 campaignManifestDigest
-        )
+        returns (uint256 generation, address wallet, bytes32 campaignManifestDigest)
     {
         return factory.reserveActivePrizeWalletDeposit();
     }
@@ -50,10 +41,7 @@ contract PrizeWalletFactoryHarness is HellboxPublicationFactory {
         bytes32 birthPolicyCreationCodeHash
     )
         HellboxPublicationFactory(
-            initialOwner,
-            publicationCreationCodeHash,
-            codeStore,
-            birthPolicyCreationCodeHash
+            initialOwner, publicationCreationCodeHash, bytes32(uint256(2)), codeStore, birthPolicyCreationCodeHash
         )
     {}
 
@@ -64,64 +52,33 @@ contract PrizeWalletFactoryHarness is HellboxPublicationFactory {
 }
 
 contract HellboxPrizeWalletRegistryProbeTest {
-    IVmPrizeRegistry internal constant VM =
-        IVmPrizeRegistry(
-            address(uint160(uint256(keccak256("hevm cheat code"))))
-        );
+    IVmPrizeRegistry internal constant VM = IVmPrizeRegistry(address(uint160(uint256(keccak256("hevm cheat code")))));
 
     uint256 internal constant FIRST_WALLET_KEY = 0xA11CE;
     uint256 internal constant SECOND_WALLET_KEY = 0xB0B;
     uint256 internal constant WRONG_WALLET_KEY = 0xBAD;
 
-    bytes32 internal constant FIRST_MANIFEST =
-        keccak256("hellbox-prize-campaign-001");
-    bytes32 internal constant SECOND_MANIFEST =
-        keccak256("hellbox-prize-campaign-002");
+    bytes32 internal constant FIRST_MANIFEST = keccak256("hellbox-prize-campaign-001");
+    bytes32 internal constant SECOND_MANIFEST = keccak256("hellbox-prize-campaign-002");
 
     function testFreshWalletSelfSignatureActivatesCampaign() public {
         PrizeWalletFactoryHarness factory = _newFactory();
         address wallet = VM.addr(FIRST_WALLET_KEY);
         uint256 deadline = block.timestamp + 1 days;
 
-        bytes memory signature = _activationSignature(
-            factory,
-            FIRST_WALLET_KEY,
-            1,
-            wallet,
-            FIRST_MANIFEST,
-            deadline
-        );
+        bytes memory signature = _activationSignature(factory, FIRST_WALLET_KEY, 1, wallet, FIRST_MANIFEST, deadline);
 
-        uint256 generation = factory.activatePrizeWalletCampaign(
-            wallet,
-            FIRST_MANIFEST,
-            deadline,
-            signature
-        );
+        uint256 generation = factory.activatePrizeWalletCampaign(wallet, FIRST_MANIFEST, deadline, signature);
 
         require(generation == 1, "generation");
         require(factory.activePrizeWalletGeneration() == 1, "active gen");
         require(factory.activePrizeWallet() == wallet, "active wallet");
         require(factory.isActivePrizeWallet(wallet), "active status");
-        require(
-            factory.prizeWalletGenerationByAddress(wallet) == 1,
-            "wallet generation"
-        );
-        require(
-            factory.prizeWalletGenerationByManifestDigest(
-                FIRST_MANIFEST
-            ) == 1,
-            "manifest generation"
-        );
-        require(
-            factory.activePrizeWalletManifestDigest() == FIRST_MANIFEST,
-            "manifest"
-        );
+        require(factory.prizeWalletGenerationByAddress(wallet) == 1, "wallet generation");
+        require(factory.prizeWalletGenerationByManifestDigest(FIRST_MANIFEST) == 1, "manifest generation");
+        require(factory.activePrizeWalletManifestDigest() == FIRST_MANIFEST, "manifest");
         require(!factory.activePrizeWalletClaimed(), "claimed");
-        require(
-            factory.activePrizeWalletPendingDeposits() == 0,
-            "pending"
-        );
+        require(factory.activePrizeWalletPendingDeposits() == 0, "pending");
 
         (
             address storedWallet,
@@ -140,53 +97,23 @@ contract HellboxPrizeWalletRegistryProbeTest {
         require(completedDeposits == 0, "stored completed");
     }
 
-    function testActivationRejectsWrongSignerAndExpiredAuthorization()
-        public
-    {
+    function testActivationRejectsWrongSignerAndExpiredAuthorization() public {
         PrizeWalletFactoryHarness factory = _newFactory();
         address wallet = VM.addr(FIRST_WALLET_KEY);
         uint256 deadline = block.timestamp + 1 days;
 
-        bytes memory wrongSignature = _activationSignature(
-            factory,
-            WRONG_WALLET_KEY,
-            1,
-            wallet,
-            FIRST_MANIFEST,
-            deadline
-        );
+        bytes memory wrongSignature =
+            _activationSignature(factory, WRONG_WALLET_KEY, 1, wallet, FIRST_MANIFEST, deadline);
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory
-                .PrizeWalletActivationSignatureMismatch
-                .selector
-        );
-        factory.activatePrizeWalletCampaign(
-            wallet,
-            FIRST_MANIFEST,
-            deadline,
-            wrongSignature
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.PrizeWalletActivationSignatureMismatch.selector);
+        factory.activatePrizeWalletCampaign(wallet, FIRST_MANIFEST, deadline, wrongSignature);
 
-        bytes memory validSignature = _activationSignature(
-            factory,
-            FIRST_WALLET_KEY,
-            1,
-            wallet,
-            FIRST_MANIFEST,
-            deadline
-        );
+        bytes memory validSignature =
+            _activationSignature(factory, FIRST_WALLET_KEY, 1, wallet, FIRST_MANIFEST, deadline);
 
         VM.warp(deadline + 1);
-        VM.expectPartialRevert(
-            HellboxPublicationFactory.PrizeWalletAuthorizationExpired.selector
-        );
-        factory.activatePrizeWalletCampaign(
-            wallet,
-            FIRST_MANIFEST,
-            deadline,
-            validSignature
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.PrizeWalletAuthorizationExpired.selector);
+        factory.activatePrizeWalletCampaign(wallet, FIRST_MANIFEST, deadline, validSignature);
     }
 
     function testActivationSignatureCannotReplayAcrossFactories() public {
@@ -195,33 +122,13 @@ contract HellboxPrizeWalletRegistryProbeTest {
         address wallet = VM.addr(FIRST_WALLET_KEY);
         uint256 deadline = block.timestamp + 1 days;
 
-        bytes memory signature = _activationSignature(
-            firstFactory,
-            FIRST_WALLET_KEY,
-            1,
-            wallet,
-            FIRST_MANIFEST,
-            deadline
-        );
+        bytes memory signature =
+            _activationSignature(firstFactory, FIRST_WALLET_KEY, 1, wallet, FIRST_MANIFEST, deadline);
 
-        firstFactory.activatePrizeWalletCampaign(
-            wallet,
-            FIRST_MANIFEST,
-            deadline,
-            signature
-        );
+        firstFactory.activatePrizeWalletCampaign(wallet, FIRST_MANIFEST, deadline, signature);
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory
-                .PrizeWalletActivationSignatureMismatch
-                .selector
-        );
-        secondFactory.activatePrizeWalletCampaign(
-            wallet,
-            FIRST_MANIFEST,
-            deadline,
-            signature
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.PrizeWalletActivationSignatureMismatch.selector);
+        secondFactory.activatePrizeWalletCampaign(wallet, FIRST_MANIFEST, deadline, signature);
     }
 
     function testActivationRejectsUnsafeWalletAndManifestShapes() public {
@@ -229,211 +136,103 @@ contract HellboxPrizeWalletRegistryProbeTest {
         address wallet = VM.addr(FIRST_WALLET_KEY);
         uint256 deadline = block.timestamp + 1 days;
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory.PrizeWalletManifestDigestMissing.selector
-        );
-        factory.activatePrizeWalletCampaign(
-            wallet,
-            bytes32(0),
-            deadline,
-            hex""
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.PrizeWalletManifestDigestMissing.selector);
+        factory.activatePrizeWalletCampaign(wallet, bytes32(0), deadline, hex"");
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory.InvalidPrizeWalletAddress.selector
-        );
-        factory.activatePrizeWalletCampaign(
-            address(this),
-            FIRST_MANIFEST,
-            deadline,
-            hex""
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.InvalidPrizeWalletAddress.selector);
+        factory.activatePrizeWalletCampaign(address(this), FIRST_MANIFEST, deadline, hex"");
 
-        PrizeWalletPublicationActor actor =
-            new PrizeWalletPublicationActor();
+        PrizeWalletPublicationActor actor = new PrizeWalletPublicationActor();
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory.PrizeWalletAddressHasCode.selector
-        );
-        factory.activatePrizeWalletCampaign(
-            address(actor),
-            FIRST_MANIFEST,
-            deadline,
-            hex""
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.PrizeWalletAddressHasCode.selector);
+        factory.activatePrizeWalletCampaign(address(actor), FIRST_MANIFEST, deadline, hex"");
 
         factory.transferOwnership(wallet);
-        VM.expectPartialRevert(
-            HellboxPublicationFactory.InvalidPrizeWalletAddress.selector
-        );
-        factory.activatePrizeWalletCampaign(
-            wallet,
-            FIRST_MANIFEST,
-            deadline,
-            hex""
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.InvalidPrizeWalletAddress.selector);
+        factory.activatePrizeWalletCampaign(wallet, FIRST_MANIFEST, deadline, hex"");
     }
 
-    function testUnclaimedCampaignCannotRotateOrBecomeFactoryOwner()
-        public
-    {
+    function testUnclaimedCampaignCannotRotateOrBecomeFactoryOwner() public {
         PrizeWalletFactoryHarness factory = _newFactory();
         address firstWallet = _activateFirst(factory);
         address secondWallet = VM.addr(SECOND_WALLET_KEY);
         uint256 deadline = block.timestamp + 1 days;
 
-        bytes memory secondSignature = _activationSignature(
-            factory,
-            SECOND_WALLET_KEY,
-            2,
-            secondWallet,
-            SECOND_MANIFEST,
-            deadline
-        );
+        bytes memory secondSignature =
+            _activationSignature(factory, SECOND_WALLET_KEY, 2, secondWallet, SECOND_MANIFEST, deadline);
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory.PrizeWalletCampaignNotClaimed.selector
-        );
-        factory.activatePrizeWalletCampaign(
-            secondWallet,
-            SECOND_MANIFEST,
-            deadline,
-            secondSignature
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.PrizeWalletCampaignNotClaimed.selector);
+        factory.activatePrizeWalletCampaign(secondWallet, SECOND_MANIFEST, deadline, secondSignature);
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory
-                .OwnershipTransferToPrizeWalletDisabled
-                .selector
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.OwnershipTransferToPrizeWalletDisabled.selector);
         factory.transferOwnership(firstWallet);
     }
 
-    function testOnlyOfficialPublicationCanReserveAndCompleteExactlyOnce()
-        public
-    {
+    function testOnlyOfficialPublicationCanReserveAndCompleteExactlyOnce() public {
         PrizeWalletFactoryHarness factory = _newFactory();
         address wallet = _activateFirst(factory);
-        PrizeWalletPublicationActor publication =
-            new PrizeWalletPublicationActor();
+        PrizeWalletPublicationActor publication = new PrizeWalletPublicationActor();
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory
-                .UnauthorizedPrizeWalletPublication
-                .selector
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.UnauthorizedPrizeWalletPublication.selector);
         publication.reserve(factory);
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory
-                .UnauthorizedPrizeWalletPublication
-                .selector
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.UnauthorizedPrizeWalletPublication.selector);
         publication.complete(factory);
 
         factory.registerPublicationForTest(address(publication));
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory.PrizeWalletPublicationNotApproved.selector
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.PrizeWalletPublicationNotApproved.selector);
         publication.reserve(factory);
 
-        uint256 approvedGeneration =
-            factory.approvePrizeWalletPublication(address(publication));
+        uint256 approvedGeneration = factory.approvePrizeWalletPublication(address(publication));
         require(approvedGeneration == 1, "approved generation");
-        require(
-            factory.prizeWalletApprovedGenerationByPublication(
-                address(publication)
-            ) == 1,
-            "approval state"
-        );
+        require(factory.prizeWalletApprovedGenerationByPublication(address(publication)) == 1, "approval state");
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory
-                .PrizeWalletPublicationApprovalAlreadySet
-                .selector
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.PrizeWalletPublicationApprovalAlreadySet.selector);
         factory.approvePrizeWalletPublication(address(publication));
 
-        factory.revokePrizeWalletPublicationApproval(
-            address(publication)
-        );
-        require(
-            factory.prizeWalletApprovedGenerationByPublication(
-                address(publication)
-            ) == 0,
-            "approval not revoked"
-        );
+        factory.revokePrizeWalletPublicationApproval(address(publication));
+        require(factory.prizeWalletApprovedGenerationByPublication(address(publication)) == 0, "approval not revoked");
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory.PrizeWalletPublicationNotApproved.selector
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.PrizeWalletPublicationNotApproved.selector);
         publication.reserve(factory);
 
         factory.approvePrizeWalletPublication(address(publication));
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory.PrizeWalletDepositNotReserved.selector
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.PrizeWalletDepositNotReserved.selector);
         publication.complete(factory);
 
-        (
-            uint256 generation,
-            address reservedWallet,
-            bytes32 manifest
-        ) = publication.reserve(factory);
+        (uint256 generation, address reservedWallet, bytes32 manifest) = publication.reserve(factory);
 
         require(generation == 1, "generation");
         require(reservedWallet == wallet, "wallet");
         require(manifest == FIRST_MANIFEST, "manifest");
+        require(factory.prizeWalletDepositGenerationByPublication(address(publication)) == 1, "deposit generation");
         require(
-            factory.prizeWalletDepositGenerationByPublication(
-                address(publication)
-            ) == 1,
-            "deposit generation"
-        );
-        require(
-            factory.prizeWalletDepositStateByPublication(
-                address(publication)
-            ) == factory.PRIZE_DEPOSIT_RESERVED(),
+            factory.prizeWalletDepositStateByPublication(address(publication)) == factory.PRIZE_DEPOSIT_RESERVED(),
             "reserved state"
         );
-        require(
-            factory.activePrizeWalletPendingDeposits() == 1,
-            "pending count"
-        );
+        require(factory.activePrizeWalletPendingDeposits() == 1, "pending count");
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory
-                .PrizeWalletDepositAlreadyInitialized
-                .selector
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.PrizeWalletDepositAlreadyInitialized.selector);
         publication.reserve(factory);
 
         publication.complete(factory);
 
         require(
-            factory.prizeWalletDepositStateByPublication(
-                address(publication)
-            ) == factory.PRIZE_DEPOSIT_COMPLETED(),
+            factory.prizeWalletDepositStateByPublication(address(publication)) == factory.PRIZE_DEPOSIT_COMPLETED(),
             "completed state"
         );
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory.PrizeWalletDepositNotReserved.selector
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.PrizeWalletDepositNotReserved.selector);
         publication.complete(factory);
     }
 
-    function testMultiplePublicationsAccumulateInOneActiveCampaign()
-        public
-    {
+    function testMultiplePublicationsAccumulateInOneActiveCampaign() public {
         PrizeWalletFactoryHarness factory = _newFactory();
         address wallet = _activateFirst(factory);
-        PrizeWalletPublicationActor firstPublication =
-            new PrizeWalletPublicationActor();
-        PrizeWalletPublicationActor secondPublication =
-            new PrizeWalletPublicationActor();
+        PrizeWalletPublicationActor firstPublication = new PrizeWalletPublicationActor();
+        PrizeWalletPublicationActor secondPublication = new PrizeWalletPublicationActor();
 
         factory.registerPublicationForTest(address(firstPublication));
         factory.registerPublicationForTest(address(secondPublication));
@@ -441,37 +240,23 @@ contract HellboxPrizeWalletRegistryProbeTest {
         factory.approvePrizeWalletPublication(address(secondPublication));
 
         {
-            (
-                uint256 generation,
-                address reservedWallet,
-                bytes32 manifest
-            ) = firstPublication.reserve(factory);
+            (uint256 generation, address reservedWallet, bytes32 manifest) = firstPublication.reserve(factory);
 
             require(generation == 1, "first generation");
             require(reservedWallet == wallet, "first wallet");
             require(manifest == FIRST_MANIFEST, "first manifest");
         }
         {
-            (
-                uint256 generation,
-                address reservedWallet,
-                bytes32 manifest
-            ) = secondPublication.reserve(factory);
+            (uint256 generation, address reservedWallet, bytes32 manifest) = secondPublication.reserve(factory);
 
             require(generation == 1, "second generation");
             require(reservedWallet == wallet, "second wallet");
             require(manifest == FIRST_MANIFEST, "second manifest");
         }
-        require(
-            factory.activePrizeWalletPendingDeposits() == 2,
-            "two pending"
-        );
+        require(factory.activePrizeWalletPendingDeposits() == 2, "two pending");
 
         firstPublication.complete(factory);
-        require(
-            factory.activePrizeWalletPendingDeposits() == 1,
-            "one pending"
-        );
+        require(factory.activePrizeWalletPendingDeposits() == 1, "one pending");
 
         secondPublication.complete(factory);
 
@@ -491,55 +276,38 @@ contract HellboxPrizeWalletRegistryProbeTest {
         require(pendingDeposits == 0, "pending remains");
         require(completedDeposits == 2, "completed accumulation");
         require(
-            factory.prizeWalletDepositGenerationByPublication(
-                address(firstPublication)
-            ) == 1,
+            factory.prizeWalletDepositGenerationByPublication(address(firstPublication)) == 1,
             "first deposit generation"
         );
         require(
-            factory.prizeWalletDepositGenerationByPublication(
-                address(secondPublication)
-            ) == 1,
+            factory.prizeWalletDepositGenerationByPublication(address(secondPublication)) == 1,
             "second deposit generation"
         );
         require(
-            factory.prizeWalletDepositStateByPublication(
-                address(firstPublication)
-            ) == factory.PRIZE_DEPOSIT_COMPLETED(),
+            factory.prizeWalletDepositStateByPublication(address(firstPublication))
+                == factory.PRIZE_DEPOSIT_COMPLETED(),
             "first completed"
         );
         require(
-            factory.prizeWalletDepositStateByPublication(
-                address(secondPublication)
-            ) == factory.PRIZE_DEPOSIT_COMPLETED(),
+            factory.prizeWalletDepositStateByPublication(address(secondPublication))
+                == factory.PRIZE_DEPOSIT_COMPLETED(),
             "second completed"
         );
         require(factory.activePrizeWallet() == wallet, "campaign rotated");
     }
 
-    function testPublicationApprovalCannotLeakIntoNextCampaignGeneration()
-        public
-    {
+    function testPublicationApprovalCannotLeakIntoNextCampaignGeneration() public {
         PrizeWalletFactoryHarness factory = _newFactory();
         address firstWallet = _activateFirst(factory);
-        PrizeWalletPublicationActor staleApprovedPublication =
-            new PrizeWalletPublicationActor();
-        PrizeWalletPublicationActor firstCampaignDeposit =
-            new PrizeWalletPublicationActor();
+        PrizeWalletPublicationActor staleApprovedPublication = new PrizeWalletPublicationActor();
+        PrizeWalletPublicationActor firstCampaignDeposit = new PrizeWalletPublicationActor();
 
-        factory.registerPublicationForTest(
-            address(staleApprovedPublication)
-        );
+        factory.registerPublicationForTest(address(staleApprovedPublication));
         factory.registerPublicationForTest(address(firstCampaignDeposit));
         require(
-            factory.approvePrizeWalletPublication(
-                address(staleApprovedPublication)
-            ) == 1,
-            "stale approval generation"
+            factory.approvePrizeWalletPublication(address(staleApprovedPublication)) == 1, "stale approval generation"
         );
-        factory.approvePrizeWalletPublication(
-            address(firstCampaignDeposit)
-        );
+        factory.approvePrizeWalletPublication(address(firstCampaignDeposit));
         firstCampaignDeposit.reserve(factory);
         firstCampaignDeposit.complete(factory);
 
@@ -549,168 +317,104 @@ contract HellboxPrizeWalletRegistryProbeTest {
         address secondWallet = _activateSecond(factory);
 
         require(
-            factory.prizeWalletApprovedGenerationByPublication(
-                address(staleApprovedPublication)
-            ) == 1,
+            factory.prizeWalletApprovedGenerationByPublication(address(staleApprovedPublication)) == 1,
             "historical approval"
         );
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory
-                .PrizeWalletPublicationNotApproved
-                .selector
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.PrizeWalletPublicationNotApproved.selector);
         staleApprovedPublication.reserve(factory);
 
         require(
-            factory.prizeWalletDepositStateByPublication(
-                address(staleApprovedPublication)
-            ) == factory.PRIZE_DEPOSIT_NONE(),
+            factory.prizeWalletDepositStateByPublication(address(staleApprovedPublication))
+                == factory.PRIZE_DEPOSIT_NONE(),
             "stale approval mutated deposit"
         );
         require(
-            factory.approvePrizeWalletPublication(
-                address(staleApprovedPublication)
-            ) == 2,
-            "rebound approval generation"
+            factory.approvePrizeWalletPublication(address(staleApprovedPublication)) == 2, "rebound approval generation"
         );
 
-        (
-            uint256 generation,
-            address reservedWallet,
-            bytes32 manifest
-        ) = staleApprovedPublication.reserve(factory);
+        (uint256 generation, address reservedWallet, bytes32 manifest) = staleApprovedPublication.reserve(factory);
 
         require(generation == 2, "second generation");
         require(reservedWallet == secondWallet, "second wallet");
         require(manifest == SECOND_MANIFEST, "second manifest");
     }
 
-    function testOnlyFactoryOwnerCanManagePrizeWalletPublicationApprovals()
-        public
-    {
+    function testOnlyFactoryOwnerCanManagePrizeWalletPublicationApprovals() public {
         PrizeWalletFactoryHarness factory = _newFactory();
         _activateFirst(factory);
-        PrizeWalletPublicationActor publication =
-            new PrizeWalletPublicationActor();
+        PrizeWalletPublicationActor publication = new PrizeWalletPublicationActor();
         address attacker = VM.addr(WRONG_WALLET_KEY);
 
         factory.registerPublicationForTest(address(publication));
 
-        VM.expectPartialRevert(
-            bytes4(
-                keccak256("OwnableUnauthorizedAccount(address)")
-            )
-        );
+        VM.expectPartialRevert(bytes4(keccak256("OwnableUnauthorizedAccount(address)")));
         VM.prank(attacker);
         factory.approvePrizeWalletPublication(address(publication));
 
-        require(
-            factory.prizeWalletApprovedGenerationByPublication(
-                address(publication)
-            ) == 0,
-            "unauthorized approval"
-        );
+        require(factory.prizeWalletApprovedGenerationByPublication(address(publication)) == 0, "unauthorized approval");
 
         factory.approvePrizeWalletPublication(address(publication));
 
-        VM.expectPartialRevert(
-            bytes4(
-                keccak256("OwnableUnauthorizedAccount(address)")
-            )
-        );
+        VM.expectPartialRevert(bytes4(keccak256("OwnableUnauthorizedAccount(address)")));
         VM.prank(attacker);
-        factory.revokePrizeWalletPublicationApproval(
-            address(publication)
-        );
+        factory.revokePrizeWalletPublicationApproval(address(publication));
 
         require(
-            factory.prizeWalletApprovedGenerationByPublication(
-                address(publication)
-            ) == 1,
-            "unauthorized revocation"
+            factory.prizeWalletApprovedGenerationByPublication(address(publication)) == 1, "unauthorized revocation"
         );
 
-        factory.revokePrizeWalletPublicationApproval(
-            address(publication)
-        );
-        require(
-            factory.prizeWalletApprovedGenerationByPublication(
-                address(publication)
-            ) == 0,
-            "owner revocation"
-        );
+        factory.revokePrizeWalletPublicationApproval(address(publication));
+        require(factory.prizeWalletApprovedGenerationByPublication(address(publication)) == 0, "owner revocation");
     }
 
     function testRevocationCannotStrandAnExistingReservation() public {
         PrizeWalletFactoryHarness factory = _newFactory();
         _activateFirst(factory);
-        PrizeWalletPublicationActor publication =
-            new PrizeWalletPublicationActor();
+        PrizeWalletPublicationActor publication = new PrizeWalletPublicationActor();
 
         factory.registerPublicationForTest(address(publication));
         factory.approvePrizeWalletPublication(address(publication));
         publication.reserve(factory);
 
-        factory.revokePrizeWalletPublicationApproval(
-            address(publication)
-        );
+        factory.revokePrizeWalletPublicationApproval(address(publication));
 
         publication.complete(factory);
 
         require(
-            factory.prizeWalletDepositStateByPublication(
-                address(publication)
-            ) == factory.PRIZE_DEPOSIT_COMPLETED(),
+            factory.prizeWalletDepositStateByPublication(address(publication)) == factory.PRIZE_DEPOSIT_COMPLETED(),
             "reserved completion stranded"
         );
     }
 
-    function testActiveWalletMustRemainAnEoaWhenDepositIsReserved()
-        public
-    {
+    function testActiveWalletMustRemainAnEoaWhenDepositIsReserved() public {
         PrizeWalletFactoryHarness factory = _newFactory();
         address wallet = _activateFirst(factory);
-        PrizeWalletPublicationActor publication =
-            new PrizeWalletPublicationActor();
+        PrizeWalletPublicationActor publication = new PrizeWalletPublicationActor();
         factory.registerPublicationForTest(address(publication));
         factory.approvePrizeWalletPublication(address(publication));
 
         VM.etch(wallet, hex"00");
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory.PrizeWalletAddressHasCode.selector
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.PrizeWalletAddressHasCode.selector);
         publication.reserve(factory);
 
+        require(factory.activePrizeWalletPendingDeposits() == 0, "pending mutated");
         require(
-            factory.activePrizeWalletPendingDeposits() == 0,
-            "pending mutated"
-        );
-        require(
-            factory.prizeWalletDepositStateByPublication(
-                address(publication)
-            ) == factory.PRIZE_DEPOSIT_NONE(),
+            factory.prizeWalletDepositStateByPublication(address(publication)) == factory.PRIZE_DEPOSIT_NONE(),
             "state mutated"
         );
     }
 
-    function testPendingDepositBlocksClaimThenCompletionUnlocksClaim()
-        public
-    {
+    function testPendingDepositBlocksClaimThenCompletionUnlocksClaim() public {
         PrizeWalletFactoryHarness factory = _newFactory();
         address wallet = _activateFirst(factory);
-        PrizeWalletPublicationActor publication =
-            new PrizeWalletPublicationActor();
+        PrizeWalletPublicationActor publication = new PrizeWalletPublicationActor();
         factory.registerPublicationForTest(address(publication));
         factory.approvePrizeWalletPublication(address(publication));
         publication.reserve(factory);
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory
-                .PrizeWalletCampaignHasPendingDeposits
-                .selector
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.PrizeWalletCampaignHasPendingDeposits.selector);
         VM.prank(wallet);
         factory.confirmPrizeWalletClaim();
 
@@ -726,10 +430,7 @@ contract HellboxPrizeWalletRegistryProbeTest {
         ) = factory.prizeWalletCampaignByGeneration(1);
 
         require(storedWalletBefore == wallet, "stored wallet before");
-        require(
-            storedManifestBefore == FIRST_MANIFEST,
-            "stored manifest before"
-        );
+        require(storedManifestBefore == FIRST_MANIFEST, "stored manifest before");
         require(activatedAtBefore != 0, "activation before");
         require(claimedAtBefore == 0, "premature claim");
         require(pendingDeposits == 0, "pending not cleared");
@@ -758,22 +459,14 @@ contract HellboxPrizeWalletRegistryProbeTest {
         require(factory.activePrizeWallet() == address(0), "active getter");
     }
 
-    function testDirectWinnerClaimRequiresCompletedDepositAndAllowsRotation()
-        public
-    {
+    function testDirectWinnerClaimRequiresCompletedDepositAndAllowsRotation() public {
         PrizeWalletFactoryHarness factory = _newFactory();
         address firstWallet = _activateFirst(factory);
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory.UnauthorizedPrizeWalletClaim.selector
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.UnauthorizedPrizeWalletClaim.selector);
         factory.confirmPrizeWalletClaim();
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory
-                .PrizeWalletCampaignHasNoCompletedDeposits
-                .selector
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.PrizeWalletCampaignHasNoCompletedDeposits.selector);
         VM.prank(firstWallet);
         factory.confirmPrizeWalletClaim();
 
@@ -784,42 +477,22 @@ contract HellboxPrizeWalletRegistryProbeTest {
 
         require(factory.activePrizeWalletClaimed(), "first claimed");
         require(factory.activePrizeWallet() == address(0), "no active wallet");
-        require(
-            factory.activePrizeWalletManifestDigest() == bytes32(0),
-            "no active manifest"
-        );
+        require(factory.activePrizeWalletManifestDigest() == bytes32(0), "no active manifest");
 
         address secondWallet = VM.addr(SECOND_WALLET_KEY);
         uint256 deadline = block.timestamp + 2 days;
-        bytes memory secondSignature = _activationSignature(
-            factory,
-            SECOND_WALLET_KEY,
-            2,
-            secondWallet,
-            SECOND_MANIFEST,
-            deadline
-        );
+        bytes memory secondSignature =
+            _activationSignature(factory, SECOND_WALLET_KEY, 2, secondWallet, SECOND_MANIFEST, deadline);
 
-        uint256 generation = factory.activatePrizeWalletCampaign(
-            secondWallet,
-            SECOND_MANIFEST,
-            deadline,
-            secondSignature
-        );
+        uint256 generation =
+            factory.activatePrizeWalletCampaign(secondWallet, SECOND_MANIFEST, deadline, secondSignature);
 
         require(generation == 2, "second generation");
         require(factory.activePrizeWallet() == secondWallet, "second wallet");
         require(factory.isActivePrizeWallet(secondWallet), "second active");
-        require(
-            factory.prizeWalletGenerationByAddress(firstWallet) == 1,
-            "first history"
-        );
+        require(factory.prizeWalletGenerationByAddress(firstWallet) == 1, "first history");
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory
-                .OwnershipTransferToPrizeWalletDisabled
-                .selector
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.OwnershipTransferToPrizeWalletDisabled.selector);
         factory.transferOwnership(firstWallet);
     }
 
@@ -832,26 +505,11 @@ contract HellboxPrizeWalletRegistryProbeTest {
         factory.confirmPrizeWalletClaim();
 
         uint256 deadline = block.timestamp + 1 days;
-        bytes memory reusedSignature = _activationSignature(
-            factory,
-            FIRST_WALLET_KEY,
-            2,
-            wallet,
-            SECOND_MANIFEST,
-            deadline
-        );
+        bytes memory reusedSignature =
+            _activationSignature(factory, FIRST_WALLET_KEY, 2, wallet, SECOND_MANIFEST, deadline);
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory
-                .PrizeWalletAddressAlreadyUsed
-                .selector
-        );
-        factory.activatePrizeWalletCampaign(
-            wallet,
-            SECOND_MANIFEST,
-            deadline,
-            reusedSignature
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.PrizeWalletAddressAlreadyUsed.selector);
+        factory.activatePrizeWalletCampaign(wallet, SECOND_MANIFEST, deadline, reusedSignature);
     }
 
     function testCampaignManifestCannotBeReusedAfterClaim() public {
@@ -864,34 +522,15 @@ contract HellboxPrizeWalletRegistryProbeTest {
 
         address secondWallet = VM.addr(SECOND_WALLET_KEY);
         uint256 deadline = block.timestamp + 1 days;
-        bytes memory signature = _activationSignature(
-            factory,
-            SECOND_WALLET_KEY,
-            2,
-            secondWallet,
-            FIRST_MANIFEST,
-            deadline
-        );
+        bytes memory signature =
+            _activationSignature(factory, SECOND_WALLET_KEY, 2, secondWallet, FIRST_MANIFEST, deadline);
 
-        VM.expectPartialRevert(
-            HellboxPublicationFactory
-                .PrizeWalletManifestAlreadyUsed
-                .selector
-        );
-        factory.activatePrizeWalletCampaign(
-            secondWallet,
-            FIRST_MANIFEST,
-            deadline,
-            signature
-        );
+        VM.expectPartialRevert(HellboxPublicationFactory.PrizeWalletManifestAlreadyUsed.selector);
+        factory.activatePrizeWalletCampaign(secondWallet, FIRST_MANIFEST, deadline, signature);
     }
 
-    function _newFactory()
-        internal
-        returns (PrizeWalletFactoryHarness factory)
-    {
-        HellboxBirthPolicyCodeStore store =
-            new HellboxBirthPolicyCodeStore();
+    function _newFactory() internal returns (PrizeWalletFactoryHarness factory) {
+        HellboxBirthPolicyCodeStore store = new HellboxBirthPolicyCodeStore();
 
         factory = new PrizeWalletFactoryHarness(
             address(this),
@@ -901,55 +540,24 @@ contract HellboxPrizeWalletRegistryProbeTest {
         );
     }
 
-    function _activateFirst(
-        PrizeWalletFactoryHarness factory
-    ) internal returns (address wallet) {
+    function _activateFirst(PrizeWalletFactoryHarness factory) internal returns (address wallet) {
         wallet = VM.addr(FIRST_WALLET_KEY);
         uint256 deadline = block.timestamp + 1 days;
-        bytes memory signature = _activationSignature(
-            factory,
-            FIRST_WALLET_KEY,
-            1,
-            wallet,
-            FIRST_MANIFEST,
-            deadline
-        );
+        bytes memory signature = _activationSignature(factory, FIRST_WALLET_KEY, 1, wallet, FIRST_MANIFEST, deadline);
 
-        factory.activatePrizeWalletCampaign(
-            wallet,
-            FIRST_MANIFEST,
-            deadline,
-            signature
-        );
+        factory.activatePrizeWalletCampaign(wallet, FIRST_MANIFEST, deadline, signature);
     }
 
-    function _activateSecond(
-        PrizeWalletFactoryHarness factory
-    ) internal returns (address wallet) {
+    function _activateSecond(PrizeWalletFactoryHarness factory) internal returns (address wallet) {
         wallet = VM.addr(SECOND_WALLET_KEY);
         uint256 deadline = block.timestamp + 1 days;
-        bytes memory signature = _activationSignature(
-            factory,
-            SECOND_WALLET_KEY,
-            2,
-            wallet,
-            SECOND_MANIFEST,
-            deadline
-        );
+        bytes memory signature = _activationSignature(factory, SECOND_WALLET_KEY, 2, wallet, SECOND_MANIFEST, deadline);
 
-        factory.activatePrizeWalletCampaign(
-            wallet,
-            SECOND_MANIFEST,
-            deadline,
-            signature
-        );
+        factory.activatePrizeWalletCampaign(wallet, SECOND_MANIFEST, deadline, signature);
     }
 
-    function _completeOneDeposit(
-        PrizeWalletFactoryHarness factory
-    ) internal {
-        PrizeWalletPublicationActor publication =
-            new PrizeWalletPublicationActor();
+    function _completeOneDeposit(PrizeWalletFactoryHarness factory) internal {
+        PrizeWalletPublicationActor publication = new PrizeWalletPublicationActor();
         factory.registerPublicationForTest(address(publication));
         factory.approvePrizeWalletPublication(address(publication));
         publication.reserve(factory);
@@ -964,23 +572,12 @@ contract HellboxPrizeWalletRegistryProbeTest {
         bytes32 manifest,
         uint256 deadline
     ) internal returns (bytes memory) {
-        bytes32 digest = factory.prizeWalletActivationDigest(
-            generation,
-            wallet,
-            manifest,
-            deadline
-        );
+        bytes32 digest = factory.prizeWalletActivationDigest(generation, wallet, manifest, deadline);
         return _sign(privateKey, digest);
     }
 
-    function _sign(
-        uint256 privateKey,
-        bytes32 digest
-    ) internal returns (bytes memory signature) {
-        (uint8 v, bytes32 r, bytes32 s) = VM.sign(
-            privateKey,
-            digest
-        );
+    function _sign(uint256 privateKey, bytes32 digest) internal returns (bytes memory signature) {
+        (uint8 v, bytes32 r, bytes32 s) = VM.sign(privateKey, digest);
         signature = abi.encodePacked(r, s, v);
     }
 }

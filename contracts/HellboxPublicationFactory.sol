@@ -10,15 +10,36 @@ import {HellboxDrandEvmnetVerifier} from "./randomness/HellboxDrandEvmnetVerifie
 import {EIP712} from "openzeppelin-contracts/contracts/utils/cryptography/EIP712.sol";
 import {ECDSA} from "openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
 
+/// @dev Narrow immutable provenance surface exposed by HellboxPrimarySale.
+///      The factory deploys exact hash-approved creation code, then verifies
+///      these bindings before recording the one permanent sale for a publication.
+interface IHellboxPrimarySaleProvenance {
+    function PRIMARY_SALE_ID() external view returns (bytes32);
+
+    function PRIMARY_SALE_VERSION() external view returns (uint256);
+
+    function publication() external view returns (address);
+
+    function publicationFactory() external view returns (address);
+
+    function releaseChainId() external view returns (uint256);
+
+    function publicationReleaseConfigDigest() external view returns (bytes32);
+
+    function publicationCommitmentsDigest() external view returns (bytes32);
+
+    function saleConfigDigest() external view returns (bytes32);
+}
+
 /// @title HellboxPublicationFactory
 /// @notice Gate 4 V1 factory for manufacturing official full-deployment
-///         HellboxPublication collections from frozen release configuration.
+///         publications and their exact immutable primary-sale checkouts.
 /// @dev Authenticity is rooted outside this contract by Hellbox recognizing this
 ///      factory address as an approved factory for the target chain/version.
 ///
-///      V1 uses ordinary CREATE and exact approved HellboxPublication creation
-///      bytecode supplied at publish time. The creation code is hash-bound to
-///      this factory generation instead of being embedded in factory runtime.
+///      V1 uses ordinary CREATE and exact approved publication/primary-sale
+///      creation bytecode supplied at deployment time. Both code families are
+///      hash-bound to this factory generation instead of embedded in runtime.
 ///
 ///      Each factory generation also deploys exactly one shared, stateless,
 ///      non-upgradeable drand evmnet verifier and freezes its identity, provider
@@ -36,11 +57,12 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
 
     bytes32 public constant TEMPLATE_ID = keccak256("HELLBOX_PUBLICATION");
     bytes32 public constant DEPLOYMENT_MODE = keccak256("FULL_DEPLOYMENT");
+    bytes32 public constant PRIMARY_SALE_ID = keccak256("HELLBOX_PRIMARY_SALE_V1");
+    uint256 public constant PRIMARY_SALE_VERSION = 1;
 
     /// @notice Stable identifier expected from the one verifier deployed by
     ///         this factory generation.
-    bytes32 public constant RANDOMNESS_VERIFIER_ID =
-        keccak256("HELLBOX_DRAND_EVMNET_VERIFIER_V1");
+    bytes32 public constant RANDOMNESS_VERIFIER_ID = keccak256("HELLBOX_DRAND_EVMNET_VERIFIER_V1");
 
     /// @notice Digest of the exact drand evmnet chain identity, public key,
     ///         schedule, domain, and round-message rules approved for this
@@ -51,10 +73,9 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
     /// @notice EIP-712 activation authorization signed by the fresh campaign
     ///         wallet itself. The signature proves control without exposing
     ///         its mnemonic/private key to Harrow, the repository, or chain.
-    bytes32 public constant PRIZE_WALLET_ACTIVATION_TYPEHASH =
-        keccak256(
-            "PrizeWalletActivation(uint256 generation,address wallet,bytes32 campaignManifestDigest,uint256 deadline)"
-        );
+    bytes32 public constant PRIZE_WALLET_ACTIVATION_TYPEHASH = keccak256(
+        "PrizeWalletActivation(uint256 generation,address wallet,bytes32 campaignManifestDigest,uint256 deadline)"
+    );
 
     uint8 public constant PRIZE_DEPOSIT_NONE = 0;
     uint8 public constant PRIZE_DEPOSIT_RESERVED = 1;
@@ -65,6 +86,11 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
     ///      does not change HELLBOX_ABI_V1, and is not a universal instance
     ///      runtime hash.
     bytes32 public immutable approvedPublicationCreationCodeHash;
+
+    /// @notice Exact HellboxPrimarySale creation-code hash approved for this
+    ///         factory generation. The code is supplied only at deployment, so
+    ///         it is not embedded in factory runtime or replaceable afterward.
+    bytes32 public immutable approvedPrimarySaleCreationCodeHash;
 
     /// @notice Inert HellboxBirthPolicyCodeStore selected for this factory
     ///         generation.
@@ -119,42 +145,40 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
 
     mapping(address publication => bool) public isPublication;
 
-    mapping(bytes32 releaseConfigDigest => address publication)
-        public publicationByReleaseDigest;
+    mapping(bytes32 releaseConfigDigest => address publication) public publicationByReleaseDigest;
 
-    mapping(bytes32 publicationKeyHash => address publication)
-        public publicationByKeyHash;
+    mapping(bytes32 publicationKeyHash => address publication) public publicationByKeyHash;
 
     address[] public publications;
+
+    /// @notice Exactly one permanent primary-sale checkout per publication.
+    /// @dev Both directions are append-only. There is no replacement, removal,
+    ///      upgrade, or arbitrary module-registry path.
+    mapping(address publication => address primarySale) public primarySaleByPublication;
+    mapping(address primarySale => address publication) public publicationByPrimarySale;
 
     /// @notice Active prize-wallet campaign generation for publications made
     ///         by this factory generation. Zero means no campaign is active.
     uint256 public activePrizeWalletGeneration;
 
-    mapping(uint256 generation => PrizeWalletCampaign campaign)
-        public prizeWalletCampaignByGeneration;
+    mapping(uint256 generation => PrizeWalletCampaign campaign) public prizeWalletCampaignByGeneration;
 
     /// @notice Prevents a campaign EOA from ever being recycled as a later
     ///         prize wallet through this factory generation.
-    mapping(address wallet => uint256 generation)
-        public prizeWalletGenerationByAddress;
+    mapping(address wallet => uint256 generation) public prizeWalletGenerationByAddress;
 
     /// @notice Prevents accidental reuse of a campaign manifest/commitment.
-    mapping(bytes32 campaignManifestDigest => uint256 generation)
-        public prizeWalletGenerationByManifestDigest;
+    mapping(bytes32 campaignManifestDigest => uint256 generation) public prizeWalletGenerationByManifestDigest;
 
     /// @notice One immutable prize-deposit lifecycle per official publication.
-    mapping(address publication => uint256 generation)
-        public prizeWalletDepositGenerationByPublication;
-    mapping(address publication => uint8 state)
-        public prizeWalletDepositStateByPublication;
+    mapping(address publication => uint256 generation) public prizeWalletDepositGenerationByPublication;
+    mapping(address publication => uint8 state) public prizeWalletDepositStateByPublication;
 
     /// @notice Explicit campaign-generation approval required before an
     ///         official publication may reserve the active Prize Wallet.
     /// @dev Approval may be revoked without affecting a reservation that was
     ///      already created; completion relies on the immutable deposit state.
-    mapping(address publication => uint256 generation)
-        public prizeWalletApprovedGenerationByPublication;
+    mapping(address publication => uint256 generation) public prizeWalletApprovedGenerationByPublication;
 
     // ---------------------------------------------------------------------
     // Errors
@@ -162,36 +186,37 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
 
     error InvalidApprovedPublicationCreationCodeHash();
 
+    error InvalidApprovedPrimarySaleCreationCodeHash();
+
+    error UnofficialPrimarySalePublication(address publication);
+    error PrimarySaleAlreadyRegistered(address publication, address primarySale);
+    error UnapprovedPrimarySaleCreationCode(bytes32 expectedCreationCodeHash, bytes32 actualCreationCodeHash);
+    error PrimarySaleDeploymentProducedNoCode();
+    error PrimarySaleIdentityMismatch(bytes32 expectedId, bytes32 actualId);
+    error PrimarySaleVersionMismatch(uint256 expectedVersion, uint256 actualVersion);
+    error PrimarySalePublicationMismatch(address expectedPublication, address actualPublication);
+    error PrimarySaleFactoryMismatch(address expectedFactory, address actualFactory);
+    error PrimarySaleChainMismatch(uint256 expectedChainId, uint256 actualChainId);
+    error PrimarySaleReleaseDigestMismatch(bytes32 expectedDigest, bytes32 actualDigest);
+    error PrimarySaleCommitmentsDigestMismatch(bytes32 expectedDigest, bytes32 actualDigest);
+
     error InvalidBirthPolicyCodeStore();
 
     error InvalidApprovedBirthPolicyCreationCodeHash();
 
     error RandomnessVerifierDeploymentProducedNoCode();
 
-    error RandomnessVerifierIdentityMismatch(
-        bytes32 expectedVerifierId,
-        bytes32 actualVerifierId
-    );
+    error RandomnessVerifierIdentityMismatch(bytes32 expectedVerifierId, bytes32 actualVerifierId);
 
     error RandomnessProviderConfigDigestMismatch(
-        bytes32 expectedProviderConfigDigest,
-        bytes32 actualProviderConfigDigest
+        bytes32 expectedProviderConfigDigest, bytes32 actualProviderConfigDigest
     );
 
-    error UnapprovedPublicationCreationCode(
-        bytes32 expectedCreationCodeHash,
-        bytes32 actualCreationCodeHash
-    );
+    error UnapprovedPublicationCreationCode(bytes32 expectedCreationCodeHash, bytes32 actualCreationCodeHash);
 
-    error DuplicateReleaseConfigDigest(
-        bytes32 releaseConfigDigest,
-        address existingPublication
-    );
+    error DuplicateReleaseConfigDigest(bytes32 releaseConfigDigest, address existingPublication);
 
-    error DuplicatePublicationKey(
-        bytes32 publicationKeyHash,
-        address existingPublication
-    );
+    error DuplicatePublicationKey(bytes32 publicationKeyHash, address existingPublication);
 
     error DeploymentFactoryMismatch(address expected, address actual);
 
@@ -199,20 +224,14 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
 
     error DeploymentTemplateMismatch(bytes32 expected, bytes32 actual);
 
-    error DeploymentPublicationVersionMismatch(
-        uint256 expected,
-        uint256 actual
-    );
+    error DeploymentPublicationVersionMismatch(uint256 expected, uint256 actual);
 
     error DeploymentReleaseDigestMismatch(bytes32 expected, bytes32 actual);
 
     error DeploymentPublicationKeyMismatch(bytes32 expected, bytes32 actual);
 
     error DeploymentBirthPolicyMissing();
-    error DeploymentBirthPolicyPublicationMismatch(
-        address expected,
-        address actual
-    );
+    error DeploymentBirthPolicyPublicationMismatch(address expected, address actual);
 
     error PrizeWalletManifestDigestMissing();
     error InvalidPrizeWalletAddress(address wallet);
@@ -220,42 +239,22 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
     error PrizeWalletAddressAlreadyUsed(address wallet, uint256 generation);
     error PrizeWalletAuthorizationExpired(uint256 deadline, uint256 currentTime);
     error PrizeWalletTimestampOverflow(uint256 timestamp);
-    error PrizeWalletActivationSignatureMismatch(
-        address expectedWallet,
-        address recoveredSigner
-    );
+    error PrizeWalletActivationSignatureMismatch(address expectedWallet, address recoveredSigner);
     error PrizeWalletCampaignNotActive();
     error PrizeWalletCampaignNotClaimed(uint256 generation);
     error PrizeWalletCampaignAlreadyClaimed(uint256 generation);
-    error PrizeWalletCampaignHasPendingDeposits(
-        uint256 generation,
-        uint256 pendingDeposits
-    );
+    error PrizeWalletCampaignHasPendingDeposits(uint256 generation, uint256 pendingDeposits);
     error PrizeWalletCampaignHasNoCompletedDeposits(uint256 generation);
-    error UnauthorizedPrizeWalletClaim(
-        address expectedWallet,
-        address caller
-    );
-    error PrizeWalletManifestAlreadyUsed(
-        bytes32 campaignManifestDigest,
-        uint256 generation
-    );
+    error UnauthorizedPrizeWalletClaim(address expectedWallet, address caller);
+    error PrizeWalletManifestAlreadyUsed(bytes32 campaignManifestDigest, uint256 generation);
     error PrizeWalletCampaignIntegrityMismatch(uint256 generation);
     error UnauthorizedPrizeWalletPublication(address caller);
     error PrizeWalletPublicationNotApproved(
-        address publication,
-        uint256 expectedGeneration,
-        uint256 approvedGeneration
+        address publication, uint256 expectedGeneration, uint256 approvedGeneration
     );
-    error PrizeWalletPublicationApprovalAlreadySet(
-        address publication,
-        uint256 generation
-    );
+    error PrizeWalletPublicationApprovalAlreadySet(address publication, uint256 generation);
     error PrizeWalletPublicationApprovalMissing(address publication);
-    error PrizeWalletDepositAlreadyInitialized(
-        address publication,
-        uint8 state
-    );
+    error PrizeWalletDepositAlreadyInitialized(address publication, uint8 state);
     error PrizeWalletDepositNotReserved(address publication, uint8 state);
     error PrizeWalletPendingDepositOverflow(uint256 generation);
     error PrizeWalletPendingDepositUnderflow(uint256 generation);
@@ -284,6 +283,15 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
         bytes32 runtimeCodeHash
     );
 
+    /// @notice Permanent provenance for the one exact checkout physically
+    ///         created and accepted for an official publication.
+    event PrimarySaleDeployed(
+        address indexed publication,
+        address indexed primarySale,
+        bytes32 indexed saleConfigDigest,
+        bytes32 runtimeCodeHash
+    );
+
     /// @notice Constructor-time provenance for the one verifier shared by all
     ///         publications manufactured by this factory generation.
     event RandomnessVerifierBound(
@@ -294,21 +302,12 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
     );
 
     event PrizeWalletCampaignActivated(
-        uint256 indexed generation,
-        address indexed wallet,
-        bytes32 indexed campaignManifestDigest,
-        uint64 activatedAt
+        uint256 indexed generation, address indexed wallet, bytes32 indexed campaignManifestDigest, uint64 activatedAt
     );
 
-    event PrizeWalletPublicationApproved(
-        address indexed publication,
-        uint256 indexed generation
-    );
+    event PrizeWalletPublicationApproved(address indexed publication, uint256 indexed generation);
 
-    event PrizeWalletPublicationApprovalRevoked(
-        address indexed publication,
-        uint256 indexed generation
-    );
+    event PrizeWalletPublicationApprovalRevoked(address indexed publication, uint256 indexed generation);
 
     event PrizeWalletDepositReserved(
         address indexed publication,
@@ -326,10 +325,7 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
     );
 
     event PrizeWalletCampaignClaimed(
-        uint256 indexed generation,
-        address indexed wallet,
-        uint64 claimedAt,
-        address indexed confirmer
+        uint256 indexed generation, address indexed wallet, uint64 claimedAt, address indexed confirmer
     );
 
     // ---------------------------------------------------------------------
@@ -342,6 +338,9 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
     /// @param publicationCreationCodeHash keccak256 of the exact reviewed
     ///        HellboxPublication V1 creation bytecode approved for this factory
     ///        generation.
+    /// @param primarySaleCreationCodeHash keccak256 of the exact reviewed
+    ///        HellboxPrimarySale V1 creation bytecode approved for this factory
+    ///        generation.
     /// @param birthPolicyCodeStoreAddress Inert HellboxBirthPolicyCodeStore
     ///        selected for this factory generation. It is intentionally frozen
     ///        here rather than accepted from `publish(...)`.
@@ -351,14 +350,15 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
     constructor(
         address initialPublisherAuthority,
         bytes32 publicationCreationCodeHash,
+        bytes32 primarySaleCreationCodeHash,
         address birthPolicyCodeStoreAddress,
         bytes32 birthPolicyCreationCodeHash
-    )
-        Ownable(initialPublisherAuthority)
-        EIP712("HellboxPrizeWalletRegistry", "1")
-    {
+    ) Ownable(initialPublisherAuthority) EIP712("HellboxPrizeWalletRegistry", "1") {
         if (publicationCreationCodeHash == bytes32(0)) {
             revert InvalidApprovedPublicationCreationCodeHash();
+        }
+        if (primarySaleCreationCodeHash == bytes32(0)) {
+            revert InvalidApprovedPrimarySaleCreationCodeHash();
         }
 
         if (birthPolicyCodeStoreAddress == address(0)) {
@@ -369,52 +369,37 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
             revert InvalidApprovedBirthPolicyCreationCodeHash();
         }
 
-        HellboxDrandEvmnetVerifier deployedVerifier =
-            new HellboxDrandEvmnetVerifier();
+        HellboxDrandEvmnetVerifier deployedVerifier = new HellboxDrandEvmnetVerifier();
 
         address verifierAddress = address(deployedVerifier);
         if (verifierAddress.code.length == 0) {
             revert RandomnessVerifierDeploymentProducedNoCode();
         }
 
-        IHellboxRandomnessVerifier verifier =
-            IHellboxRandomnessVerifier(verifierAddress);
+        IHellboxRandomnessVerifier verifier = IHellboxRandomnessVerifier(verifierAddress);
 
         bytes32 actualVerifierId = verifier.verifierId();
         if (actualVerifierId != RANDOMNESS_VERIFIER_ID) {
-            revert RandomnessVerifierIdentityMismatch(
-                RANDOMNESS_VERIFIER_ID,
-                actualVerifierId
-            );
+            revert RandomnessVerifierIdentityMismatch(RANDOMNESS_VERIFIER_ID, actualVerifierId);
         }
 
-        bytes32 actualProviderConfigDigest =
-            verifier.providerConfigDigest();
+        bytes32 actualProviderConfigDigest = verifier.providerConfigDigest();
 
-        if (
-            actualProviderConfigDigest !=
-            RANDOMNESS_PROVIDER_CONFIG_DIGEST
-        ) {
-            revert RandomnessProviderConfigDigestMismatch(
-                RANDOMNESS_PROVIDER_CONFIG_DIGEST,
-                actualProviderConfigDigest
-            );
+        if (actualProviderConfigDigest != RANDOMNESS_PROVIDER_CONFIG_DIGEST) {
+            revert RandomnessProviderConfigDigestMismatch(RANDOMNESS_PROVIDER_CONFIG_DIGEST, actualProviderConfigDigest);
         }
 
         bytes32 verifierRuntimeCodeHash = verifierAddress.codehash;
 
         approvedPublicationCreationCodeHash = publicationCreationCodeHash;
+        approvedPrimarySaleCreationCodeHash = primarySaleCreationCodeHash;
         birthPolicyCodeStore = birthPolicyCodeStoreAddress;
-        approvedBirthPolicyCreationCodeHash =
-            birthPolicyCreationCodeHash;
+        approvedBirthPolicyCreationCodeHash = birthPolicyCreationCodeHash;
         randomnessVerifier = verifierAddress;
         randomnessVerifierRuntimeCodeHash = verifierRuntimeCodeHash;
 
         emit RandomnessVerifierBound(
-            verifierAddress,
-            actualVerifierId,
-            actualProviderConfigDigest,
-            verifierRuntimeCodeHash
+            verifierAddress, actualVerifierId, actualProviderConfigDigest, verifierRuntimeCodeHash
         );
     }
 
@@ -427,13 +412,8 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
 
     /// @notice Prevents the publishing authority from being deliberately or
     ///         accidentally transferred to the currently active prize wallet.
-    function transferOwnership(
-        address newOwner
-    ) public override onlyOwner {
-        if (
-            newOwner != address(0) &&
-            prizeWalletGenerationByAddress[newOwner] != 0
-        ) {
+    function transferOwnership(address newOwner) public override onlyOwner {
+        if (newOwner != address(0) && prizeWalletGenerationByAddress[newOwner] != 0) {
             revert OwnershipTransferToPrizeWalletDisabled(newOwner);
         }
 
@@ -453,8 +433,7 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
             return address(0);
         }
 
-        PrizeWalletCampaign storage campaign =
-            prizeWalletCampaignByGeneration[generation];
+        PrizeWalletCampaign storage campaign = prizeWalletCampaignByGeneration[generation];
         if (campaign.claimedAt != 0) {
             return address(0);
         }
@@ -462,18 +441,13 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
         wallet = campaign.wallet;
     }
 
-    function activePrizeWalletManifestDigest()
-        external
-        view
-        returns (bytes32 campaignManifestDigest)
-    {
+    function activePrizeWalletManifestDigest() external view returns (bytes32 campaignManifestDigest) {
         uint256 generation = activePrizeWalletGeneration;
         if (generation == 0) {
             return bytes32(0);
         }
 
-        PrizeWalletCampaign storage campaign =
-            prizeWalletCampaignByGeneration[generation];
+        PrizeWalletCampaign storage campaign = prizeWalletCampaignByGeneration[generation];
         if (campaign.claimedAt != 0) {
             return bytes32(0);
         }
@@ -483,40 +457,27 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
 
     function activePrizeWalletClaimed() external view returns (bool) {
         uint256 generation = activePrizeWalletGeneration;
-        return
-            generation != 0 &&
-            prizeWalletCampaignByGeneration[generation].claimedAt != 0;
+        return generation != 0 && prizeWalletCampaignByGeneration[generation].claimedAt != 0;
     }
 
-    function activePrizeWalletPendingDeposits()
-        external
-        view
-        returns (uint256)
-    {
+    function activePrizeWalletPendingDeposits() external view returns (uint256) {
         uint256 generation = activePrizeWalletGeneration;
         if (generation == 0) {
             return 0;
         }
 
-        return
-            prizeWalletCampaignByGeneration[generation]
-                .pendingPublicationDeposits;
+        return prizeWalletCampaignByGeneration[generation].pendingPublicationDeposits;
     }
 
-    function isActivePrizeWallet(
-        address wallet
-    ) public view returns (bool) {
+    function isActivePrizeWallet(address wallet) public view returns (bool) {
         uint256 generation = activePrizeWalletGeneration;
         if (generation == 0) {
             return false;
         }
 
-        PrizeWalletCampaign storage campaign =
-            prizeWalletCampaignByGeneration[generation];
+        PrizeWalletCampaign storage campaign = prizeWalletCampaignByGeneration[generation];
 
-        return
-            campaign.wallet == wallet &&
-            campaign.claimedAt == 0;
+        return campaign.wallet == wallet && campaign.claimedAt == 0;
     }
 
     /// @notice Computes the exact EIP-712 digest a fresh campaign wallet must
@@ -527,18 +488,11 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
         bytes32 campaignManifestDigest,
         uint256 deadline
     ) public view returns (bytes32) {
-        return
-            _hashTypedDataV4(
-                keccak256(
-                    abi.encode(
-                        PRIZE_WALLET_ACTIVATION_TYPEHASH,
-                        generation,
-                        wallet,
-                        campaignManifestDigest,
-                        deadline
-                    )
-                )
-            );
+        return _hashTypedDataV4(
+            keccak256(
+                abi.encode(PRIZE_WALLET_ACTIVATION_TYPEHASH, generation, wallet, campaignManifestDigest, deadline)
+            )
+        );
     }
 
     /// @notice Activates a fresh mnemonic-controlled EOA for the next repeating
@@ -557,87 +511,55 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
             revert PrizeWalletManifestDigestMissing();
         }
         if (deadline < block.timestamp) {
-            revert PrizeWalletAuthorizationExpired(
-                deadline,
-                block.timestamp
-            );
+            revert PrizeWalletAuthorizationExpired(deadline, block.timestamp);
         }
 
         uint256 currentGeneration = activePrizeWalletGeneration;
         if (currentGeneration != 0) {
-            PrizeWalletCampaign storage currentCampaign =
-                prizeWalletCampaignByGeneration[currentGeneration];
+            PrizeWalletCampaign storage currentCampaign = prizeWalletCampaignByGeneration[currentGeneration];
 
             if (currentCampaign.claimedAt == 0) {
-                revert PrizeWalletCampaignNotClaimed(
-                    currentGeneration
-                );
+                revert PrizeWalletCampaignNotClaimed(currentGeneration);
             }
             if (currentCampaign.pendingPublicationDeposits != 0) {
                 revert PrizeWalletCampaignHasPendingDeposits(
-                    currentGeneration,
-                    currentCampaign.pendingPublicationDeposits
+                    currentGeneration, currentCampaign.pendingPublicationDeposits
                 );
             }
         }
 
-        uint256 usedManifestGeneration =
-            prizeWalletGenerationByManifestDigest[
-                campaignManifestDigest
-            ];
+        uint256 usedManifestGeneration = prizeWalletGenerationByManifestDigest[campaignManifestDigest];
         if (usedManifestGeneration != 0) {
-            revert PrizeWalletManifestAlreadyUsed(
-                campaignManifestDigest,
-                usedManifestGeneration
-            );
+            revert PrizeWalletManifestAlreadyUsed(campaignManifestDigest, usedManifestGeneration);
         }
 
         generation = currentGeneration + 1;
         _validateNewPrizeWallet(wallet);
 
-        bytes32 digest = prizeWalletActivationDigest(
-            generation,
-            wallet,
-            campaignManifestDigest,
-            deadline
-        );
-        address recoveredSigner = ECDSA.recover(
-            digest,
-            walletSignature
-        );
+        bytes32 digest = prizeWalletActivationDigest(generation, wallet, campaignManifestDigest, deadline);
+        address recoveredSigner = ECDSA.recover(digest, walletSignature);
         if (recoveredSigner != wallet) {
-            revert PrizeWalletActivationSignatureMismatch(
-                wallet,
-                recoveredSigner
-            );
+            revert PrizeWalletActivationSignatureMismatch(wallet, recoveredSigner);
         }
 
         if (block.timestamp > type(uint64).max) {
             revert PrizeWalletTimestampOverflow(block.timestamp);
         }
 
-        prizeWalletCampaignByGeneration[generation] =
-            PrizeWalletCampaign({
-                wallet: wallet,
-                campaignManifestDigest: campaignManifestDigest,
-                activatedAt: uint64(block.timestamp),
-                claimedAt: 0,
-                pendingPublicationDeposits: 0,
-                completedPublicationDeposits: 0
-            });
+        prizeWalletCampaignByGeneration[generation] = PrizeWalletCampaign({
+            wallet: wallet,
+            campaignManifestDigest: campaignManifestDigest,
+            activatedAt: uint64(block.timestamp),
+            claimedAt: 0,
+            pendingPublicationDeposits: 0,
+            completedPublicationDeposits: 0
+        });
 
         prizeWalletGenerationByAddress[wallet] = generation;
-        prizeWalletGenerationByManifestDigest[
-            campaignManifestDigest
-        ] = generation;
+        prizeWalletGenerationByManifestDigest[campaignManifestDigest] = generation;
         activePrizeWalletGeneration = generation;
 
-        emit PrizeWalletCampaignActivated(
-            generation,
-            wallet,
-            campaignManifestDigest,
-            uint64(block.timestamp)
-        );
+        emit PrizeWalletCampaignActivated(generation, wallet, campaignManifestDigest, uint64(block.timestamp));
     }
 
     /// @notice Approves one already-registered official publication to reserve
@@ -645,20 +567,14 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
     /// @dev Approval is explicit and generation-bound. A publication that has
     ///      already reserved or completed its one deposit lifecycle cannot be
     ///      approved again.
-    function approvePrizeWalletPublication(
-        address publication
-    ) external onlyOwner returns (uint256 generation) {
+    function approvePrizeWalletPublication(address publication) external onlyOwner returns (uint256 generation) {
         if (!isPublication[publication]) {
             revert UnauthorizedPrizeWalletPublication(publication);
         }
 
-        uint8 depositState =
-            prizeWalletDepositStateByPublication[publication];
+        uint8 depositState = prizeWalletDepositStateByPublication[publication];
         if (depositState != PRIZE_DEPOSIT_NONE) {
-            revert PrizeWalletDepositAlreadyInitialized(
-                publication,
-                depositState
-            );
+            revert PrizeWalletDepositAlreadyInitialized(publication, depositState);
         }
 
         generation = activePrizeWalletGeneration;
@@ -666,24 +582,18 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
             revert PrizeWalletCampaignNotActive();
         }
 
-        PrizeWalletCampaign storage campaign =
-            prizeWalletCampaignByGeneration[generation];
+        PrizeWalletCampaign storage campaign = prizeWalletCampaignByGeneration[generation];
         if (campaign.claimedAt != 0) {
             revert PrizeWalletCampaignAlreadyClaimed(generation);
         }
         _validateActivePrizeWalletCampaign(generation, campaign);
 
-        uint256 approvedGeneration =
-            prizeWalletApprovedGenerationByPublication[publication];
+        uint256 approvedGeneration = prizeWalletApprovedGenerationByPublication[publication];
         if (approvedGeneration == generation) {
-            revert PrizeWalletPublicationApprovalAlreadySet(
-                publication,
-                generation
-            );
+            revert PrizeWalletPublicationApprovalAlreadySet(publication, generation);
         }
 
-        prizeWalletApprovedGenerationByPublication[publication] =
-            generation;
+        prizeWalletApprovedGenerationByPublication[publication] = generation;
 
         emit PrizeWalletPublicationApproved(publication, generation);
     }
@@ -691,21 +601,15 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
     /// @notice Revokes permission for a publication to create a new Prize
     ///         Wallet reservation. Any reservation already created remains
     ///         completable so an authority rotation cannot strand the winner.
-    function revokePrizeWalletPublicationApproval(
-        address publication
-    ) external onlyOwner {
-        uint256 generation =
-            prizeWalletApprovedGenerationByPublication[publication];
+    function revokePrizeWalletPublicationApproval(address publication) external onlyOwner {
+        uint256 generation = prizeWalletApprovedGenerationByPublication[publication];
         if (generation == 0) {
             revert PrizeWalletPublicationApprovalMissing(publication);
         }
 
         delete prizeWalletApprovedGenerationByPublication[publication];
 
-        emit PrizeWalletPublicationApprovalRevoked(
-            publication,
-            generation
-        );
+        emit PrizeWalletPublicationApprovalRevoked(publication, generation);
     }
 
     /// @notice Claim acknowledgement made directly by the winner-controlled
@@ -718,13 +622,9 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
             revert PrizeWalletCampaignNotActive();
         }
 
-        PrizeWalletCampaign storage campaign =
-            prizeWalletCampaignByGeneration[generation];
+        PrizeWalletCampaign storage campaign = prizeWalletCampaignByGeneration[generation];
         if (msg.sender != campaign.wallet) {
-            revert UnauthorizedPrizeWalletClaim(
-                campaign.wallet,
-                msg.sender
-            );
+            revert UnauthorizedPrizeWalletClaim(campaign.wallet, msg.sender);
         }
 
         _confirmPrizeWalletClaim(generation, campaign, msg.sender);
@@ -735,23 +635,15 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
     ///         already manufactured and registered by this factory may call.
     function reserveActivePrizeWalletDeposit()
         external
-        returns (
-            uint256 generation,
-            address wallet,
-            bytes32 campaignManifestDigest
-        )
+        returns (uint256 generation, address wallet, bytes32 campaignManifestDigest)
     {
         if (!isPublication[msg.sender]) {
             revert UnauthorizedPrizeWalletPublication(msg.sender);
         }
 
-        uint8 existingState =
-            prizeWalletDepositStateByPublication[msg.sender];
+        uint8 existingState = prizeWalletDepositStateByPublication[msg.sender];
         if (existingState != PRIZE_DEPOSIT_NONE) {
-            revert PrizeWalletDepositAlreadyInitialized(
-                msg.sender,
-                existingState
-            );
+            revert PrizeWalletDepositAlreadyInitialized(msg.sender, existingState);
         }
 
         generation = activePrizeWalletGeneration;
@@ -759,21 +651,15 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
             revert PrizeWalletCampaignNotActive();
         }
 
-        PrizeWalletCampaign storage campaign =
-            prizeWalletCampaignByGeneration[generation];
+        PrizeWalletCampaign storage campaign = prizeWalletCampaignByGeneration[generation];
         if (campaign.claimedAt != 0) {
             revert PrizeWalletCampaignAlreadyClaimed(generation);
         }
         _validateActivePrizeWalletCampaign(generation, campaign);
 
-        uint256 approvedGeneration =
-            prizeWalletApprovedGenerationByPublication[msg.sender];
+        uint256 approvedGeneration = prizeWalletApprovedGenerationByPublication[msg.sender];
         if (approvedGeneration != generation) {
-            revert PrizeWalletPublicationNotApproved(
-                msg.sender,
-                generation,
-                approvedGeneration
-            );
+            revert PrizeWalletPublicationNotApproved(msg.sender, generation, approvedGeneration);
         }
 
         if (campaign.pendingPublicationDeposits == type(uint64).max) {
@@ -781,20 +667,13 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
         }
 
         ++campaign.pendingPublicationDeposits;
-        prizeWalletDepositGenerationByPublication[msg.sender] =
-            generation;
-        prizeWalletDepositStateByPublication[msg.sender] =
-            PRIZE_DEPOSIT_RESERVED;
+        prizeWalletDepositGenerationByPublication[msg.sender] = generation;
+        prizeWalletDepositStateByPublication[msg.sender] = PRIZE_DEPOSIT_RESERVED;
 
         wallet = campaign.wallet;
         campaignManifestDigest = campaign.campaignManifestDigest;
 
-        emit PrizeWalletDepositReserved(
-            msg.sender,
-            generation,
-            wallet,
-            campaign.pendingPublicationDeposits
-        );
+        emit PrizeWalletDepositReserved(msg.sender, generation, wallet, campaign.pendingPublicationDeposits);
     }
 
     /// @notice Completes one publication's reserved deposit after its prize copy
@@ -810,10 +689,8 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
             revert PrizeWalletDepositNotReserved(msg.sender, state);
         }
 
-        uint256 generation =
-            prizeWalletDepositGenerationByPublication[msg.sender];
-        PrizeWalletCampaign storage campaign =
-            prizeWalletCampaignByGeneration[generation];
+        uint256 generation = prizeWalletDepositGenerationByPublication[msg.sender];
+        PrizeWalletCampaign storage campaign = prizeWalletCampaignByGeneration[generation];
 
         if (campaign.pendingPublicationDeposits == 0) {
             revert PrizeWalletPendingDepositUnderflow(generation);
@@ -824,8 +701,7 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
 
         --campaign.pendingPublicationDeposits;
         ++campaign.completedPublicationDeposits;
-        prizeWalletDepositStateByPublication[msg.sender] =
-            PRIZE_DEPOSIT_COMPLETED;
+        prizeWalletDepositStateByPublication[msg.sender] = PRIZE_DEPOSIT_COMPLETED;
 
         emit PrizeWalletDepositCompleted(
             msg.sender,
@@ -837,12 +713,7 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
     }
 
     function _validateNewPrizeWallet(address wallet) internal view {
-        if (
-            wallet == address(0) ||
-            wallet == address(this) ||
-            wallet == owner() ||
-            wallet == pendingOwner()
-        ) {
+        if (wallet == address(0) || wallet == address(this) || wallet == owner() || wallet == pendingOwner()) {
             revert InvalidPrizeWalletAddress(wallet);
         }
 
@@ -851,27 +722,20 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
             revert PrizeWalletAddressHasCode(wallet, codeSize);
         }
 
-        uint256 usedGeneration =
-            prizeWalletGenerationByAddress[wallet];
+        uint256 usedGeneration = prizeWalletGenerationByAddress[wallet];
         if (usedGeneration != 0) {
-            revert PrizeWalletAddressAlreadyUsed(
-                wallet,
-                usedGeneration
-            );
+            revert PrizeWalletAddressAlreadyUsed(wallet, usedGeneration);
         }
     }
 
-    function _validateActivePrizeWalletCampaign(
-        uint256 generation,
-        PrizeWalletCampaign storage campaign
-    ) internal view {
+    function _validateActivePrizeWalletCampaign(uint256 generation, PrizeWalletCampaign storage campaign)
+        internal
+        view
+    {
         address wallet = campaign.wallet;
         if (
-            wallet == address(0) ||
-            prizeWalletGenerationByAddress[wallet] != generation ||
-            prizeWalletGenerationByManifestDigest[
-                campaign.campaignManifestDigest
-            ] != generation
+            wallet == address(0) || prizeWalletGenerationByAddress[wallet] != generation
+                || prizeWalletGenerationByManifestDigest[campaign.campaignManifestDigest] != generation
         ) {
             revert PrizeWalletCampaignIntegrityMismatch(generation);
         }
@@ -882,19 +746,14 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
         }
     }
 
-    function _confirmPrizeWalletClaim(
-        uint256 generation,
-        PrizeWalletCampaign storage campaign,
-        address confirmer
-    ) internal {
+    function _confirmPrizeWalletClaim(uint256 generation, PrizeWalletCampaign storage campaign, address confirmer)
+        internal
+    {
         if (campaign.claimedAt != 0) {
             revert PrizeWalletCampaignAlreadyClaimed(generation);
         }
         if (campaign.pendingPublicationDeposits != 0) {
-            revert PrizeWalletCampaignHasPendingDeposits(
-                generation,
-                campaign.pendingPublicationDeposits
-            );
+            revert PrizeWalletCampaignHasPendingDeposits(generation, campaign.pendingPublicationDeposits);
         }
         if (campaign.completedPublicationDeposits == 0) {
             revert PrizeWalletCampaignHasNoCompletedDeposits(generation);
@@ -905,12 +764,62 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
 
         campaign.claimedAt = uint64(block.timestamp);
 
-        emit PrizeWalletCampaignClaimed(
-            generation,
-            campaign.wallet,
-            campaign.claimedAt,
-            confirmer
-        );
+        emit PrizeWalletCampaignClaimed(generation, campaign.wallet, campaign.claimedAt, confirmer);
+    }
+
+    // ---------------------------------------------------------------------
+    // Exact primary-sale deployment and permanent binding
+    // ---------------------------------------------------------------------
+
+    /// @notice Physically deploys and permanently binds the one approved
+    ///         HellboxPrimarySale for an official publication.
+    /// @dev The reviewed creation code is hash-checked before ordinary CREATE.
+    ///      Constructor arguments remain release-specific transport. The newly
+    ///      created contract must independently report the exact publication,
+    ///      factory, chain, and publication commitment identities before either
+    ///      append-only lookup is written. Any failure reverts the deployment.
+    function deployPrimarySale(
+        address publication,
+        bytes calldata primarySaleCreationCode,
+        bytes calldata constructorArguments
+    ) external onlyOwner returns (address primarySale) {
+        if (!isPublication[publication]) {
+            revert UnofficialPrimarySalePublication(publication);
+        }
+
+        address existingSale = primarySaleByPublication[publication];
+        if (existingSale != address(0)) {
+            revert PrimarySaleAlreadyRegistered(publication, existingSale);
+        }
+
+        bytes memory creationCode = primarySaleCreationCode;
+        bytes32 actualCreationCodeHash = keccak256(creationCode);
+        if (actualCreationCodeHash != approvedPrimarySaleCreationCodeHash) {
+            revert UnapprovedPrimarySaleCreationCode(approvedPrimarySaleCreationCodeHash, actualCreationCodeHash);
+        }
+
+        bytes memory initCode = bytes.concat(creationCode, constructorArguments);
+        assembly ("memory-safe") {
+            primarySale := create(0, add(initCode, 0x20), mload(initCode))
+            if iszero(primarySale) {
+                let size := returndatasize()
+                returndatacopy(0, 0, size)
+                revert(0, size)
+            }
+        }
+
+        if (primarySale.code.length == 0) {
+            revert PrimarySaleDeploymentProducedNoCode();
+        }
+
+        _verifyPrimarySale(publication, primarySale);
+
+        primarySaleByPublication[publication] = primarySale;
+        publicationByPrimarySale[primarySale] = publication;
+
+        bytes32 saleConfigDigest = IHellboxPrimarySaleProvenance(primarySale).saleConfigDigest();
+
+        emit PrimarySaleDeployed(publication, primarySale, saleConfigDigest, primarySale.codehash);
     }
 
     // ---------------------------------------------------------------------
@@ -942,60 +851,35 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
     ) external onlyOwner returns (address publicationAddress) {
         bytes32 publicationKeyHash = keccak256(bytes(config.publicationKey));
 
-        _rejectDuplicatePublication(
-            publicationKeyHash,
-            expectedReleaseConfigDigest
-        );
+        _rejectDuplicatePublication(publicationKeyHash, expectedReleaseConfigDigest);
 
         bytes memory creationCode = publicationCreationCode;
         bytes32 actualCreationCodeHash = keccak256(creationCode);
 
-        if (
-            actualCreationCodeHash !=
-            approvedPublicationCreationCodeHash
-        ) {
-            revert UnapprovedPublicationCreationCode(
-                approvedPublicationCreationCodeHash,
-                actualCreationCodeHash
-            );
+        if (actualCreationCodeHash != approvedPublicationCreationCodeHash) {
+            revert UnapprovedPublicationCreationCode(approvedPublicationCreationCodeHash, actualCreationCodeHash);
         }
 
-        publicationAddress = _deployPublication(
-            creationCode,
-            config,
-            commitments,
-            expectedReleaseConfigDigest,
-            birthPolicyPreimages
-        );
+        publicationAddress =
+            _deployPublication(creationCode, config, commitments, expectedReleaseConfigDigest, birthPolicyPreimages);
 
-        HellboxPublication publication =
-            HellboxPublication(publicationAddress);
+        HellboxPublication publication = HellboxPublication(publicationAddress);
 
-        _verifyDeployment(
-            publication,
-            publicationKeyHash,
-            expectedReleaseConfigDigest
-        );
+        _verifyDeployment(publication, publicationKeyHash, expectedReleaseConfigDigest);
 
         bytes32 runtimeCodeHash = publicationAddress.codehash;
 
         // Provenance becomes official only after all defensive checks pass.
         isPublication[publicationAddress] = true;
 
-        publicationByReleaseDigest[
-            expectedReleaseConfigDigest
-        ] = publicationAddress;
+        publicationByReleaseDigest[expectedReleaseConfigDigest] = publicationAddress;
 
         publicationByKeyHash[publicationKeyHash] = publicationAddress;
 
         publications.push(publicationAddress);
 
         emit PublicationPublished(
-            publicationAddress,
-            expectedReleaseConfigDigest,
-            publicationKeyHash,
-            owner(),
-            runtimeCodeHash
+            publicationAddress, expectedReleaseConfigDigest, publicationKeyHash, owner(), runtimeCodeHash
         );
     }
 
@@ -1009,28 +893,20 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
     // Deployment helpers
     // ---------------------------------------------------------------------
 
-    function _rejectDuplicatePublication(
-        bytes32 publicationKeyHash,
-        bytes32 expectedReleaseConfigDigest
-    ) internal view {
-        address existingByKey =
-            publicationByKeyHash[publicationKeyHash];
+    function _rejectDuplicatePublication(bytes32 publicationKeyHash, bytes32 expectedReleaseConfigDigest)
+        internal
+        view
+    {
+        address existingByKey = publicationByKeyHash[publicationKeyHash];
 
         if (existingByKey != address(0)) {
-            revert DuplicatePublicationKey(
-                publicationKeyHash,
-                existingByKey
-            );
+            revert DuplicatePublicationKey(publicationKeyHash, existingByKey);
         }
 
-        address existingByDigest =
-            publicationByReleaseDigest[expectedReleaseConfigDigest];
+        address existingByDigest = publicationByReleaseDigest[expectedReleaseConfigDigest];
 
         if (existingByDigest != address(0)) {
-            revert DuplicateReleaseConfigDigest(
-                expectedReleaseConfigDigest,
-                existingByDigest
-            );
+            revert DuplicateReleaseConfigDigest(expectedReleaseConfigDigest, existingByDigest);
         }
     }
 
@@ -1046,42 +922,70 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
         BirthPolicyPreimages calldata birthPolicyPreimages
     ) internal returns (address publicationAddress) {
         HellboxPublication.BirthPolicyDeploymentContext memory
-            birthPolicyContext = HellboxPublication.BirthPolicyDeploymentContext({
+            birthPolicyContext =
+            HellboxPublication.BirthPolicyDeploymentContext({
                 codeStore: birthPolicyCodeStore,
-                approvedCreationCodeHash:
-                    approvedBirthPolicyCreationCodeHash,
-                fixedCopyPolicyPreimage:
-                    birthPolicyPreimages.fixedCopyPolicyPreimage,
-                birthTraitsPolicyPreimage:
-                    birthPolicyPreimages.birthTraitsPolicyPreimage,
-                randomizationPolicyPreimage:
-                    birthPolicyPreimages.randomizationPolicyPreimage
+                approvedCreationCodeHash: approvedBirthPolicyCreationCodeHash,
+                fixedCopyPolicyPreimage: birthPolicyPreimages.fixedCopyPolicyPreimage,
+                birthTraitsPolicyPreimage: birthPolicyPreimages.birthTraitsPolicyPreimage,
+                randomizationPolicyPreimage: birthPolicyPreimages.randomizationPolicyPreimage
             });
 
-        bytes memory constructorArguments = abi.encode(
-            config,
-            commitments,
-            expectedReleaseConfigDigest,
-            birthPolicyContext
-        );
+        bytes memory constructorArguments =
+            abi.encode(config, commitments, expectedReleaseConfigDigest, birthPolicyContext);
 
-        bytes memory initCode = bytes.concat(
-            creationCode,
-            constructorArguments
-        );
+        bytes memory initCode = bytes.concat(creationCode, constructorArguments);
 
         assembly ("memory-safe") {
-            publicationAddress := create(
-                0,
-                add(initCode, 0x20),
-                mload(initCode)
-            )
+            publicationAddress := create(0, add(initCode, 0x20), mload(initCode))
 
             if iszero(publicationAddress) {
                 let size := returndatasize()
                 returndatacopy(0, 0, size)
                 revert(0, size)
             }
+        }
+    }
+
+    function _verifyPrimarySale(address publicationAddress, address primarySaleAddress) internal view {
+        IHellboxPrimarySaleProvenance primarySale = IHellboxPrimarySaleProvenance(primarySaleAddress);
+
+        bytes32 actualId = primarySale.PRIMARY_SALE_ID();
+        if (actualId != PRIMARY_SALE_ID) {
+            revert PrimarySaleIdentityMismatch(PRIMARY_SALE_ID, actualId);
+        }
+
+        uint256 actualVersion = primarySale.PRIMARY_SALE_VERSION();
+        if (actualVersion != PRIMARY_SALE_VERSION) {
+            revert PrimarySaleVersionMismatch(PRIMARY_SALE_VERSION, actualVersion);
+        }
+
+        address actualPublication = primarySale.publication();
+        if (actualPublication != publicationAddress) {
+            revert PrimarySalePublicationMismatch(publicationAddress, actualPublication);
+        }
+
+        address actualFactory = primarySale.publicationFactory();
+        if (actualFactory != address(this)) {
+            revert PrimarySaleFactoryMismatch(address(this), actualFactory);
+        }
+
+        uint256 actualChainId = primarySale.releaseChainId();
+        if (actualChainId != block.chainid) {
+            revert PrimarySaleChainMismatch(block.chainid, actualChainId);
+        }
+
+        HellboxPublication publication = HellboxPublication(publicationAddress);
+        bytes32 expectedReleaseDigest = publication.releaseConfigDigest();
+        bytes32 actualReleaseDigest = primarySale.publicationReleaseConfigDigest();
+        if (actualReleaseDigest != expectedReleaseDigest) {
+            revert PrimarySaleReleaseDigestMismatch(expectedReleaseDigest, actualReleaseDigest);
+        }
+
+        bytes32 expectedCommitmentsDigest = publication.commitmentsDigest();
+        bytes32 actualCommitmentsDigest = primarySale.publicationCommitmentsDigest();
+        if (actualCommitmentsDigest != expectedCommitmentsDigest) {
+            revert PrimarySaleCommitmentsDigestMismatch(expectedCommitmentsDigest, actualCommitmentsDigest);
         }
     }
 
@@ -1097,82 +1001,48 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
         address reportedFactory = publication.factory();
 
         if (reportedFactory != address(this)) {
-            revert DeploymentFactoryMismatch(
-                address(this),
-                reportedFactory
-            );
+            revert DeploymentFactoryMismatch(address(this), reportedFactory);
         }
 
         uint256 reportedChainId = publication.releaseChainId();
 
         if (reportedChainId != block.chainid) {
-            revert DeploymentChainMismatch(
-                block.chainid,
-                reportedChainId
-            );
+            revert DeploymentChainMismatch(block.chainid, reportedChainId);
         }
 
         bytes32 reportedTemplateId = publication.TEMPLATE_ID();
 
         if (reportedTemplateId != TEMPLATE_ID) {
-            revert DeploymentTemplateMismatch(
-                TEMPLATE_ID,
-                reportedTemplateId
-            );
+            revert DeploymentTemplateMismatch(TEMPLATE_ID, reportedTemplateId);
         }
 
-        uint256 reportedPublicationVersion =
-            publication.PUBLICATION_VERSION();
+        uint256 reportedPublicationVersion = publication.PUBLICATION_VERSION();
 
         if (reportedPublicationVersion != PUBLICATION_VERSION) {
-            revert DeploymentPublicationVersionMismatch(
-                PUBLICATION_VERSION,
-                reportedPublicationVersion
-            );
+            revert DeploymentPublicationVersionMismatch(PUBLICATION_VERSION, reportedPublicationVersion);
         }
 
-        bytes32 reportedReleaseConfigDigest =
-            publication.releaseConfigDigest();
+        bytes32 reportedReleaseConfigDigest = publication.releaseConfigDigest();
 
-        if (
-            reportedReleaseConfigDigest !=
-            expectedReleaseConfigDigest
-        ) {
-            revert DeploymentReleaseDigestMismatch(
-                expectedReleaseConfigDigest,
-                reportedReleaseConfigDigest
-            );
+        if (reportedReleaseConfigDigest != expectedReleaseConfigDigest) {
+            revert DeploymentReleaseDigestMismatch(expectedReleaseConfigDigest, reportedReleaseConfigDigest);
         }
 
-        bytes32 reportedPublicationKeyHash =
-            keccak256(bytes(publication.publicationKey()));
+        bytes32 reportedPublicationKeyHash = keccak256(bytes(publication.publicationKey()));
 
-        if (
-            reportedPublicationKeyHash !=
-            expectedPublicationKeyHash
-        ) {
-            revert DeploymentPublicationKeyMismatch(
-                expectedPublicationKeyHash,
-                reportedPublicationKeyHash
-            );
+        if (reportedPublicationKeyHash != expectedPublicationKeyHash) {
+            revert DeploymentPublicationKeyMismatch(expectedPublicationKeyHash, reportedPublicationKeyHash);
         }
 
         address reportedBirthPolicy = publication.birthPolicy();
-        if (
-            reportedBirthPolicy == address(0) ||
-            reportedBirthPolicy.code.length == 0
-        ) {
+        if (reportedBirthPolicy == address(0) || reportedBirthPolicy.code.length == 0) {
             revert DeploymentBirthPolicyMissing();
         }
 
-        address reportedBirthPolicyPublication =
-            HellboxBirthPolicy(reportedBirthPolicy).publication();
+        address reportedBirthPolicyPublication = HellboxBirthPolicy(reportedBirthPolicy).publication();
 
         if (reportedBirthPolicyPublication != address(publication)) {
-            revert DeploymentBirthPolicyPublicationMismatch(
-                address(publication),
-                reportedBirthPolicyPublication
-            );
+            revert DeploymentBirthPolicyPublicationMismatch(address(publication), reportedBirthPolicyPublication);
         }
     }
 }
