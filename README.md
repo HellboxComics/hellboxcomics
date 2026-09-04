@@ -49,82 +49,56 @@ A completed Gate's detailed architecture must be archived before `CURRENT_GATE_B
 
 ## Current checkpoint
 
-- Gate 0 — COMPLETE
-- Gate 1 — COMPLETE
-- Gate 2 — COMPLETE
-- Gate 3 — COMPLETE
-- **Gate 4 — IN PROGRESS**
-- Mainnet — NOT part of Gate 4
+Gates 0–3 are complete. **Gate 4 remains in progress. Mainnet is prohibited during Gate 4.**
 
-Latest source/test implementation baseline before this documentation-only synchronization:
+Latest source/test checkpoint:
 
 ```text
-151d545dc22065698324b7e894ded01db8b5603d
+0688dd00f3fa89e6b02d50415820c16389dfef4f
 ```
 
-Committed/pushed Gate 4 state:
-
-- Solidity `0.8.36`, EVM `shanghai`;
-- optimizer enabled, 200 runs, `via_ir = false`;
-- OpenZeppelin Contracts `v5.1.0` pinned;
-- full-deployment `HellboxPublication V1` + `HELLBOX_ABI_V1` golden vector;
-- size-safe factory provenance and immutable BirthPolicy code-store/deployment graph;
-- permanent one-time MARK/DEFECT assignment/inventory enforcement;
-- frozen drand `evmnet` verifier, one immutable verifier per factory generation, and publication-side verifier binding;
-- append-only future-round requests, exact FIFO permissionless proof fulfillment, and internal one-time Prize Wallet same-pool issuance;
-- permanent eight-test Prize Wallet FIFO regression;
-- committed self-authorized EOA campaign registry with official-publication approval, reserve→complete deposit accounting, pending-deposit claim blocking, direct winner-wallet claim, no-reuse and rotation boundaries;
-- permanent 15-test Prize Wallet registry/progressive-jackpot regression;
-- committed production creator-initialization → active-campaign reserve → seventh-mint FIFO request → atomic deposit-completion source path;
-- permanent five-test actual-factory composition/adversarial regression;
-- **125 committed Solidity tests**.
-
-Exact committed Prize Wallet identities:
+Its parent is `e86451b4d81d9a3cd8c27bd12aa2a75edeaf3f12` (immutable factory-sale binding). The corrected bridge adds no new publication or artwork. It connects the existing checkout to real random collector delivery.
 
 ```text
-factory commit: 7208590223107257c92524095a951e162b3c7349
-factory: 1178 lines
-sha256: 885d81b731aa28bb9a1f27de714d7d16e16d9c5a7e73fd75bbba9620c1d4a90d
-
-registry-test latest commit: 9a153dd6fef4f275476f74c9254d2f3beb90007e
-registry-test initial commit: c91763768c54130991f9b83df9a54971ed021bd6
-registry test: 986 lines
-sha256: 5b1300174947af2307fcd522613804ca3c96d8e978d4cb7f40d8a9cbfa75ba16
-
-production integration commit: 037a7236a60b194d177ffdc1241741525fc2ea3e
-publication: 2342 lines
-sha256: fd1e9c6ed88d72e4263d33219a243b9491567fcd7f4717aac6784be7981ac5f4
-
-permanent actual-factory test commit: 151d545dc22065698324b7e894ded01db8b5603d
-actual-factory test: 1133 lines
-sha256: bc6bd65ef5d15d9c8bdc7ac159f9d573b2ce42b494868c4d7fa1b5fc7d094cc2
+collector submits exact payment
+→ factory-bound checkout authorizes one FIFO request
+→ approved randomness selects the copy
+→ publication delivers the NFT
+→ matching checkout record confirms delivery
+→ payment becomes releasable
 ```
 
-Creator terminal evidence for the permanent integrated tree:
+Implemented: full-deployment kernel/factory; immutable BirthPolicy code-store wiring and one-time birth identity; drand/FIFO; campaign registry and production Prize Wallet issuance; native timed closure/Final-3/extinguishment; frozen phase/payment checkout; paid-opening clock; exact factory-sale binding; real collector bridge.
 
-- **3/3** temporary focused production-integration tests passed;
-- **15/15** permanent registry/progressive tests passed inside the full run;
-- **125/125** committed tests passed, 0 failed, 0 skipped;
-- **5/5** focused permanent actual-factory integration tests passed;
-- issuance fuzz boundary **256 runs**;
-- optimized runtimes: publication **19,330 bytes**, factory **12,424 bytes**, verifier **5,138 bytes**;
-- publication EIP-170 headroom **5,246 bytes**; creation bytecode **29,345 bytes** with **19,807 bytes before constructor arguments**;
-- factory initcode with arguments **19,742 bytes**, leaving **29,410 bytes** EIP-3860 headroom;
-- worktree and index clean after pushed test commit `151d545`.
+**Current inventory: 164 Solidity tests.** Recorded creator evidence includes **28 checkout**, **3 exact sale-binding**, **7 real-factory integration** and **5 timed-closure** tests; these are subsets of the 164 total. The repair installer reruns focused/full tests before saving. Exact identities and chronology are in Project State §6.
 
-Production publication↔registry source integration and its permanent actual-factory composition/adversarial proof are committed. The tree is at 125 tests.
+Current reported runtime: publication **22,259 bytes**, factory **14,877 bytes**, checkout **10,972 bytes**. Publication hard headroom is **2,317 bytes**, only **269 bytes above its 2,048-byte soft reserve**. Publication creation bytecode is **32,480 bytes before constructor arguments**. Do not substitute old 125-test/19,330-byte measurements for current evidence.
 
-**Exact next frontier:** add the publication-only timed-closure inventory finalizer to `HellboxBirthPolicy.sol`, then activate FIFO `TIMED_CLOSURE` in `HellboxPublication.sol`. Phase/eligibility/payment escrow and settlement will use a separate versioned non-upgradeable sale/mint-policy module; proceeds routing and renderer/art data remain separate. The publication keeps final queue, copy-selection, mint, lifetime-cap, supply and closure authority.
+**Next:** Review the immutable metadata-renderer/data-store binding and self-contained `tokenURI` proving path before writing the next implementation file. Keep the renderer outside the publication and remeasure the narrow binding against the 2,048-byte soft reserve. Do not rebuild the completed checkout, factory binding, collector bridge or timed closure.
 
-Measured completion decision:
+Then finish the production routing/readiness/liveness boundaries and actual SciVive Testnet → ownership → Worker → Reader acceptance. Reuse may be proven with alternate test configurations; Harrow is not required to invent or publicly deploy a dummy comic before the Press exists.
 
-- current authoritative profile remains optimizer `200`, `via_ir = false`;
-- runs `1` saved only `416` publication bytes; via-IR saved only `627`;
-- compiler-profile churn is rejected as a substitute for modular architecture;
-- remaining publication-facing work uses a `2,048`-byte soft runtime reserve;
-- no locked collector promise is dropped.
+### Paid mint opening — not deployment
 
-The interactive comic, Prize Wallet campaign, Continuity Covenant, Archive/reward, outside-creator Press and future-token directions do **not** authorize a `HELLBOX_ABI_V1` change or early collector mint.
+The native clock begins only when the public paid mint actually opens and collectors can submit a payable purchase—not when publication or checkout contracts are deployed, not when content is prepared, and not when the first purchase happens. Its duration is exactly **66 days, 6 hours, 6 minutes, 6 seconds (5,724,366 seconds)**. SciVive is a free proving exception and remains untimed by this native rule.
+
+Implementation boundary: `HellboxPrimarySale` currently derives the opening from the earliest frozen non-FREE phase `startAt`; `HellboxPublication.nativeMintDeadline()` reads the permanently factory-bound checkout and returns zero before that binding exists. This is a scheduled timestamp, not an automatic readiness detector. Acceptance must prove that the selected public paid opening is actually purchasable after all bootstrap/Prize Wallet prerequisites; the current tests do not prove every late-readiness or earlier-paid-allowlist configuration satisfies that product rule. Do not present deployment or an unavailable scheduled phase as actual paid opening.
+
+### Current restrictions / unfinished release proof
+
+- The sale currently accepts only direct EOA/self-recipient collector requests. Smart-contract wallets, relayers and gifting are not supported by this checkpoint; do not describe them as supported.
+- Failed request transactions revert atomically. Once a request is accepted, there is no cancellation/refund endpoint and no alternate-entropy or FIFO-skip rescue. Provider outage, queue liveness and collector disclosure remain release blockers, not completed refund functionality.
+- The exact frozen proceeds receiver is bound and delivery-before-release is proven; a production routing controller and its downstream authority/split management remain unfinished. Test receiver contracts are not a deployed treasury system.
+- Canonical renderer/data-store binding, self-contained native `tokenURI`, full SciVive Testnet-to-Worker-to-Reader acceptance, and deployment/operational hardening remain unfinished.
+- Passing this suite is not an audit, a live deployment, a closed Gate, or authorization for mainnet. No mainnet action belongs in Gate 4.
+
+### Recovery and handoff
+
+The first bridge package failed stale closure tests and restored `e86451b`. The corrected second bridge passed **164 tests** but remained uncommitted. The old living-doc installer then refused the modified tree; it did not invalidate or remove the successful bridge. This repair commits those same six verified bridge files first, then synchronizes Project State, the active blueprint and this README. Character canon, dependencies and website files are unchanged.
+
+A document is not evidence that a push succeeded: verify local `HEAD`, fetched `origin/main`, actual remote tip, and a clean index/worktree at every handoff. On failure preserve working source, do not force-push/reset/clean, and inspect the actual state.
+
+Solidity **0.8.36**, **Shanghai**, optimizer **200**, **non-IR**, OpenZeppelin **5.1.0** and `HELLBOX_ABI_V1` remain unchanged. No locked collector promise is dropped to save bytes.
 
 ## Gate 4 issuance invariant
 
@@ -216,7 +190,7 @@ HellboxBirthPolicy companion
 
 If the store, approved hash or policy inputs are wrong, publication deployment fails atomically and the factory does not register the broken release.
 
-The rejected direct-embed approach left only about **1.5 KB** of practical room in the pre-optimizer experiment. The code-store path was proven with a **31,665-byte** pre-optimizer native publication payload and **17,487 bytes** of headroom; remeasure after production registry wiring. Do not resurrect the embedded approach or add a setter/proxy/initializer/upgrade escape hatch.
+The rejected direct-embed approach left only about **1.5 KB** of practical room in the historical pre-optimizer experiment. The code-store path remains proven. Current corrected-bridge measurements are in the checkpoint above; remeasure the complete constructor-appended payload for new versions. Do not resurrect embedding or add a setter/proxy/initializer/upgrade escape hatch.
 
 One publication/release = one native ERC-721 collection.
 
@@ -621,7 +595,7 @@ The finished production machine should be pre-engineered enough that Harrow can 
 - use pinned audited OpenZeppelin primitives for solved standards
 - no publication or birth-policy proxy/upgrades in V1
 - no generic publication owner
-- `HellboxBirthPolicy` has one narrow publication-only birth-assignment endpoint and no publisher/admin setter, reroll or replacement surface
+- `HellboxBirthPolicy` has publication-only birth assignment and one-way timed-inventory finalization, with no publisher/admin setter, reroll or replacement surface
 - `HellboxBirthPolicyCodeStore` is inert immutable infrastructure, not an admin/economic control surface
 - no collector-token seizure/forced transfer
 - no per-publication custom-Solidity/audit treadmill
