@@ -8,6 +8,8 @@ import {HellboxPublication} from "../contracts/HellboxPublication.sol";
 import {HellboxPublicationFactory} from "../contracts/HellboxPublicationFactory.sol";
 import {HellboxPrimarySale} from "../contracts/HellboxPrimarySale.sol";
 import {IHellboxRandomnessVerifier} from "../contracts/interfaces/IHellboxRandomnessVerifier.sol";
+import {HellboxArtDataStore} from "../contracts/HellboxArtDataStore.sol";
+import {HellboxNativeRendererV1} from "../contracts/HellboxNativeRendererV1.sol";
 
 interface IProductionPrizeWalletVm {
     function addr(uint256 privateKey) external pure returns (address keyAddr);
@@ -140,6 +142,8 @@ contract HellboxProductionPrizeWalletIntegrationTest {
         HellboxPublication publication;
         address wallet;
         bytes32 campaignManifestDigest;
+        address artDataStore;
+        address renderer;
     }
 
     struct SaleDeployment {
@@ -641,6 +645,8 @@ contract HellboxProductionPrizeWalletIntegrationTest {
             keccak256(type(HellboxBirthPolicy).creationCode)
         );
 
+        deployed.artDataStore = _deployProductionArtStore();
+
         deployed.wallet = VM.addr(PRIZE_WALLET_KEY);
         deployed.campaignManifestDigest =
             keccak256(abi.encode("HELLBOX_PRODUCTION_PRIZE_WALLET_INTEGRATION", publicationKey));
@@ -654,7 +660,9 @@ contract HellboxProductionPrizeWalletIntegrationTest {
             HellboxPublication.RandomizationPolicyEnforcement memory randomPolicy
         ) = _nativePolicies(creatorRecipient);
 
-        HellboxPublication.CommitmentSet memory commitments = _commitments(fixedPolicy, birthTraits, randomPolicy);
+        HellboxPublication.CommitmentSet memory commitments = _commitmentsWithRenderer(
+            fixedPolicy, birthTraits, randomPolicy, _productionRendererRulesDigest(deployed)
+        );
 
         HellboxPublicationFactory.BirthPolicyPreimages memory preimages = HellboxPublicationFactory.BirthPolicyPreimages({
             fixedCopyPolicyPreimage: abi.encode(fixedPolicy),
@@ -691,12 +699,150 @@ contract HellboxProductionPrizeWalletIntegrationTest {
         );
         require(deployed.publication.issuanceStateInitialized(), "issuance bootstrap");
 
+        _bindProductionRenderer(deployed, commitments);
+
         if (approvePublication) {
             uint256 approvedGeneration = deployed.factory.approvePrizeWalletPublication(address(deployed.publication));
             require(approvedGeneration == 1, "approved generation");
         }
 
         _mockVerifier(deployed.publication);
+    }
+
+    // ---------------------------------------------------------------------
+    // Real end-to-end rendering
+    // ---------------------------------------------------------------------
+
+    uint256 internal constant PRODUCTION_CANVAS_WIDTH = 1988;
+    uint256 internal constant PRODUCTION_CANVAS_HEIGHT = 3056;
+
+    function testIssuedCopyRendersCompleteMetadataFromTheChainAlone() public {
+        Deployment memory deployed = _deployProductionPublication("real-factory-render", CREATOR, true);
+
+        deployed.publication.beginCreatorInitialization();
+        (, uint256 tokenId) = _fulfillPending(deployed.publication);
+
+        require(deployed.publication.ownerOf(tokenId) == CREATOR, "issued to creator");
+
+        // The copy carries real birth identity assigned through the companion.
+        HellboxBirthPolicy policy = HellboxBirthPolicy(deployed.publication.birthPolicy());
+        require(policy.birthIdentityAssigned(tokenId), "birth identity assigned");
+        require(policy.birthMark(tokenId) != bytes32(0), "mark assigned");
+
+        string memory uri = deployed.publication.tokenURI(tokenId);
+        require(_hasJsonDataUriPrefix(uri), "self-contained json data uri");
+        require(
+            keccak256(bytes(uri))
+                == keccak256(
+                    bytes(HellboxNativeRendererV1(deployed.renderer).tokenURI(address(deployed.publication), tokenId))
+                ),
+            "kernel returns the bound renderer's answer"
+        );
+    }
+
+    function testRendererBindingIsPermanentForTheRealPublication() public {
+        Deployment memory deployed = _deployProductionPublication("real-factory-render-binding", CREATOR, true);
+
+        require(
+            deployed.factory.rendererByPublication(address(deployed.publication)) == deployed.renderer,
+            "publication lookup"
+        );
+        require(
+            deployed.factory.publicationByRenderer(deployed.renderer) == address(deployed.publication),
+            "renderer lookup"
+        );
+        require(
+            HellboxNativeRendererV1(deployed.renderer).artDataStore() == deployed.artDataStore, "bound art store"
+        );
+    }
+
+    function testEveryCreatorCopyGetsItsOwnSelfContainedMetadata() public {
+        Deployment memory deployed = _deployProductionPublication("real-factory-render-six", CREATOR, true);
+
+        deployed.publication.beginCreatorInitialization();
+
+        bytes32[6] memory seen;
+        for (uint256 index; index < 6; ++index) {
+            (, uint256 tokenId) = _fulfillPending(deployed.publication);
+
+            string memory uri = deployed.publication.tokenURI(tokenId);
+            require(_hasJsonDataUriPrefix(uri), "self-contained json data uri");
+
+            bytes32 fingerprint = keccak256(bytes(uri));
+            for (uint256 earlier; earlier < index; ++earlier) {
+                require(seen[earlier] != fingerprint, "duplicate copy metadata");
+            }
+            seen[index] = fingerprint;
+        }
+    }
+
+    function _deployProductionArtStore() internal returns (address) {
+        // A storage fixture, not authored comic art.
+        bytes memory plate = bytes('<rect width="1988" height="3056" fill="#0b0b0f"/>');
+        return address(new HellboxArtDataStore(plate, keccak256(plate)));
+    }
+
+    function _productionRendererPreimages(Deployment memory deployed)
+        internal
+        view
+        returns (HellboxPublicationFactory.RendererPreimages memory preimages)
+    {
+        preimages = HellboxPublicationFactory.RendererPreimages({
+            rendererId: keccak256("HELLBOX_NATIVE_RENDERER"),
+            rendererVersion: 1,
+            interfaceVersion: 1,
+            rendererCreationCodeHash: keccak256(type(HellboxNativeRendererV1).creationCode),
+            artDataStore: deployed.artDataStore,
+            artDataStoreCodeHash: deployed.artDataStore.codehash,
+            canvasWidth: PRODUCTION_CANVAS_WIDTH,
+            canvasHeight: PRODUCTION_CANVAS_HEIGHT
+        });
+    }
+
+    function _productionRendererRulesDigest(Deployment memory deployed) internal view returns (bytes32) {
+        return deployed.factory.rendererRulesDigest(_productionRendererPreimages(deployed));
+    }
+
+    function _bindProductionRenderer(
+        Deployment memory deployed,
+        HellboxPublication.CommitmentSet memory commitments
+    ) internal {
+        deployed.renderer = deployed.factory.deployRenderer(
+            address(deployed.publication),
+            commitments,
+            _productionRendererPreimages(deployed),
+            type(HellboxNativeRendererV1).creationCode,
+            abi.encode(
+                deployed.artDataStore,
+                deployed.artDataStore.codehash,
+                PRODUCTION_CANVAS_WIDTH,
+                PRODUCTION_CANVAS_HEIGHT
+            )
+        );
+    }
+
+    function _commitmentsWithRenderer(
+        HellboxPublication.FixedCopyRulesEnforcement memory fixedPolicy,
+        HellboxPublication.BirthTraitsEnforcement memory birthPolicy,
+        HellboxPublication.RandomizationPolicyEnforcement memory randomPolicy,
+        bytes32 frozenRendererRulesDigest
+    ) internal pure returns (HellboxPublication.CommitmentSet memory commitments) {
+        commitments = _commitments(fixedPolicy, birthPolicy, randomPolicy);
+        commitments.rendererRulesDigest = frozenRendererRulesDigest;
+    }
+
+    function _hasJsonDataUriPrefix(string memory value) internal pure returns (bool) {
+        bytes memory raw = bytes(value);
+        bytes memory prefix = bytes("data:application/json;base64,");
+        if (raw.length < prefix.length) {
+            return false;
+        }
+        for (uint256 i; i < prefix.length; ++i) {
+            if (raw[i] != prefix[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     function _activateCampaign(HellboxPublicationFactory factory, address wallet, bytes32 manifest) internal {
