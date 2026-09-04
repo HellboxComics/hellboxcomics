@@ -1024,6 +1024,18 @@ next allowed authored story stage
 
 The escape room is an interactive extension of the stage's final comic frame, not a random external minigame pasted onto the issue.
 
+### Creator-stated page and room cadence — NOT YET LOCKED
+
+Harrow's own description of the intended shape, recorded here because §12's open questions still list the number of required escape rooms as undecided:
+
+- a Hellbox comic is planned at roughly **14 pages**; this count is explicitly **not locked**;
+- a room sits at the end of **every page**, not once per issue — the last frame of the page is covered, the reader clicks that covered frame, and the escape room opens from it;
+- the reading experience is a **90s choose-your-own-ending chapter book**: authored branch splits and alternate endings, not a single linear path.
+
+Treat "stage" and "page" as the same unit until Harrow says otherwise. Fourteen pages implies roughly fourteen authored rooms per issue plus branch coverage, which is the production figure that should drive the art, room-authoring and playtest budgets. Nothing here is frozen; it is the creator's stated direction awaiting a locking decision.
+
+SciVive carries **none** of this. It is a plain paged ebook facsimile with no rooms, branches, endings or trait interactions, deliberately chosen as the simplest thing to prove the publishing machine end to end.
+
 ### Difficulty curve
 
 Required product direction:
