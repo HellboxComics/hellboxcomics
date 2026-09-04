@@ -10,6 +10,19 @@ import {HellboxDrandEvmnetVerifier} from "./randomness/HellboxDrandEvmnetVerifie
 import {EIP712} from "openzeppelin-contracts/contracts/utils/cryptography/EIP712.sol";
 import {ECDSA} from "openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
 
+/// @dev Narrow immutable provenance surface exposed by an approved metadata
+///      renderer generation. The factory reads it only to prove that a freshly
+///      deployed renderer matches the release's frozen renderer commitment.
+interface IHellboxRendererProvenance {
+    function rendererId() external view returns (bytes32);
+    function rendererVersion() external view returns (uint256);
+    function interfaceVersion() external view returns (uint256);
+    function artDataStore() external view returns (address);
+    function artDataStoreCodeHash() external view returns (bytes32);
+    function canvasWidth() external view returns (uint256);
+    function canvasHeight() external view returns (uint256);
+}
+
 /// @dev Narrow immutable provenance surface exposed by HellboxPrimarySale.
 ///      The factory deploys exact hash-approved creation code, then verifies
 ///      these bindings before recording the one permanent sale for a publication.
@@ -59,6 +72,11 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
     bytes32 public constant DEPLOYMENT_MODE = keccak256("FULL_DEPLOYMENT");
     bytes32 public constant PRIMARY_SALE_ID = keccak256("HELLBOX_PRIMARY_SALE_V1");
     uint256 public constant PRIMARY_SALE_VERSION = 1;
+
+    /// @notice Domain separator for the renderer-binding enforcement preimage
+    ///         committed by each release as `CommitmentSet.rendererRulesDigest`.
+    bytes32 public constant RENDERER_BINDING_ENFORCEMENT_DOMAIN =
+        keccak256("HELLBOX_ENFORCEMENT_V1:RENDERER_BINDING");
 
     /// @notice Stable identifier expected from the one verifier deployed by
     ///         this factory generation.
@@ -126,6 +144,21 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
         bytes randomizationPolicyPreimage;
     }
 
+    /// @notice Canonical renderer-binding preimage for one release. Its digest
+    ///         is frozen at publish time inside `CommitmentSet.rendererRulesDigest`,
+    ///         so the renderer, its exact code, its canonical art store and its
+    ///         canvas are all settled before any copy is ever issued.
+    struct RendererPreimages {
+        bytes32 rendererId;
+        uint256 rendererVersion;
+        uint256 interfaceVersion;
+        bytes32 rendererCreationCodeHash;
+        address artDataStore;
+        bytes32 artDataStoreCodeHash;
+        uint256 canvasWidth;
+        uint256 canvasHeight;
+    }
+
     /// @notice Public, non-secret record of one prize-wallet campaign
     ///         generation. The wallet remains an ordinary EOA controlled by
     ///         the mnemonic recovered by the puzzle winner; no secret enters
@@ -156,6 +189,9 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
     ///      upgrade, or arbitrary module-registry path.
     mapping(address publication => address primarySale) public primarySaleByPublication;
     mapping(address primarySale => address publication) public publicationByPrimarySale;
+
+    mapping(address publication => address renderer) public rendererByPublication;
+    mapping(address renderer => address publication) public publicationByRenderer;
 
     /// @notice Active prize-wallet campaign generation for publications made
     ///         by this factory generation. Zero means no campaign is active.
@@ -199,6 +235,19 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
     error PrimarySaleChainMismatch(uint256 expectedChainId, uint256 actualChainId);
     error PrimarySaleReleaseDigestMismatch(bytes32 expectedDigest, bytes32 actualDigest);
     error PrimarySaleCommitmentsDigestMismatch(bytes32 expectedDigest, bytes32 actualDigest);
+
+    error UnofficialRendererPublication(address publication);
+    error RendererAlreadyRegistered(address publication, address renderer);
+    error RendererCommitmentsDigestMismatch(bytes32 expectedDigest, bytes32 actualDigest);
+    error RendererRulesDigestMismatch(bytes32 expectedDigest, bytes32 actualDigest);
+    error UnapprovedRendererCreationCode(bytes32 expectedCreationCodeHash, bytes32 actualCreationCodeHash);
+    error RendererDeploymentProducedNoCode();
+    error RendererIdentityMismatch(bytes32 expectedId, bytes32 actualId);
+    error RendererVersionMismatch(uint256 expectedVersion, uint256 actualVersion);
+    error RendererInterfaceVersionMismatch(uint256 expectedVersion, uint256 actualVersion);
+    error RendererArtDataStoreMismatch(address expectedStore, address actualStore);
+    error RendererArtDataStoreCodeHashMismatch(bytes32 expectedCodeHash, bytes32 actualCodeHash);
+    error RendererCanvasMismatch(uint256 expectedWidth, uint256 expectedHeight, uint256 actualWidth, uint256 actualHeight);
 
     error InvalidBirthPolicyCodeStore();
 
@@ -289,6 +338,18 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
         address indexed publication,
         address indexed primarySale,
         bytes32 indexed saleConfigDigest,
+        bytes32 runtimeCodeHash
+    );
+
+    /// @notice Permanent evidence of the one renderer bound to a publication.
+    event RendererDeployed(
+        address indexed publication,
+        address indexed renderer,
+        bytes32 rendererId,
+        uint256 rendererVersion,
+        uint256 interfaceVersion,
+        address artDataStore,
+        bytes32 artDataStoreCodeHash,
         bytes32 runtimeCodeHash
     );
 
@@ -820,6 +881,155 @@ contract HellboxPublicationFactory is Ownable2Step, EIP712 {
         bytes32 saleConfigDigest = IHellboxPrimarySaleProvenance(primarySale).saleConfigDigest();
 
         emit PrimarySaleDeployed(publication, primarySale, saleConfigDigest, primarySale.codehash);
+    }
+
+    // ---------------------------------------------------------------------
+    // Exact renderer deployment and permanent binding
+    // ---------------------------------------------------------------------
+
+    /// @notice Physically deploys and permanently binds the one metadata
+    ///         renderer a published release already froze.
+    /// @dev Unlike the sale and BirthPolicy approvals, a renderer is not
+    ///      approved per factory generation. Canonical art, canvas and renderer
+    ///      identity are release-specific, so the authority is the publication's
+    ///      own frozen `CommitmentSet.rendererRulesDigest`, transported here as
+    ///      an ordinary enforcement preimage under the existing doctrine.
+    ///
+    ///      That is what makes the binding trustworthy rather than merely
+    ///      append-only: this factory's owner cannot bind a renderer serving
+    ///      different art, a different canvas or a different renderer version
+    ///      than the release the collector can already verify. Every value the
+    ///      deployed renderer reports is checked against that frozen preimage
+    ///      before either lookup is written, and any mismatch reverts.
+    ///
+    ///      Whether the frozen art-data store itself holds the correct approved
+    ///      artwork is a Gate 6 packaging concern; proven here is only that the
+    ///      bound renderer is exactly the one the release committed to.
+    function deployRenderer(
+        address publication,
+        HellboxPublication.CommitmentSet calldata commitments,
+        RendererPreimages calldata rendererPreimages,
+        bytes calldata rendererCreationCode,
+        bytes calldata constructorArguments
+    ) external onlyOwner returns (address renderer) {
+        // Validation and recording live in their own frames: this entry point
+        // already carries five parameters, and the legacy (non-IR) pipeline
+        // this generation is frozen on has a hard stack budget.
+        _validateRendererBinding(publication, commitments, rendererPreimages, rendererCreationCode);
+
+        bytes memory initCode = bytes.concat(rendererCreationCode, constructorArguments);
+        assembly ("memory-safe") {
+            renderer := create(0, add(initCode, 0x20), mload(initCode))
+            if iszero(renderer) {
+                let size := returndatasize()
+                returndatacopy(0, 0, size)
+                revert(0, size)
+            }
+        }
+
+        if (renderer.code.length == 0) {
+            revert RendererDeploymentProducedNoCode();
+        }
+
+        _verifyRenderer(renderer, rendererPreimages);
+        _recordRendererBinding(publication, renderer, rendererPreimages);
+    }
+
+    /// @dev Everything that must hold before any renderer code is deployed.
+    function _validateRendererBinding(
+        address publication,
+        HellboxPublication.CommitmentSet calldata commitments,
+        RendererPreimages calldata rendererPreimages,
+        bytes calldata rendererCreationCode
+    ) internal view {
+        if (!isPublication[publication]) {
+            revert UnofficialRendererPublication(publication);
+        }
+
+        address existingRenderer = rendererByPublication[publication];
+        if (existingRenderer != address(0)) {
+            revert RendererAlreadyRegistered(publication, existingRenderer);
+        }
+
+        bytes32 expectedCommitmentsDigest = HellboxPublication(publication).commitmentsDigest();
+        bytes32 actualCommitmentsDigest = keccak256(abi.encode(commitments));
+        if (actualCommitmentsDigest != expectedCommitmentsDigest) {
+            revert RendererCommitmentsDigestMismatch(expectedCommitmentsDigest, actualCommitmentsDigest);
+        }
+
+        bytes32 actualRendererRulesDigest = rendererRulesDigest(rendererPreimages);
+        if (actualRendererRulesDigest != commitments.rendererRulesDigest) {
+            revert RendererRulesDigestMismatch(commitments.rendererRulesDigest, actualRendererRulesDigest);
+        }
+
+        bytes32 actualCreationCodeHash = keccak256(rendererCreationCode);
+        if (actualCreationCodeHash != rendererPreimages.rendererCreationCodeHash) {
+            revert UnapprovedRendererCreationCode(rendererPreimages.rendererCreationCodeHash, actualCreationCodeHash);
+        }
+    }
+
+    /// @dev Written only after every frozen value has been proven to match.
+    function _recordRendererBinding(
+        address publication,
+        address renderer,
+        RendererPreimages calldata rendererPreimages
+    ) internal {
+        rendererByPublication[publication] = renderer;
+        publicationByRenderer[renderer] = publication;
+
+        emit RendererDeployed(
+            publication,
+            renderer,
+            rendererPreimages.rendererId,
+            rendererPreimages.rendererVersion,
+            rendererPreimages.interfaceVersion,
+            rendererPreimages.artDataStore,
+            rendererPreimages.artDataStoreCodeHash,
+            renderer.codehash
+        );
+    }
+
+    /// @notice Canonical renderer-binding enforcement digest for one preimage.
+    function rendererRulesDigest(RendererPreimages calldata rendererPreimages) public pure returns (bytes32) {
+        return keccak256(abi.encode(RENDERER_BINDING_ENFORCEMENT_DOMAIN, rendererPreimages));
+    }
+
+    /// @dev Every reported renderer value must equal the frozen preimage.
+    function _verifyRenderer(address renderer, RendererPreimages calldata rendererPreimages) internal view {
+        IHellboxRendererProvenance reported = IHellboxRendererProvenance(renderer);
+
+        bytes32 actualId = reported.rendererId();
+        if (actualId != rendererPreimages.rendererId) {
+            revert RendererIdentityMismatch(rendererPreimages.rendererId, actualId);
+        }
+
+        uint256 actualVersion = reported.rendererVersion();
+        if (actualVersion != rendererPreimages.rendererVersion) {
+            revert RendererVersionMismatch(rendererPreimages.rendererVersion, actualVersion);
+        }
+
+        uint256 actualInterfaceVersion = reported.interfaceVersion();
+        if (actualInterfaceVersion != rendererPreimages.interfaceVersion) {
+            revert RendererInterfaceVersionMismatch(rendererPreimages.interfaceVersion, actualInterfaceVersion);
+        }
+
+        address actualStore = reported.artDataStore();
+        if (actualStore != rendererPreimages.artDataStore) {
+            revert RendererArtDataStoreMismatch(rendererPreimages.artDataStore, actualStore);
+        }
+
+        bytes32 actualStoreCodeHash = reported.artDataStoreCodeHash();
+        if (actualStoreCodeHash != rendererPreimages.artDataStoreCodeHash) {
+            revert RendererArtDataStoreCodeHashMismatch(rendererPreimages.artDataStoreCodeHash, actualStoreCodeHash);
+        }
+
+        uint256 actualWidth = reported.canvasWidth();
+        uint256 actualHeight = reported.canvasHeight();
+        if (actualWidth != rendererPreimages.canvasWidth || actualHeight != rendererPreimages.canvasHeight) {
+            revert RendererCanvasMismatch(
+                rendererPreimages.canvasWidth, rendererPreimages.canvasHeight, actualWidth, actualHeight
+            );
+        }
     }
 
     // ---------------------------------------------------------------------
