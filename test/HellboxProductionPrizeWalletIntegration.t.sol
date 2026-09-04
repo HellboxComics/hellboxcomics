@@ -6,6 +6,7 @@ import {HellboxBirthPolicy} from "../contracts/HellboxBirthPolicy.sol";
 import {HellboxBirthPolicyCodeStore} from "../contracts/HellboxBirthPolicyCodeStore.sol";
 import {HellboxPublication} from "../contracts/HellboxPublication.sol";
 import {HellboxPublicationFactory} from "../contracts/HellboxPublicationFactory.sol";
+import {HellboxPrimarySale} from "../contracts/HellboxPrimarySale.sol";
 import {IHellboxRandomnessVerifier} from "../contracts/interfaces/IHellboxRandomnessVerifier.sol";
 
 interface IProductionPrizeWalletVm {
@@ -14,6 +15,10 @@ interface IProductionPrizeWalletVm {
     function sign(uint256 privateKey, bytes32 digest) external pure returns (uint8 v, bytes32 r, bytes32 s);
 
     function expectPartialRevert(bytes4 revertData) external;
+
+    function deal(address account, uint256 newBalance) external;
+
+    function prank(address msgSender, address txOrigin) external;
 
     function mockCall(address callee, bytes calldata data, bytes calldata returnData) external;
 
@@ -84,6 +89,11 @@ contract PrizeWalletCodeSentinel is IERC721Receiver {
     }
 }
 
+/// @dev Frozen paid-sale destination used by the real composition proof.
+contract ProductionPrimarySaleReceiver {
+    receive() external payable {}
+}
+
 /// @notice Permanent real-factory composition and adversarial proof for the
 ///         production Prize Wallet orchestration committed in HellboxPublication.
 /// @dev Every test deploys the exact production factory, publishes the exact
@@ -104,6 +114,7 @@ contract HellboxProductionPrizeWalletIntegrationTest {
     address internal constant TAIL = 0x2222222222222222222222222222222222222222;
     address internal constant ROYALTY = 0x3333333333333333333333333333333333333333;
     address internal constant PUBLISHER = 0x4444444444444444444444444444444444444444;
+    address internal constant COLLECTOR = 0x5555555555555555555555555555555555555555;
 
     bytes32 internal constant RELEASE_CONFIG_DOMAIN = keccak256("HELLBOX_ABI_V1:RELEASE_CONFIG");
     bytes32 internal constant TEMPLATE_ID = keccak256("HELLBOX_PUBLICATION");
@@ -118,6 +129,10 @@ contract HellboxProductionPrizeWalletIntegrationTest {
 
     bytes4 internal constant VERIFY_ROUND_SELECTOR = IHellboxRandomnessVerifier.verifyRound.selector;
 
+    bytes32 internal constant PAID_PHASE = keccak256("HELLBOX_PRODUCTION_PAID_PHASE");
+    uint256 internal constant NATIVE_PRICE = 1 ether;
+    uint256 internal constant SALE_TEST_START = 1_900_000_000;
+
     error ForcedFactoryCompletionFailure();
 
     struct Deployment {
@@ -125,6 +140,92 @@ contract HellboxProductionPrizeWalletIntegrationTest {
         HellboxPublication publication;
         address wallet;
         bytes32 campaignManifestDigest;
+    }
+
+    struct SaleDeployment {
+        Deployment core;
+        HellboxPrimarySale sale;
+        ProductionPrimarySaleReceiver receiver;
+        uint256 opensAt;
+    }
+
+    struct SalePublicationBuild {
+        HellboxPublication.ReleaseConfig config;
+        HellboxPublication.FixedCopyRulesEnforcement fixedPolicy;
+        HellboxPublication.BirthTraitsEnforcement birthTraits;
+        HellboxPublication.RandomizationPolicyEnforcement randomPolicy;
+        HellboxPublication.CommitmentSet commitments;
+    }
+
+    function testRealFactoryCollectorCheckoutMintsAndReleasesAfterDelivery() public {
+        SaleDeployment memory deployed = _deployProductionSale("real-factory-collector-checkout");
+
+        deployed.core.publication.beginCreatorInitialization();
+        for (uint256 i = 0; i < 7; ++i) {
+            _fulfillPending(deployed.core.publication);
+        }
+
+        require(deployed.core.publication.prizeWalletIssuanceComplete(), "prize bootstrap");
+        require(
+            deployed.core.publication.nativeMintDeadline() == deployed.sale.nativeMintDeadline(),
+            "sale deadline binding"
+        );
+        require(
+            deployed.core.publication.nativeMintDeadline()
+                == deployed.opensAt + deployed.sale.NATIVE_MINT_DURATION_SECONDS(),
+            "paid opening deadline"
+        );
+        require(
+            deployed.core.publication.nativeMintDeadline()
+                != deployed.core.publication.frozenAtTimestamp() + deployed.sale.NATIVE_MINT_DURATION_SECONDS(),
+            "deployment started clock"
+        );
+
+        VM.warp(deployed.opensAt);
+        VM.deal(COLLECTOR, 2 ether);
+        bytes32[] memory noProof = new bytes32[](0);
+        uint256 receiverBefore = address(deployed.receiver).balance;
+
+        VM.prank(COLLECTOR, COLLECTOR);
+        (uint256 requestId, uint64 round) = deployed.sale.requestPrimary{value: NATIVE_PRICE}(PAID_PHASE, noProof);
+
+        require(requestId == 8, "collector request id");
+        require(round != 0, "collector round");
+        require(address(deployed.sale).balance == NATIVE_PRICE, "payment not escrowed");
+        require(address(deployed.receiver).balance == receiverBefore, "payment released before delivery");
+
+        _assertCollectorRequest(deployed.core.publication, requestId, round);
+
+        VM.expectPartialRevert(HellboxPrimarySale.RequestNotFulfilled.selector);
+        deployed.sale.releasePayment(requestId);
+
+        (, uint256 issuedTokenId) = _fulfillPending(deployed.core.publication);
+
+        require(deployed.core.publication.ownerOf(issuedTokenId) == COLLECTOR, "collector owner");
+        require(deployed.core.publication.walletLifetimePrimaryUsed(COLLECTOR) == 1, "collector lifetime");
+        require(
+            deployed.sale.pendingCollectorRequests() == 0 && deployed.sale.fulfilledCollectorRequests() == 1,
+            "checkout completion"
+        );
+        require(address(deployed.sale).balance == NATIVE_PRICE, "escrow moved during delivery");
+
+        deployed.sale.releasePayment(requestId);
+
+        require(address(deployed.receiver).balance == receiverBefore + NATIVE_PRICE, "payment not released");
+        require(address(deployed.sale).balance == 0, "escrow residue");
+
+        VM.warp(deployed.sale.nativeMintDeadline() - 1);
+        VM.expectPartialRevert(HellboxPublication.NativeClosureDeadlineNotReached.selector);
+        deployed.core.publication.requestNativeClosure();
+    }
+
+    function testOnlyRegisteredCheckoutCanWriteCollectorQueue() public {
+        SaleDeployment memory deployed = _deployProductionSale("real-factory-checkout-authentication");
+
+        VM.expectPartialRevert(HellboxPublication.UnauthorizedPrimarySale.selector);
+        deployed.core.publication.requestCollectorPrimary(COLLECTOR, COLLECTOR);
+
+        require(deployed.core.publication.randomnessRequestCount() == 0, "unauthorized queue write");
     }
 
     function testRealFactoryProductionFlowReservesFulfillsAndCompletes() public {
@@ -364,6 +465,167 @@ contract HellboxProductionPrizeWalletIntegrationTest {
         _assertCompletedState(deployed);
     }
 
+    function _assertCollectorRequest(HellboxPublication publication, uint256 requestId, uint64 expectedRound)
+        internal
+        view
+    {
+        (
+            HellboxPublication.RandomnessRequestKind kind,
+            uint64 storedRound,
+            uint64 requestedAt,
+            address primaryAccount,
+            address recipient,
+            bool fulfilled,
+            uint256 tokenId,
+            bytes32 verifiedRandomness
+        ) = publication.randomnessRequestById(requestId);
+
+        require(kind == HellboxPublication.RandomnessRequestKind.COLLECTOR_PRIMARY, "collector kind");
+        require(storedRound == expectedRound, "collector stored round");
+        require(requestedAt == block.timestamp, "collector request time");
+        require(primaryAccount == COLLECTOR, "collector account");
+        require(recipient == COLLECTOR, "collector recipient");
+        require(!fulfilled && tokenId == 0, "collector prefulfilled");
+        require(verifiedRandomness == bytes32(0), "collector randomness");
+    }
+
+    function _deployProductionSale(string memory publicationKey) internal returns (SaleDeployment memory deployed) {
+        VM.warp(SALE_TEST_START);
+        deployed.receiver = new ProductionPrimarySaleReceiver();
+        deployed.opensAt = SALE_TEST_START + 1_000;
+
+        HellboxBirthPolicyCodeStore store = new HellboxBirthPolicyCodeStore();
+        deployed.core.factory = new HellboxPublicationFactory(
+            address(this),
+            keccak256(type(HellboxPublication).creationCode),
+            keccak256(type(HellboxPrimarySale).creationCode),
+            address(store),
+            keccak256(type(HellboxBirthPolicy).creationCode)
+        );
+
+        deployed.core.wallet = VM.addr(PRIZE_WALLET_KEY);
+        deployed.core.campaignManifestDigest = keccak256(abi.encode("HELLBOX_PRODUCTION_PRIMARY_SALE", publicationKey));
+        _activateCampaign(deployed.core.factory, deployed.core.wallet, deployed.core.campaignManifestDigest);
+
+        HellboxPrimarySale.Phase[] memory phases = _productionPaidPhases(deployed.opensAt);
+        HellboxPublication.CommitmentSet memory commitments;
+        (deployed.core.publication, commitments) =
+            _publishSaleBoundPublication(deployed.core.factory, publicationKey, phases, address(deployed.receiver));
+
+        deployed.core.factory.approvePrizeWalletPublication(address(deployed.core.publication));
+        _mockVerifier(deployed.core.publication);
+
+        address saleAddress = deployed.core.factory
+            .deployPrimarySale(
+                address(deployed.core.publication),
+                type(HellboxPrimarySale).creationCode,
+                abi.encode(address(deployed.core.publication), address(deployed.receiver), true, commitments, phases)
+            );
+        deployed.sale = HellboxPrimarySale(payable(saleAddress));
+
+        require(
+            deployed.core.factory.primarySaleByPublication(address(deployed.core.publication)) == saleAddress,
+            "sale registration"
+        );
+    }
+
+    function _publishSaleBoundPublication(
+        HellboxPublicationFactory factory,
+        string memory publicationKey,
+        HellboxPrimarySale.Phase[] memory phases,
+        address receiver
+    ) internal returns (HellboxPublication publication, HellboxPublication.CommitmentSet memory commitments) {
+        SalePublicationBuild memory build;
+        build.config = _nativeConfig(publicationKey, CREATOR);
+        (build.fixedPolicy, build.birthTraits, build.randomPolicy) = _nativePolicies(CREATOR);
+        build.commitments = _commitments(build.fixedPolicy, build.birthTraits, build.randomPolicy);
+
+        (
+            build.commitments.pricingPoliciesDigest,
+            build.commitments.paymentRoutesDigest,
+            build.commitments.mintPhasesDigest
+        ) = _productionSalePolicyDigests(phases, receiver);
+
+        HellboxPublicationFactory.BirthPolicyPreimages memory preimages = HellboxPublicationFactory.BirthPolicyPreimages({
+            fixedCopyPolicyPreimage: abi.encode(build.fixedPolicy),
+            birthTraitsPolicyPreimage: abi.encode(build.birthTraits),
+            randomizationPolicyPreimage: abi.encode(build.randomPolicy)
+        });
+        bytes32 releaseDigest = _releaseDigest(block.chainid, address(factory), build.config, build.commitments);
+
+        publication = HellboxPublication(
+            factory.publish(
+                build.config, build.commitments, releaseDigest, preimages, type(HellboxPublication).creationCode
+            )
+        );
+        commitments = build.commitments;
+    }
+
+    function _productionPaidPhases(uint256 opensAt) internal pure returns (HellboxPrimarySale.Phase[] memory phases) {
+        phases = new HellboxPrimarySale.Phase[](1);
+        phases[0] = HellboxPrimarySale.Phase({
+            phaseId: PAID_PHASE,
+            startAt: uint64(opensAt),
+            endAt: 0,
+            phaseCap: 206,
+            phaseWalletCap: 6,
+            pricingMode: HellboxPrimarySale.PricingMode.FIXED_NATIVE,
+            token: address(0),
+            exactAmount: NATIVE_PRICE,
+            merkleRoot: bytes32(0)
+        });
+    }
+
+    function _productionSalePolicyDigests(HellboxPrimarySale.Phase[] memory phases, address receiver)
+        internal
+        pure
+        returns (bytes32 pricingDigest, bytes32 routesDigest, bytes32 phasesDigest)
+    {
+        HellboxPrimarySale.Phase memory phase = phases[0];
+
+        HellboxPrimarySale.PricingCommitment[] memory pricing = new HellboxPrimarySale.PricingCommitment[](1);
+        pricing[0] = HellboxPrimarySale.PricingCommitment({
+            phaseId: phase.phaseId, pricingMode: phase.pricingMode, exactAmount: phase.exactAmount
+        });
+
+        HellboxPrimarySale.PaymentRouteCommitment[] memory routes = new HellboxPrimarySale.PaymentRouteCommitment[](1);
+        routes[0] = HellboxPrimarySale.PaymentRouteCommitment({
+            phaseId: phase.phaseId,
+            pricingMode: phase.pricingMode,
+            token: address(0),
+            proceedsReceiver: receiver,
+            exactPaymentPolicy: keccak256("EXACT_OR_REVERT"),
+            tokenCompatibilityPolicy: bytes32(0)
+        });
+
+        HellboxPrimarySale.MintPhaseCommitment[] memory mintPhases = new HellboxPrimarySale.MintPhaseCommitment[](1);
+        mintPhases[0] = HellboxPrimarySale.MintPhaseCommitment({
+            phaseId: phase.phaseId,
+            order: 0,
+            startAt: phase.startAt,
+            endAt: phase.endAt,
+            phaseCap: phase.phaseCap,
+            phaseWalletCap: phase.phaseWalletCap,
+            merkleRoot: bytes32(0),
+            eligibilityLeafSchemaVersion: 0
+        });
+
+        pricingDigest = keccak256(abi.encode(keccak256("HELLBOX_ENFORCEMENT_V1:PRICING_POLICIES"), pricing));
+        routesDigest = keccak256(abi.encode(keccak256("HELLBOX_ENFORCEMENT_V1:PAYMENT_ROUTES"), routes));
+        phasesDigest = keccak256(
+            abi.encode(
+                keccak256("HELLBOX_ENFORCEMENT_V1:MINT_PHASES"),
+                true,
+                keccak256("SELF_ONLY"),
+                keccak256("DIRECT_EOA"),
+                keccak256("SHARED_POOL"),
+                keccak256("SHARED_REMAINDER"),
+                keccak256("GLOBAL_SHARED"),
+                mintPhases
+            )
+        );
+    }
+
     function _deployProductionPublication(
         string memory publicationKey,
         address creatorRecipient,
@@ -491,8 +753,13 @@ contract HellboxProductionPrizeWalletIntegrationTest {
         require(kind != HellboxPublication.RandomnessRequestKind.NONE, "kind");
         require(storedRound != 0, "round");
         require(requestedAt != 0 || block.timestamp == 0, "requested at");
-        require(primaryAccount == address(0), "primary account");
-        require(recipient != address(0), "recipient");
+        if (kind == HellboxPublication.RandomnessRequestKind.COLLECTOR_PRIMARY) {
+            require(primaryAccount != address(0), "collector primary account");
+            require(primaryAccount == recipient, "collector self recipient");
+        } else {
+            require(primaryAccount == address(0), "primary account");
+            require(recipient != address(0), "recipient");
+        }
         require(!fulfilled, "already fulfilled");
         require(tokenId == 0, "token already set");
         require(verifiedRandomness == bytes32(0), "randomness already set");

@@ -12,10 +12,7 @@ import {IHellboxRandomnessVerifier} from "./interfaces/IHellboxRandomnessVerifie
 interface IHellboxPublicationFactoryRandomness {
     function randomnessVerifier() external view returns (address);
 
-    function randomnessVerifierRuntimeCodeHash()
-        external
-        view
-        returns (bytes32);
+    function randomnessVerifierRuntimeCodeHash() external view returns (bytes32);
 }
 
 /// @dev Narrow runtime Prize Wallet boundary implemented by an official
@@ -26,13 +23,22 @@ interface IHellboxPublicationFactoryRandomness {
 interface IHellboxPublicationFactoryPrizeWallet {
     function reserveActivePrizeWalletDeposit()
         external
-        returns (
-            uint256 generation,
-            address wallet,
-            bytes32 campaignManifestDigest
-        );
+        returns (uint256 generation, address wallet, bytes32 campaignManifestDigest);
 
     function completePrizeWalletDeposit() external;
+}
+
+/// @dev Permanent factory lookup for the one exact primary-sale checkout.
+interface IHellboxPublicationFactoryPrimarySale {
+    function primarySaleByPublication(address publication) external view returns (address primarySale);
+}
+
+/// @dev Narrow callback/deadline surface implemented by HellboxPrimarySale.
+interface IHellboxPrimarySaleCompletion {
+    function nativeMintDeadline() external view returns (uint256);
+
+    function onCollectorPrimaryFulfilled(uint256 requestId, address primaryAccount, address recipient, uint256 tokenId)
+        external;
 }
 
 /// @title HellboxPublication
@@ -52,9 +58,8 @@ interface IHellboxPublicationFactoryPrizeWallet {
 ///      binds it and bootstraps issuance state atomically during construction. This
 ///      checkpoint adds the append-only FIFO proof-consumption substrate, permissionless
 ///      creator-initialization requests, and the production factory reserve/request/complete
-///      Prize Wallet path and permissionless native FIFO closure are active. Collector
-///      mint phases, pricing/payment enforcement, metadata rendering, and later protocols
-///      remain to be wired.
+///      Prize Wallet path, exact primary-sale collector bridge, and permissionless
+///      native FIFO closure are active. Metadata rendering and later protocols remain.
 contract HellboxPublication is ERC721Royalty {
     // ---------------------------------------------------------------------
     // HELLBOX_ABI_V1 protocol constants
@@ -65,20 +70,17 @@ contract HellboxPublication is ERC721Royalty {
     uint256 public constant PUBLICATION_VERSION = 1;
 
     bytes32 public constant TEMPLATE_ID = keccak256("HELLBOX_PUBLICATION");
-    bytes32 public constant RELEASE_CONFIG_DOMAIN =
-        keccak256("HELLBOX_ABI_V1:RELEASE_CONFIG");
+    bytes32 public constant RELEASE_CONFIG_DOMAIN = keccak256("HELLBOX_ABI_V1:RELEASE_CONFIG");
 
     uint256 public constant TOKEN_ID_START = 1;
 
     /// @notice Stable verifier-family identity accepted for official factory
     ///         binding in this publication generation.
-    bytes32 public constant RANDOMNESS_VERIFIER_ID =
-        keccak256("HELLBOX_DRAND_EVMNET_VERIFIER_V1");
+    bytes32 public constant RANDOMNESS_VERIFIER_ID = keccak256("HELLBOX_DRAND_EVMNET_VERIFIER_V1");
 
     /// @notice Domain separating one verified provider result into one
     ///         publication-local FIFO request consumption word.
-    bytes32 public constant RANDOMNESS_REQUEST_ENTROPY_DOMAIN =
-        keccak256("HELLBOX_RANDOMNESS_REQUEST_ENTROPY_V1");
+    bytes32 public constant RANDOMNESS_REQUEST_ENTROPY_DOMAIN = keccak256("HELLBOX_RANDOMNESS_REQUEST_ENTROPY_V1");
 
     /// @notice Minimum distance between request creation and the bound drand
     ///         round. Four evmnet periods prevents use of a round already known
@@ -93,17 +95,13 @@ contract HellboxPublication is ERC721Royalty {
     /// @dev These domains version the canonical ABI-encoded preimages that may
     ///      later be supplied at deployment time. They do not change
     ///      HELLBOX_ABI_V1 or CommitmentSet field order.
-    bytes32 public constant FIXED_COPY_RULES_ENFORCEMENT_DOMAIN =
-        keccak256("HELLBOX_ENFORCEMENT_V1:FIXED_COPY_RULES");
-    bytes32 public constant BIRTH_TRAITS_ENFORCEMENT_DOMAIN =
-        keccak256("HELLBOX_ENFORCEMENT_V1:BIRTH_TRAITS");
+    bytes32 public constant FIXED_COPY_RULES_ENFORCEMENT_DOMAIN = keccak256("HELLBOX_ENFORCEMENT_V1:FIXED_COPY_RULES");
+    bytes32 public constant BIRTH_TRAITS_ENFORCEMENT_DOMAIN = keccak256("HELLBOX_ENFORCEMENT_V1:BIRTH_TRAITS");
     bytes32 public constant RANDOMIZATION_POLICY_ENFORCEMENT_DOMAIN =
         keccak256("HELLBOX_ENFORCEMENT_V1:RANDOMIZATION_POLICY");
 
-    bytes32 public constant ALLOCATION_CLASS_CREATOR_IMMEDIATE =
-        keccak256("CREATOR_IMMEDIATE");
-    bytes32 public constant ALLOCATION_CLASS_PUBLIC_RANDOM_POOL =
-        keccak256("PUBLIC_RANDOM_POOL");
+    bytes32 public constant ALLOCATION_CLASS_CREATOR_IMMEDIATE = keccak256("CREATOR_IMMEDIATE");
+    bytes32 public constant ALLOCATION_CLASS_PUBLIC_RANDOM_POOL = keccak256("PUBLIC_RANDOM_POOL");
 
     bytes32 public constant PRESS_MARK_AXIS_ID = keccak256("PRESS_MARK");
     bytes32 public constant PRESS_DEFECT_AXIS_ID = keccak256("PRESS_DEFECT");
@@ -252,9 +250,7 @@ contract HellboxPublication is ERC721Royalty {
     }
 
     /// @notice Stable action identifiers for the immutable FIFO randomness
-    ///         queue. Creator-immediate and Prize Wallet kinds are active here;
-    ///         later Gate 4 slices may activate collector and timed-closure kinds
-    ///         without redefining the request family.
+    ///         queue across creator, Prize Wallet, collector, and closure work.
     enum RandomnessRequestKind {
         NONE,
         CREATOR_IMMEDIATE,
@@ -379,10 +375,6 @@ contract HellboxPublication is ERC721Royalty {
     ///         issued to the frozen tail recipient.
     bool public tailAwarded;
 
-    /// @notice Exact standard-native primary mint deadline. Zero means this
-    ///         publication shape is exempt from the native timed-close rule.
-    uint256 public immutable nativeMintDeadline;
-
     /// @notice Permanent number of unminted candidates destroyed at timed close.
     uint256 public extinguishedUnmintedCount;
 
@@ -398,8 +390,7 @@ contract HellboxPublication is ERC721Royalty {
     /// @notice Number of requests consumed in exact FIFO order.
     uint256 public randomnessFulfillmentCount;
 
-    mapping(uint256 requestId => RandomnessRequest request)
-        public randomnessRequestById;
+    mapping(uint256 requestId => RandomnessRequest request) public randomnessRequestById;
 
     /// @notice True after the permissionless production creator-initialization
     ///         sequence has queued its first future-round request. The remaining
@@ -450,11 +441,7 @@ contract HellboxPublication is ERC721Royalty {
     error InvalidMaxSupply();
     error InvalidPrimaryLifetimeCap(uint256 cap, uint256 supply);
     error InvalidMaxPerTransaction(uint256 maxPerTransaction, uint256 lifetimeCap);
-    error InvalidCreatorAllocation(
-        uint256 immediateCreatorCount,
-        uint256 tailReserveCount,
-        uint256 supply
-    );
+    error InvalidCreatorAllocation(uint256 immediateCreatorCount, uint256 tailReserveCount, uint256 supply);
     error InvalidImmediateCreatorRecipient();
     error InvalidTailRecipient();
     error InvalidRoyaltyConfiguration(address receiver, uint96 bps);
@@ -470,87 +457,51 @@ contract HellboxPublication is ERC721Royalty {
     error BirthPolicyCreationCodeHashMismatch(bytes32 expected, bytes32 computed);
     error BirthPolicyDeploymentProducedNoCode();
     error MalformedFactoryRandomnessVerifierResponse(uint256 byteLength);
-    error MalformedFactoryRandomnessVerifierRuntimeCodeHashResponse(
-        uint256 byteLength
-    );
+    error MalformedFactoryRandomnessVerifierRuntimeCodeHashResponse(uint256 byteLength);
     error InvalidFactoryRandomnessVerifier(address verifier);
-    error RandomnessVerifierRuntimeCodeHashMismatch(
-        bytes32 expectedRuntimeCodeHash,
-        bytes32 actualRuntimeCodeHash
-    );
-    error RandomnessVerifierIdentityMismatch(
-        bytes32 expectedVerifierId,
-        bytes32 actualVerifierId
-    );
+    error RandomnessVerifierRuntimeCodeHashMismatch(bytes32 expectedRuntimeCodeHash, bytes32 actualRuntimeCodeHash);
+    error RandomnessVerifierIdentityMismatch(bytes32 expectedVerifierId, bytes32 actualVerifierId);
     error RandomnessProviderConfigDigestMismatch(
-        bytes32 expectedProviderConfigDigest,
-        bytes32 actualProviderConfigDigest
+        bytes32 expectedProviderConfigDigest, bytes32 actualProviderConfigDigest
     );
     error RandomnessVerifierNotBound();
     error RandomnessRequestTimestampOverflow(uint256 timestamp);
-    error InvalidRandomnessRoundSchedule(
-        uint64 targetTimestamp,
-        uint64 round,
-        uint64 roundTimestamp
-    );
+    error InvalidRandomnessRoundSchedule(uint64 targetTimestamp, uint64 round, uint64 roundTimestamp);
     error RandomnessRequestQueueEmpty();
     error RandomnessRequestQueueNotEmpty(uint256 pendingCount);
     error UnknownRandomnessRequest(uint256 requestId);
     error RandomnessRequestAlreadyFulfilled(uint256 requestId);
-    error RandomnessRoundNotReady(
-        uint64 round,
-        uint64 roundTimestamp,
-        uint256 currentTimestamp
-    );
+    error RandomnessRoundNotReady(uint64 round, uint64 roundTimestamp, uint256 currentTimestamp);
     error UnsupportedRandomnessRequestKind(uint8 kind);
     error RandomnessFulfillmentReentrancy();
     error CreatorInitializationAlreadyStarted();
     error CreatorInitializationNotConfigured();
     error CreatorInitializationOrderInvariant(
-        uint256 totalIssued,
-        uint256 immediateIssued,
-        uint256 candidateRemaining,
-        uint256 nonTailRemaining
+        uint256 totalIssued, uint256 immediateIssued, uint256 candidateRemaining, uint256 nonTailRemaining
     );
-    error InvalidCreatorRandomnessRequest(
-        uint256 requestId,
-        address primaryAccount,
-        address recipient
-    );
+    error InvalidCreatorRandomnessRequest(uint256 requestId, address primaryAccount, address recipient);
     error PrizeWalletRequestAlreadyCreated();
     error PrizeWalletIssuanceAlreadyComplete();
     error PrizeWalletDepositNotReserved();
     error PrizeWalletDepositAlreadyCompleted();
-    error InvalidPrizeWalletCampaignReservation(
-        uint256 generation,
-        address wallet,
-        bytes32 campaignManifestDigest
-    );
+    error InvalidPrizeWalletCampaignReservation(uint256 generation, address wallet, bytes32 campaignManifestDigest);
     error InvalidPrizeWalletRecipient(address recipient);
     error PrizeWalletRecipientHasCode(address recipient, uint256 codeSize);
-    error PrizeWalletIssuanceOrderInvariant(
-        uint256 totalIssued,
-        uint256 candidateRemaining,
-        uint256 nonTailRemaining
-    );
+    error PrizeWalletIssuanceOrderInvariant(uint256 totalIssued, uint256 candidateRemaining, uint256 nonTailRemaining);
+    error PrimarySaleNotBound();
+    error UnauthorizedPrimarySale(address caller, address expectedSale);
+    error PrizeWalletIssuanceIncomplete();
+    error InvalidCollectorPrimaryRequest(address primaryAccount, address recipient);
 
     error IssuanceStateAlreadyInitialized();
     error IssuanceStateNotInitialized();
     error InvalidImmediateCreatorCopySet(uint256 expected, uint256 actual);
-    error ImmediateCreatorCopyPolicyMismatch(
-        uint256 index,
-        uint256 expectedTokenId,
-        uint256 suppliedTokenId
-    );
+    error ImmediateCreatorCopyPolicyMismatch(uint256 index, uint256 expectedTokenId, uint256 suppliedTokenId);
     error InvalidCopyId(uint256 tokenId);
     error DuplicateImmediateCreatorCopy(uint256 tokenId);
     error CandidateCopyUnavailable(uint256 tokenId);
     error CandidateIndexOutOfRange(uint256 index, uint256 remaining);
-    error CandidateAccountingInvariant(
-        uint256 candidateRemaining,
-        uint256 nonTailRemaining,
-        uint256 tailReserve
-    );
+    error CandidateAccountingInvariant(uint256 candidateRemaining, uint256 nonTailRemaining, uint256 tailReserve);
     error ImmediateCreatorCopyNotReserved(uint256 tokenId);
     error ImmediateCreatorCopyAlreadyIssued(uint256 tokenId);
     error ImmediateCreatorAllocationAlreadyComplete();
@@ -568,11 +519,7 @@ contract HellboxPublication is ERC721Royalty {
     error NativeClosureDeadlineNotReached(uint256 currentTimestamp, uint256 deadline);
     error InvalidNativeClosureRequest(uint256 requestId);
     error PrimarySupplyInvariant(uint256 issued, uint256 supply);
-    error BirthInventoryAccountingInvariant(
-        bytes32 axisId,
-        uint256 inventoryRemaining,
-        uint256 expectedRemaining
-    );
+    error BirthInventoryAccountingInvariant(bytes32 axisId, uint256 inventoryRemaining, uint256 expectedRemaining);
 
     // ---------------------------------------------------------------------
     // Events
@@ -614,11 +561,7 @@ contract HellboxPublication is ERC721Royalty {
         uint256 tokenId
     );
 
-    event PrizeWalletIssuanceRequested(
-        uint256 indexed requestId,
-        address indexed recipient,
-        uint64 indexed round
-    );
+    event PrizeWalletIssuanceRequested(uint256 indexed requestId, address indexed recipient, uint64 indexed round);
 
     event PrizeWalletCopyIssued(
         uint256 indexed requestId,
@@ -638,11 +581,7 @@ contract HellboxPublication is ERC721Royalty {
         uint256 tailReserveCount
     );
 
-    event ImmediateCreatorCopyIssued(
-        uint256 indexed tokenId,
-        address indexed recipient,
-        uint256 issuedCount
-    );
+    event ImmediateCreatorCopyIssued(uint256 indexed tokenId, address indexed recipient, uint256 issuedCount);
 
     event NonTailPrimaryIssued(
         address indexed primaryAccount,
@@ -655,11 +594,7 @@ contract HellboxPublication is ERC721Royalty {
 
     event TrueMintOutReached(uint256 tailCandidateCount);
 
-    event TailCopyIssued(
-        uint256 indexed tokenId,
-        address indexed recipient,
-        uint256 awardedCount
-    );
+    event TailCopyIssued(uint256 indexed tokenId, address indexed recipient, uint256 awardedCount);
 
     event TailAwarded(address indexed recipient, uint256 count);
 
@@ -686,18 +621,10 @@ contract HellboxPublication is ERC721Royalty {
         address factory_ = msg.sender;
 
         bytes32 commitmentsDigest_ = keccak256(abi.encode(commitments));
-        bytes32 computedReleaseConfigDigest = _computeReleaseConfigDigest(
-            chainId_,
-            factory_,
-            config,
-            commitments
-        );
+        bytes32 computedReleaseConfigDigest = _computeReleaseConfigDigest(chainId_, factory_, config, commitments);
 
         if (computedReleaseConfigDigest != expectedReleaseConfigDigest) {
-            revert ReleaseConfigDigestMismatch(
-                expectedReleaseConfigDigest,
-                computedReleaseConfigDigest
-            );
+            revert ReleaseConfigDigestMismatch(expectedReleaseConfigDigest, computedReleaseConfigDigest);
         }
 
         publicationKey = config.publicationKey;
@@ -714,15 +641,6 @@ contract HellboxPublication is ERC721Royalty {
 
         tailRecipient = config.tailRecipient;
         tailReserveCount = config.tailReserveCount;
-
-        nativeMintDeadline =
-            config.maxSupply == 216 &&
-            config.primaryLifetimeCap == 6 &&
-            config.maxPerTransaction == 1 &&
-            config.immediateCreatorCount == 6 &&
-            config.tailReserveCount == 3
-                ? block.timestamp + NATIVE_MINT_DURATION_SECONDS
-                : 0;
 
         royaltyReceiver = config.royaltyReceiver;
         royaltyBps = config.royaltyBps;
@@ -746,20 +664,13 @@ contract HellboxPublication is ERC721Royalty {
         commitmentsDigest = commitmentsDigest_;
         releaseConfigDigest = computedReleaseConfigDigest;
 
-        birthPolicy = _deployBirthPolicy(
-            config,
-            commitments,
-            birthPolicyContext
-        );
+        birthPolicy = _deployBirthPolicy(config, commitments, birthPolicyContext);
 
-        RandomnessVerifierBinding memory randomnessBinding =
-            _resolveFactoryRandomnessVerifier(factory_);
+        RandomnessVerifierBinding memory randomnessBinding = _resolveFactoryRandomnessVerifier(factory_);
 
         randomnessVerifier = randomnessBinding.verifier;
-        randomnessProviderConfigDigest =
-            randomnessBinding.providerConfigDigest;
-        randomnessVerifierRuntimeCodeHash =
-            randomnessBinding.runtimeCodeHash;
+        randomnessProviderConfigDigest = randomnessBinding.providerConfigDigest;
+        randomnessVerifierRuntimeCodeHash = randomnessBinding.runtimeCodeHash;
 
         configFrozen = true;
         frozenAtBlock = block.number;
@@ -802,106 +713,67 @@ contract HellboxPublication is ERC721Royalty {
     ///      deployment, any verifier runtime mismatch or enabled BirthPolicy
     ///      provider mismatch reverts publication construction atomically before
     ///      factory provenance can be registered.
-    function _resolveFactoryRandomnessVerifier(
-        address factoryAddress
-    ) internal view returns (RandomnessVerifierBinding memory binding) {
-        (bool success, bytes memory response) = factoryAddress.staticcall(
-            abi.encodeCall(
-                IHellboxPublicationFactoryRandomness.randomnessVerifier,
-                ()
-            )
-        );
+    function _resolveFactoryRandomnessVerifier(address factoryAddress)
+        internal
+        view
+        returns (RandomnessVerifierBinding memory binding)
+    {
+        (bool success, bytes memory response) =
+            factoryAddress.staticcall(abi.encodeCall(IHellboxPublicationFactoryRandomness.randomnessVerifier, ()));
 
         if (!success || response.length == 0) {
             return binding;
         }
 
         if (response.length != 32) {
-            revert MalformedFactoryRandomnessVerifierResponse(
-                response.length
-            );
+            revert MalformedFactoryRandomnessVerifierResponse(response.length);
         }
 
         binding.verifier = abi.decode(response, (address));
 
-        if (
-            binding.verifier == address(0) ||
-            binding.verifier.code.length == 0
-        ) {
+        if (binding.verifier == address(0) || binding.verifier.code.length == 0) {
             revert InvalidFactoryRandomnessVerifier(binding.verifier);
         }
 
-        (
-            bool runtimeHashSuccess,
-            bytes memory runtimeHashResponse
-        ) = factoryAddress.staticcall(
-            abi.encodeCall(
-                IHellboxPublicationFactoryRandomness
-                    .randomnessVerifierRuntimeCodeHash,
-                ()
-            )
+        (bool runtimeHashSuccess, bytes memory runtimeHashResponse) = factoryAddress.staticcall(
+            abi.encodeCall(IHellboxPublicationFactoryRandomness.randomnessVerifierRuntimeCodeHash, ())
         );
 
         if (!runtimeHashSuccess || runtimeHashResponse.length != 32) {
-            revert MalformedFactoryRandomnessVerifierRuntimeCodeHashResponse(
-                runtimeHashResponse.length
-            );
+            revert MalformedFactoryRandomnessVerifierRuntimeCodeHashResponse(runtimeHashResponse.length);
         }
 
-        bytes32 expectedRuntimeCodeHash = abi.decode(
-            runtimeHashResponse,
-            (bytes32)
-        );
+        bytes32 expectedRuntimeCodeHash = abi.decode(runtimeHashResponse, (bytes32));
         bytes32 actualRuntimeCodeHash = binding.verifier.codehash;
 
-        if (
-            expectedRuntimeCodeHash == bytes32(0) ||
-            expectedRuntimeCodeHash != actualRuntimeCodeHash
-        ) {
-            revert RandomnessVerifierRuntimeCodeHashMismatch(
-                expectedRuntimeCodeHash,
-                actualRuntimeCodeHash
-            );
+        if (expectedRuntimeCodeHash == bytes32(0) || expectedRuntimeCodeHash != actualRuntimeCodeHash) {
+            revert RandomnessVerifierRuntimeCodeHashMismatch(expectedRuntimeCodeHash, actualRuntimeCodeHash);
         }
 
         binding.runtimeCodeHash = actualRuntimeCodeHash;
 
-        IHellboxRandomnessVerifier verifier =
-            IHellboxRandomnessVerifier(binding.verifier);
+        IHellboxRandomnessVerifier verifier = IHellboxRandomnessVerifier(binding.verifier);
 
         bytes32 actualVerifierId = verifier.verifierId();
         if (actualVerifierId != RANDOMNESS_VERIFIER_ID) {
-            revert RandomnessVerifierIdentityMismatch(
-                RANDOMNESS_VERIFIER_ID,
-                actualVerifierId
-            );
+            revert RandomnessVerifierIdentityMismatch(RANDOMNESS_VERIFIER_ID, actualVerifierId);
         }
 
         binding.providerConfigDigest = verifier.providerConfigDigest();
 
         HellboxBirthPolicy policy = HellboxBirthPolicy(birthPolicy);
         if (policy.randomizationEnabled()) {
-            bytes32 expectedProviderConfigDigest =
-                policy.randomizationProviderConfigDigest();
+            bytes32 expectedProviderConfigDigest = policy.randomizationProviderConfigDigest();
 
-            if (
-                expectedProviderConfigDigest !=
-                binding.providerConfigDigest
-            ) {
+            if (expectedProviderConfigDigest != binding.providerConfigDigest) {
                 revert RandomnessProviderConfigDigestMismatch(
-                    expectedProviderConfigDigest,
-                    binding.providerConfigDigest
+                    expectedProviderConfigDigest, binding.providerConfigDigest
                 );
             }
         }
-
     }
 
-    function _policyImmediateCopyIds()
-        internal
-        view
-        returns (uint256[] memory immediateCopyIds)
-    {
+    function _policyImmediateCopyIds() internal view returns (uint256[] memory immediateCopyIds) {
         uint256 count = immediateCreatorCount;
         immediateCopyIds = new uint256[](count);
 
@@ -926,20 +798,18 @@ contract HellboxPublication is ERC721Royalty {
         BirthPolicyDeploymentContext memory context
     ) internal returns (address policyAddress) {
         bytes memory creationCode = _copyApprovedBirthPolicyCreationCode(
-            context.codeStore,
-            context.approvedCreationCodeHash
+            context.codeStore, context.approvedCreationCodeHash
         );
 
-        HellboxBirthPolicy.PublicationBinding memory binding =
-            HellboxBirthPolicy.PublicationBinding({
-                maxSupply: config.maxSupply,
-                immediateCreatorRecipient: config.immediateCreatorRecipient,
-                immediateCreatorCount: config.immediateCreatorCount,
-                tailReserveCount: config.tailReserveCount,
-                fixedCopyRulesDigest: commitments.fixedCopyRulesDigest,
-                birthTraitsDigest: commitments.birthTraitsDigest,
-                randomizationPolicyDigest: commitments.randomizationPolicyDigest
-            });
+        HellboxBirthPolicy.PublicationBinding memory binding = HellboxBirthPolicy.PublicationBinding({
+            maxSupply: config.maxSupply,
+            immediateCreatorRecipient: config.immediateCreatorRecipient,
+            immediateCreatorCount: config.immediateCreatorCount,
+            tailReserveCount: config.tailReserveCount,
+            fixedCopyRulesDigest: commitments.fixedCopyRulesDigest,
+            birthTraitsDigest: commitments.birthTraitsDigest,
+            randomizationPolicyDigest: commitments.randomizationPolicyDigest
+        });
 
         bytes memory constructorArguments = abi.encode(
             binding,
@@ -948,17 +818,10 @@ contract HellboxPublication is ERC721Royalty {
             context.randomizationPolicyPreimage
         );
 
-        bytes memory initCode = bytes.concat(
-            creationCode,
-            constructorArguments
-        );
+        bytes memory initCode = bytes.concat(creationCode, constructorArguments);
 
         assembly ("memory-safe") {
-            policyAddress := create(
-                0,
-                add(initCode, 0x20),
-                mload(initCode)
-            )
+            policyAddress := create(0, add(initCode, 0x20), mload(initCode))
 
             if iszero(policyAddress) {
                 let size := returndatasize()
@@ -973,21 +836,15 @@ contract HellboxPublication is ERC721Royalty {
         }
     }
 
-    function _copyApprovedBirthPolicyCreationCode(
-        address codeStore,
-        bytes32 approvedCreationCodeHash
-    ) internal view returns (bytes memory creationCode) {
+    function _copyApprovedBirthPolicyCreationCode(address codeStore, bytes32 approvedCreationCodeHash)
+        internal
+        view
+        returns (bytes memory creationCode)
+    {
         uint256 runtimeCodeSize = codeStore.code.length;
 
-        if (
-            codeStore == address(0) ||
-            approvedCreationCodeHash == bytes32(0) ||
-            runtimeCodeSize <= 1
-        ) {
-            revert InvalidBirthPolicyCodeStore(
-                codeStore,
-                runtimeCodeSize
-            );
+        if (codeStore == address(0) || approvedCreationCodeHash == bytes32(0) || runtimeCodeSize <= 1) {
+            revert InvalidBirthPolicyCodeStore(codeStore, runtimeCodeSize);
         }
 
         uint256 prefix;
@@ -997,66 +854,83 @@ contract HellboxPublication is ERC721Royalty {
         }
 
         if (prefix != 0) {
-            revert InvalidBirthPolicyCodeStorePrefix(
-                codeStore,
-                uint8(prefix)
-            );
+            revert InvalidBirthPolicyCodeStorePrefix(codeStore, uint8(prefix));
         }
 
         uint256 creationCodeLength = runtimeCodeSize - 1;
         creationCode = new bytes(creationCodeLength);
 
         assembly ("memory-safe") {
-            extcodecopy(
-                codeStore,
-                add(creationCode, 0x20),
-                1,
-                creationCodeLength
-            )
+            extcodecopy(codeStore, add(creationCode, 0x20), 1, creationCodeLength)
         }
 
         bytes32 actualCreationCodeHash = keccak256(creationCode);
         if (actualCreationCodeHash != approvedCreationCodeHash) {
-            revert BirthPolicyCreationCodeHashMismatch(
-                approvedCreationCodeHash,
-                actualCreationCodeHash
-            );
+            revert BirthPolicyCreationCodeHashMismatch(approvedCreationCodeHash, actualCreationCodeHash);
         }
     }
 
     // ---------------------------------------------------------------------
-    // Public commitment helpers
+    // Immutable primary-sale and FIFO randomness boundary
     // ---------------------------------------------------------------------
 
-    /// @notice Computes the aggregate digest of the exact HELLBOX_ABI_V1
-    ///         CommitmentSet field order.
-    function computeCommitmentsDigest(
-        CommitmentSet calldata commitments
-    ) external pure returns (bytes32) {
-        return keccak256(abi.encode(commitments));
+    /// @notice Exact standard-native close deadline frozen by the registered
+    ///         primary sale. Zero means no paid native timer is active.
+    /// @dev Publication deployment never starts this clock. The factory's
+    ///      append-only binding makes the returned sale and deadline permanent.
+    function nativeMintDeadline() public view returns (uint256) {
+        address sale = _primarySale();
+        if (sale == address(0)) {
+            return 0;
+        }
+        return IHellboxPrimarySaleCompletion(sale).nativeMintDeadline();
     }
 
-    /// @notice Computes a HELLBOX_ABI_V1 release digest for cross-language
-    ///         verification and golden test vectors.
-    /// @dev Constructor deployment uses actual block.chainid and actual msg.sender.
-    function computeReleaseConfigDigest(
-        uint256 chainId,
-        address factoryAddress,
-        ReleaseConfig calldata config,
-        CommitmentSet calldata commitments
-    ) external pure returns (bytes32) {
-        return
-            _computeReleaseConfigDigest(
-                chainId,
-                factoryAddress,
-                config,
-                commitments
-            );
-    }
+    /// @notice Appends one collector request from the exact checkout permanently
+    ///         registered by the official factory.
+    function requestCollectorPrimary(address primaryAccount, address recipient)
+        external
+        returns (uint256 requestId, uint64 round)
+    {
+        if (_randomnessFulfillmentActive) {
+            revert RandomnessFulfillmentReentrancy();
+        }
 
-    // ---------------------------------------------------------------------
-    // Immutable FIFO randomness request boundary
-    // ---------------------------------------------------------------------
+        address sale = _primarySale();
+        if (sale == address(0)) {
+            revert PrimarySaleNotBound();
+        }
+        if (msg.sender != sale) {
+            revert UnauthorizedPrimarySale(msg.sender, sale);
+        }
+
+        _requireIssuanceStateInitialized();
+        if (randomnessVerifier == address(0)) {
+            revert RandomnessVerifierNotBound();
+        }
+        if (!immediateCreatorAllocationComplete) {
+            revert ImmediateCreatorAllocationIncomplete(immediateCreatorIssued, immediateCreatorCount);
+        }
+        if (!prizeWalletIssuanceComplete) {
+            revert PrizeWalletIssuanceIncomplete();
+        }
+        if (primaryIssuanceClosed) {
+            revert PrimaryIssuanceClosed();
+        }
+        if (nonTailIssuanceRemaining == 0) {
+            revert NonTailIssuanceExhausted();
+        }
+        if (primaryAccount == address(0) || recipient == address(0) || primaryAccount != recipient) {
+            revert InvalidCollectorPrimaryRequest(primaryAccount, recipient);
+        }
+
+        uint256 used = walletLifetimePrimaryUsed[primaryAccount];
+        if (used >= primaryLifetimeCap) {
+            revert PrimaryLifetimeCapExceeded(primaryAccount, used, primaryLifetimeCap);
+        }
+
+        return _enqueueRandomnessRequest(RandomnessRequestKind.COLLECTOR_PRIMARY, primaryAccount, recipient);
+    }
 
     /// @notice Permissionlessly starts the production creator-allocation
     ///         sequence. The caller chooses no recipient, copy ID, entropy, or
@@ -1064,10 +938,7 @@ contract HellboxPublication is ERC721Royalty {
     ///         next future-round request; the final one atomically reserves the
     ///         factory's active approved campaign wallet and queues the seventh
     ///         issuance request.
-    function beginCreatorInitialization()
-        external
-        returns (uint256 requestId, uint64 round)
-    {
+    function beginCreatorInitialization() external returns (uint256 requestId, uint64 round) {
         if (_randomnessFulfillmentActive) {
             revert RandomnessFulfillmentReentrancy();
         }
@@ -1078,9 +949,8 @@ contract HellboxPublication is ERC721Royalty {
             revert RandomnessVerifierNotBound();
         }
         if (
-            immediateCreatorCount == 0 ||
-            nonTailIssuanceRemaining == 0 ||
-            !HellboxBirthPolicy(birthPolicy).randomizationEnabled()
+            immediateCreatorCount == 0 || nonTailIssuanceRemaining == 0
+                || !HellboxBirthPolicy(birthPolicy).randomizationEnabled()
         ) {
             revert CreatorInitializationNotConfigured();
         }
@@ -1088,8 +958,7 @@ contract HellboxPublication is ERC721Royalty {
             revert CreatorInitializationAlreadyStarted();
         }
 
-        uint256 pendingCount =
-            randomnessRequestCount - randomnessFulfillmentCount;
+        uint256 pendingCount = randomnessRequestCount - randomnessFulfillmentCount;
         if (pendingCount != 0) {
             revert RandomnessRequestQueueNotEmpty(pendingCount);
         }
@@ -1098,21 +967,14 @@ contract HellboxPublication is ERC721Royalty {
 
         creatorInitializationStarted = true;
 
-        (requestId, round) = _enqueueRandomnessRequest(
-            RandomnessRequestKind.CREATOR_IMMEDIATE,
-            address(0),
-            immediateCreatorRecipient
-        );
+        (requestId, round) =
+            _enqueueRandomnessRequest(RandomnessRequestKind.CREATOR_IMMEDIATE, address(0), immediateCreatorRecipient);
     }
 
     /// @notice Returns the oldest pending request ID, or zero when the queue is
     ///         empty. Requests can never be skipped, cancelled, replaced, or
     ///         fulfilled out of order.
-    function nextPendingRandomnessRequestId()
-        public
-        view
-        returns (uint256 requestId)
-    {
+    function nextPendingRandomnessRequestId() public view returns (uint256 requestId) {
         requestId = randomnessFulfillmentCount + 1;
         if (requestId > randomnessRequestCount) {
             return 0;
@@ -1122,33 +984,32 @@ contract HellboxPublication is ERC721Royalty {
     /// @notice Deterministically domain-separates one verified provider result
     ///         for the stored request. This helper exposes no entropy source and
     ///         cannot create, cancel, or fulfill a request.
-    function deriveRandomnessRequestEntropy(
-        uint256 requestId,
-        bytes32 verifiedRandomness
-    ) public view returns (uint256 entropyWord) {
+    function deriveRandomnessRequestEntropy(uint256 requestId, bytes32 verifiedRandomness)
+        public
+        view
+        returns (uint256 entropyWord)
+    {
         if (requestId == 0 || requestId > randomnessRequestCount) {
             revert UnknownRandomnessRequest(requestId);
         }
 
-        RandomnessRequest storage request =
-            randomnessRequestById[requestId];
+        RandomnessRequest storage request = randomnessRequestById[requestId];
 
-        return
-            uint256(
-                keccak256(
-                    abi.encode(
-                        RANDOMNESS_REQUEST_ENTROPY_DOMAIN,
-                        releaseConfigDigest,
-                        address(this),
-                        requestId,
-                        request.kind,
-                        request.round,
-                        request.primaryAccount,
-                        request.recipient,
-                        verifiedRandomness
-                    )
+        return uint256(
+            keccak256(
+                abi.encode(
+                    RANDOMNESS_REQUEST_ENTROPY_DOMAIN,
+                    releaseConfigDigest,
+                    address(this),
+                    requestId,
+                    request.kind,
+                    request.round,
+                    request.primaryAccount,
+                    request.recipient,
+                    verifiedRandomness
                 )
-            );
+            )
+        );
     }
 
     /// @notice Permissionlessly fulfills exactly the current FIFO head using a
@@ -1157,9 +1018,7 @@ contract HellboxPublication is ERC721Royalty {
     ///      or supply entropy. Creator requests are derived from frozen policy;
     ///      the Prize Wallet recipient comes only from the factory reservation.
     ///      Invalid/unavailable proofs revert without consuming or rerolling.
-    function fulfillNextRandomnessRequest(
-        bytes calldata proof
-    ) external returns (uint256 requestId, uint256 tokenId) {
+    function fulfillNextRandomnessRequest(bytes calldata proof) external returns (uint256 requestId, uint256 tokenId) {
         if (_randomnessFulfillmentActive) {
             revert RandomnessFulfillmentReentrancy();
         }
@@ -1172,22 +1031,14 @@ contract HellboxPublication is ERC721Royalty {
             revert RandomnessRequestQueueEmpty();
         }
 
-        RandomnessRequest storage request =
-            randomnessRequestById[requestId];
+        RandomnessRequest storage request = randomnessRequestById[requestId];
         if (request.fulfilled) {
             revert RandomnessRequestAlreadyFulfilled(requestId);
         }
 
-        uint64 requestRoundTimestamp =
-            IHellboxRandomnessVerifier(randomnessVerifier).roundTimestamp(
-                request.round
-            );
+        uint64 requestRoundTimestamp = IHellboxRandomnessVerifier(randomnessVerifier).roundTimestamp(request.round);
         if (block.timestamp < requestRoundTimestamp) {
-            revert RandomnessRoundNotReady(
-                request.round,
-                requestRoundTimestamp,
-                block.timestamp
-            );
+            revert RandomnessRoundNotReady(request.round, requestRoundTimestamp, block.timestamp);
         }
 
         // Lock before the external verification boundary. The approved verifier
@@ -1196,16 +1047,9 @@ contract HellboxPublication is ERC721Royalty {
         // the lock and every request/issuance write atomically.
         _randomnessFulfillmentActive = true;
 
-        bytes32 verifiedRandomness =
-            IHellboxRandomnessVerifier(randomnessVerifier).verifyRound(
-                request.round,
-                proof
-            );
+        bytes32 verifiedRandomness = IHellboxRandomnessVerifier(randomnessVerifier).verifyRound(request.round, proof);
 
-        uint256 entropyWord = deriveRandomnessRequestEntropy(
-            requestId,
-            verifiedRandomness
-        );
+        uint256 entropyWord = deriveRandomnessRequestEntropy(requestId, verifiedRandomness);
 
         // Effects precede the ERC-721 receiver boundary. Any downstream revert
         // restores the request and queue head atomically.
@@ -1216,18 +1060,12 @@ contract HellboxPublication is ERC721Royalty {
         RandomnessRequestKind requestKind = request.kind;
 
         if (requestKind == RandomnessRequestKind.CREATOR_IMMEDIATE) {
-            tokenId = _issueCreatorImmediateFromRequest(
-                requestId,
-                request.primaryAccount,
-                request.recipient,
-                entropyWord
-            );
+            tokenId =
+                _issueCreatorImmediateFromRequest(requestId, request.primaryAccount, request.recipient, entropyWord);
         } else if (requestKind == RandomnessRequestKind.PRIZE_WALLET) {
-            tokenId = _issuePrizeWalletPrimary(
-                requestId,
-                request.recipient,
-                entropyWord
-            );
+            tokenId = _issuePrizeWalletPrimary(requestId, request.recipient, entropyWord);
+        } else if (requestKind == RandomnessRequestKind.COLLECTOR_PRIMARY) {
+            tokenId = _issueNonTailPrimary(request.primaryAccount, request.recipient, entropyWord);
         } else if (requestKind == RandomnessRequestKind.TIMED_CLOSURE) {
             _finalizeNativeClosure(requestId, entropyWord);
         } else {
@@ -1236,20 +1074,16 @@ contract HellboxPublication is ERC721Royalty {
 
         request.tokenId = tokenId;
 
-        emit RandomnessRequestFulfilled(
-            requestId,
-            requestKind,
-            request.round,
-            verifiedRandomness,
-            tokenId
-        );
+        emit RandomnessRequestFulfilled(requestId, requestKind, request.round, verifiedRandomness, tokenId);
+
+        if (requestKind == RandomnessRequestKind.COLLECTOR_PRIMARY) {
+            IHellboxPrimarySaleCompletion(_primarySale())
+                .onCollectorPrimaryFulfilled(requestId, request.primaryAccount, request.recipient, tokenId);
+        }
 
         if (requestKind == RandomnessRequestKind.CREATOR_IMMEDIATE) {
             _advanceCreatorInitialization();
-        } else if (
-            requestKind == RandomnessRequestKind.PRIZE_WALLET &&
-            creatorInitializationStarted
-        ) {
+        } else if (requestKind == RandomnessRequestKind.PRIZE_WALLET && creatorInitializationStarted) {
             // Test-only subclasses may still exercise the internal Prize Wallet
             // primitive directly without beginning production initialization.
             // The approved production path must always complete the reservation
@@ -1264,13 +1098,11 @@ contract HellboxPublication is ERC721Royalty {
     /// @dev True mint-out may close before the timer. Otherwise the exact
     ///      native deadline must have arrived. No caller supplies recipients,
     ///      candidate IDs, entropy or a replacement deadline.
-    function requestNativeClosure()
-        external
-        returns (uint256 requestId, uint64 round)
-    {
+    function requestNativeClosure() external returns (uint256 requestId, uint64 round) {
         _requireIssuanceStateInitialized();
 
-        if (nativeMintDeadline == 0) {
+        uint256 deadline = nativeMintDeadline();
+        if (deadline == 0) {
             revert TailNotConfigured();
         }
         if (randomnessVerifier == address(0)) {
@@ -1285,18 +1117,11 @@ contract HellboxPublication is ERC721Royalty {
         if (!immediateCreatorAllocationComplete || !prizeWalletIssuanceComplete) {
             revert TailNotReady();
         }
-        if (!trueMintOutReached && block.timestamp < nativeMintDeadline) {
-            revert NativeClosureDeadlineNotReached(
-                block.timestamp,
-                nativeMintDeadline
-            );
+        if (!trueMintOutReached && block.timestamp < deadline) {
+            revert NativeClosureDeadlineNotReached(block.timestamp, deadline);
         }
 
-        (requestId, round) = _enqueueRandomnessRequest(
-            RandomnessRequestKind.TIMED_CLOSURE,
-            address(0),
-            tailRecipient
-        );
+        (requestId, round) = _enqueueRandomnessRequest(RandomnessRequestKind.TIMED_CLOSURE, address(0), tailRecipient);
 
         _nativeClosureRequestCreated = true;
         _nativeClosureRequestId = requestId;
@@ -1310,24 +1135,16 @@ contract HellboxPublication is ERC721Royalty {
     ) internal returns (uint256 tokenId) {
         uint256 expectedRequestId = immediateCreatorIssued + 1;
         if (
-            !creatorInitializationStarted ||
-            requestId != expectedRequestId ||
-            primaryAccount != address(0) ||
-            recipient != immediateCreatorRecipient
+            !creatorInitializationStarted || requestId != expectedRequestId || primaryAccount != address(0)
+                || recipient != immediateCreatorRecipient
         ) {
-            revert InvalidCreatorRandomnessRequest(
-                requestId,
-                primaryAccount,
-                recipient
-            );
+            revert InvalidCreatorRandomnessRequest(requestId, primaryAccount, recipient);
         }
         if (immediateCreatorAllocationComplete) {
             revert ImmediateCreatorAllocationAlreadyComplete();
         }
 
-        tokenId = HellboxBirthPolicy(birthPolicy).policyImmediateCopyAt(
-            immediateCreatorIssued
-        );
+        tokenId = HellboxBirthPolicy(birthPolicy).policyImmediateCopyAt(immediateCreatorIssued);
 
         _issueImmediateCreatorCopy(tokenId, entropyWord);
     }
@@ -1336,39 +1153,20 @@ contract HellboxPublication is ERC721Royalty {
         if (immediateCreatorAllocationComplete) {
             _reserveAndRequestPrizeWallet();
         } else {
-            _enqueueRandomnessRequest(
-                RandomnessRequestKind.CREATOR_IMMEDIATE,
-                address(0),
-                immediateCreatorRecipient
-            );
+            _enqueueRandomnessRequest(RandomnessRequestKind.CREATOR_IMMEDIATE, address(0), immediateCreatorRecipient);
         }
     }
 
     function _reserveAndRequestPrizeWallet() internal {
-        if (
-            prizeWalletDepositReserved ||
-            prizeWalletRequestCreated
-        ) {
+        if (prizeWalletDepositReserved || prizeWalletRequestCreated) {
             revert PrizeWalletRequestAlreadyCreated();
         }
 
-        (
-            uint256 generation,
-            address recipient,
-            bytes32 campaignManifestDigest
-        ) = IHellboxPublicationFactoryPrizeWallet(factory)
-            .reserveActivePrizeWalletDeposit();
+        (uint256 generation, address recipient, bytes32 campaignManifestDigest) =
+            IHellboxPublicationFactoryPrizeWallet(factory).reserveActivePrizeWalletDeposit();
 
-        if (
-            generation == 0 ||
-            recipient == address(0) ||
-            campaignManifestDigest == bytes32(0)
-        ) {
-            revert InvalidPrizeWalletCampaignReservation(
-                generation,
-                recipient,
-                campaignManifestDigest
-            );
+        if (generation == 0 || recipient == address(0) || campaignManifestDigest == bytes32(0)) {
+            revert InvalidPrizeWalletCampaignReservation(generation, recipient, campaignManifestDigest);
         }
 
         prizeWalletDepositReserved = true;
@@ -1391,8 +1189,7 @@ contract HellboxPublication is ERC721Royalty {
         // records atomically.
         prizeWalletDepositCompleted = true;
 
-        IHellboxPublicationFactoryPrizeWallet(factory)
-            .completePrizeWalletDeposit();
+        IHellboxPublicationFactoryPrizeWallet(factory).completePrizeWalletDeposit();
     }
 
     /// @dev Creates the one-time first-non-tail Prize Wallet request after all
@@ -1400,19 +1197,14 @@ contract HellboxPublication is ERC721Royalty {
     ///      fresh externally owned campaign wallet reserved by the official
     ///      factory generation; only its public address enters publication
     ///      state. This internal function grants no publisher-facing setter.
-    function _requestPrizeWalletIssuance(
-        address recipient
-    ) internal returns (uint256 requestId, uint64 round) {
+    function _requestPrizeWalletIssuance(address recipient) internal returns (uint256 requestId, uint64 round) {
         _requireIssuanceStateInitialized();
 
         if (randomnessVerifier == address(0)) {
             revert RandomnessVerifierNotBound();
         }
         if (!immediateCreatorAllocationComplete) {
-            revert ImmediateCreatorAllocationIncomplete(
-                immediateCreatorIssued,
-                immediateCreatorCount
-            );
+            revert ImmediateCreatorAllocationIncomplete(immediateCreatorIssued, immediateCreatorCount);
         }
         if (prizeWalletRequestCreated) {
             revert PrizeWalletRequestAlreadyCreated();
@@ -1421,8 +1213,7 @@ contract HellboxPublication is ERC721Royalty {
             revert PrizeWalletIssuanceAlreadyComplete();
         }
 
-        uint256 pendingCount =
-            randomnessRequestCount - randomnessFulfillmentCount;
+        uint256 pendingCount = randomnessRequestCount - randomnessFulfillmentCount;
         if (pendingCount != 0) {
             revert RandomnessRequestQueueNotEmpty(pendingCount);
         }
@@ -1430,57 +1221,42 @@ contract HellboxPublication is ERC721Royalty {
         _validatePrizeWalletRecipient(recipient);
         _assertPrizeWalletIssuanceOrder();
 
-        (requestId, round) = _enqueueRandomnessRequest(
-            RandomnessRequestKind.PRIZE_WALLET,
-            address(0),
-            recipient
-        );
+        (requestId, round) = _enqueueRandomnessRequest(RandomnessRequestKind.PRIZE_WALLET, address(0), recipient);
 
         prizeWalletRequestCreated = true;
         prizeWalletRecipient = recipient;
         prizeWalletRequestId = requestId;
 
-        emit PrizeWalletIssuanceRequested(
-            requestId,
-            recipient,
-            round
-        );
+        emit PrizeWalletIssuanceRequested(requestId, recipient, round);
     }
 
-    function _enqueueRandomnessRequest(
-        RandomnessRequestKind kind,
-        address primaryAccount,
-        address recipient
-    ) internal returns (uint256 requestId, uint64 round) {
+    function _primarySale() internal view returns (address) {
+        return IHellboxPublicationFactoryPrimarySale(factory).primarySaleByPublication(address(this));
+    }
+
+    function _enqueueRandomnessRequest(RandomnessRequestKind kind, address primaryAccount, address recipient)
+        internal
+        returns (uint256 requestId, uint64 round)
+    {
         uint256 currentTimestamp = block.timestamp;
-        if (
-            currentTimestamp >
-            type(uint64).max - RANDOMNESS_REQUEST_DELAY_SECONDS
-        ) {
-            revert RandomnessRequestTimestampOverflow(
-                currentTimestamp
-            );
+        if (currentTimestamp > type(uint64).max - RANDOMNESS_REQUEST_DELAY_SECONDS) {
+            revert RandomnessRequestTimestampOverflow(currentTimestamp);
         }
 
         uint64 requestedAt = uint64(currentTimestamp);
-        uint64 targetTimestamp =
-            requestedAt + RANDOMNESS_REQUEST_DELAY_SECONDS;
+        uint64 targetTimestamp = requestedAt + RANDOMNESS_REQUEST_DELAY_SECONDS;
 
-        IHellboxRandomnessVerifier verifier =
-            IHellboxRandomnessVerifier(randomnessVerifier);
+        IHellboxRandomnessVerifier verifier = IHellboxRandomnessVerifier(randomnessVerifier);
 
         round = verifier.firstRoundAtOrAfter(targetTimestamp);
 
         if (randomnessRequestCount != 0) {
-            uint64 previousRound =
-                randomnessRequestById[randomnessRequestCount].round;
+            uint64 previousRound = randomnessRequestById[randomnessRequestCount].round;
 
             if (round <= previousRound) {
                 if (previousRound == type(uint64).max) {
                     revert InvalidRandomnessRoundSchedule(
-                        targetTimestamp,
-                        previousRound,
-                        verifier.roundTimestamp(previousRound)
+                        targetTimestamp, previousRound, verifier.roundTimestamp(previousRound)
                     );
                 }
                 round = previousRound + 1;
@@ -1489,11 +1265,7 @@ contract HellboxPublication is ERC721Royalty {
 
         uint64 roundTimestamp = verifier.roundTimestamp(round);
         if (round == 0 || roundTimestamp < targetTimestamp) {
-            revert InvalidRandomnessRoundSchedule(
-                targetTimestamp,
-                round,
-                roundTimestamp
-            );
+            revert InvalidRandomnessRoundSchedule(targetTimestamp, round, roundTimestamp);
         }
 
         requestId = randomnessRequestCount + 1;
@@ -1510,38 +1282,23 @@ contract HellboxPublication is ERC721Royalty {
             verifiedRandomness: bytes32(0)
         });
 
-        emit RandomnessRequestQueued(
-            requestId,
-            kind,
-            round,
-            requestedAt,
-            primaryAccount,
-            recipient
-        );
+        emit RandomnessRequestQueued(requestId, kind, round, requestedAt, primaryAccount, recipient);
     }
 
-    function _issuePrizeWalletPrimary(
-        uint256 requestId,
-        address recipient,
-        uint256 entropyWord
-    ) internal returns (uint256 tokenId) {
+    function _issuePrizeWalletPrimary(uint256 requestId, address recipient, uint256 entropyWord)
+        internal
+        returns (uint256 tokenId)
+    {
         _requireIssuanceStateInitialized();
 
         if (prizeWalletIssuanceComplete) {
             revert PrizeWalletIssuanceAlreadyComplete();
         }
-        if (
-            !prizeWalletRequestCreated ||
-            requestId != prizeWalletRequestId ||
-            recipient != prizeWalletRecipient
-        ) {
+        if (!prizeWalletRequestCreated || requestId != prizeWalletRequestId || recipient != prizeWalletRecipient) {
             revert InvalidPrizeWalletRecipient(recipient);
         }
         if (!immediateCreatorAllocationComplete) {
-            revert ImmediateCreatorAllocationIncomplete(
-                immediateCreatorIssued,
-                immediateCreatorCount
-            );
+            revert ImmediateCreatorAllocationIncomplete(immediateCreatorIssued, immediateCreatorCount);
         }
         if (primaryIssuanceClosed) {
             revert PrimaryIssuanceClosed();
@@ -1558,10 +1315,7 @@ contract HellboxPublication is ERC721Royalty {
         _assertOpenCandidateAccounting();
         _assertPrimarySupplyAvailable();
 
-        uint256 candidateIndex = _uniformIndex(
-            entropyWord,
-            candidatePoolRemaining
-        );
+        uint256 candidateIndex = _uniformIndex(entropyWord, candidatePoolRemaining);
         tokenId = _removeCandidateAtIndex(candidateIndex);
         _assignBirthIdentity(tokenId, entropyWord);
 
@@ -1576,95 +1330,55 @@ contract HellboxPublication is ERC721Royalty {
 
         _safeMint(recipient, tokenId);
 
-        emit PrizeWalletCopyIssued(
-            requestId,
-            recipient,
-            tokenId,
-            candidatePoolRemaining,
-            nonTailIssuanceRemaining
-        );
+        emit PrizeWalletCopyIssued(requestId, recipient, tokenId, candidatePoolRemaining, nonTailIssuanceRemaining);
     }
 
-    function _validatePrizeWalletRecipient(
-        address recipient
-    ) internal view {
+    function _validatePrizeWalletRecipient(address recipient) internal view {
         if (
-            uint160(recipient) <= 0xFFFF ||
-            recipient == immediateCreatorRecipient ||
-            recipient == tailRecipient ||
-            recipient == royaltyReceiver ||
-            recipient == publisherAuthority ||
-            recipient == factory ||
-            recipient == address(this) ||
-            recipient == birthPolicy ||
-            recipient == randomnessVerifier
+            uint160(recipient) <= 0xFFFF || recipient == immediateCreatorRecipient || recipient == tailRecipient
+                || recipient == royaltyReceiver || recipient == publisherAuthority || recipient == factory
+                || recipient == address(this) || recipient == birthPolicy || recipient == randomnessVerifier
         ) {
             revert InvalidPrizeWalletRecipient(recipient);
         }
 
         uint256 codeSize = recipient.code.length;
         if (codeSize != 0) {
-            revert PrizeWalletRecipientHasCode(
-                recipient,
-                codeSize
-            );
+            revert PrizeWalletRecipientHasCode(recipient, codeSize);
         }
     }
 
     function _assertCreatorInitializationOrder() internal view {
-        uint256 expectedCandidateRemaining =
-            maxSupply - immediateCreatorCount;
-        uint256 expectedNonTailRemaining =
-            expectedCandidateRemaining - tailReserveCount;
+        uint256 expectedCandidateRemaining = maxSupply - immediateCreatorCount;
+        uint256 expectedNonTailRemaining = expectedCandidateRemaining - tailReserveCount;
 
         if (
-            immediateCreatorAllocationComplete ||
-            immediateCreatorIssued != 0 ||
-            totalPrimaryIssued != 0 ||
-            candidatePoolRemaining != expectedCandidateRemaining ||
-            nonTailIssuanceRemaining != expectedNonTailRemaining ||
-            randomnessRequestCount != 0 ||
-            randomnessFulfillmentCount != 0 ||
-            prizeWalletRequestCreated ||
-            prizeWalletIssuanceComplete ||
-            prizeWalletDepositReserved ||
-            prizeWalletDepositCompleted ||
-            prizeWalletRecipient != address(0) ||
-            prizeWalletRequestId != 0 ||
-            prizeWalletTokenId != 0 ||
-            prizeWalletCampaignGeneration != 0 ||
-            prizeWalletCampaignManifestDigest != bytes32(0) ||
-            primaryIssuanceClosed ||
-            trueMintOutReached ||
-            tailAwarded
+            immediateCreatorAllocationComplete || immediateCreatorIssued != 0 || totalPrimaryIssued != 0
+                || candidatePoolRemaining != expectedCandidateRemaining
+                || nonTailIssuanceRemaining != expectedNonTailRemaining || randomnessRequestCount != 0
+                || randomnessFulfillmentCount != 0 || prizeWalletRequestCreated || prizeWalletIssuanceComplete
+                || prizeWalletDepositReserved || prizeWalletDepositCompleted || prizeWalletRecipient != address(0)
+                || prizeWalletRequestId != 0 || prizeWalletTokenId != 0 || prizeWalletCampaignGeneration != 0
+                || prizeWalletCampaignManifestDigest != bytes32(0) || primaryIssuanceClosed || trueMintOutReached
+                || tailAwarded
         ) {
             revert CreatorInitializationOrderInvariant(
-                totalPrimaryIssued,
-                immediateCreatorIssued,
-                candidatePoolRemaining,
-                nonTailIssuanceRemaining
+                totalPrimaryIssued, immediateCreatorIssued, candidatePoolRemaining, nonTailIssuanceRemaining
             );
         }
     }
 
     function _assertPrizeWalletIssuanceOrder() internal view {
-        uint256 expectedCandidateRemaining =
-            maxSupply - immediateCreatorCount;
-        uint256 expectedNonTailRemaining =
-            expectedCandidateRemaining - tailReserveCount;
+        uint256 expectedCandidateRemaining = maxSupply - immediateCreatorCount;
+        uint256 expectedNonTailRemaining = expectedCandidateRemaining - tailReserveCount;
 
         if (
-            totalPrimaryIssued != immediateCreatorCount ||
-            candidatePoolRemaining != expectedCandidateRemaining ||
-            nonTailIssuanceRemaining != expectedNonTailRemaining ||
-            primaryIssuanceClosed ||
-            trueMintOutReached ||
-            tailAwarded
+            totalPrimaryIssued != immediateCreatorCount || candidatePoolRemaining != expectedCandidateRemaining
+                || nonTailIssuanceRemaining != expectedNonTailRemaining || primaryIssuanceClosed || trueMintOutReached
+                || tailAwarded
         ) {
             revert PrizeWalletIssuanceOrderInvariant(
-                totalPrimaryIssued,
-                candidatePoolRemaining,
-                nonTailIssuanceRemaining
+                totalPrimaryIssued, candidatePoolRemaining, nonTailIssuanceRemaining
             );
         }
     }
@@ -1676,26 +1390,16 @@ contract HellboxPublication is ERC721Royalty {
     /// @notice Returns whether a copy ID is currently in the candidate pool.
     /// @dev False before issuance bootstrap. Immediate reserved copies and
     ///      already drawn/awarded copies return false.
-    function isCandidateCopyAvailable(
-        uint256 tokenId
-    ) external view returns (bool) {
-        if (
-            !issuanceStateInitialized ||
-            tokenId < TOKEN_ID_START ||
-            tokenId > maxSupply ||
-            _candidateConsumed[tokenId]
-        ) {
+    function isCandidateCopyAvailable(uint256 tokenId) external view returns (bool) {
+        if (!issuanceStateInitialized || tokenId < TOKEN_ID_START || tokenId > maxSupply || _candidateConsumed[tokenId])
+        {
             return false;
         }
 
         uint256 storedIndexPlusOne = _candidateIndexPlusOne[tokenId];
-        uint256 index = storedIndexPlusOne == 0
-            ? tokenId - TOKEN_ID_START
-            : storedIndexPlusOne - 1;
+        uint256 index = storedIndexPlusOne == 0 ? tokenId - TOKEN_ID_START : storedIndexPlusOne - 1;
 
-        return
-            index < candidatePoolRemaining &&
-            _candidateTokenAt(index) == tokenId;
+        return index < candidatePoolRemaining && _candidateTokenAt(index) == tokenId;
     }
 
     /// @dev Bootstraps the sparse candidate pool after the caller has verified
@@ -1706,19 +1410,14 @@ contract HellboxPublication is ERC721Royalty {
     ///      The final Gate 4 deployment path will call this only from an
     ///      immutable deployment-time policy path. Deterministic test harnesses
     ///      may call it from their constructor/setup to prove the state machine.
-    function _initializeIssuanceState(
-        uint256[] memory immediateCopyIds
-    ) internal {
+    function _initializeIssuanceState(uint256[] memory immediateCopyIds) internal {
         if (issuanceStateInitialized) {
             revert IssuanceStateAlreadyInitialized();
         }
 
         uint256 immediateCount = immediateCopyIds.length;
         if (immediateCount != immediateCreatorCount) {
-            revert InvalidImmediateCreatorCopySet(
-                immediateCreatorCount,
-                immediateCount
-            );
+            revert InvalidImmediateCreatorCopySet(immediateCreatorCount, immediateCount);
         }
 
         candidatePoolRemaining = maxSupply;
@@ -1735,21 +1434,14 @@ contract HellboxPublication is ERC721Royalty {
 
             uint256 expectedTokenId = policy.policyImmediateCopyAt(i);
             if (tokenId != expectedTokenId) {
-                revert ImmediateCreatorCopyPolicyMismatch(
-                    i,
-                    expectedTokenId,
-                    tokenId
-                );
+                revert ImmediateCreatorCopyPolicyMismatch(i, expectedTokenId, tokenId);
             }
 
             isImmediateCreatorCopy[tokenId] = true;
             _removeCandidateByTokenId(tokenId);
         }
 
-        nonTailIssuanceRemaining =
-            maxSupply -
-            immediateCreatorCount -
-            tailReserveCount;
+        nonTailIssuanceRemaining = maxSupply - immediateCreatorCount - tailReserveCount;
 
         immediateCreatorAllocationComplete = immediateCreatorCount == 0;
         issuanceStateInitialized = true;
@@ -1758,10 +1450,7 @@ contract HellboxPublication is ERC721Royalty {
         _assertBirthInventoryAccounting();
 
         emit IssuanceStateInitialized(
-            candidatePoolRemaining,
-            nonTailIssuanceRemaining,
-            immediateCreatorCount,
-            tailReserveCount
+            candidatePoolRemaining, nonTailIssuanceRemaining, immediateCreatorCount, tailReserveCount
         );
     }
 
@@ -1769,10 +1458,7 @@ contract HellboxPublication is ERC721Royalty {
     ///      must already have been removed from candidate eligibility during
     ///      issuance bootstrap. Production calls receive `entropyWord` only from
     ///      the immutable FIFO verifier-consumption path.
-    function _issueImmediateCreatorCopy(
-        uint256 tokenId,
-        uint256 entropyWord
-    ) internal {
+    function _issueImmediateCreatorCopy(uint256 tokenId, uint256 entropyWord) internal {
         _requireIssuanceStateInitialized();
 
         if (immediateCreatorAllocationComplete) {
@@ -1801,11 +1487,7 @@ contract HellboxPublication is ERC721Royalty {
 
         _safeMint(immediateCreatorRecipient, tokenId);
 
-        emit ImmediateCreatorCopyIssued(
-            tokenId,
-            immediateCreatorRecipient,
-            immediateCreatorIssued
-        );
+        emit ImmediateCreatorCopyIssued(tokenId, immediateCreatorRecipient, immediateCreatorIssued);
     }
 
     /// @dev Deterministic non-tail issuance primitive. Production callers must
@@ -1815,18 +1497,14 @@ contract HellboxPublication is ERC721Royalty {
     ///      `primaryAccount` is the wallet whose lifetime primary allowance is
     ///      consumed. `recipient` is the ERC-721 recipient. A later frozen phase
     ///      policy decides whether those addresses may differ.
-    function _issueNonTailPrimary(
-        address primaryAccount,
-        address recipient,
-        uint256 entropyWord
-    ) internal returns (uint256 tokenId) {
+    function _issueNonTailPrimary(address primaryAccount, address recipient, uint256 entropyWord)
+        internal
+        returns (uint256 tokenId)
+    {
         _requireIssuanceStateInitialized();
 
         if (!immediateCreatorAllocationComplete) {
-            revert ImmediateCreatorAllocationIncomplete(
-                immediateCreatorIssued,
-                immediateCreatorCount
-            );
+            revert ImmediateCreatorAllocationIncomplete(immediateCreatorIssued, immediateCreatorCount);
         }
         if (primaryIssuanceClosed) {
             revert PrimaryIssuanceClosed();
@@ -1843,20 +1521,13 @@ contract HellboxPublication is ERC721Royalty {
 
         uint256 used = walletLifetimePrimaryUsed[primaryAccount];
         if (used >= primaryLifetimeCap) {
-            revert PrimaryLifetimeCapExceeded(
-                primaryAccount,
-                used,
-                primaryLifetimeCap
-            );
+            revert PrimaryLifetimeCapExceeded(primaryAccount, used, primaryLifetimeCap);
         }
 
         _assertOpenCandidateAccounting();
         _assertPrimarySupplyAvailable();
 
-        uint256 candidateIndex = _uniformIndex(
-            entropyWord,
-            candidatePoolRemaining
-        );
+        uint256 candidateIndex = _uniformIndex(entropyWord, candidatePoolRemaining);
         tokenId = _removeCandidateAtIndex(candidateIndex);
         _assignBirthIdentity(tokenId, entropyWord);
 
@@ -1869,10 +1540,7 @@ contract HellboxPublication is ERC721Royalty {
 
         if (nonTailIssuanceRemaining == 0) {
             if (candidatePoolRemaining != tailReserveCount) {
-                revert TailCandidateInvariant(
-                    candidatePoolRemaining,
-                    tailReserveCount
-                );
+                revert TailCandidateInvariant(candidatePoolRemaining, tailReserveCount);
             }
 
             trueMintOutReached = true;
@@ -1882,12 +1550,7 @@ contract HellboxPublication is ERC721Royalty {
         _safeMint(recipient, tokenId);
 
         emit NonTailPrimaryIssued(
-            primaryAccount,
-            recipient,
-            tokenId,
-            used + 1,
-            candidatePoolRemaining,
-            nonTailIssuanceRemaining
+            primaryAccount, recipient, tokenId, used + 1, candidatePoolRemaining, nonTailIssuanceRemaining
         );
 
         if (trueMintOutReached) {
@@ -1898,9 +1561,7 @@ contract HellboxPublication is ERC721Royalty {
     /// @dev Awards the literal final candidate set after true non-tail mint-out.
     ///      No tail IDs are preselected. This function deliberately has no
     ///      external authority endpoint in this checkpoint.
-    function _awardTailAfterTrueMintOut(
-        uint256 entropyWord
-    ) internal {
+    function _awardTailAfterTrueMintOut(uint256 entropyWord) internal {
         _requireIssuanceStateInitialized();
 
         if (tailReserveCount == 0) {
@@ -1909,24 +1570,14 @@ contract HellboxPublication is ERC721Royalty {
         if (tailAwarded) {
             revert TailAlreadyAwarded();
         }
-        if (
-            !trueMintOutReached ||
-            !primaryIssuanceClosed ||
-            nonTailIssuanceRemaining != 0
-        ) {
+        if (!trueMintOutReached || !primaryIssuanceClosed || nonTailIssuanceRemaining != 0) {
             revert TailNotReady();
         }
         if (!immediateCreatorAllocationComplete) {
-            revert ImmediateCreatorAllocationIncomplete(
-                immediateCreatorIssued,
-                immediateCreatorCount
-            );
+            revert ImmediateCreatorAllocationIncomplete(immediateCreatorIssued, immediateCreatorCount);
         }
         if (candidatePoolRemaining != tailReserveCount) {
-            revert TailCandidateInvariant(
-                candidatePoolRemaining,
-                tailReserveCount
-            );
+            revert TailCandidateInvariant(candidatePoolRemaining, tailReserveCount);
         }
 
         // Lock the one-time transition before any ERC721Receiver callback.
@@ -1949,21 +1600,11 @@ contract HellboxPublication is ERC721Royalty {
 
             _safeMint(tailRecipient, tokenId);
 
-            emit TailCopyIssued(
-                tokenId,
-                tailRecipient,
-                tailAwardedCount
-            );
+            emit TailCopyIssued(tokenId, tailRecipient, tailAwardedCount);
         }
 
-        if (
-            candidatePoolRemaining != 0 ||
-            totalPrimaryIssued != maxSupply
-        ) {
-            revert PrimarySupplyInvariant(
-                totalPrimaryIssued,
-                maxSupply
-            );
+        if (candidatePoolRemaining != 0 || totalPrimaryIssued != maxSupply) {
+            revert PrimarySupplyInvariant(totalPrimaryIssued, maxSupply);
         }
 
         emit TailAwarded(tailRecipient, tailAwardedCount);
@@ -1973,16 +1614,10 @@ contract HellboxPublication is ERC721Royalty {
     ///      standard-native timed-expiry branch. The FIFO verifier is the sole
     ///      entropy source and every state mutation reverts atomically on any
     ///      downstream failure.
-    function _finalizeNativeClosure(
-        uint256 requestId,
-        uint256 entropyWord
-    ) internal {
+    function _finalizeNativeClosure(uint256 requestId, uint256 entropyWord) internal {
         _requireIssuanceStateInitialized();
 
-        if (
-            !_nativeClosureRequestCreated ||
-            requestId != _nativeClosureRequestId
-        ) {
+        if (!_nativeClosureRequestCreated || requestId != _nativeClosureRequestId) {
             revert InvalidNativeClosureRequest(requestId);
         }
         if (tailAwarded) {
@@ -1996,26 +1631,16 @@ contract HellboxPublication is ERC721Royalty {
             _awardTailAfterTrueMintOut(entropyWord);
             closedAtTimestamp = block.timestamp;
 
-            emit PublicationPermanentlyClosed(
-                false,
-                closedAtTimestamp,
-                totalPrimaryIssued,
-                0
-            );
+            emit PublicationPermanentlyClosed(false, closedAtTimestamp, totalPrimaryIssued, 0);
             return;
         }
 
-        if (block.timestamp < nativeMintDeadline) {
-            revert NativeClosureDeadlineNotReached(
-                block.timestamp,
-                nativeMintDeadline
-            );
+        uint256 deadline = nativeMintDeadline();
+        if (block.timestamp < deadline) {
+            revert NativeClosureDeadlineNotReached(block.timestamp, deadline);
         }
         if (candidatePoolRemaining <= tailReserveCount) {
-            revert TailCandidateInvariant(
-                candidatePoolRemaining,
-                tailReserveCount + 1
-            );
+            revert TailCandidateInvariant(candidatePoolRemaining, tailReserveCount + 1);
         }
 
         // Lock closure before any ERC721Receiver callback. Any later revert
@@ -2028,19 +1653,10 @@ contract HellboxPublication is ERC721Royalty {
         for (uint256 i = 0; i < 3; ++i) {
             uint256 drawEntropy = uint256(
                 keccak256(
-                    abi.encode(
-                        RANDOMNESS_REQUEST_ENTROPY_DOMAIN,
-                        entropyWord,
-                        requestId,
-                        i,
-                        candidatePoolRemaining
-                    )
+                    abi.encode(RANDOMNESS_REQUEST_ENTROPY_DOMAIN, entropyWord, requestId, i, candidatePoolRemaining)
                 )
             );
-            uint256 candidateIndex = _uniformIndex(
-                drawEntropy,
-                candidatePoolRemaining
-            );
+            uint256 candidateIndex = _uniformIndex(drawEntropy, candidatePoolRemaining);
             uint256 tokenId = _removeCandidateAtIndex(candidateIndex);
 
             _assignBirthIdentity(tokenId, drawEntropy);
@@ -2053,9 +1669,7 @@ contract HellboxPublication is ERC721Royalty {
 
         uint256 extinguishedCount = candidatePoolRemaining;
 
-        HellboxBirthPolicy(birthPolicy).finalizeTimedClosureInventory(
-            extinguishedCount
-        );
+        HellboxBirthPolicy(birthPolicy).finalizeTimedClosureInventory(extinguishedCount);
 
         candidatePoolRemaining = 0;
         nonTailIssuanceRemaining = 0;
@@ -2063,10 +1677,7 @@ contract HellboxPublication is ERC721Royalty {
         closedAtTimestamp = block.timestamp;
 
         if (totalPrimaryIssued + extinguishedCount != maxSupply) {
-            revert PrimarySupplyInvariant(
-                totalPrimaryIssued + extinguishedCount,
-                maxSupply
-            );
+            revert PrimarySupplyInvariant(totalPrimaryIssued + extinguishedCount, maxSupply);
         }
 
         _assertBirthInventoryAccounting();
@@ -2075,25 +1686,14 @@ contract HellboxPublication is ERC721Royalty {
             uint256 tokenId = selectedTokenIds[i];
             _safeMint(tailRecipient, tokenId);
 
-            emit TailCopyIssued(
-                tokenId,
-                tailRecipient,
-                i + 1
-            );
+            emit TailCopyIssued(tokenId, tailRecipient, i + 1);
         }
 
         emit TailAwarded(tailRecipient, tailAwardedCount);
-        emit PublicationPermanentlyClosed(
-            true,
-            closedAtTimestamp,
-            totalPrimaryIssued,
-            extinguishedCount
-        );
+        emit PublicationPermanentlyClosed(true, closedAtTimestamp, totalPrimaryIssued, extinguishedCount);
     }
 
-    function _removeCandidateByTokenId(
-        uint256 tokenId
-    ) internal returns (uint256 removedTokenId) {
+    function _removeCandidateByTokenId(uint256 tokenId) internal returns (uint256 removedTokenId) {
         _validateCopyId(tokenId);
 
         if (_candidateConsumed[tokenId]) {
@@ -2101,29 +1701,19 @@ contract HellboxPublication is ERC721Royalty {
         }
 
         uint256 storedIndexPlusOne = _candidateIndexPlusOne[tokenId];
-        uint256 candidateIndex = storedIndexPlusOne == 0
-            ? tokenId - TOKEN_ID_START
-            : storedIndexPlusOne - 1;
+        uint256 candidateIndex = storedIndexPlusOne == 0 ? tokenId - TOKEN_ID_START : storedIndexPlusOne - 1;
 
-        if (
-            candidateIndex >= candidatePoolRemaining ||
-            _candidateTokenAt(candidateIndex) != tokenId
-        ) {
+        if (candidateIndex >= candidatePoolRemaining || _candidateTokenAt(candidateIndex) != tokenId) {
             revert CandidateCopyUnavailable(tokenId);
         }
 
         return _removeCandidateAtIndex(candidateIndex);
     }
 
-    function _removeCandidateAtIndex(
-        uint256 candidateIndex
-    ) internal returns (uint256 tokenId) {
+    function _removeCandidateAtIndex(uint256 candidateIndex) internal returns (uint256 tokenId) {
         uint256 remaining = candidatePoolRemaining;
         if (remaining == 0 || candidateIndex >= remaining) {
-            revert CandidateIndexOutOfRange(
-                candidateIndex,
-                remaining
-            );
+            revert CandidateIndexOutOfRange(candidateIndex, remaining);
         }
 
         uint256 lastIndex = remaining - 1;
@@ -2142,40 +1732,26 @@ contract HellboxPublication is ERC721Royalty {
         candidatePoolRemaining = lastIndex;
     }
 
-    function _candidateTokenAt(
-        uint256 candidateIndex
-    ) internal view returns (uint256 tokenId) {
+    function _candidateTokenAt(uint256 candidateIndex) internal view returns (uint256 tokenId) {
         uint256 storedTokenId = _candidateValueByIndex[candidateIndex];
-        return
-            storedTokenId == 0
-                ? candidateIndex + TOKEN_ID_START
-                : storedTokenId;
+        return storedTokenId == 0 ? candidateIndex + TOKEN_ID_START : storedTokenId;
     }
 
     /// @dev Unbiased deterministic range reduction for a uniform 256-bit word.
     ///      Rehashing is only the range-reduction retry path; it is not a
     ///      production entropy source.
-    function _uniformIndex(
-        uint256 entropyWord,
-        uint256 upperBound
-    ) internal pure returns (uint256) {
+    function _uniformIndex(uint256 entropyWord, uint256 upperBound) internal pure returns (uint256) {
         if (upperBound == 0) {
             revert CandidateIndexOutOfRange(0, 0);
         }
 
-        uint256 limit =
-            type(uint256).max -
-            (type(uint256).max % upperBound);
+        uint256 limit = type(uint256).max - (type(uint256).max % upperBound);
 
         uint256 value = entropyWord;
         uint256 retry = 0;
 
         while (value >= limit) {
-            value = uint256(
-                keccak256(
-                    abi.encode(value, upperBound, retry)
-                )
-            );
+            value = uint256(keccak256(abi.encode(value, upperBound, retry)));
             ++retry;
         }
 
@@ -2183,39 +1759,25 @@ contract HellboxPublication is ERC721Royalty {
     }
 
     function _assertOpenCandidateAccounting() internal view {
-        if (
-            candidatePoolRemaining !=
-            nonTailIssuanceRemaining + tailReserveCount
-        ) {
-            revert CandidateAccountingInvariant(
-                candidatePoolRemaining,
-                nonTailIssuanceRemaining,
-                tailReserveCount
-            );
+        if (candidatePoolRemaining != nonTailIssuanceRemaining + tailReserveCount) {
+            revert CandidateAccountingInvariant(candidatePoolRemaining, nonTailIssuanceRemaining, tailReserveCount);
         }
     }
 
     function _assertPrimarySupplyAvailable() internal view {
         if (totalPrimaryIssued >= maxSupply) {
-            revert PrimarySupplyInvariant(
-                totalPrimaryIssued,
-                maxSupply
-            );
+            revert PrimarySupplyInvariant(totalPrimaryIssued, maxSupply);
         }
     }
 
     /// @dev Internal enforcement bridge only. HellboxBirthPolicy permanently
     ///      rejects every caller except this publication, and a revert here
     ///      reverts the surrounding issuance transaction atomically.
-    function _assignBirthIdentity(
-        uint256 tokenId,
-        uint256 entropyWord
-    ) internal returns (bytes32 markCode, bytes32 defectCode) {
-        return
-            HellboxBirthPolicy(birthPolicy).assignBirthIdentity(
-                tokenId,
-                entropyWord
-            );
+    function _assignBirthIdentity(uint256 tokenId, uint256 entropyWord)
+        internal
+        returns (bytes32 markCode, bytes32 defectCode)
+    {
+        return HellboxBirthPolicy(birthPolicy).assignBirthIdentity(tokenId, entropyWord);
     }
 
     /// @dev While immediate creator copies are pending they have already been
@@ -2224,32 +1786,20 @@ contract HellboxPublication is ERC721Royalty {
     ///      must equal the actual candidate pool exactly.
     function _assertBirthInventoryAccounting() internal view {
         HellboxBirthPolicy policy = HellboxBirthPolicy(birthPolicy);
-        uint256 pendingImmediate =
-            immediateCreatorCount - immediateCreatorIssued;
-        uint256 expectedRemaining =
-            candidatePoolRemaining + pendingImmediate;
+        uint256 pendingImmediate = immediateCreatorCount - immediateCreatorIssued;
+        uint256 expectedRemaining = candidatePoolRemaining + pendingImmediate;
 
         if (policy.pressMarkEnabled()) {
-            uint256 markRemainingTotal =
-                policy.markInventoryRemainingTotal();
+            uint256 markRemainingTotal = policy.markInventoryRemainingTotal();
             if (markRemainingTotal != expectedRemaining) {
-                revert BirthInventoryAccountingInvariant(
-                    PRESS_MARK_AXIS_ID,
-                    markRemainingTotal,
-                    expectedRemaining
-                );
+                revert BirthInventoryAccountingInvariant(PRESS_MARK_AXIS_ID, markRemainingTotal, expectedRemaining);
             }
         }
 
         if (policy.pressDefectEnabled()) {
-            uint256 defectRemainingTotal =
-                policy.defectInventoryRemainingTotal();
+            uint256 defectRemainingTotal = policy.defectInventoryRemainingTotal();
             if (defectRemainingTotal != expectedRemaining) {
-                revert BirthInventoryAccountingInvariant(
-                    PRESS_DEFECT_AXIS_ID,
-                    defectRemainingTotal,
-                    expectedRemaining
-                );
+                revert BirthInventoryAccountingInvariant(PRESS_DEFECT_AXIS_ID, defectRemainingTotal, expectedRemaining);
             }
         }
     }
@@ -2272,44 +1822,24 @@ contract HellboxPublication is ERC721Royalty {
 
     /// @dev Canonical Gate 4 fixed-copy enforcement preimage:
     ///      keccak256(abi.encode(domain, typedPolicy)).
-    function _computeFixedCopyRulesDigest(
-        FixedCopyRulesEnforcement memory policy
-    ) internal pure returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    FIXED_COPY_RULES_ENFORCEMENT_DOMAIN,
-                    policy
-                )
-            );
+    function _computeFixedCopyRulesDigest(FixedCopyRulesEnforcement memory policy) internal pure returns (bytes32) {
+        return keccak256(abi.encode(FIXED_COPY_RULES_ENFORCEMENT_DOMAIN, policy));
     }
 
     /// @dev Canonical Gate 4 birth-trait enforcement preimage:
     ///      keccak256(abi.encode(domain, typedPolicy)).
-    function _computeBirthTraitsDigest(
-        BirthTraitsEnforcement memory policy
-    ) internal pure returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    BIRTH_TRAITS_ENFORCEMENT_DOMAIN,
-                    policy
-                )
-            );
+    function _computeBirthTraitsDigest(BirthTraitsEnforcement memory policy) internal pure returns (bytes32) {
+        return keccak256(abi.encode(BIRTH_TRAITS_ENFORCEMENT_DOMAIN, policy));
     }
 
     /// @dev Canonical Gate 4 deterministic randomization-policy preimage:
     ///      keccak256(abi.encode(domain, typedPolicy)).
-    function _computeRandomizationPolicyDigest(
-        RandomizationPolicyEnforcement memory policy
-    ) internal pure returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    RANDOMIZATION_POLICY_ENFORCEMENT_DOMAIN,
-                    policy
-                )
-            );
+    function _computeRandomizationPolicyDigest(RandomizationPolicyEnforcement memory policy)
+        internal
+        pure
+        returns (bytes32)
+    {
+        return keccak256(abi.encode(RANDOMIZATION_POLICY_ENFORCEMENT_DOMAIN, policy));
     }
 
     /// @dev Verifies only the already-bound commitment identity. This function
@@ -2321,34 +1851,19 @@ contract HellboxPublication is ERC721Royalty {
         BirthTraitsEnforcement memory birthTraitsPolicy,
         RandomizationPolicyEnforcement memory randomizationPolicy
     ) internal view {
-        bytes32 computedFixedCopyRulesDigest =
-            _computeFixedCopyRulesDigest(fixedCopyPolicy);
+        bytes32 computedFixedCopyRulesDigest = _computeFixedCopyRulesDigest(fixedCopyPolicy);
         if (computedFixedCopyRulesDigest != fixedCopyRulesDigest) {
-            revert FixedCopyRulesDigestMismatch(
-                fixedCopyRulesDigest,
-                computedFixedCopyRulesDigest
-            );
+            revert FixedCopyRulesDigestMismatch(fixedCopyRulesDigest, computedFixedCopyRulesDigest);
         }
 
-        bytes32 computedBirthTraitsDigest =
-            _computeBirthTraitsDigest(birthTraitsPolicy);
+        bytes32 computedBirthTraitsDigest = _computeBirthTraitsDigest(birthTraitsPolicy);
         if (computedBirthTraitsDigest != birthTraitsDigest) {
-            revert BirthTraitsDigestMismatch(
-                birthTraitsDigest,
-                computedBirthTraitsDigest
-            );
+            revert BirthTraitsDigestMismatch(birthTraitsDigest, computedBirthTraitsDigest);
         }
 
-        bytes32 computedRandomizationPolicyDigest =
-            _computeRandomizationPolicyDigest(randomizationPolicy);
-        if (
-            computedRandomizationPolicyDigest !=
-            randomizationPolicyDigest
-        ) {
-            revert RandomizationPolicyDigestMismatch(
-                randomizationPolicyDigest,
-                computedRandomizationPolicyDigest
-            );
+        bytes32 computedRandomizationPolicyDigest = _computeRandomizationPolicyDigest(randomizationPolicy);
+        if (computedRandomizationPolicyDigest != randomizationPolicyDigest) {
+            revert RandomizationPolicyDigestMismatch(randomizationPolicyDigest, computedRandomizationPolicyDigest);
         }
     }
 
@@ -2358,30 +1873,26 @@ contract HellboxPublication is ERC721Royalty {
         ReleaseConfig memory config,
         CommitmentSet memory commitments
     ) internal pure returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    RELEASE_CONFIG_DOMAIN,
-                    COMMITMENT_SCHEME_VERSION,
-                    CONFIG_SCHEMA_VERSION,
-                    PUBLICATION_VERSION,
-                    TEMPLATE_ID,
-                    chainId,
-                    factoryAddress,
-                    config,
-                    commitments
-                )
-            );
+        return keccak256(
+            abi.encode(
+                RELEASE_CONFIG_DOMAIN,
+                COMMITMENT_SCHEME_VERSION,
+                CONFIG_SCHEMA_VERSION,
+                PUBLICATION_VERSION,
+                TEMPLATE_ID,
+                chainId,
+                factoryAddress,
+                config,
+                commitments
+            )
+        );
     }
 
     // ---------------------------------------------------------------------
     // Constructor validation
     // ---------------------------------------------------------------------
 
-    function _validateReleaseConfig(
-        ReleaseConfig memory config,
-        CommitmentSet memory commitments
-    ) internal pure {
+    function _validateReleaseConfig(ReleaseConfig memory config, CommitmentSet memory commitments) internal pure {
         _validatePublicationKey(config.publicationKey);
         _validateCollectionName(config.collectionName);
         _validateCollectionSymbol(config.collectionSymbol);
@@ -2390,68 +1901,40 @@ contract HellboxPublication is ERC721Royalty {
             revert InvalidMaxSupply();
         }
 
-        if (
-            config.primaryLifetimeCap == 0 ||
-            config.primaryLifetimeCap > config.maxSupply
-        ) {
-            revert InvalidPrimaryLifetimeCap(
-                config.primaryLifetimeCap,
-                config.maxSupply
-            );
+        if (config.primaryLifetimeCap == 0 || config.primaryLifetimeCap > config.maxSupply) {
+            revert InvalidPrimaryLifetimeCap(config.primaryLifetimeCap, config.maxSupply);
+        }
+
+        if (config.maxPerTransaction == 0 || config.maxPerTransaction > config.primaryLifetimeCap) {
+            revert InvalidMaxPerTransaction(config.maxPerTransaction, config.primaryLifetimeCap);
         }
 
         if (
-            config.maxPerTransaction == 0 ||
-            config.maxPerTransaction > config.primaryLifetimeCap
+            config.immediateCreatorCount > config.maxSupply || config.tailReserveCount > config.maxSupply
+                || config.immediateCreatorCount + config.tailReserveCount > config.maxSupply
         ) {
-            revert InvalidMaxPerTransaction(
-                config.maxPerTransaction,
-                config.primaryLifetimeCap
-            );
+            revert InvalidCreatorAllocation(config.immediateCreatorCount, config.tailReserveCount, config.maxSupply);
         }
 
         if (
-            config.immediateCreatorCount > config.maxSupply ||
-            config.tailReserveCount > config.maxSupply ||
-            config.immediateCreatorCount + config.tailReserveCount >
-            config.maxSupply
-        ) {
-            revert InvalidCreatorAllocation(
-                config.immediateCreatorCount,
-                config.tailReserveCount,
-                config.maxSupply
-            );
-        }
-
-        if (
-            (config.immediateCreatorCount > 0 &&
-                config.immediateCreatorRecipient == address(0)) ||
-            (config.immediateCreatorCount == 0 &&
-                config.immediateCreatorRecipient != address(0))
+            (config.immediateCreatorCount > 0 && config.immediateCreatorRecipient == address(0))
+                || (config.immediateCreatorCount == 0 && config.immediateCreatorRecipient != address(0))
         ) {
             revert InvalidImmediateCreatorRecipient();
         }
 
         if (
-            (config.tailReserveCount > 0 &&
-                config.tailRecipient == address(0)) ||
-            (config.tailReserveCount == 0 &&
-                config.tailRecipient != address(0))
+            (config.tailReserveCount > 0 && config.tailRecipient == address(0))
+                || (config.tailReserveCount == 0 && config.tailRecipient != address(0))
         ) {
             revert InvalidTailRecipient();
         }
 
         if (
-            config.royaltyBps > 10_000 ||
-            (config.royaltyBps > 0 &&
-                config.royaltyReceiver == address(0)) ||
-            (config.royaltyBps == 0 &&
-                config.royaltyReceiver != address(0))
+            config.royaltyBps > 10_000 || (config.royaltyBps > 0 && config.royaltyReceiver == address(0))
+                || (config.royaltyBps == 0 && config.royaltyReceiver != address(0))
         ) {
-            revert InvalidRoyaltyConfiguration(
-                config.royaltyReceiver,
-                config.royaltyBps
-            );
+            revert InvalidRoyaltyConfiguration(config.royaltyReceiver, config.royaltyBps);
         }
 
         if (config.publisherAuthority == address(0)) {
@@ -2459,18 +1942,13 @@ contract HellboxPublication is ERC721Royalty {
         }
 
         if (
-            (config.archiveCompatible && !config.sealEnabled) ||
-            (config.rewardsCompatible && !config.archiveCompatible) ||
-            (config.contextualTraitsEnabled &&
-                !config.dynamicMetadataEnabled)
+            (config.archiveCompatible && !config.sealEnabled) || (config.rewardsCompatible && !config.archiveCompatible)
+                || (config.contextualTraitsEnabled && !config.dynamicMetadataEnabled)
         ) {
             revert InvalidCapabilityConfiguration();
         }
 
-        if (
-            commitments.publicationManifestDigest == bytes32(0) ||
-            commitments.packageDigest == bytes32(0)
-        ) {
+        if (commitments.publicationManifestDigest == bytes32(0) || commitments.packageDigest == bytes32(0)) {
             revert MissingRequiredCommitment();
         }
     }
@@ -2495,11 +1973,7 @@ contract HellboxPublication is ERC721Royalty {
             }
 
             if (isHyphen) {
-                if (
-                    i == 0 ||
-                    i == length - 1 ||
-                    previousWasHyphen
-                ) {
+                if (i == 0 || i == length - 1 || previousWasHyphen) {
                     revert InvalidPublicationKey();
                 }
                 previousWasHyphen = true;
@@ -2535,11 +2009,7 @@ contract HellboxPublication is ERC721Royalty {
         }
     }
 
-    function _isLowerAlphaNumeric(
-        uint8 character
-    ) internal pure returns (bool) {
-        return
-            (character >= 0x61 && character <= 0x7a) ||
-            (character >= 0x30 && character <= 0x39);
+    function _isLowerAlphaNumeric(uint8 character) internal pure returns (bool) {
+        return (character >= 0x61 && character <= 0x7a) || (character >= 0x30 && character <= 0x39);
     }
 }

@@ -25,20 +25,14 @@ contract GoldenVectorBirthPolicyCodeStore {
 contract HellboxPublicationGoldenVectorTest {
     uint256 internal constant GOLDEN_CHAIN_ID = 943;
 
-    address internal constant GOLDEN_FACTORY =
-        0x5555555555555555555555555555555555555555;
+    address internal constant GOLDEN_FACTORY = 0x5555555555555555555555555555555555555555;
 
-    address internal constant CREATOR =
-        0x1111111111111111111111111111111111111111;
-    address internal constant TAIL =
-        0x2222222222222222222222222222222222222222;
-    address internal constant ROYALTY =
-        0x3333333333333333333333333333333333333333;
-    address internal constant PUBLISHER =
-        0x4444444444444444444444444444444444444444;
+    address internal constant CREATOR = 0x1111111111111111111111111111111111111111;
+    address internal constant TAIL = 0x2222222222222222222222222222222222222222;
+    address internal constant ROYALTY = 0x3333333333333333333333333333333333333333;
+    address internal constant PUBLISHER = 0x4444444444444444444444444444444444444444;
 
-    bytes32 internal constant EXPECTED_TEMPLATE_ID =
-        0xa90f1cffe90023915c9a1a9852bcc46202522e86f77973f82c4235e837abdfba;
+    bytes32 internal constant EXPECTED_TEMPLATE_ID = 0xa90f1cffe90023915c9a1a9852bcc46202522e86f77973f82c4235e837abdfba;
 
     bytes32 internal constant EXPECTED_RELEASE_CONFIG_DOMAIN =
         0x2bc593326bff52216bd201a52f68bc01b8a51a43c6b742788d138a7abe94ca25;
@@ -50,97 +44,46 @@ contract HellboxPublicationGoldenVectorTest {
         0x66e6697d8fde60531eebed0882030a1c6beecf086b04926599a39878d4e0d15d;
 
     function testJavascriptAndSolidityGoldenVectorMatch() public {
-        HellboxPublication.ReleaseConfig memory config =
-            _goldenConfig();
+        HellboxPublication.ReleaseConfig memory config = _goldenConfig();
 
-        HellboxPublication.CommitmentSet memory commitments =
-            _goldenCommitments();
+        HellboxPublication.CommitmentSet memory commitments = _goldenCommitments();
 
         // Deploy one valid local helper instance. Its own frozen digest uses
         // the local Foundry chain and this test contract as its factory.
-        bytes32 localDeploymentDigest = _releaseDigest(
-            block.chainid,
-            address(this),
-            config,
-            commitments
-        );
+        bytes32 localDeploymentDigest = _releaseDigest(block.chainid, address(this), config, commitments);
 
-        GoldenVectorBirthPolicyCodeStore store =
-            new GoldenVectorBirthPolicyCodeStore();
+        GoldenVectorBirthPolicyCodeStore store = new GoldenVectorBirthPolicyCodeStore();
 
-        HellboxPublication.BirthPolicyDeploymentContext memory context =
-            HellboxPublication.BirthPolicyDeploymentContext({
-                codeStore: address(store),
-                approvedCreationCodeHash:
-                    keccak256(hex"600060005360016000f3"),
-                fixedCopyPolicyPreimage: bytes(""),
-                birthTraitsPolicyPreimage: bytes(""),
-                randomizationPolicyPreimage: bytes("")
-            });
+        HellboxPublication.BirthPolicyDeploymentContext memory context = HellboxPublication.BirthPolicyDeploymentContext({
+            codeStore: address(store),
+            approvedCreationCodeHash: keccak256(hex"600060005360016000f3"),
+            fixedCopyPolicyPreimage: bytes(""),
+            birthTraitsPolicyPreimage: bytes(""),
+            randomizationPolicyPreimage: bytes("")
+        });
 
-        HellboxPublication publication =
-            new HellboxPublication(
-                config,
-                commitments,
-                localDeploymentDigest,
-                context
-            );
+        HellboxPublication publication = new HellboxPublication(config, commitments, localDeploymentDigest, context);
 
-        require(
-            publication.TEMPLATE_ID() == EXPECTED_TEMPLATE_ID,
-            "template id mismatch"
-        );
+        require(publication.TEMPLATE_ID() == EXPECTED_TEMPLATE_ID, "template id mismatch");
 
-        require(
-            publication.RELEASE_CONFIG_DOMAIN() ==
-                EXPECTED_RELEASE_CONFIG_DOMAIN,
-            "release domain mismatch"
-        );
+        require(publication.RELEASE_CONFIG_DOMAIN() == EXPECTED_RELEASE_CONFIG_DOMAIN, "release domain mismatch");
 
-        require(
-            publication.COMMITMENT_SCHEME_VERSION() == 1,
-            "commitment version mismatch"
-        );
+        require(publication.COMMITMENT_SCHEME_VERSION() == 1, "commitment version mismatch");
 
-        require(
-            publication.CONFIG_SCHEMA_VERSION() == 1,
-            "config schema version mismatch"
-        );
+        require(publication.CONFIG_SCHEMA_VERSION() == 1, "config schema version mismatch");
 
-        require(
-            publication.PUBLICATION_VERSION() == 1,
-            "publication version mismatch"
-        );
+        require(publication.PUBLICATION_VERSION() == 1, "publication version mismatch");
 
-        bytes32 solidityCommitmentsDigest =
-            publication.computeCommitmentsDigest(commitments);
+        bytes32 solidityCommitmentsDigest = keccak256(abi.encode(commitments));
 
-        require(
-            solidityCommitmentsDigest ==
-                EXPECTED_COMMITMENTS_DIGEST,
-            "commitments golden vector mismatch"
-        );
+        require(solidityCommitmentsDigest == EXPECTED_COMMITMENTS_DIGEST, "commitments golden vector mismatch");
 
-        bytes32 solidityReleaseConfigDigest =
-            publication.computeReleaseConfigDigest(
-                GOLDEN_CHAIN_ID,
-                GOLDEN_FACTORY,
-                config,
-                commitments
-            );
+        bytes32 solidityReleaseConfigDigest = _releaseDigest(GOLDEN_CHAIN_ID, GOLDEN_FACTORY, config, commitments);
 
-        require(
-            solidityReleaseConfigDigest ==
-                EXPECTED_RELEASE_CONFIG_DIGEST,
-            "release golden vector mismatch"
-        );
+        require(solidityReleaseConfigDigest == EXPECTED_RELEASE_CONFIG_DIGEST, "release golden vector mismatch");
     }
 
-    function _goldenConfig()
-        internal
-        pure
-        returns (HellboxPublication.ReleaseConfig memory config)
-    {
+    function _goldenConfig() internal pure returns (HellboxPublication.ReleaseConfig memory config) {
         config.publicationKey = "hellbox-native-001";
         config.collectionName = "Hellbox Native Issue #1";
         config.collectionSymbol = "HELL001";
@@ -170,47 +113,25 @@ contract HellboxPublicationGoldenVectorTest {
         config.contextualTraitsEnabled = true;
     }
 
-    function _goldenCommitments()
-        internal
-        pure
-        returns (HellboxPublication.CommitmentSet memory commitments)
-    {
-        commitments.publicationManifestDigest =
-            keccak256("publication-manifest-v1");
-        commitments.packageDigest =
-            keccak256("package-v1");
-        commitments.fixedCopyRulesDigest =
-            keccak256("fixed-copy-rules-v1");
-        commitments.birthTraitsDigest =
-            keccak256("birth-traits-v1");
-        commitments.randomizationPolicyDigest =
-            keccak256("randomization-policy-v1");
-        commitments.rendererRulesDigest =
-            keccak256("renderer-rules-v1");
-        commitments.readerPolicyDigest =
-            keccak256("reader-policy-v1");
-        commitments.pricingPoliciesDigest =
-            keccak256("pricing-policies-v1");
-        commitments.paymentRoutesDigest =
-            keccak256("payment-routes-v1");
-        commitments.mintPhasesDigest =
-            keccak256("mint-phases-v1");
-        commitments.royaltyPolicyDigest =
-            keccak256("royalty-policy-v1");
-        commitments.treasuryPolicyDigest =
-            keccak256("treasury-policy-v1");
-        commitments.metadataPolicyDigest =
-            keccak256("metadata-policy-v1");
-        commitments.capabilityPolicyDigest =
-            keccak256("capability-policy-v1");
-        commitments.protocolCompatibilityDigest =
-            keccak256("protocol-compatibility-v1");
-        commitments.closurePolicyDigest =
-            keccak256("closure-policy-v1");
-        commitments.authorityPolicyDigest =
-            keccak256("authority-policy-v1");
-        commitments.eventPolicyDigest =
-            keccak256("event-policy-v1");
+    function _goldenCommitments() internal pure returns (HellboxPublication.CommitmentSet memory commitments) {
+        commitments.publicationManifestDigest = keccak256("publication-manifest-v1");
+        commitments.packageDigest = keccak256("package-v1");
+        commitments.fixedCopyRulesDigest = keccak256("fixed-copy-rules-v1");
+        commitments.birthTraitsDigest = keccak256("birth-traits-v1");
+        commitments.randomizationPolicyDigest = keccak256("randomization-policy-v1");
+        commitments.rendererRulesDigest = keccak256("renderer-rules-v1");
+        commitments.readerPolicyDigest = keccak256("reader-policy-v1");
+        commitments.pricingPoliciesDigest = keccak256("pricing-policies-v1");
+        commitments.paymentRoutesDigest = keccak256("payment-routes-v1");
+        commitments.mintPhasesDigest = keccak256("mint-phases-v1");
+        commitments.royaltyPolicyDigest = keccak256("royalty-policy-v1");
+        commitments.treasuryPolicyDigest = keccak256("treasury-policy-v1");
+        commitments.metadataPolicyDigest = keccak256("metadata-policy-v1");
+        commitments.capabilityPolicyDigest = keccak256("capability-policy-v1");
+        commitments.protocolCompatibilityDigest = keccak256("protocol-compatibility-v1");
+        commitments.closurePolicyDigest = keccak256("closure-policy-v1");
+        commitments.authorityPolicyDigest = keccak256("authority-policy-v1");
+        commitments.eventPolicyDigest = keccak256("event-policy-v1");
     }
 
     function _releaseDigest(
@@ -219,19 +140,18 @@ contract HellboxPublicationGoldenVectorTest {
         HellboxPublication.ReleaseConfig memory config,
         HellboxPublication.CommitmentSet memory commitments
     ) internal pure returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    EXPECTED_RELEASE_CONFIG_DOMAIN,
-                    uint256(1),
-                    uint256(1),
-                    uint256(1),
-                    EXPECTED_TEMPLATE_ID,
-                    chainId,
-                    factoryAddress,
-                    config,
-                    commitments
-                )
-            );
+        return keccak256(
+            abi.encode(
+                EXPECTED_RELEASE_CONFIG_DOMAIN,
+                uint256(1),
+                uint256(1),
+                uint256(1),
+                EXPECTED_TEMPLATE_ID,
+                chainId,
+                factoryAddress,
+                config,
+                commitments
+            )
+        );
     }
 }
